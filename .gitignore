@@ -8,3 +8,4 @@ local.properties
 captures/
 .cxx/
 gradle/dists/
+__pycache__/
