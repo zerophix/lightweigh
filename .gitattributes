@@ -1,0 +1,6 @@
+# Git 属性 — 换行符和 diff 配置
+* text=auto eol=lf
+*.sh text eol=lf
+*.md text diff=markdown
+*.yml text
+*.yaml text

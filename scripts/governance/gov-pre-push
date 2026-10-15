@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+# Git pre-push hook — 分支命名 + 校验必须 PASS
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
+VALIDATE_SCRIPT="$ROOT/scripts/governance/gov-validate.sh"
+
+echo ""
+echo "=== pre-push 审计 ==="
+
+# 分支命名
+TRUNK_PATTERN='^(main|master|develop)$'
+FEATURE_PATTERN='^(feat|fix|docs|refactor|chore|test|ci)/[a-zA-Z0-9][a-zA-Z0-9._-]+$'
+
+if ! echo "$BRANCH" | grep -qE "$TRUNK_PATTERN" && \
+   ! echo "$BRANCH" | grep -qE "$FEATURE_PATTERN"; then
+  echo "❌ 分支名不符合命名规范: $BRANCH"
+  echo "   格式: <type>/<description>"
+  echo "   临时跳过: git push --no-verify"
+  exit 1
+fi
+echo "  [1/2] 分支命名: ✅ $BRANCH"
+
+# validate.sh 必须 PASS — 以退出码判定，不耦合具体输出文案（DEC-005）
+FAILED=0
+echo -n "  [2/2] 文档校验: "
+if [ -f "$VALIDATE_SCRIPT" ]; then
+  if OUTPUT=$(bash "$VALIDATE_SCRIPT" 2>&1); then
+    echo "✅"
+  else
+    echo "❌"
+    echo "$OUTPUT" | grep -E "FAIL|违规" || true
+    FAILED=1
+  fi
+else
+  echo "⚠️  validate.sh 不存在，跳过"
+fi
+
+echo ""
+if [ "$FAILED" -ne 0 ]; then
+  echo "❌ pre-push 审计未通过，推送被拒绝"
+  echo "   临时跳过: git push --no-verify"
+  exit 1
+fi
+
+echo "=== 全部通过 ==="
+exit 0

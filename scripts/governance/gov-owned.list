@@ -1,0 +1,32 @@
+# 模板上游拥有区清单（DEC-010）—— gov-upgrade.sh 只同步此清单内的文件
+# 分叉自有的扩展（如 web-ai-bridge 的 policy 引擎系、alpha-studio 的 baseline
+# 校验）不在清单内，永不触碰。
+# 注意：gov-config.sh（项目源码目录配置）与 gov-custom-checks.sh（项目自定义
+# 检查）是项目自有内容，刻意不在清单中。
+# 条目以 /* 结尾表示整目录同步；以 # 开头为注释。
+scripts/governance/gov-template-version
+scripts/governance/gov-owned.list
+scripts/governance/gov-validate.py
+scripts/governance/gov-validate.sh
+scripts/governance/gov-pre-commit
+scripts/governance/gov-pre-push
+scripts/governance/gov-commit-msg
+scripts/governance/gov-strip-emoji.py
+scripts/governance/gov-update-status.sh
+scripts/governance/gov-generate-status.py
+scripts/governance/gov-update-metrics.sh
+scripts/governance/gov-generate-index.sh
+scripts/governance/gov-next-decision.sh
+scripts/governance/gov-next-note.sh
+scripts/governance/gov-sync-mkdocs.sh
+scripts/governance/gov-sync-standards.sh
+scripts/governance/gov-validate-decisions.sh
+scripts/governance/gov-governance.sh
+scripts/governance/gov-upgrade.sh
+scripts/governance/modules/*
+scripts/session/*
+scripts/workflow/*
+scripts/lib/*
+scripts/bootstrap/*
+scripts/migration/*
+scripts/registry.yaml
