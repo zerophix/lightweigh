@@ -1,0 +1,250 @@
+# =============================================================================
+# MkDocs 站点配置
+# 运行环境: conda activate mkdocs
+# 构建命令: mkdocs serve  (本地预览) / mkdocs build  (输出到 site/)
+# 环境安装: conda env create -f environment.yml
+# 导航同步: bash scripts/governance/gov-sync-mkdocs.sh
+# =============================================================================
+
+site_name: AI Project Collaboration Blueprint
+site_description: AI 与人类协作的通用协议模版
+site_author: (set by setup.sh)
+
+theme:
+  name: material
+  language: zh
+  nav_depth: 3
+  palette:
+    - scheme: default
+      primary: blue
+      accent: light-blue
+      toggle:
+        icon: material/brightness-7
+        name: 切换到深色模式
+    - scheme: slate
+      primary: blue
+      accent: light-blue
+      toggle:
+        icon: material/brightness-4
+        name: 切换到浅色模式
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+
+plugins:
+  - awesome-pages:
+      filename: .pages
+  - search:
+      lang:
+        - zh
+        - en
+  - git-revision-date-localized:
+      enable_creation_date: true
+      fallback_to_build_date: true
+
+# nav 部分由 scripts/governance/gov-sync-mkdocs.sh 自动生成
+# 在 pre-commit 中也会自动同步
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+nav:
+  - 首页: index.md
+
+  - 标准文档:
+      - 架构设计: architecture/index.md
+      - 开发指南: guides/index.md
+      - 决策流转规范: guides/GC-decision-flow.md
+      - 已有项目迁移指南: guides/GC-existing-project-porting.md
+      - 新项目接入指南: guides/GC-new-project-setup.md
+      - README 结构规范: guides/GC-readme-structure.md
+      - 技术参考: reference/index.md
+      - 脚本接口规范: reference/REF-api-spec.md
+      - 变更日志: changelog/index.md
+
+  - AI 文档:
+      - 概览: ai/index.md
+      - 约束规则: ai/constraints/index.md
+      - 决策日志: ai/decisions/index.md
+      - 设计笔记: notes/index.md
+      - 工作指南:
+          - 概览: ai/guides/index.md
+          - 共识指南: ai/guides/consensus.md
+          - 文档标准: ai/guides/docstandard.md
+          - AI 工作流程: ai/guides/workflow.md
+      - 生命周期:
+          - 概览: ai/lifecycle/index.md
+          - 产品需求文档: ai/lifecycle/01_PRD.md
+          - 架构设计: ai/lifecycle/02_Architecture.md
+          - 任务图: ai/lifecycle/03_TaskGraph.md
+          - 开发笔记: ai/lifecycle/04_DevNotes.md
+          - 测试: ai/lifecycle/05_Test.md
+          - 指标: ai/lifecycle/06_Metrics.md
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - admonition
+  - pymdownx.details
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/neking/ai-project-template

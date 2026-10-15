@@ -1,0 +1,55 @@
+# Cursor Rules — AI 协作协议
+
+## 启动
+- `cat STATUS.md` — 项目全景 + AI 交接 + 反思 + 健康检查
+- `bash scripts/session/ses-context-load.sh` — AI 上下文记忆
+- 阅读 `docs/ai/constraints/index.md` — 行为边界
+
+## 决策流转（6 阶段）
+
+```
+NOTE（未定型） → DEC（追加写） → lifecycle（覆盖型）
+  → wf-promote.sh → golden standards → gov-validate.sh → commit
+```
+
+- 创建 DEC: `bash scripts/governance/gov-next-decision.sh --create`（自动编号 + 原子锁）
+- 晋升: `bash scripts/governance/gov-sync-standards.sh --dec DEC-XXX`
+- 校验: `bash scripts/governance/gov-validate.sh`（0 FAIL 才能提交）
+- 决策日志只追加，不覆盖，不删除
+
+## 文件规范
+
+| 目录 | 格式 | 示例 |
+|------|------|------|
+| `docs/guides/` | `GC-{slug}.md` | `GC-coding-conventions.md` |
+| `docs/reference/` | `REF-{slug}.md` | `REF-api-spec.md` |
+| `docs/archive/` | `ARCH-{slug}.md` | `ARCH-v0.9-docs.md` |
+| `docs/notes/` | `NOTE-YYYYMMDD-NNN.md` | `NOTE-20260706-001.md` |
+| `docs/ai/decisions/` | `DEC-XXX.md` | `DEC-001.md` |
+
+**严禁:** old/legacy/vN 路径，v1/v2/bak/backup/copy 后缀
+
+## 校验
+```bash
+bash scripts/governance/gov-validate.sh       # 全量严格校验（规则族见 AGENTS.md 速查表）
+bash scripts/governance/gov-validate.sh --fix # 自动修复
+```
+所有违规是 FAIL，无 WARN。提交前 0 违规。
+
+## 反思
+每次 session 结束必须写经验教训：
+```bash
+bash scripts/session/ses-context-cache.sh save handoff \
+  from="cursor" to="*" \
+  context="做了什么" \
+  next="下一步该做什么" \
+  key_files="改了哪些文件" \
+  lessons="真实反思（≥50字，含错/坑/教训/避免/本应等信号词，不重用旧内容）"
+```
+反思是硬约束（R0），不写# 无法提交。
+
+## 参考
+- `AGENTS.md` — 完整协议
+- `docs/guides/GC-decision-flow.md` — 决策流转规范
+- `docs/ai/guides/workflow.md` — 10 步生命周期
+- `docs/ai/guides/consensus.md` — 多 AI 共识

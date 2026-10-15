@@ -1,0 +1,191 @@
+#!/usr/bin/env bash
+#
+# Git pre-commit hook — 自动流转 + 分支约束 + 文档校验
+# 由 scripts/governance/gov-install-hooks.sh 安装到 .git/hooks/pre-commit
+#
+# 跳过: git commit --no-verify
+
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+VALIDATE_SCRIPT="$ROOT/scripts/governance/gov-validate.sh"
+CONTEXT_CACHE="$ROOT/scripts/session/ses-context-cache.sh"
+GIT_DIR=$(git rev-parse --git-dir 2>/dev/null || echo ".git")
+BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
+
+# =============================================================
+# 阶段 0: 分支约束 — master 必须通过 merge，禁止 amend
+# =============================================================
+if [ "$BRANCH" = "master" ]; then
+  if [ ! -f "$GIT_DIR/MERGE_HEAD" ]; then
+    echo "❌ 禁止在 master 上直接提交"
+    echo "   正确的分支开发流程:"
+    echo "     git checkout feat/my-change"
+    echo "     # 在分支上写代码、commit"
+    echo "     git checkout master"
+    echo "     git merge --no-ff feat/my-change"
+    exit 1
+  fi
+fi
+
+# Detect changes
+CHANGED_DOCS=$(git diff --cached --name-only --diff-filter=ACMR | grep '^docs/' || true)
+CHANGED_MD=$(git diff --cached --name-only --diff-filter=ACMR | grep '\.md$' || true)
+CHANGED_SCRIPTS=$(git diff --cached --name-only --diff-filter=ACMR | grep '^scripts/' | grep -v 'registry.yaml' | grep -v '/__pycache__/' | grep -v '\.pyc$' || true)
+
+# Stage 0a: emoji 检测+自动修复
+STAGED_TEXT_FILES=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.(py|sh|md|yaml|yml|json|toml|ts|tsx|js|jsx|css|html|txt)$' | grep -v '\.test\.' || true)
+
+STAGED_EMOJI_FILES=""
+if [ -n "$STAGED_TEXT_FILES" ]; then
+  for f in $STAGED_TEXT_FILES; do
+    if [ -f "$ROOT/$f" ]; then
+      if python3 -c "
+import sys
+sys.path.insert(0, '$ROOT/scripts/governance/modules')
+from gov_emoji import contains_emoji
+content = open(sys.argv[1], encoding='utf-8', errors='replace').read()
+if contains_emoji(content):
+    sys.exit(1)
+" "$ROOT/$f" 2>/dev/null; then
+        :
+      else
+        STAGED_EMOJI_FILES="$STAGED_EMOJI_FILES $f"
+      fi
+    fi
+  done
+fi
+
+if [ -n "$STAGED_EMOJI_FILES" ]; then
+  echo "  emoji 字符检测到，自动修复..."
+  EMOJI_FIXED=0
+  for f in $STAGED_EMOJI_FILES; do
+    python3 -c "
+import sys
+sys.path.insert(0, '$ROOT/scripts/governance/modules')
+from gov_emoji import strip_emoji
+content = open(sys.argv[1], encoding='utf-8').read()
+stripped = strip_emoji(content)
+if stripped != content:
+    open(sys.argv[1], 'w', encoding='utf-8').write(stripped)
+    sys.exit(42)
+" "$ROOT/$f" 2>/dev/null
+    if [ $? -eq 42 ]; then
+      git add "$f" 2>/dev/null
+      echo "  [FIXED] $f"
+      EMOJI_FIXED=$((EMOJI_FIXED + 1))
+    fi
+  done
+  if [ "$EMOJI_FIXED" -gt 0 ]; then
+    echo "  已自动清除 $EMOJI_FIXED 个文件中的 emoji 并重新 stage"
+    echo ""
+  fi
+fi
+
+# Detect CODE_CHANGED (configurable via gov-config.sh)
+SRC_PAT="${SRC_DIRS:-src app lib packages}"
+CODE_CHANGED=0
+for d in $SRC_PAT; do
+  if [ -n "$(git diff --cached --name-only --diff-filter=ACMR | grep "^$d/")" ]; then
+    CODE_CHANGED=1
+  fi
+done
+
+# 生命周期强制约束 — 源文件变更必须同时更新 DEC + DevNotes
+if [ "$CODE_CHANGED" -ne 0 ]; then
+  LIFECYCLE_FAIL=0
+
+  DEVNOTES_STAGED=$(git diff --cached --name-only --diff-filter=ACMR | grep 'docs/ai/lifecycle/04_DevNotes.md' || true)
+  if [ -z "$DEVNOTES_STAGED" ]; then
+    echo "❌ 源代码有变更但 04_DevNotes.md 未加入本次 commit"
+    echo "   生命周期 M 步骤缺失：记录开发日志"
+    LIFECYCLE_FAIL=1
+  fi
+
+  DEC_STAGED=$(git diff --cached --name-only --diff-filter=ACMR | grep 'docs/ai/decisions/DEC-' || true)
+  if [ -z "$DEC_STAGED" ]; then
+    echo "❌ 源代码有变更但无决策日志 (DEC) 加入本次 commit"
+    echo "   生命周期 L 步骤缺失：记录决策"
+    LIFECYCLE_FAIL=1
+  fi
+
+  if [ "$LIFECYCLE_FAIL" -ne 0 ]; then
+    echo "   跳过此检查: git commit --no-verify"
+    exit 1
+  fi
+
+  echo "  ✅ 生命周期检查通过 (DEC + DevNotes 已包含)"
+
+  # custom-checks
+  if [ -f "$ROOT/scripts/governance/gov-custom-checks.sh" ]; then
+    echo "  -> 运行项目自定义检查..."
+    bash "$ROOT/scripts/governance/gov-custom-checks.sh" || {
+      echo "  ❌ 自定义检查失败"
+      exit 1
+    }
+    echo "  ✅ 自定义检查通过"
+  fi
+fi
+
+echo ""
+echo "=== pre-commit 自动检测 ==="
+
+# scripts/ 变更 — 运行脚本治理校验
+if [ -n "$CHANGED_SCRIPTS" ]; then
+  echo "[scripts/ 脚本治理校验]..."
+  echo "  变更文件:"
+  echo "$CHANGED_SCRIPTS" | sed 's/^/    /'
+
+  if [ -f "$VALIDATE_SCRIPT" ]; then
+    python3 -c "
+import sys; sys.path.insert(0, '$ROOT')
+from scripts.governance.modules.gov_validate_scripts import check_all
+check_all()
+" 2>&1 | tail -20
+    SCRIPT_RESULT=${PIPESTATUS[0]}
+    if [ $SCRIPT_RESULT -ne 0 ]; then
+      echo "❌ 脚本治理校验未通过"
+      exit 1
+    fi
+    echo "  ✅ 脚本治理校验通过"
+  fi
+fi
+
+# docs/ 变更 — 文档结构校验
+if [ -z "$CHANGED_MD" ]; then
+  echo ""
+  echo "=== 全部通过 ==="
+  exit 0
+fi
+
+echo ""
+echo "[2/2] 文档结构校验..."
+echo "  变更文件:"
+echo "$CHANGED_MD" | sed 's/^/    /'
+
+if [ ! -f "$VALIDATE_SCRIPT" ]; then
+  echo "  ⚠️  校验脚本未找到: $VALIDATE_SCRIPT"
+  exit 0
+fi
+
+echo "  -> 自动修复可修复问题..."
+bash "$VALIDATE_SCRIPT" --fix 2>&1 | grep -E "FIX|PASS|FAIL" | head -10 || true
+
+if [ -f "$ROOT/scripts/governance/gov-sync-mkdocs.sh" ]; then
+  echo "  -> 同步 mkdocs 导航..."
+  bash "$ROOT/scripts/governance/gov-sync-mkdocs.sh" 2>&1 | tail -1
+  git add "$ROOT/mkdocs.yml" 2>/dev/null || true
+fi
+
+GOV_VALIDATE_QUICK=1 bash "$VALIDATE_SCRIPT"
+RESULT=$?
+
+if [ $RESULT -ne 0 ]; then
+  echo ""
+  echo "❌ 文档校验未通过，提交被拒绝。"
+  echo "   修复后重新: git add + git commit"
+  echo "   临时跳过: git commit --no-verify"
+  exit 1
+fi
+
+echo ""
+echo "=== 全部通过 ==="
+exit 0

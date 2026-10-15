@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+#
+# Git commit-msg hook — 强制 Conventional Commits 格式
+# 由 scripts/governance/gov-install-hooks.sh 安装到 .git/hooks/commit-msg
+#
+# 校验规则:
+#   - 格式: <type>(<scope>): <subject>
+#   - 类型: feat|fix|docs|style|build|refactor|revert|test|perf|ci|chore
+#   - 标题: ≤72 字符，纯英文，无句号结尾
+#   - 正文: 每行 ≤72 字符
+#   - 跳过: Merge/Revert 提交
+
+COMMIT_MSG_FILE="$1"
+
+FIRST_LINE=$(head -1 "$COMMIT_MSG_FILE")
+if echo "$FIRST_LINE" | grep -qE '^(Merge|Revert)\b'; then
+  exit 0
+fi
+
+MSG=$(grep -v '^#' "$COMMIT_MSG_FILE" | grep -v '^$' | head -1)
+if [ -z "$MSG" ]; then
+  echo "❌ 提交信息为空，请编写提交信息。"
+  echo "   格式: <type>(<scope>): <subject>"
+  exit 1
+fi
+
+REGEX='^[a-z]+(\([a-z0-9._-]+\))?: .+$'
+if ! echo "$MSG" | grep -qE "$REGEX"; then
+  echo "❌ 提交信息格式错误"
+  echo ""
+  echo "  格式: <type>(<scope>): <subject>"
+  echo "  示例:"
+  echo "    feat(cli): add --self-analyze flag"
+  echo "    fix(engine): handle empty file list gracefully"
+  echo "    docs(architecture): add module dependency diagram"
+  echo ""
+  echo "  收到: $MSG"
+  exit 1
+fi
+
+TYPE=$(echo "$MSG" | sed -E 's/^([a-z]+).*/\1/')
+VALID_TYPES="feat fix docs style build refactor revert test perf ci chore"
+
+if ! echo "$VALID_TYPES" | grep -qw "$TYPE"; then
+  echo "❌ 无效的提交类型: '$TYPE'"
+  echo "  有效类型: feat, fix, docs, style, build, refactor, revert, test, perf, ci, chore"
+  exit 1
+fi
+
+SUBJECT=$(echo "$MSG" | sed -E 's/^[a-z]+(\([a-z0-9._-]+\))?: //')
+SUBJECT_LEN=${#SUBJECT}
+
+if [ "$SUBJECT_LEN" -gt 72 ]; then
+  echo "❌ 标题超长（${SUBJECT_LEN} 字符，上限 72）"
+  exit 1
+fi
+
+if echo "$SUBJECT" | LC_ALL=C grep -q '[^ -~]'; then
+  echo "❌ 标题包含非 ASCII 字符，请使用英文"
+  exit 1
+fi
+
+if echo "$SUBJECT" | grep -qE '\.$'; then
+  echo "❌ 标题不应以句号结尾"
+  exit 1
+fi
+
+BODY_LINES=$(grep -v '^#' "$COMMIT_MSG_FILE" | tail -n +2 | grep -v '^Signed-off-by:' | grep -v '^Co-Authored-By:' || true)
+
+LONG_LINE=""
+while IFS= read -r line; do
+  [ -z "$line" ] && continue
+  LINE_LEN=${#line}
+  if [ "$LINE_LEN" -gt 72 ]; then
+    LONG_LINE="$line ($LINE_LEN chars)"
+    break
+  fi
+done < <(echo "$BODY_LINES" || true)
+
+if [ -n "$LONG_LINE" ]; then
+  echo "❌ 正文超行（上限 72 字符）"
+  echo "  $LONG_LINE"
+  exit 1
+fi
+
+exit 0

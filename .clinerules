@@ -1,0 +1,59 @@
+# Cline Rules — AI 协作协议（继承 AGENTS.md）
+
+## 启动流程
+
+```bash
+cat STATUS.md                      # 项目全景（AI 交接/反思/指标）
+bash scripts/session/ses-context-load.sh  # 加载 AI 上下文记忆
+ls -t docs/notes/ | head -3        # 最近设计笔记
+ls -t docs/ai/decisions/ | head -3 # 最近决策
+```
+
+## 决策流转（6 阶段）
+
+```
+NOTE（未定型） → DEC（追加写） → lifecycle（覆盖型）
+  → wf-promote.sh → golden standards → gov-validate.sh → commit
+```
+
+- 决策日志用 `bash scripts/governance/gov-next-decision.sh --create`（自动编号 + 原子锁）
+- 每次变更必须对应一个 DEC
+- DEC 只追加不覆盖不删除
+
+## 文档命名规则
+
+| 目录 | 格式 | 示例 |
+|------|------|------|
+| `docs/guides/` | `GC-{slug}.md` | `GC-coding-conventions.md` |
+| `docs/reference/` | `REF-{slug}.md` | `REF-api-spec.md` |
+| `docs/archive/` | `ARCH-{slug}.md` | `ARCH-v0.9-docs.md` |
+| `docs/notes/` | `NOTE-YYYYMMDD-NNN.md` | `NOTE-20260706-001.md` |
+| `docs/ai/decisions/` | `DEC-XXX.md` | `DEC-001.md` |
+
+**严禁：** 创建 `v1`/`v2`/`_bak`/`backup`/`copy` 后缀的文件。用 git 管理版本。
+
+## 校验
+
+```bash
+bash scripts/governance/gov-validate.sh       # 全量严格校验（规则族见 AGENTS.md 速查表）
+bash scripts/governance/gov-validate.sh --fix # 自动修复 emoji 等问题
+```
+
+- 所有违规都是 FAIL，没有 WARN
+- 提交前必须 0 违规
+
+## 反思
+
+每次 session 结束必须写经验教训：
+
+```bash
+bash scripts/session/ses-context-cache.sh save handoff \
+  from="cline" to="*" context="..." next="..." key_files="..." \
+  lessons="哪里做错了、什么坑要避免"
+```
+
+## 参考
+
+- `AGENTS.md` — 完整协作协议
+- `docs/guides/GC-decision-flow.md` — 决策流转完整说明
+- `docs/ai/guides/workflow.md` — 10 步生命周期
