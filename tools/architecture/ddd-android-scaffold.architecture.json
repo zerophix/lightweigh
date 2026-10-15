@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": { "title": "Android DDD Scaffold — Module Dependency Graph", "quality_profile": "showcase" },
+  "components": [
+    { "id": "app", "type": "backend", "label": "app", "sublabel": "Composition Root", "pos": [460, 40], "size": [130, 48] },
+    { "id": "trigger", "type": "backend", "label": "trigger", "sublabel": "ViewModel + UDF", "pos": [120, 200], "size": [130, 48] },
+    { "id": "infrastructure", "type": "backend", "label": "infrastructure", "sublabel": "Room / BLE / Sync", "pos": [810, 200], "size": [150, 48] },
+    { "id": "application", "type": "backend", "label": "application", "sublabel": "Use Cases (JVM)", "pos": [460, 380], "size": [150, 48] },
+    { "id": "domain", "type": "backend", "label": "domain", "sublabel": "Pure Domain (JVM)", "pos": [460, 560], "size": [150, 48] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "Generated Project", "wraps": ["app", "trigger", "infrastructure", "application", "domain"] },
+    { "kind": "region", "label": "No Android SDK (compile-time enforced)", "wraps": ["application", "domain"] }
+  ],
+  "connections": [
+    { "id": "trigger-to-application", "from": "trigger", "to": "application", "route": "auto", "fromSide": "bottom" },
+    { "id": "application-to-domain", "from": "application", "to": "domain", "route": "auto", "fromSide": "bottom" },
+    { "id": "infrastructure-to-domain", "from": "infrastructure", "to": "domain", "route": "auto", "fromSide": "bottom" },
+    { "id": "app-to-trigger", "from": "app", "to": "trigger", "route": "auto", "fromSide": "bottom" },
+    { "id": "app-to-infrastructure", "from": "app", "to": "infrastructure", "route": "auto", "fromSide": "right" }
+  ]
+}

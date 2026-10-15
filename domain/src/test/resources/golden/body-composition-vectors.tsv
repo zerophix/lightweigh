@@ -1,0 +1,7 @@
+id	algorithm	mode	status	male	age	height_cm	weight_kg	impedance_ohm	z14_ohm	z23_ohm	fat_percent	muscle_kg	muscle_percent	water_percent	water_kg	protein_percent	bone_kg	visceral	bmr_kcal	body_age
+okok-4e-male-01	okok-bia-1	four-electrode	active	1	30	175	70	500			18.4	54.3	77.5	56.1	39.3	21.4	2.9	7.0	1617.6	26
+okok-4e-female-01	okok-bia-1	four-electrode	active	0	28	160	55	550			27.7	37.3	67.9	50.8	27.9	17.1	2.4	3.5	1199.5	27
+okok-8e-male-01	okok-bia-1	eight-electrode	pending_implementation	1	30	175	70	250	260	240	9.3	60.3	86.1	69.3	48.5	16.8	3.2	4.5	1785.4	20
+okok-8e-female-01	okok-bia-1	eight-electrode	pending_implementation	0	35	162	58	270	280	260	20.6	43.2	74.4	60.7	35.2	13.7	2.9	1.0	1337.6	25
+builtin-male-01	builtin-1	single-frequency	active	1	30	175	70	500			18.1									
+builtin-female-01	builtin-1	single-frequency	active	0	28	160	55	550			27.1									
