@@ -7,6 +7,10 @@ commands:
   path: tests/unit/test_governance_negative.py
   status: stable
   type: pytest
+- description: 指标本地化测试（钩子输出 Android 指标 + 覆盖入口漂移守卫, DEC-016）
+  path: tests/unit/test_metrics_localization.py
+  status: stable
+  type: pytest
 configs:
 - critical: false
   description: pytest 配置

@@ -15,6 +15,12 @@
 #   $1 = METRICS_FILE 路径（06_Metrics.md 的绝对路径）
 #   钩子应输出 | key | value | 格式的行，由主脚本收集写入文件
 #
+# 项目本地化覆盖:
+#   metrics-hooks/00-document.sh 是整篇文档的覆盖入口。若它存在、可执行且
+#   stdout 非空，则直接作为整篇 06_Metrics.md，跳过模板内置的通用指标
+#   （Shell/Python 脚本行数等只对模板自身有意义，对应用工程是噪音）。
+#   数值由钩子自行实时计算，脚本不回填。
+#
 # 示例钩子 scripts/governance/metrics-hooks/10-git-stats.sh:
 #   #!/usr/bin/env bash
 #   echo "| 提交数 | $(git rev-list --count HEAD) |"
@@ -59,10 +65,24 @@ VIOLATIONS=$(echo "$VALIDATE_OUTPUT" | grep -c "FAIL" || echo "0")
 # VIOLATIONS from the python engine section
 VIOLATIONS=$(echo "$VALIDATE_OUTPUT" | grep -E '^  违规:' | grep -oE '[0-9]+' | head -1 || echo "?")
 
+# ---------- 项目本地化覆盖（可选）----------
+# 整篇文档覆盖入口: metrics-hooks/00-document.sh 输出非空时直接采用，
+# 跳过模板内置的通用指标（详见文件头「项目本地化覆盖」）。
+PROJECT_DOC_FILE="$HOOKS_DIR/00-document.sh"
+if [ -x "$PROJECT_DOC_FILE" ]; then
+  PROJECT_DOC=$(bash "$PROJECT_DOC_FILE" "$METRICS_FILE" 2>/dev/null || true)
+  if [ -n "$PROJECT_DOC" ]; then
+    printf '%s\n' "$PROJECT_DOC" > "$METRICS_FILE"
+    echo "已更新(项目本地化): $METRICS_FILE"
+    exit 0
+  fi
+fi
+
 # Run external hooks if available
 if [ -d "$HOOKS_DIR" ]; then
   for hook in "$HOOKS_DIR"/*.sh; do
     [ -x "$hook" ] || continue
+    [ "$(basename "$hook")" = "00-document.sh" ] && continue
     HOOK_OUTPUT=$(bash "$hook" "$METRICS_FILE" 2>/dev/null) || true
     if [ -n "$HOOK_OUTPUT" ]; then
       METRICS+=("$HOOK_OUTPUT")
