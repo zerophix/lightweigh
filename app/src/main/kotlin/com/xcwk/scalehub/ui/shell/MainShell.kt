@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
 import com.xcwk.scalehub.feature.measure.MeasureScreen
+import com.xcwk.scalehub.feature.mine.MineRoute
 import com.xcwk.scalehub.feature.trend.TrendRoute
 import com.xcwk.scalehub.ui.components.QkCard
 import com.xcwk.scalehub.ui.components.QkEmptyHint
@@ -72,10 +73,7 @@ fun MainShell() {
                     "设备",
                     "设备绑定与搜索在设备切片接入（移植旧库 BindActivity 行为）",
                 )
-                MainTab.MINE -> PlaceholderTab(
-                    "我的",
-                    "档案编辑与设置在我的切片接入（移植旧库 ProfilePages/SettingsPages 行为）",
-                )
+                MainTab.MINE -> MineRoute()   // 设置页待设置切片；档案编辑已接入
             }
         }
     }
