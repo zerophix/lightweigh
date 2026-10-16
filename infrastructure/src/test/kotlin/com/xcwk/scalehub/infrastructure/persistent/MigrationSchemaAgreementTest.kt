@@ -77,6 +77,32 @@ class MigrationSchemaAgreementTest {
     }
 
     @Test
+    fun `迁移3_4建devices表与schema4声明逐列一致`() {
+        val json = findSchema(4).readText(Charsets.UTF_8)
+        val match = Regex(""""tableName": "devices"[\s\S]*?"createSql": "(.*?)"""")
+            .find(json) ?: error("4.json 中未找到 devices 的 createSql")
+        val expectedSql = match.groupValues[1].replace("\\\"", "\"")
+        val expectedShape = shapeOfSql(expectedSql, "devices")
+        val actualShape = shapeOfSql(AppDatabase.CREATE_DEVICES_TABLE, "devices")
+        assertWithMessage("devices 迁移 DDL 与 schema 4.json 逐列一致") {
+            assertThat(actualShape.first).isEqualTo(expectedShape.first)
+            assertThat(actualShape.second).isEqualTo(expectedShape.second)
+        }
+        assertThat(actualShape.second).isEqualTo(listOf("mac"))
+    }
+
+    /** shapeOf 的表名参数化版本（原版硬编码 health_logs）。 */
+    private fun shapeOfSql(sql: String, table: String): Pair<Map<String, String>, List<String>> {
+        val normalized = sql.replace("\${TABLE_NAME}", table)
+        val columns = Regex("`(\\w+)` (INTEGER|TEXT|REAL)(?: NOT NULL)?")
+            .findAll(normalized).associate { it.groupValues[1] to it.groupValues[2] }
+        val pk = Regex("PRIMARY KEY\\(([^)]*)\\)")
+            .find(normalized)?.groupValues[1]
+            ?.split(",")?.map { it.trim().trim('`') } ?: emptyList()
+        return columns to pk
+    }
+
+    @Test
     fun `迁移版本边正确`() {
         assertThat(AppDatabase.MIGRATION_2_3.startVersion).isEqualTo(2)
         assertThat(AppDatabase.MIGRATION_2_3.endVersion).isEqualTo(3)

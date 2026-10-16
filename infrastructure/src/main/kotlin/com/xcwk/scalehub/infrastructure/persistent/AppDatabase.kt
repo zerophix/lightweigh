@@ -6,18 +6,25 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.xcwk.scalehub.infrastructure.persistent.dao.DeviceDao
 import com.xcwk.scalehub.infrastructure.persistent.dao.HealthLogDao
 import com.xcwk.scalehub.infrastructure.persistent.dao.MeasurementDao
 import com.xcwk.scalehub.infrastructure.persistent.po.HealthLogPo
+import com.xcwk.scalehub.infrastructure.persistent.po.ScaleDevicePo
 import com.xcwk.scalehub.infrastructure.persistent.po.MeasurementPo
 
 /**
  * Room 数据库入口。schema 纪律：改实体必须 version+1 + 写 Migration + 导出 schema 快照入库。
  */
-@Database(entities = [MeasurementPo::class, HealthLogPo::class], version = 3, exportSchema = true)
+@Database(
+    entities = [MeasurementPo::class, HealthLogPo::class, ScaleDevicePo::class],
+    version = 4,
+    exportSchema = true,
+)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun measurementDao(): MeasurementDao
     abstract fun healthLogDao(): HealthLogDao
+    abstract fun deviceDao(): DeviceDao
 
     companion object {
         /**
@@ -56,6 +63,21 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * v3 → v4：建 devices 表（M3c，DEC-022）。
+         * 列名与实体字段同名（mac 驼峰纪律，沿 G3 教训）；协议/算法只存本机。
+         */
+        const val CREATE_DEVICES_TABLE =
+            "CREATE TABLE IF NOT EXISTS `devices` (`mac` TEXT NOT NULL, `name` TEXT NOT NULL, " +
+                "`boundAt` TEXT NOT NULL, `active` INTEGER NOT NULL, `protocolId` TEXT NOT NULL, " +
+                "`algorithmId` TEXT NOT NULL, PRIMARY KEY(`mac`))"
+
+        val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(CREATE_DEVICES_TABLE)
+            }
+        }
+
         @Volatile
         private var instance: AppDatabase? = null
 
@@ -63,7 +85,9 @@ abstract class AppDatabase : RoomDatabase() {
             instance ?: synchronized(this) {
                 instance ?: Room.databaseBuilder(
                     context.applicationContext, AppDatabase::class.java, "scalehub.db",
-                ).addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+                    // devices 沿旧库 SP 同步直读语义（表容量个位数）；其余仓储保持 suspend
+                    .allowMainThreadQueries()
                     .build().also { instance = it }
             }
     }
