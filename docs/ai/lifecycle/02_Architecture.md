@@ -74,7 +74,8 @@ Room/SQLite 存储；蓝牙称重（M3）与云端同步（M2）是已规划但�
 
 ### ArchUnit 守卫
 
-`app/src/test/.../ArchitectureTest.kt` 以 4 条依赖规则守住跨模块方向与"UI 不绕过用例"：
+`app/src/test/.../ArchitectureTest.kt` 以 6 条依赖规则守住跨模块方向、"UI 不绕过用例"
+与存储 SDK 隔离（T-006 上锁，DEC-021 task A）：
 
 ```
 :domain ◄── :application ◄── :app
@@ -83,8 +84,8 @@ Room/SQLite 存储；蓝牙称重（M3）与云端同步（M2）是已规划但�
 ```
 
 守卫内含两条自证元测试：`archunit能解析当前类文件`（防 ASM 解析退化导致规则静默空转）与
-`守卫负例_违规的feature依赖会被规则捕获`（用夹具证明违规必红）；连同 4 条依赖规则，
-`ArchitectureTest.kt` 合计 6 个单元测试方法。
+两组守卫负例（feature 依赖违规、存储 SDK 依赖违规，均用夹具证明必红）；连同 6 条依赖规则，
+`ArchitectureTest.kt` 合计 9 个单元测试方法。
 
 ## 5. 运行时数据流
 

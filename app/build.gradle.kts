@@ -46,4 +46,5 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.truth)
     testImplementation(libs.archunit)
+    testImplementation(libs.coroutines.test)
 }
