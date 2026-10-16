@@ -6,8 +6,8 @@
 
 ## 概述
 
-此目录收录了 AI Project Collaboration Blueprint 的开发指南文档。
-每个指南都聚焦一个独立主题，覆盖从项目初始化到日常协作的完整流程。
+此目录收录轻刻健康 Android（qk-health-v2）的规范文档：既有治理框架自身的接入 / 迁移 /
+决策流转规范，也有 README 结构契约。治理框架源自 ai-project-template。
 
 ---
 
@@ -28,8 +28,4 @@
 - **迁移用户**：读 GC-existing-project-porting.md 了解分阶段迁移策略
 - **所有 AI**：每次启动必须读 GC-decision-flow.md，理解决策如何流转
 
----
-
-## 来源: docs/ai/lifecycle
-
-从 docs/ai/lifecycle/ 各生命周期文档和 DEC 决策晋升而来。
+## 来源: ai/decisions/DEC-014

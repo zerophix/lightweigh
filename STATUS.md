@@ -1,6 +1,6 @@
 # 项目状态
 
-> 由 generate-status.py 自动生成。最后更新: 2026-10-15T16:13:32Z
+> 由 generate-status.py 自动生成。最后更新: 2026-10-16T02:03:35Z
 > 新 AI 启动时: `cat STATUS.md && bash scripts/session/ses-context-load.sh`
 
 ---
@@ -9,11 +9,11 @@
 
 | 字段 | 值 |
 |------|-----|
-| 名称 | AI Project Collaboration Blueprint |
+| 名称 | 轻刻健康 Android（qk-health-v2） |
 | 版本 | 0.1.0 |
 | 文档语言 | zh-CN |
-| Git 分支 | chore/install-governance-template |
-| 最后提交 | ebc3887 feat(v2): scaffold-native project with ported domain and first use case |
+| Git 分支 | master |
+| 最后提交 | 52e9c9f chore: merge reflection refresh |
 | 文档校验 | 运行: `bash scripts/governance/gov-validate.sh` |
 
 ## AI 交接
@@ -39,23 +39,27 @@
 最近 5 次提交：
 
 ```
-ebc3887 feat(v2): scaffold-native project with ported domain and first use case
+52e9c9f chore: merge reflection refresh
+9a8db28 docs(readme): refresh reflection with empty-template lesson
+7199b3c chore: merge decision placeholder guard
+3fb2810 fix(governance): reject unfilled decision templates
+0a75be6 chore: merge readme product rewrite
 ```
 
 ## 工程指标
 
 | 指标 | 数量 |
 |------|------|
-| 决策日志 (DEC) | 10 |
+| 决策日志 (DEC) | 14 |
 | 设计笔记 (NOTE) | 4 |
 | 开发指南 (GC) | 4 |
 | 技术参考 (REF) | 1 |
 
 最近决策：
 
-- [DEC-010](docs/ai/decisions/DEC-010.md): ---
-- [DEC-009](docs/ai/decisions/DEC-009.md): ---
-- [DEC-008](docs/ai/decisions/DEC-008.md): ---
+- [DEC-014](docs/ai/decisions/DEC-014.md): ---
+- [DEC-013](docs/ai/decisions/DEC-013.md): ---
+- [DEC-012](docs/ai/decisions/DEC-012.md): ---
 
 最近笔记：
 

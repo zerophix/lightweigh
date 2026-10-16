@@ -1,52 +1,52 @@
 # 技术参考
 
-> 接口、协议、规范和自动化工具的技术标准。
-> 不可直接编辑。由生命周期文档或 DEC 晋升后写入。
+> 轻刻健康 Android 客户端的协议、算法与存储契约参考。
+> 不可直接编辑：由 DEC 或生命周期文档晋升后写入。
 
 ---
 
-## 1. 项目技术栈
+## 1. 领域协议
 
-| 层 | 技术 | 说明 |
-|----|------|------|
-| 文档站点 | MkDocs + Material | Python 静态站点生成器，用于浏览全部文档 |
-| 校验引擎 | Python 3 + Bash | 文档校验规则（gov-validate.sh，规则族见 AGENTS.md 速查表） |
-| 自动化脚本 | Bash Shell | 生命周期管理、接力协作、晋升、指标跟踪 |
-| 版本控制 | Git + GitHub | 代码托管和协作 |
-| CI/CD | GitHub Actions | 文档校验 + 站点构建 + 部署到 GitHub Pages |
+体脂秤接入是本工程的核心资产。三种报文各自对应 `domain/protocol` 下的解析器，
+按编号定格历史兼容性（升级不回算）：
 
----
+| 协议编号 | 载体 | 解析位置 | 说明 |
+|---------|------|---------|------|
+| okok-1 | GATT 连接式 | `domain/protocol/okok` | 连接后按特征收发帧 |
+| okok-broadcast-1 | 纯广播 | `domain/protocol/okok` | 无需连接，扫描即收 |
+| chipsea-cloud-1 | 芯海云端版 | `domain/protocol/chipsea` | 云端协议适配 |
 
-## 2. 脚本接口清单
+分包重组、单位换算与十六进制工具（`domain/protocol/packet`、`HexUtil`）都在领域层，
+纯 JVM 可测，不依赖 Android 运行时。
 
-| 脚本 | 路径 | 功能 | 调用方 |
-|------|------|------|--------|
-| validate.sh | `scripts/governance/gov-validate.sh` | 全量文档校验 | 手动 / pre-commit hook |
-| lifecycle.sh | `scripts/workflow/wf-lifecycle.sh` | 10 步生命周期编排 | AI 手动调用 |
-| session-begin.sh | `scripts/session/ses-session-begin.sh` | AI 启动上下文加载 | AI 新 session 启动 |
-| session-end.sh | `scripts/session/ses-session-end.sh` | AI 收尾接力交接 | AI session 结束 |
-| promote.sh | `scripts/workflow/wf-promote.sh` | 晋升到黄金标准 | lifecycle end |
-| update-status.sh | `scripts/governance/gov-update-status.sh` | STATUS.md 自动生成 | lifecycle 后 / 手动 |
-| update-metrics.sh | `scripts/governance/gov-update-metrics.sh` | 指标数据更新 | lifecycle 后 / 手动 |
-| task-board.sh | `scripts/workflow/wf-task-board.sh` | AI 任务看板管理 | AI 协作 |
-| inbox.sh | `scripts/workflow/wf-inbox.sh` | AI 收件箱管理 | AI 接力 |
-| next-decision.sh | `scripts/governance/gov-next-decision.sh` | 创建 DEC 决策模板 | AI 决策时 |
+## 2. 体成分算法
 
----
+| 算法编号 | 类型 | 输入 | 说明 |
+|---------|------|------|------|
+| builtin-1 | 经验公式 | 性别 / 年龄 / 身高 / 体重 | 无阻抗时的默认算法 |
+| okok-bia-1 | 设备回归公式 | 上述 + 阻抗 | 有阻抗时使用 |
 
-## 3. 参考文档索引
+- 无阻抗时体脂率记为 `-1`（"未计算"哨兵，**不是**错误码）
+- 算法正确性由黄金向量测试守护：输入输出向量与跨端契约（相邻 spec 仓库）同源，
+  任何一端漂移即测试失败
 
-| 参考文档 | 内容概述 |
-|---------|---------|
-| [脚本接口规范](REF-api-spec.md) | 项目自动化脚本的标准命令行接口 |
+## 3. 存储与契约
 
-预留分类：
+| 位置 | 实现 | 契约 |
+|------|------|------|
+| measurements 表 | Room（`infrastructure/persistent`） | 字段按 data-schema 契约，取代旧库 SharedPreferences JSON（无 180 条截断） |
+| 成员档案 | ProfileStore | 性别 / 出生年 / 身高（体脂计算输入） |
 
-- **数据格式**（REF-data-model.md）：项目文档的元数据模型
-- **部署配置**（REF-deployment.md）：MkDocs 站点构建和 GitHub Pages 发布
+改 Room 实体必须 version+1、写 Migration、导出 schema 快照入库。
 
----
+## 4. 模块与依赖
 
-## 来源: docs/ai/decisions/DEC-001
+四模块分层与依赖方向见 [架构设计](../architecture/index.md)。纯 JVM 模块（`:domain`、
+`:application`）不引入 AGP，Android 依赖编译期失败；跨模块方向由 ArchUnit 守卫。
 
-从 DEC-001 和项目架构文档晋升而来。
+## 5. 治理工具
+
+工程由 ai-project-template 治理层承载：`gov-validate.sh` 全量校验（规则族见 AGENTS.md
+速查表）、`gov-next-decision.sh` 分配决策编号、`wf-promote.sh` 晋升黄金标准。
+
+## 来源: ai/decisions/DEC-014
