@@ -7,6 +7,7 @@ timestamp: 2026-10-16T14:20:00+08:00
 mode: adversarial-4-rounds
 type: conclusion
 topic: harness-zero-trust
+dimensions: ["架构质量", "测试可信度", "治理可靠性", "实际交付状态"]
 ---
 
 # 零信任对抗评审收敛结论（ChatGPT 四轮，2026-10-16）
