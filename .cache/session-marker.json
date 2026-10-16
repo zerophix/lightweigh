@@ -1,0 +1,21 @@
+{
+  "ai": "opencode",
+  "head": "8b0f1bd5d9fbfe42354e8bdbd443597cdd1ceed7",
+  "session_start": "2026-10-16T01:27:35.898Z",
+  "dirty": [],
+  "untracked": [
+    ".cache/session.lock"
+  ],
+  "gov_checksums": {
+    "scripts/governance/gov-pre-commit": "c6f85a92b2117d6b9da5aff12acc92acd3c93fba9559e44797967f3a09911d92",
+    "scripts/governance/gov-validate.sh": "c0227f62a9d1d5b751c23f838bb34bf3f3d870a9d0226c56b4d78c3843c8db52",
+    "scripts/governance/gov-validate.py": "a8b8a8c1c737308e6c40a5972adcbb4b35f88325bd03096cdf1a3f383161a65e",
+    "scripts/governance/modules/gov_validate_core.py": "2ae5bce6427603974cdf0ea666badd71f93cdf8facef9263ed8409a00b07bc35",
+    "scripts/governance/modules/gov_validate_scripts.py": "7de73eef375a025b6c8a666edf3c0e34c0edbe03abee15c3f37ae2baac272969",
+    "scripts/governance/modules/gov_validate_status.py": "b17d2bd4b1d58a41d165af6cd7a6ff0ae29ef2f61f6fbeb06118dc788a7afcb8",
+    "scripts/governance/modules/gov_validate_structure.py": "f2e04bf56945180970b30c1dcca8debc48ed7cada8dd27cfab10c17bd3a3f29c",
+    "scripts/governance/modules/gov_validate_content.py": "1b535bf0f5bb8b49169ed9e22406c1112090737e72283728062ea01432d1bb86",
+    "scripts/governance/modules/gov_validate_protocol.py": "cb0d900f01f953d667c8956918850ef1481df5577f8cb29fb7770cfa982e074a",
+    "scripts/registry.yaml": "8a2630734e88c5710041cad2dbdd986db45a173bda2ed31c4c04efe9cee369af"
+  }
+}

@@ -254,7 +254,9 @@ def check_dependency_dirs() -> None:
 def check_root_files() -> None:
     print("\n--- R0e: 根目录文件治理 ---")
     ALLOWED_ROOT_FILES = {"AGENTS.md", ".clinerules", ".cursorrules", "README.md", "CONTRIBUTING.md", "LICENSE", "CHANGELOG.md", ".editorconfig", ".gitattributes", ".gitignore", ".mcp.json", "mcp.json", "opencode.json", ".governance.json", "package.json", "package-lock.json", "pytest.ini", "requirements.txt", "environment.yml", "mkdocs.yml", "ruff.toml", ".python-version", ".language", ".env", "STATUS.md", "setup.sh", "VERSION",
-    "gradlew", "build.gradle.kts", "settings.gradle.kts", "gradle.properties"}
+    "gradlew", "build.gradle.kts", "settings.gradle.kts", "gradle.properties",
+    # Android Studio 自动生成（gitignore 内）
+    "local.properties"}
     issues = 0
     for f in ROOT.iterdir():
         if not f.is_file(): continue

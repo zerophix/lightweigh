@@ -1,7 +1,7 @@
 # 版本单一事实源（对应 Java 版 platform-bom/parent）
 # 版本对齐 qk-health-android，便于迁移
 [versions]
-agp = "8.7.3"
+agp = "8.13.2"
 kotlin = "1.9.25"
 ksp = "1.9.25-1.0.20"
 coroutines = "1.8.1"
