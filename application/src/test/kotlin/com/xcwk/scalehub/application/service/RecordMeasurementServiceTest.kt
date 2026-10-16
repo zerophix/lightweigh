@@ -8,6 +8,8 @@ import com.xcwk.scalehub.domain.repository.MemberProfileReader
 import com.xcwk.scalehub.domain.types.DomainException
 import org.junit.Assert.assertThrows
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
@@ -36,6 +38,19 @@ class RecordMeasurementServiceTest {
     }
     private val profile = MutableProfileFake()
     private val service = RecordMeasurementService(repo, profile)
+
+    @Test
+    fun `保存后发刷新信号`() = runTest {
+        val bus = com.xcwk.scalehub.application.DataRefreshBus()
+        val svc = RecordMeasurementService(repo, profile, bus)
+        val got = mutableListOf<Unit>()
+        val job = launch { bus.changed.collect { got += it } }
+        runCurrent()
+        svc.execute(RecordMeasurementCommand(70.0, 0.0, "", "builtin-1"))
+        runCurrent()
+        assertThat(got).hasSize(1)
+        job.cancel()
+    }
 
     @Test
     fun `正常测量算体脂并落库`() = runTest {

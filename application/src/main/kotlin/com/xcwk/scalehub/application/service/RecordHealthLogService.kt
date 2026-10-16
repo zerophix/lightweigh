@@ -1,5 +1,6 @@
 package com.xcwk.scalehub.application.service
 
+import com.xcwk.scalehub.application.DataRefreshBus
 import com.xcwk.scalehub.application.command.RecordHealthLogCommand
 import com.xcwk.scalehub.domain.model.HealthLog
 import com.xcwk.scalehub.domain.model.HealthLogType
@@ -16,6 +17,7 @@ import com.xcwk.scalehub.domain.repository.HealthLogRepository
  */
 class RecordHealthLogService(
     private val repository: HealthLogRepository,
+    private val refreshBus: DataRefreshBus? = null,
 ) {
 
     suspend fun execute(cmd: RecordHealthLogCommand): HealthLog {
@@ -26,6 +28,7 @@ class RecordHealthLogService(
             cmd.value2, cmd.label, cmd.note,
         )
         repository.save(log)
+        refreshBus?.notifyChanged()
         return log
     }
 }

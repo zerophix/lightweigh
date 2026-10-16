@@ -3,6 +3,8 @@ package com.xcwk.scalehub.application.service
 import com.google.common.truth.Truth.assertThat
 import com.xcwk.scalehub.domain.model.MeasureRecord
 import com.xcwk.scalehub.domain.repository.MeasurementRepository
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
@@ -19,6 +21,20 @@ class DeleteMeasurementServiceTest {
         override suspend fun between(fromInc: Long, toExc: Long) =
             rows.filter { it.time >= fromInc && it.time < toExc }
         override suspend fun delete(time: Long) { rows.removeAll { it.time == time } }
+    }
+
+    @Test
+    fun `删除后发刷新信号`() = runTest {
+        val repo = FakeRepo()
+        val bus = com.xcwk.scalehub.application.DataRefreshBus()
+        val svc = DeleteMeasurementService(repo, bus)
+        val got = mutableListOf<Unit>()
+        val job = launch { bus.changed.collect { got += it } }
+        runCurrent()
+        svc.execute(1000L)
+        runCurrent()
+        assertThat(got).hasSize(1)
+        job.cancel()
     }
 
     @Test

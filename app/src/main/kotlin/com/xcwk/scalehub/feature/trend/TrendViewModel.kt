@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.xcwk.scalehub.App
+import com.xcwk.scalehub.application.DataRefreshBus
 import com.xcwk.scalehub.application.query.TrendQuery
 import com.xcwk.scalehub.application.query.TrendRange
 import com.xcwk.scalehub.application.query.TrendSegment
@@ -28,6 +29,7 @@ import java.util.Locale
 class TrendViewModel(
     private val query: TrendQuery,
     private val zone: ZoneId = ZoneId.systemDefault(),
+    private val refreshBus: DataRefreshBus? = null,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(TrendUiState())
@@ -35,6 +37,9 @@ class TrendViewModel(
 
     init {
         viewModelScope.launch { refresh() }
+        refreshBus?.changed?.let { signal ->
+            viewModelScope.launch { signal.collect { refresh() } }
+        }
     }
 
     fun onIntent(intent: TrendIntent) {
@@ -101,7 +106,7 @@ class TrendViewModel(
         val Factory = viewModelFactory {
             initializer {
                 val app = this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as App
-                TrendViewModel(app.container.trendQuery)
+                TrendViewModel(app.container.trendQuery, refreshBus = app.container.dataRefreshBus)
             }
         }
     }
