@@ -4,6 +4,7 @@ import android.content.Context
 import android.app.Application
 import com.xcwk.scalehub.application.query.MeasurementQuery
 import com.xcwk.scalehub.application.query.ProfileQuery
+import com.xcwk.scalehub.application.query.ReportQuery
 import com.xcwk.scalehub.application.query.TrendQuery
 import com.xcwk.scalehub.application.service.RecordHealthLogService
 import com.xcwk.scalehub.application.service.UpdateProfileService
@@ -46,6 +47,7 @@ class AppContainer(context: Context) {
         RecordHealthLogService(healthLogRepository)
     }
     val profileQuery: ProfileQuery by lazy { ProfileQuery(profileStore) }
+    val reportQuery: ReportQuery by lazy { ReportQuery(measurementRepository) }
     val updateProfileService: UpdateProfileService by lazy { UpdateProfileService(profileStore) }
     val deleteMeasurementService: DeleteMeasurementService by lazy {
         DeleteMeasurementService(measurementRepository)

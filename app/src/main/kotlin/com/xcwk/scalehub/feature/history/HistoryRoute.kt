@@ -12,8 +12,9 @@ const val HISTORY_ROUTE_NAME = "history"
 @Composable
 fun HistoryRoute(
     onBack: () -> Unit,
+    onOpenReport: (Long) -> Unit = {},
     vm: HistoryViewModel = viewModel(factory = HistoryViewModel.Factory()),
 ) {
     val state by vm.state.collectAsStateWithLifecycle()
-    HistoryScreen(state = state, onIntent = vm::onIntent, onBack = onBack)
+    HistoryScreen(state = state, onIntent = vm::onIntent, onBack = onBack, onOpenReport = onOpenReport)
 }

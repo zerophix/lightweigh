@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "updated_at": "2026-10-16T06:45:59Z",
-  "next_action": "历史记录切片已落;下一步=设置切片/阶段1契约/M2云同步(需人类确认方向)",
+  "updated_at": "2026-10-16T06:55:21Z",
+  "next_action": "体测报告切片已落;下一步=BodyMetrics规则轮(评分/建议/体型) 或 设置切片 或 阶段1契约",
   "next_action_why": "",
   "next_action_confirmed": false,
   "known_risks": [

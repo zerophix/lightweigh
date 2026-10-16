@@ -79,5 +79,13 @@ commands:
   path: app/src/test/kotlin/com/xcwk/scalehub/feature/history/HistoryViewModelTest.kt
   status: stable
   type: gradle-test
+- description: 体测报告读模型（BMI阈值/缺档/快照自解释, DEC-022）
+  path: application/src/test/kotlin/com/xcwk/scalehub/application/query/ReportQueryTest.kt
+  status: stable
+  type: gradle-test
+- description: report ViewModel 行为（格式化/免责两态/未找到）
+  path: app/src/test/kotlin/com/xcwk/scalehub/feature/report/ReportViewModelTest.kt
+  status: stable
+  type: gradle-test
 configs: []
 orphans: []
