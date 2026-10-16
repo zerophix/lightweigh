@@ -6,6 +6,7 @@
 
 | 日期 | 变更内容 | 决策 |
 |------|---------|------|
+| 2026-10-16 | 决策空模板治理：GOV-CONTENT-012 占位符校验 + 4 个测试（根治 DEC-012 空模板事故） | DEC-013 |
 | 2026-10-16 | 生命周期 01~06 与黄金标准 architecture/index.md 改写为轻刻健康真实工程描述 | DEC-012 |
 | 2026-10-16 | 采用公司全限定名 com.xcwk.scalehub：包/namespace/applicationId/存储键/文档全量迁移 | DEC-011 |
 | 2026-10-15 | 模板版本化 + gov-upgrade.sh 升级路径：gov-template-version 事实源、拥有区清单、check/apply 工具与 3 个测试 | DEC-010 |

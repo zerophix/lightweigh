@@ -68,11 +68,16 @@
 - 2026-10-16（DEC-011）：包坐标整体迁移 com.qingke.health → com.xcwk.scalehub，46 文件归位、
   9 处怪目录清除，Room schema 按新包名重导出，构建与测试全绿。
 - 2026-10-16（DEC-012）：生命周期 01~06 与黄金标准 architecture/index.md 改写为真实工程描述。
+- 2026-10-16（DEC-013）：空模板事故根治。根因是校验盲区——唯一查占位符的
+  `gov-validate-decisions.sh` 从未被 pre-commit/gov-validate 调用，而 GOV-CONTENT-004 只看编号。
+  新增 GOV-CONTENT-012 用模板 token 白名单判定，不用通用尖括号正则，因为 DEC-010 正文的
+  `<源>` 会被通用正则误报。
 
 ## 6. 版本历史
 
 | 版本 | 日期 | 变更摘要 |
 |------|------|---------|
+| v6 | 2026-10-16 | DEC-013 决策空模板校验（GOV-CONTENT-012） |
 | v5 | 2026-10-16 | M1 收口与文档对齐（DEC-012）：01~06 重写为真实工程描述 |
 | v4 | 2026-10-16 | DEC-011 公司全限定名迁移 com.xcwk.scalehub |
 | v3 | 2026-10-14 | DEC-003 协议文件统一更名 AGENTS.md |
