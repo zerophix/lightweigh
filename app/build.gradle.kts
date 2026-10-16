@@ -1,4 +1,4 @@
-// :app — 组合根 + trigger 层（UI/BLE 回调/后台任务的落点）。
+// :app — 组合根 + feature 层（UI 四件套，DEC-021）+ trigger 预留落点（BLE 回调/后台任务）。
 // 也是架构守护测试的宿主：ArchUnit 从这里能看到全部模块。
 plugins {
     alias(libs.plugins.android.application)

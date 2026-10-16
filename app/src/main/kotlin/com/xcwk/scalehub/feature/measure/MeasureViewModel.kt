@@ -1,4 +1,4 @@
-package com.xcwk.scalehub.trigger.ui
+package com.xcwk.scalehub.feature.measure
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 /**
- * trigger — UDF 三件套（v2 首屏：手动记体重 + 最近列表）。
+ * feature.measure — UDF 四件套之 ViewModel（v2 首屏：手动记体重 + 最近列表）。
  * TODO 后续阶段：BLE 称重流接入（ScaleGateway）、登录/云同步、趋势与报告。
  */
 data class MeasureUiState(

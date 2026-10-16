@@ -1,4 +1,4 @@
-package com.xcwk.scalehub.trigger.ui
+package com.xcwk.scalehub.feature.measure
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 
-/** trigger — 首屏：只渲染状态、转发意图。 */
+/** feature.measure — 首屏（四件套之 Screen，DEC-021）：只渲染状态、转发事件。 */
 @Composable
 fun MeasureScreen(vm: MeasureViewModel = viewModel(factory = MeasureViewModel.Factory)) {
     val state by vm.state.collectAsStateWithLifecycle()

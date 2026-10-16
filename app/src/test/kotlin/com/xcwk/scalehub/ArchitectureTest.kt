@@ -6,14 +6,15 @@ import com.tngtech.archunit.core.importer.ClassFileImporter
 import com.tngtech.archunit.core.importer.ImportOption
 import com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses
 import com.google.common.truth.Truth.assertWithMessage
-import com.xcwk.scalehub.trigger.ui.RuleViolationFixture
+import com.xcwk.scalehub.feature.measure.RuleViolationFixture
 import org.junit.BeforeClass
 import org.junit.Test
 
 /**
  * 分层依赖守卫 — 对应 Java 版 ArchitectureTest（ArchUnit），规则按 Android 版调整。
  *
- * 依赖方向：trigger → application → domain ← infrastructure，组合根(app 根包)豁免。
+ * 依赖方向：feature → application → domain ← infrastructure，组合根(app 根包)豁免；
+ * trigger 为 BLE 回调/后台任务预留落点，与 feature 同属被守卫的内层禁区。
  * domain/application 是纯 JVM 模块，Android 依赖由编译器先行拦截；
  * 本测试守住跨模块方向与"UI 不绕过用例"两条运行期纪律。
  *
@@ -67,6 +68,7 @@ class ArchitectureTest {
                 "com.xcwk.scalehub.application..",
                 "com.xcwk.scalehub.infrastructure..",
                 "com.xcwk.scalehub.trigger..",
+                "com.xcwk.scalehub.feature..",
                 "android..",
                 "androidx..",
             )
@@ -80,6 +82,7 @@ class ArchitectureTest {
             .should().dependOnClassesThat().resideInAnyPackage(
                 "com.xcwk.scalehub.infrastructure..",
                 "com.xcwk.scalehub.trigger..",
+                "com.xcwk.scalehub.feature..",
                 "android..",
                 "androidx..",
             )
@@ -90,7 +93,10 @@ class ArchitectureTest {
     fun infrastructure不依赖UI() {
         noClasses()
             .that().resideInAPackage("com.xcwk.scalehub.infrastructure..")
-            .should().dependOnClassesThat().resideInAPackage("com.xcwk.scalehub.trigger..")
+            .should().dependOnClassesThat().resideInAnyPackage(
+                "com.xcwk.scalehub.trigger..",
+                "com.xcwk.scalehub.feature..",
+            )
             .check(classes)
     }
 
@@ -100,10 +106,10 @@ class ArchitectureTest {
      * 没有负例的架构测试可能静默空转（与上面的解析自检互补）。
      */
     @Test
-    fun 守卫负例_违规的trigger依赖会被规则捕获() {
+    fun 守卫负例_违规的feature依赖会被规则捕获() {
         val fixture = ClassFileImporter().importClasses(RuleViolationFixture::class.java)
         val rule = noClasses()
-            .that().resideInAPackage("com.xcwk.scalehub.trigger.ui..")
+            .that().resideInAPackage("com.xcwk.scalehub.feature..")
             .should().dependOnClassesThat().resideInAPackage("com.xcwk.scalehub.infrastructure..")
         val caughtViolation = try {
             rule.check(fixture)
@@ -120,7 +126,7 @@ class ArchitectureTest {
     @Test
     fun ui不绕过application直接依赖infrastructure() {
         noClasses()
-            .that().resideInAPackage("com.xcwk.scalehub.trigger.ui..")
+            .that().resideInAPackage("com.xcwk.scalehub.feature..")
             .should().dependOnClassesThat().resideInAPackage("com.xcwk.scalehub.infrastructure..")
             .check(classes)
     }
