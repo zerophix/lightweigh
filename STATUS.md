@@ -1,6 +1,6 @@
 # 项目状态
 
-> 由 generate-status.py 自动生成。最后更新: 2026-10-16T03:09:15Z
+> 由 generate-status.py 自动生成。最后更新: 2026-10-16T03:11:44Z
 > 新 AI 启动时: `cat STATUS.md && bash scripts/session/ses-context-load.sh`
 
 ---
@@ -13,7 +13,7 @@
 | 版本 | 0.1.0 |
 | 文档语言 | zh-CN |
 | Git 分支 | master |
-| 最后提交 | 89c37b0 chore: merge R2 review fixes |
+| 最后提交 | d39b722 chore: merge doc terminology unification |
 | 文档校验 | 运行: `bash scripts/governance/gov-validate.sh` |
 
 ## AI 交接
@@ -39,11 +39,11 @@
 最近 5 次提交：
 
 ```
+d39b722 chore: merge doc terminology unification
+5e945ec docs(governance): unify quantity terminology and fix DEC numbering
 89c37b0 chore: merge R2 review fixes
 81fea81 feat(domain): persist calc inputs, cap impedance, unit vectors
 6fc9105 chore: merge aggregate invariants hardening
-d30ff60 feat(domain): harden MeasureRecord aggregate invariants
-2139792 chore: merge metrics localization
 ```
 
 ## 工程指标
