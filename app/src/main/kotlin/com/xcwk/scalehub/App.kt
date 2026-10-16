@@ -3,6 +3,7 @@ package com.xcwk.scalehub
 import android.content.Context
 import android.app.Application
 import com.xcwk.scalehub.application.DataRefreshBus
+import com.xcwk.scalehub.application.auth.AuthService
 import com.xcwk.scalehub.application.query.HealthLogQuery
 import com.xcwk.scalehub.application.query.MeasurementQuery
 import com.xcwk.scalehub.application.query.ProfileQuery
@@ -10,14 +11,17 @@ import com.xcwk.scalehub.application.query.ReportQuery
 import com.xcwk.scalehub.application.query.TrendQuery
 import com.xcwk.scalehub.application.service.RecordHealthLogService
 import com.xcwk.scalehub.application.service.UpdateProfileService
+import com.xcwk.scalehub.application.sync.SyncService
 import com.xcwk.scalehub.application.service.DeleteMeasurementService
 import com.xcwk.scalehub.application.service.RecordMeasurementService
 import com.xcwk.scalehub.domain.repository.HealthLogRepository
 import com.xcwk.scalehub.domain.repository.MeasurementRepository
+import com.xcwk.scalehub.infrastructure.cloud.CloudBaseGateway
 import com.xcwk.scalehub.infrastructure.persistent.AppDatabase
 import com.xcwk.scalehub.infrastructure.persistent.repository.RoomHealthLogRepository
 import com.xcwk.scalehub.infrastructure.persistent.repository.RoomMeasurementRepository
 import com.xcwk.scalehub.infrastructure.profile.ProfileStore
+import com.xcwk.scalehub.infrastructure.session.SessionStore
 
 /**
  * app — 组合根：全工程唯一知道所有实现的地方。
@@ -32,6 +36,11 @@ class AppContainer(context: Context) {
 
     /** 数据变更信号（DEC-021 支柱2 实体；写用例发、查询 VM 收）。 */
     val dataRefreshBus = DataRefreshBus()
+
+    /** 会话与认证（M2b）：同源实现双端口（会话读写 + 认证动作）。 */
+    val sessionStore: SessionStore by lazy { SessionStore(context) }
+
+    val cloudGateway: CloudBaseGateway by lazy { CloudBaseGateway(sessionStore) }
 
     val database: AppDatabase by lazy { AppDatabase.get(context) }
 
@@ -58,4 +67,13 @@ class AppContainer(context: Context) {
     val deleteMeasurementService: DeleteMeasurementService by lazy {
         DeleteMeasurementService(measurementRepository, dataRefreshBus)
     }
+
+    val syncService: SyncService by lazy {
+        SyncService(
+            sessionStore, cloudGateway, sessionStore,
+            measurementRepository, healthLogRepository, profileStore, profileStore,
+        )
+    }
+
+    val authService: AuthService by lazy { AuthService(sessionStore, syncService) }
 }

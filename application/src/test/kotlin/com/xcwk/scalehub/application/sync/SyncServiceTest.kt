@@ -52,8 +52,14 @@ class SyncServiceTest {
         }
     }
 
-    private class FakeAuth(var error: String? = null) : AuthPort {
+    private class FakeAuth(var error: String? = null) : com.xcwk.scalehub.application.auth.AuthPort {
         override suspend fun deleteCurrentUser(verifyCode: String): String? = error
+        override suspend fun sendSmsCode(rawDigits: String) = throw UnsupportedOperationException()
+        override suspend fun signInWithCode(
+            rawDigits: String, verificationId: String, registered: Boolean, code: String,
+        ) = throw UnsupportedOperationException()
+        override fun isEntered() = true
+        override fun markEntered() = throw UnsupportedOperationException()
     }
 
     private class FakeMeasureRepo(rows: List<MeasureRecord> = emptyList()) : MeasurementRepository {

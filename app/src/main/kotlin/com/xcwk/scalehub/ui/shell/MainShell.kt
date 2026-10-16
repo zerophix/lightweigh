@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
@@ -59,6 +61,14 @@ enum class MainTab(val label: String) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainShell() {
+    // 首启门（需求 3.1）：未进入前只见登录/游客门——VM 提升到壳层保单实例
+    val authVm: com.xcwk.scalehub.feature.auth.AuthGateViewModel =
+        viewModel(factory = com.xcwk.scalehub.feature.auth.AuthGateViewModel.Factory)
+    val authState by authVm.state.collectAsState()
+    if (!authState.entered) {
+        com.xcwk.scalehub.feature.auth.AuthScreen(state = authState, onIntent = authVm::onIntent)
+        return
+    }
     var tab by rememberSaveable { mutableStateOf(MainTab.HOME) }
     var showQuick by rememberSaveable { mutableStateOf(false) }
     // 记录表单是宿主级覆盖页（任何页签打开，导航即关闭）——例外域同 Route 层声明

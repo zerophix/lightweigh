@@ -45,6 +45,7 @@ dependencies {
     implementation(libs.coroutines.core)
 
     testImplementation(libs.junit)
+    testImplementation(libs.org.json)   // JVM 单测用真实 org.json（android.jar 为桩）
 
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.core)
