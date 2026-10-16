@@ -3,9 +3,12 @@ package com.xcwk.scalehub
 import android.content.Context
 import android.app.Application
 import com.xcwk.scalehub.application.query.MeasurementQuery
+import com.xcwk.scalehub.application.service.RecordHealthLogService
 import com.xcwk.scalehub.application.service.RecordMeasurementService
+import com.xcwk.scalehub.domain.repository.HealthLogRepository
 import com.xcwk.scalehub.domain.repository.MeasurementRepository
 import com.xcwk.scalehub.infrastructure.persistent.AppDatabase
+import com.xcwk.scalehub.infrastructure.persistent.repository.RoomHealthLogRepository
 import com.xcwk.scalehub.infrastructure.persistent.repository.RoomMeasurementRepository
 import com.xcwk.scalehub.infrastructure.profile.ProfileStore
 
@@ -25,10 +28,16 @@ class AppContainer(context: Context) {
     val measurementRepository: MeasurementRepository by lazy {
         RoomMeasurementRepository(database.measurementDao())
     }
+    val healthLogRepository: HealthLogRepository by lazy {
+        RoomHealthLogRepository(database.healthLogDao())
+    }
     val profileStore: ProfileStore = ProfileStore(context)
 
     val recordMeasurementService: RecordMeasurementService by lazy {
         RecordMeasurementService(measurementRepository, profileStore)
     }
     val measurementQuery: MeasurementQuery by lazy { MeasurementQuery(measurementRepository) }
+    val recordHealthLogService: RecordHealthLogService by lazy {
+        RecordHealthLogService(healthLogRepository)
+    }
 }

@@ -119,6 +119,14 @@
   口径唯一事实源；修正 README 与生命周期文档里裸「N 项测试」等不写口径的表述；修复决策编号
   冲突——把复用了已占编号的「聚合不变量」「对抗评审 R2」分别改号为 DEC-017 / DEC-018，
   恢复 DEC-013（空模板校验）与 DEC-014（黄金标准去模板化），并修好决策索引生成器的标题解析。
+- 2026-10-16（DEC-022 组 C）：Room health_logs 表。schema v2→v3：HealthLogPo 复合主键
+  (loggedAt, type) 对齐云表唯一约束，MIGRATION_2_3 建表且 DDL 抽为可测常量；
+  RoomHealthLogRepository 六字段往返 + 脏行 fail-fast 测试；迁移 DDL 与导出 3.json
+  的静态对拍测试（列名/类型/主键逐列一致）；组合根接线 healthLogRepository 与
+  recordHealthLogService。验证边界如实声明：静态对拍只钉拼写漂移，真实迁移执行与
+  数据保留待 T-005 androidTest（G3）关闭。infra-debug 测试执行数 9，全模块 Gradle
+  测试 0 失败（schema 3.json 入库）。
+
 - 2026-10-16（DEC-022 组 B）：趋势查询规则下沉。MeasurementRepository 增区间读
   between（闭开区间升序，InMemory/Room DAO/伪造方四方同步）；TrendQuery 落地五类规则
   （范围/时段/日末/统计/月汇总，逐条标注 TrendPages 行号），TrendQueryTest 10 个单元
@@ -153,6 +161,7 @@
 
 | 版本 | 日期 | 变更摘要 |
 |------|------|---------|
+| v18 | 2026-10-16 | DEC-022 组 C：Room health_logs 表 + 迁移静态对拍 |
 | v17 | 2026-10-16 | DEC-022 组 B 趋势规则下沉 + R2 读映射回归修复 |
 | v16 | 2026-10-16 | DEC-021 执行：trigger/ui → feature/measure 命名迁移 + 守卫规则扩展 |
 | v15 | 2026-10-16 | DEC-022 移植计划 + 组 A 健康记录纵切（15 项行为测试） |
