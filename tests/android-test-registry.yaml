@@ -35,8 +35,8 @@ commands:
   path: application/src/test/kotlin/com/xcwk/scalehub/application/query/TrendQueryTest.kt
   status: stable
   type: gradle-test
-- description: 数据库版本 23 迁移 schema 一致性（DEC-022）
-  path: infrastructure/src/test/kotlin/com/xcwk/scalehub/infrastructure/persistent/Migration23SchemaAgreementTest.kt
+- description: 迁移 1→2→3 全链 schema 静态对拍（DEC-022/G3 盲区补课）
+  path: infrastructure/src/test/kotlin/com/xcwk/scalehub/infrastructure/persistent/MigrationSchemaAgreementTest.kt
   status: stable
   type: gradle-test
 - description: Room 健康记录仓储（DEC-022）
@@ -49,6 +49,10 @@ commands:
   type: gradle-test
 - description: trend ViewModel 行为（初始化/意图重查/空态, T-006）
   path: app/src/test/kotlin/com/xcwk/scalehub/feature/trend/TrendViewModelTest.kt
+  status: stable
+  type: gradle-test
+- description: G3 迁移链真机测试（v1→v3 schema校验+数据保留, DEC-020）
+  path: infrastructure/src/androidTest/kotlin/com/xcwk/scalehub/infrastructure/persistent/MigrationTest.kt
   status: stable
   type: gradle-test
 configs: []

@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "updated_at": "2026-10-16T06:00:57Z",
-  "next_action": "G1已收口(fea604f冷绿);下一步=G3迁移测试(需模拟器) 或 M4设备/我的切片",
-  "next_action_why": "G3是唯一剩余放行阻断;切片不依赖硬件可先行",
+  "updated_at": "2026-10-16T06:11:23Z",
+  "next_action": "G1/G3双关闭;下一步=提交终审复裁请求 或 M4设备/我的切片",
+  "next_action_why": "放行阻断已清零,复裁由评审方(GPT)执行;切片可并行推进",
   "next_action_confirmed": false,
   "known_risks": [
     "G1 阻断: 工具链WIP(3文件)仍未提交, 测试均为 HEAD+WIP 口径",
@@ -58,11 +58,11 @@
       "id": "T-005",
       "description": "G3 放行阻断: Room v1->v2 迁移 androidTest(建库/迁移/校验历史行)",
       "why": "",
-      "status": "pending",
+      "status": "completed",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-16T03:39:02Z",
-      "updated_at": "2026-10-16T03:39:02Z",
+      "updated_at": "2026-10-16T06:11:23Z",
       "notes": ""
     },
     {

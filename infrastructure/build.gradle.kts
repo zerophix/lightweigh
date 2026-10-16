@@ -9,12 +9,24 @@ plugins {
 android {
     namespace = "com.xcwk.scalehub.infrastructure"
     compileSdk = 34
-    defaultConfig { minSdk = 24 }
+    defaultConfig {
+        minSdk = 24
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions { jvmTarget = "17" }
+}
+
+// MigrationTestHelper 从 androidTest assets 读 schema 快照（G3 真实迁移测试）
+android {
+    sourceSets {
+        getByName("androidTest") {
+            assets.srcDir("$projectDir/schemas")
+        }
+    }
 }
 
 // Room schema 快照导出（入库，作为 MigrationTest 的依据）
@@ -33,6 +45,12 @@ dependencies {
     implementation(libs.coroutines.core)
 
     testImplementation(libs.junit)
+
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.test.core)
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.room.testing)
     testImplementation(libs.truth)
     testImplementation(libs.coroutines.test)
 }
