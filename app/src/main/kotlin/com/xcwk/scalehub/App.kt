@@ -2,6 +2,7 @@ package com.xcwk.scalehub
 
 import android.content.Context
 import android.app.Application
+import com.xcwk.scalehub.application.DataRefreshBus
 import com.xcwk.scalehub.application.query.HealthLogQuery
 import com.xcwk.scalehub.application.query.MeasurementQuery
 import com.xcwk.scalehub.application.query.ProfileQuery
@@ -29,6 +30,9 @@ class App : Application() {
 /** 手写轻量 DI 容器（规模化后可平移 Hilt，装配点不变）。 */
 class AppContainer(context: Context) {
 
+    /** 数据变更信号（DEC-021 支柱2 实体；写用例发、查询 VM 收）。 */
+    val dataRefreshBus = DataRefreshBus()
+
     val database: AppDatabase by lazy { AppDatabase.get(context) }
 
     val measurementRepository: MeasurementRepository by lazy {
@@ -40,18 +44,18 @@ class AppContainer(context: Context) {
     val profileStore: ProfileStore = ProfileStore(context)
 
     val recordMeasurementService: RecordMeasurementService by lazy {
-        RecordMeasurementService(measurementRepository, profileStore)
+        RecordMeasurementService(measurementRepository, profileStore, dataRefreshBus)
     }
     val measurementQuery: MeasurementQuery by lazy { MeasurementQuery(measurementRepository) }
     val healthLogQuery: HealthLogQuery by lazy { HealthLogQuery(healthLogRepository) }
     val trendQuery: TrendQuery by lazy { TrendQuery(measurementRepository) }
     val recordHealthLogService: RecordHealthLogService by lazy {
-        RecordHealthLogService(healthLogRepository)
+        RecordHealthLogService(healthLogRepository, dataRefreshBus)
     }
     val profileQuery: ProfileQuery by lazy { ProfileQuery(profileStore) }
     val reportQuery: ReportQuery by lazy { ReportQuery(measurementRepository) }
     val updateProfileService: UpdateProfileService by lazy { UpdateProfileService(profileStore) }
     val deleteMeasurementService: DeleteMeasurementService by lazy {
-        DeleteMeasurementService(measurementRepository)
+        DeleteMeasurementService(measurementRepository, dataRefreshBus)
     }
 }

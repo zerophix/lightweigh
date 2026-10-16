@@ -1,5 +1,6 @@
 package com.xcwk.scalehub.application.service
 
+import com.xcwk.scalehub.application.DataRefreshBus
 import com.xcwk.scalehub.application.command.RecordMeasurementCommand
 import com.xcwk.scalehub.domain.algorithm.Algorithms
 import com.xcwk.scalehub.domain.algorithm.BuiltinComposition
@@ -18,6 +19,7 @@ import com.xcwk.scalehub.domain.repository.MemberProfileReader
 class RecordMeasurementService(
     private val repository: MeasurementRepository,
     private val profile: MemberProfileReader,
+    private val refreshBus: DataRefreshBus? = null,
 ) {
 
     suspend fun execute(cmd: RecordMeasurementCommand): MeasureRecord {
@@ -39,6 +41,7 @@ class RecordMeasurementService(
             profile.male(), profile.ageYears(), profile.heightCm(),
         )
         repository.save(record)
+        refreshBus?.notifyChanged()
         return record
     }
 }

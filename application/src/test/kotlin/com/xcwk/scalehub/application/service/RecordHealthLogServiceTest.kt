@@ -6,6 +6,8 @@ import com.xcwk.scalehub.domain.model.HealthLog
 import com.xcwk.scalehub.domain.repository.HealthLogRepository
 import com.xcwk.scalehub.domain.types.DomainException
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -29,6 +31,19 @@ class RecordHealthLogServiceTest {
 
     private val repo = FakeRepo()
     private val service = RecordHealthLogService(repo)
+
+    @Test
+    fun `保存后发刷新信号`() = runTest {
+        val bus = com.xcwk.scalehub.application.DataRefreshBus()
+        val svc = RecordHealthLogService(repo, bus)
+        val got = mutableListOf<Unit>()
+        val job = launch { bus.changed.collect { got += it } }
+        runCurrent()
+        svc.execute(RecordHealthLogCommand("water", 250.0))
+        runCurrent()
+        assertThat(got).hasSize(1)
+        job.cancel()
+    }
 
     @Test
     fun `正常记录盖当下时间戳并落库`() = runTest {

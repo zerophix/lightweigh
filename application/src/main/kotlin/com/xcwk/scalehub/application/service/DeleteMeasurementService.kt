@@ -1,5 +1,7 @@
 package com.xcwk.scalehub.application.service
 
+import com.xcwk.scalehub.application.DataRefreshBus
+
 import com.xcwk.scalehub.domain.repository.MeasurementRepository
 
 /**
@@ -8,9 +10,11 @@ import com.xcwk.scalehub.domain.repository.MeasurementRepository
  */
 class DeleteMeasurementService(
     private val repository: MeasurementRepository,
+    private val refreshBus: DataRefreshBus? = null,
 ) {
 
     suspend fun execute(time: Long) {
         repository.delete(time)
+        refreshBus?.notifyChanged()
     }
 }

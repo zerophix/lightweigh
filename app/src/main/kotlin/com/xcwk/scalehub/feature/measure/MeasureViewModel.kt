@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.xcwk.scalehub.App
 import com.xcwk.scalehub.application.command.RecordMeasurementCommand
+import com.xcwk.scalehub.application.DataRefreshBus
 import com.xcwk.scalehub.application.query.HealthLogItem
 import com.xcwk.scalehub.application.query.HealthLogQuery
 import com.xcwk.scalehub.application.query.MeasurementQuery
@@ -40,6 +41,7 @@ class MeasureViewModel(
     private val recordMeasurement: RecordMeasurementService,
     private val measurementQuery: MeasurementQuery,
     private val healthLogQuery: HealthLogQuery,
+    private val refreshBus: DataRefreshBus? = null,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(MeasureUiState())
@@ -47,6 +49,10 @@ class MeasureViewModel(
 
     init {
         viewModelScope.launch { refresh() }
+        // 订阅数据源信号（DEC-021 支柱2：跨屏保存/删除后自动重读，替代 UiRefresh 计数）
+        refreshBus?.changed?.let { signal ->
+            viewModelScope.launch { signal.collect { refresh() } }
+        }
     }
 
     fun onIntent(intent: MeasureIntent) {
@@ -94,6 +100,7 @@ class MeasureViewModel(
                     app.container.recordMeasurementService,
                     app.container.measurementQuery,
                     app.container.healthLogQuery,
+                    app.container.dataRefreshBus,
                 )
             }
         }

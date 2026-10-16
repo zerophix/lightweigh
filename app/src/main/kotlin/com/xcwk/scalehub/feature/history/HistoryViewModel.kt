@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.xcwk.scalehub.App
+import com.xcwk.scalehub.application.DataRefreshBus
 import com.xcwk.scalehub.application.query.HistoryQuery
 import com.xcwk.scalehub.application.service.DeleteMeasurementService
 import com.xcwk.scalehub.domain.types.DomainException
@@ -27,6 +28,7 @@ class HistoryViewModel(
     private val historyQuery: HistoryQuery,
     private val deleteMeasurement: DeleteMeasurementService,
     private val zone: ZoneId = ZoneId.systemDefault(),
+    private val refreshBus: DataRefreshBus? = null,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(HistoryUiState())
@@ -34,6 +36,9 @@ class HistoryViewModel(
 
     init {
         viewModelScope.launch { refresh() }
+        refreshBus?.changed?.let { signal ->
+            viewModelScope.launch { signal.collect { refresh() } }
+        }
     }
 
     fun onIntent(intent: HistoryIntent) {
@@ -132,6 +137,7 @@ class HistoryViewModel(
                     com.xcwk.scalehub.application.query.HistoryQuery(app.container.measurementRepository, zone),
                     app.container.deleteMeasurementService,
                     zone,
+                    app.container.dataRefreshBus,
                 )
             }
         }
