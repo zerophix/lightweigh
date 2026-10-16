@@ -11,6 +11,14 @@ commands:
   path: tests/unit/test_metrics_localization.py
   status: stable
   type: pytest
+- description: 术语与口径漂移守卫（禁止裸口径数量表述 + 术语表事实源, DEC-019）
+  path: tests/unit/test_doc_terminology.py
+  status: stable
+  type: pytest
+- description: 决策索引完整性（编号唯一 + 标题非空, DEC-019）
+  path: tests/unit/test_decision_index_integrity.py
+  status: stable
+  type: pytest
 configs:
 - critical: false
   description: pytest 配置

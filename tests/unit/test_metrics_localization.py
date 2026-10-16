@@ -17,7 +17,7 @@ METRICS = ROOT / "docs" / "ai" / "lifecycle" / "06_Metrics.md"
 # 模板内置的通用指标（对 Android 工程是噪音, 本地化后必须消失）
 TEMPLATE_MARKERS = ("Shell 脚本行数", "Python 脚本行数", "可执行脚本数")
 # 本地化后必须出现的 Android 指标
-APP_MARKERS = ("Gradle 模块", "主源码行数", "协议实现", "黄金向量")
+APP_MARKERS = ("Gradle 模块", "源码行数", "协议实现", "黄金向量")
 
 
 def _render_hook() -> str:

@@ -49,4 +49,35 @@
 工程由 ai-project-template 治理层承载：`gov-validate.sh` 全量校验（规则族见 AGENTS.md
 速查表）、`gov-next-decision.sh` 分配决策编号、`wf-promote.sh` 晋升黄金标准。
 
-## 来源: ai/decisions/DEC-014
+## 6. 术语与口径
+
+本表是全仓库数量口径的**唯一事实源**。任何文档引用下述数量时必须使用本表的术语原名；
+「N 项测试」「N 个用例」这类不写口径的表述一律禁止。写作规则见
+[文档标准](../ai/guides/docstandard.md)；指标类数值以自动生成的
+[06_Metrics](../ai/lifecycle/06_Metrics.md) 为准，其他文档不重复维护成表。
+
+| 术语 | 口径（定义） | 事实源 / 算法 |
+|------|------------|--------------|
+| 模块数 | `settings.gradle.kts` 中 `include(...)` 的模块数 | settings.gradle.kts |
+| 源文件 / 源码行数 | 各模块 `src/main` 下 `*.kt` + `*.java` 的文件数 / 物理行数 | 06_Metrics.md |
+| 测试文件 / 测试代码行数 | 各模块 `src/test` 下 `*.kt` + `*.java` 的文件数 / 物理行数 | 06_Metrics.md |
+| 单元测试方法 | 源码中 `@Test` 注解的方法数，与构建变体无关 | `grep -rho '@Test'` |
+| 测试执行数 | Gradle 变体展开后实际执行的测试数 | `*/build/test-results`（app 与 infrastructure 各含 debug + release） |
+| 治理测试用例 | `tests/` 下 pytest 收集的 test 函数数 | tests/registry.yaml |
+| 协议实现 | `:domain` 中 `implements ScaleProtocol` 的类数 | 领域协议 |
+| 体成分算法 | `:domain` 中 `implements BodyComposition` 的类数 | 体成分算法 |
+| 黄金向量 | 体成分跨端一致性向量的条数 | body-composition-vectors.tsv |
+| 文档版本 | 文档「版本历史」表的 vN，仅指该文档的修订号 | 各文档版本历史 |
+| 产品版本 | Android `versionName`，即 STATUS.md 的「版本」栏 | STATUS.md |
+
+未列出的计数术语，须在首次出现处给出定义；否则改用本表已有术语。
+
+### 历史记录口径对照
+
+决策日志、变更日志、收件箱与评审报告是追加型历史记录，正文不改写。其中出现的旧表述按
+本表解释：
+
+- DEC-011 中的裸「N 项测试」= 测试执行数（当时未标注口径），等价于单元测试方法的变体展开。
+- DEC-002 / DEC-006 / DEC-008 / DEC-010 中的「N 个用例 / N 个测试」= 治理测试用例。
+
+## 来源: ai/decisions/DEC-019

@@ -19,12 +19,21 @@ for F in "$DECISIONS_DIR"/DEC-*.md; do
     [ -f "$F" ] || continue
     BASE=$(basename "$F" .md)
 
-    # 从文件内容提取标题（第一行 H1）
-    TITLE=$(head -1 "$F" | sed 's/^# *//' || echo "$BASE")
+    # 从文件内容提取标题（跳过 YAML frontmatter 后的首个 H1）
+    # 背景：gov-next-decision.sh --create 会写入 task_groups 前置元数据，
+    # 若直接取第一行会得到 "---" 而不是真实标题。
+    TITLE=$(awk '
+        NR==1 && $0=="---" { fm=1; next }
+        fm==1 && $0=="---" { fm=0; next }
+        fm==1 { next }
+        /^#/ { sub(/^#+[[:space:]]*/, ""); print; exit }
+    ' "$F")
+    [ -n "$TITLE" ] || TITLE="$BASE"
     # 提取日期（从 markdown checkbox 或 yaml 中查找）
     DATE=$(grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}' "$F" 2>/dev/null | head -1 || echo "-")
-    # 提取来源
-    SOURCE=$(grep -E "来源:" "$F" 2>/dev/null | head -1 | sed 's/.*来源: *//' || echo "-")
+    # 提取来源（兼容 > **来源:** xxx 与 - [x] 来源: xxx 两种写法，去掉装饰星号）
+    SOURCE=$(grep -E "来源:" "$F" 2>/dev/null | head -1 | sed 's/.*来源:[[:space:]]*//; s/^[[:space:]*]*//' || echo "-")
+    [ -n "$SOURCE" ] || SOURCE="-"
 
     ENTRIES="$ENTRIES\n| [$BASE]($BASE.md) | $TITLE | $DATE | $SOURCE |"
 done
