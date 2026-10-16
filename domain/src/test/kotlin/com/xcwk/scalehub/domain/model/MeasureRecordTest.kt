@@ -38,6 +38,11 @@ class MeasureRecordTest {
     }
 
     @Test(expected = DomainException::class)
+    fun `超出上限的阻抗被拒绝`() {
+        record(impedance = 9999.0)
+    }
+
+    @Test(expected = DomainException::class)
     fun `超出范围且非哨兵的体脂被拒绝`() {
         record(fat = 120.0)
     }
