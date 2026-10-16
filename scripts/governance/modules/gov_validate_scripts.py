@@ -73,6 +73,39 @@ def check_naughty_names() -> int:
     return found_issues
 
 
+def check_registry_integrity() -> int:
+    print("\n--- GOV-SCRIPT-004: registry 完整性校验 ---")
+    found_issues = 0
+    if not REGISTRY.is_file():
+        fail("GOV-SCRIPT-004: registry.yaml 不存在")
+        return 1
+    try:
+        import yaml
+        data = yaml.safe_load(REGISTRY.read_text(encoding="utf-8"))
+    except Exception as e:
+        fail(f"GOV-SCRIPT-004: registry.yaml 解析失败: {e}")
+        return 1
+    commands = data.get("commands", []) or []
+    configs = data.get("configs", []) or []
+
+    def _resolve(path: str):
+        # tools/* 相对项目根, 其余相对 scripts/
+        return ROOT / path if path.startswith("tools/") else SCRIPTS_DIR / path
+
+    # 正向: 注册的路径必须存在（registry 是命令清单, 只保证注册的命令在磁盘上）
+    for entry in list(commands) + list(configs):
+        p = entry.get("path", "")
+        if not p:
+            continue
+        if not _resolve(p).is_file():
+            fail(f"GOV-SCRIPT-004: 注册表僵尸条目（脚本不存在）: {p}")
+            found_issues += 1
+
+    if found_issues == 0:
+        print("  [PASS] 所有注册脚本存在, 无僵尸条目")
+    return found_issues
+
+
 def check_root_scripts() -> int:
     print("\n--- GOV-SCRIPT-009: scripts/ 根目录裸脚本 + 项目根脚本 ---")
     found_issues = 0
@@ -95,6 +128,7 @@ def check_root_scripts() -> int:
 
 def check_all() -> None:
     check_registry_exists()
+    check_registry_integrity()
     check_prefix_rules()
     check_naughty_names()
     check_root_scripts()

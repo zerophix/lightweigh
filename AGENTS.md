@@ -392,10 +392,10 @@ pre-push 可被 `--no-verify` 绕过，但 CI 的 `lifecycle-audit` 不可绕过
 | GOV-CONTENT-001~005 | 生命周期绑定、指标时效、changelog 非空、决策编号连续、会审报告规范 | FAIL |
 | GOV-CONTENT-008~011 | 项目记忆格式与时效、README 占位符与 Emoji | FAIL |
 | GOV-PROTO-001~003 | 收件箱 48h 未读、session-end 24h 时效、僵尸任务 | FAIL |
-| GOV-SCRIPT-001~009 | 脚本 registry 存在、目录前缀、命名坏味道、根目录裸脚本 | FAIL |
+| GOV-SCRIPT-001~009 | 脚本 registry 存在、registry 完整性（GOV-SCRIPT-004 反向校验, DEC-023）、目录前缀、命名坏味道、根目录裸脚本 | FAIL |
 | GOV-TEST-001~005 | 治理测试命名/结构/Emoji + pytest 执行（测试失败即校验失败） | FAIL |
 | GOV-TEST-GOV-001~010 | 测试 registry 完整性、前缀、反向校验、空目录 | FAIL |
 | GOV-ATEST-001~005 | Android 单元测试治理：非 ASCII/命名/版本/Emoji/注册表完整性（DEC-023） | FAIL |
 | GOV-SKILL-001~003 | 技能约束（.claude/skills 相关，仅提示不阻塞） | WARN |
 
-注意：规则编号已从旧版 R1~R20 重命名为 GOV-* 族（R0 系列保留）；内容相似度检测不在 validate 内，手动运行 `python3 tools/analyze/ana-similarity.py`。
+注意：规则编号已从旧版 R1~R20 重命名为 GOV-* 族（R0 系列保留）。
