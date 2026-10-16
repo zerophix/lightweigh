@@ -1,6 +1,6 @@
 # 项目状态
 
-> 由 generate-status.py 自动生成。最后更新: 2026-10-16T03:11:44Z
+> 由 generate-status.py 自动生成。最后更新: 2026-10-16T04:23:18Z
 > 新 AI 启动时: `cat STATUS.md && bash scripts/session/ses-context-load.sh`
 
 ---
@@ -13,7 +13,7 @@
 | 版本 | 0.1.0 |
 | 文档语言 | zh-CN |
 | Git 分支 | master |
-| 最后提交 | d39b722 chore: merge doc terminology unification |
+| 最后提交 | 81a2763 chore: merge health log port slice |
 | 文档校验 | 运行: `bash scripts/governance/gov-validate.sh` |
 
 ## AI 交接
@@ -22,44 +22,47 @@
 
 | 字段 | 值 |
 |------|-----|
-| 来自 | local-ai |
-| 时间 | 2026-10-15 |
-| 关键文件 | README.md,AGENTS.md,STATUS.md |
+| 来自 | opencode |
+| 时间 | 2026-10-16 |
+| 关键文件 | .ai/tasks.json,docs/ai/inbox/ |
 
 **上下文：**
 
-> 安装 ai-project-template 并完成 Android 工程适配，gov-validate 归零
+> 完成: - 零信任对抗评审三轮闭环：R1 红点归因（c1dde64 隔离构建即红）+ 聚合不变量（DEC-017）；R2 计算输入快照 schema v1→v2 + 不变量溯源 + 单位换算四向量（DEC-018）；R3 撤回金丝雀虚报并补齐 4 条可执行断言 + 修复器/检测器 tests/ 豁免分叉修复（fb1fbad）+ 发布门槛 G1-G5（DEC-020）。终审=条件通过、禁止正式放行，报告入 docs/ai/reviews/20261016_harness-zero-trust/
+- UI 架构立约（DEC-021）：UDF+屏幕四件套+读模型下沉+设计系统+垂直切片，写入 02_Architecture §6 并晋升黄金标准，ArchUnit UI 守卫标注随 T-006 上锁
+- 移植重构启动（DEC-022）：保障矩阵七项（介质/时机/可验证/盲点）+ 任务组 A-D；组 A 健康记录纵切落库（efd4f76→81a2763）：6 源文件 + 15 行为测试，domain+application 33 项全绿
+- 配套：README 交付状态表与多轮反思、T-004/005/006 任务登记、收件箱接力信、R1 隔离工作树清理 | 决策: 终审口径落地：条件通过≠放行，放行只认最终 SHA 的纯净构建(G1)+真实迁移测试(G3)+同 SHA 复验(G2/G4)，文档声明/非最终SHA的绿/迁移SQL存在都不算数。UI 架构选 UDF+四件套+读模型下沉，依据是旧库病根有原文可指（UiRefresh 全局总线、千行 Pages、业务散落页面），先立约后上锁——守卫规则如实标注未落地而不是假装已有。移植忠实性原则：行为分界>枚举表象（weight 在旧库写测量表而非健康记录，Pages.kt:537），每条移植规则必带标注出处行号的行为测试。提交纪律全程执行：路径级暂存+审计清单、DEC/DevNotes/反思同车、R0 每提交刷新反思。
 
 **下一步：**
 
-> M2 云同步与登录（参考旧库 qk-health-android 的 auth/cloud/sync 行为）
+> 人类协调并行会话提交工具链 WIP 收 G1（T-004）；随后开工 DEC-022 组 B 趋势规则下沉
 
 ## 最近动态
 
 最近 5 次提交：
 
 ```
-d39b722 chore: merge doc terminology unification
-5e945ec docs(governance): unify quantity terminology and fix DEC numbering
-89c37b0 chore: merge R2 review fixes
-81fea81 feat(domain): persist calc inputs, cap impedance, unit vectors
-6fc9105 chore: merge aggregate invariants hardening
+81a2763 chore: merge health log port slice
+efd4f76 feat(application): port health log domain slice from legacy
+d6c3f06 chore: merge UI architecture conventions
+6a76180 docs(architecture): codify UI layer conventions for M4
+11d7a83 chore: merge adversarial review verdict
 ```
 
 ## 工程指标
 
 | 指标 | 数量 |
 |------|------|
-| 决策日志 (DEC) | 19 |
+| 决策日志 (DEC) | 23 |
 | 设计笔记 (NOTE) | 4 |
 | 开发指南 (GC) | 4 |
 | 技术参考 (REF) | 1 |
 
 最近决策：
 
-- [DEC-019](docs/ai/decisions/DEC-019.md): DEC-019: 统一文档术语与数量口径
-- [DEC-018](docs/ai/decisions/DEC-018.md): DEC-018: 对抗评审 R2 —— 不变量溯源、计算输入快照与交付状态标记
-- [DEC-017](docs/ai/decisions/DEC-017.md): DEC-017: 测量聚合不变量加固
+- [DEC-023](docs/ai/decisions/DEC-023.md): DEC-023: Android 治理本地化收口
+- [DEC-022](docs/ai/decisions/DEC-022.md): DEC-022: 移植重构开发计划与落实保障机制 —— 启动健康记录纵切
+- [DEC-021](docs/ai/decisions/DEC-021.md): DEC-021: UI 层架构约定 —— UDF + 屏幕四件套 + 读模型下沉
 
 最近笔记：
 
@@ -79,5 +82,5 @@ d39b722 chore: merge doc terminology unification
 
 > 上次 AI session 的经验教训。新 AI 启动时必读。
 
-三个坑: 模板setup.sh复制循环不递归丢了modules校验包(装完必须立刻validate); 自己改白名单丢闭括号且修复断言写太巧没修上(修语法用最笨的sed先看现场); 非交互管道下setup.sh问答与conda分支行为不同(先定位卡点再猜)
+终审口径落地：条件通过≠放行，放行只认最终 SHA 的纯净构建(G1)+真实迁移测试(G3)+同 SHA 复验(G2/G4)，文档声明/非最终SHA的绿/迁移SQL存在都不算数。UI 架构选 UDF+四件套+读模型下沉，依据是旧库病根有原文可指（UiRefresh 全局总线、千行 Pages、业务散落页面），先立约后上锁——守卫规则如实标注未落地而不是假装已有。移植忠实性原则：行为分界>枚举表象（weight 在旧库写测量表而非健康记录，Pages.kt:537），每条移植规则必带标注出处行号的行为测试。提交纪律全程执行：路径级暂存+审计清单、DEC/DevNotes/反思同车、R0 每提交刷新反思。
 
