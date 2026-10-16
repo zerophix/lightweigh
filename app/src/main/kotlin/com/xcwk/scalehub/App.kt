@@ -7,6 +7,7 @@ import com.xcwk.scalehub.application.query.ProfileQuery
 import com.xcwk.scalehub.application.query.TrendQuery
 import com.xcwk.scalehub.application.service.RecordHealthLogService
 import com.xcwk.scalehub.application.service.UpdateProfileService
+import com.xcwk.scalehub.application.service.DeleteMeasurementService
 import com.xcwk.scalehub.application.service.RecordMeasurementService
 import com.xcwk.scalehub.domain.repository.HealthLogRepository
 import com.xcwk.scalehub.domain.repository.MeasurementRepository
@@ -46,4 +47,7 @@ class AppContainer(context: Context) {
     }
     val profileQuery: ProfileQuery by lazy { ProfileQuery(profileStore) }
     val updateProfileService: UpdateProfileService by lazy { UpdateProfileService(profileStore) }
+    val deleteMeasurementService: DeleteMeasurementService by lazy {
+        DeleteMeasurementService(measurementRepository)
+    }
 }

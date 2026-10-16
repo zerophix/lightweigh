@@ -31,6 +31,7 @@ class TrendQueryTest {
         override suspend fun recent(limit: Int) = rows.sortedByDescending { it.time }.take(limit)
         override suspend fun between(fromInc: Long, toExc: Long) =
             rows.filter { it.time >= fromInc && it.time < toExc }.sortedBy { it.time }
+        override suspend fun delete(time: Long) { }
     }
 
     private fun query(vararg rows: MeasureRecord) =

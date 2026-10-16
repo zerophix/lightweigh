@@ -16,4 +16,7 @@ interface MeasurementDao {
 
     @Query("SELECT * FROM measurements WHERE measuredAt >= :from AND measuredAt < :to ORDER BY measuredAt ASC")
     suspend fun between(from: Long, to: Long): List<MeasurementPo>
+
+    @Query("DELETE FROM measurements WHERE measuredAt = :time")
+    suspend fun delete(time: Long)
 }

@@ -18,4 +18,8 @@ class InMemoryMeasurementRepository : MeasurementRepository {
 
     override suspend fun between(fromInc: Long, toExc: Long): List<MeasureRecord> =
         rows.filter { it.time >= fromInc && it.time < toExc }.sortedBy { it.time }
+
+    override suspend fun delete(time: Long) {
+        rows.removeAll { it.time == time }
+    }
 }

@@ -89,22 +89,13 @@ class TrendQuery(
         )
     }
 
-    /**
-     * 月汇总：入参记录集合由调用方决定筛选（旧库历史页自行做时段/按日过滤），
-     * 按月降序（最新月在前，同旧库 groupBy 插入序）。
-     */
+    /** 月汇总（委托顶层 monthlySummariesOf，历史页同源消费）。 */
     fun monthlySummaries(records: List<MeasureRecord>): List<MonthSummary> =
-        records.groupBy { YearMonth(it.time) }.map { (month, items) ->
-            val oldest = items.minBy { it.time }
-            val newest = items.maxBy { it.time }
-            val fatDelta =
-                if (oldest.fat < 0 || newest.fat < 0) null else oldest.fat - newest.fat
-            MonthSummary(month, oldest.weight - newest.weight, fatDelta)
-        }.sortedByDescending { it.yearMonth }
+        monthlySummariesOf(records, ::localDate)
 
     // ---- 本地时间语义（旧库 Calendar.getInstance 默认时区等价物）----
 
-    private fun localDate(time: Long): LocalDate =
+    internal fun localDate(time: Long): LocalDate =
         Instant.ofEpochMilli(time).atZone(zone).toLocalDate()
 
     private fun rangeStart(range: TrendRange): Long {
@@ -118,7 +109,7 @@ class TrendQuery(
         return startDay.atStartOfDay(zone).toInstant().toEpochMilli()
     }
 
-    private fun inSegment(time: Long, segment: TrendSegment): Boolean {
+    internal fun inSegment(time: Long, segment: TrendSegment): Boolean {
         if (segment == TrendSegment.ALL_DAY) return true
         val hour = Instant.ofEpochMilli(time).atZone(zone).hour
         return when (segment) {
@@ -129,9 +120,26 @@ class TrendQuery(
         }
     }
 
-    /** 月分组键 "yyyy-MM"（旧库 monthKey 的 yyyy年MM月 展示格式归 UI）。 */
-    private fun YearMonth(time: Long): String {
-        val date = localDate(time)
-        return "%04d-%02d".format(date.year, date.monthValue)
-    }
+    
 }
+
+/**
+ * 月汇总纯函数（历史页与趋势页同一事实源，DEC-022）：
+ * weightLoss>0 = 月内共减重（首记录 − 末记录）；fatDelta null = 首或末体脂未计算。
+ * records 由调用方决定筛选；按月降序（最新月在前，同旧库 groupBy 插入序）。
+ * 分组键 "yyyy-MM"（旧库 monthKey；yyyy年MM月 展示格式归 UI）。
+ */
+internal fun monthlySummariesOf(
+    records: List<MeasureRecord>,
+    toLocalDate: (Long) -> LocalDate,
+): List<MonthSummary> =
+    records.groupBy { d ->
+        val date = toLocalDate(d.time)
+        "%04d-%02d".format(date.year, date.monthValue)
+    }.map { (month, items) ->
+        val oldest = items.minBy { it.time }
+        val newest = items.maxBy { it.time }
+        val fatDelta =
+            if (oldest.fat < 0 || newest.fat < 0) null else oldest.fat - newest.fat
+        MonthSummary(month, oldest.weight - newest.weight, fatDelta)
+    }.sortedByDescending { it.yearMonth }

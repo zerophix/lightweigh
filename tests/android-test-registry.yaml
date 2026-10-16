@@ -67,5 +67,17 @@ commands:
   path: app/src/test/kotlin/com/xcwk/scalehub/feature/mine/MineViewModelTest.kt
   status: stable
   type: gradle-test
+- description: 历史查询行为（行序/previous/时段/按日/月汇总同源, DEC-022）
+  path: application/src/test/kotlin/com/xcwk/scalehub/application/query/HistoryQueryTest.kt
+  status: stable
+  type: gradle-test
+- description: 删除测量用例（历史页）
+  path: application/src/test/kotlin/com/xcwk/scalehub/application/service/DeleteMeasurementServiceTest.kt
+  status: stable
+  type: gradle-test
+- description: history ViewModel 行为（分组/切换/确认删除流）
+  path: app/src/test/kotlin/com/xcwk/scalehub/feature/history/HistoryViewModelTest.kt
+  status: stable
+  type: gradle-test
 configs: []
 orphans: []

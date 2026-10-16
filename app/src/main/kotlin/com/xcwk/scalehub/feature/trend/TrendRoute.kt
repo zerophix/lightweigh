@@ -2,6 +2,9 @@ package com.xcwk.scalehub.feature.trend
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 
@@ -15,6 +18,12 @@ const val TREND_ROUTE_PATTERN = "trend/{range}/{segment}"
 /** 装配挂载点：接 ViewModel 与无状态 Screen（导航壳接入的唯一入口）。 */
 @Composable
 fun TrendRoute(vm: TrendViewModel = viewModel(factory = TrendViewModel.Factory)) {
-    val state by vm.state.collectAsStateWithLifecycle()
-    TrendScreen(state = state, onIntent = vm::onIntent)
+    // 宿主级二级导航态（历史记录），归 Route 层持有——同 MainShell 例外域声明
+    var showHistory by rememberSaveable { mutableStateOf(false) }
+    if (showHistory) {
+        com.xcwk.scalehub.feature.history.HistoryRoute(onBack = { showHistory = false })
+    } else {
+        val state by vm.state.collectAsStateWithLifecycle()
+        TrendScreen(state = state, onIntent = vm::onIntent, onOpenHistory = { showHistory = true })
+    }
 }
