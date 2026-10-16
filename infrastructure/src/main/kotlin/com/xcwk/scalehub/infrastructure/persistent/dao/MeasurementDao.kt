@@ -13,4 +13,7 @@ interface MeasurementDao {
 
     @Query("SELECT * FROM measurements ORDER BY measuredAt DESC LIMIT :limit")
     suspend fun recent(limit: Int): List<MeasurementPo>
+
+    @Query("SELECT * FROM measurements WHERE measuredAt >= :from AND measuredAt < :to ORDER BY measuredAt ASC")
+    suspend fun between(from: Long, to: Long): List<MeasurementPo>
 }

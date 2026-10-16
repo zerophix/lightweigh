@@ -15,4 +15,7 @@ class InMemoryMeasurementRepository : MeasurementRepository {
 
     override suspend fun recent(limit: Int): List<MeasureRecord> =
         rows.sortedByDescending { it.time }.take(limit)
+
+    override suspend fun between(fromInc: Long, toExc: Long): List<MeasureRecord> =
+        rows.filter { it.time >= fromInc && it.time < toExc }.sortedBy { it.time }
 }

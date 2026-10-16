@@ -12,6 +12,9 @@ class RoomMeasurementRepository(private val dao: MeasurementDao) : MeasurementRe
 
     override suspend fun recent(limit: Int): List<MeasureRecord> = dao.recent(limit).map { it.toDomain() }
 
+    override suspend fun between(fromInc: Long, toExc: Long): List<MeasureRecord> =
+        dao.between(fromInc, toExc).map { it.toDomain() }
+
     private fun MeasureRecord.toPo() = MeasurementPo(
         measuredAt = time, weightKg = weight, impedanceOhm = impedance,
         fat = fat, mac = mac, algorithmId = algorithm,
@@ -20,5 +23,6 @@ class RoomMeasurementRepository(private val dao: MeasurementDao) : MeasurementRe
 
     private fun MeasurementPo.toDomain() = MeasureRecord(
         measuredAt, weightKg, impedanceOhm, fat, mac, algorithmId,
+        male, ageYears, heightCm,
     )
 }

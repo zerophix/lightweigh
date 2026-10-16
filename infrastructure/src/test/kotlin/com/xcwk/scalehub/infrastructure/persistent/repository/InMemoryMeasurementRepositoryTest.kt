@@ -19,6 +19,16 @@ class InMemoryMeasurementRepositoryTest {
     }
 
     @Test
+    fun `between返回闭开区间且按时间升序`() = runTest {
+        val repo = InMemoryMeasurementRepository()
+        repo.save(record(1000L)); repo.save(record(2000L)); repo.save(record(3000L))
+        assertThat(repo.between(1000L, 3000L).map { it.time })
+            .containsExactly(1000L, 2000L).inOrder()
+        assertThat(repo.between(1001L, 3000L).map { it.time }).containsExactly(2000L)
+        assertThat(repo.between(0L, Long.MAX_VALUE)).hasSize(3)
+    }
+
+    @Test
     fun `同时间戳save幂等覆盖`() = runTest {
         val repo = InMemoryMeasurementRepository()
         repo.save(record(1000L))
