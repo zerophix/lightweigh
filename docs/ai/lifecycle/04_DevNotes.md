@@ -257,6 +257,7 @@
 
 | 版本 | 日期 | 变更摘要 |
 |------|------|---------|
+| v41 | 2026-10-16 | M3d：设备页签绑定 UI + 蓝牙测量覆盖页（MeasureSession 接壳，222 测试） |
 | v40 | 2026-10-16 | M3c：AndroidBleLink + Room 设备仓储（devices 表 v4 迁移）+ devices 同步闭环（217 测试） |
 | v39 | 2026-10-16 | M3b：BlePort 端口 + MeasureSession 测量编排（MeasureActivity 状态机移植，206 测试） |
 | v38 | 2026-10-16 | M3a：协议层黄金向量测试（okok/芯海/广播/组包/下发帧，195 测试） |

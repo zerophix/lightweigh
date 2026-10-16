@@ -90,6 +90,14 @@ class AppContainer(context: Context) {
     /** AI 问答（M2c）：实现随 M2 部署联调（云函数 ai-chat）。 */
     val aiService: AiService by lazy { AiService(sessionStore, CloudFunctionAi(sessionStore)) }
 
+    /** 测量页偏好（"不再提示只存体重"开关，旧库 skipWeightOnlyPrompt）。 */
+    private val measurePrefs: android.content.SharedPreferences by lazy {
+        context.getSharedPreferences("measure", android.content.Context.MODE_PRIVATE)
+    }
+
+    /** "不再提示只存体重"读取口（SharedPreferences 藏在容器后，feature 层不直触）。 */
+    val skipWeightOnlyPrompt: () -> Boolean = { measurePrefs.getBoolean("skip_weight_only", false) }
+
     /** 蓝牙链路（M3c）：测量页经 MeasureSession 使用；权限门在 trigger 层。 */
     val bleLink: AndroidBleLink by lazy { AndroidBleLink(context) }
 }
