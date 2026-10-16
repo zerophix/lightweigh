@@ -1,9 +1,9 @@
 # 版本单一事实源（对应 Java 版 platform-bom/parent）
 # 版本对齐 qk-health-android，便于迁移
 [versions]
-agp = "8.13.2"
-kotlin = "1.9.25"
-ksp = "1.9.25-1.0.20"
+agp = "9.2.1"
+kotlin = "2.2.10"
+ksp = "2.3.2"
 coroutines = "1.8.1"
 junit = "4.13.2"
 truth = "1.4.4"
@@ -42,3 +42,4 @@ android-library = { id = "com.android.library", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

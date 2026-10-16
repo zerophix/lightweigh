@@ -36,7 +36,7 @@
 
     ./gradlew build          # 含全部测试与 ArchUnit 守卫
 
-JDK 17+（Android Studio JBR 21）、Android SDK 34。applicationId: com.qingke.health。
+JDK 17+（Android Studio JBR 21）、Android SDK 34。applicationId: com.xcwk.scalehub。
 
 ## 相关文档
 
@@ -61,3 +61,5 @@ M1 里程碑完成：四模块可构建、13 测试全绿、APK 产出。治理�
 5. 排查损坏先做字节级签名比对定位集合，再用 mtime 时间线锁定操作，比猜测快得多。
 6. 清 WARN 时踩到规则优先级：「当前状态」必须是最后一个二级章节，相关文档只能放它前面——改文档结构前先读对应检查器的判定顺序。
 7. 治理视野会随工具链生长：Android Studio 一打开就生成 local.properties，白名单要跟着工程生态更新，否则工具产物会被当成治理违规。
+8. zsh 的 ${d/a/b} 参数替换在含转义斜杠的路径上不会做替换，反而会造出名字里带反斜杠的怪目录——批量路径重命名必须交给脚本语言做确定性操作，别用 shell 内建替换。
+9. 生命周期门禁的价值在这轮兑现：源码变更被强制携带 DEC+DevNotes 同车，决策记录的时机被钉死在改动发生的时刻，事后补录直接被拦。
