@@ -15,6 +15,8 @@
 - **生命周期文档按迭代覆盖重写**：01~06 属覆盖型文档，本次从模板内容改写为真实工程描述。
 - **黄金标准经 promote 晋升**：architecture/index.md 不直接编辑，由 wf-promote.sh 从
   02_Architecture 生成并附来源标注。
+- **构建可用性属迭代交付物（DEC-015）**："能跑通一次 `./gradlew build`" 与代码同等重要，
+  否则依赖组合失效会长期潜伏且无 diff 可查。
 
 ## 2. 遇到的问题与解决方案
 
@@ -47,12 +49,32 @@
 - 解决：文档与注释区分"未计算哨兵"与"错误魔法值"。
 - 防止复发：涉及哨兵/默认值的注释必须显式说明其合法语义来源。
 
+### 问题 4：构建链三处叠加故障，工程在本机无法编译（DEC-015）
+
+- 现象：用户报告 wrapper 无法安装 `gradle-9.4.1-all.zip`，原因 `Read timed out`。
+- 根因：三处故障叠加，且后两处被第一处掩盖。
+  1. 腾讯镜像对 `-all.zip`（238 MB）返回 `x-cache-status: BYPASS`，叶节点未缓存，
+     实测 1~3.5 MB/s 且会中途停滞；Gradle wrapper 下载器**不支持断点续传**，失败即从
+     第 0 字节重来，`.part` 长期停在 128/238 MB，故反复超时。
+  2. 开发机唯一 JDK 为 Corretto 8，而 Gradle 9.4.1 要求 JVM 17+，报
+     `Gradle requires JVM 17 or later to run.`
+  3. `room-compiler:2.6.1` 编译期绑定 KSP1 API（`symbol-processing-api:1.9.0-1.0.13`），
+     与项目所用 KSP2（`ksp = 2.3.2`）+ Kotlin 2.2.10 不兼容；触发点是
+     `MeasurementDao.upsert(po)` 为 `suspend` 且返回 `Unit`，Room 在 KSP2 下解析其
+     JVM 签名时抛 `unexpected jvm signature V`（google/ksp#2957）。
+- 解决：发行版落盘 `gradle/dists/` 使 wrapper 免网络启动（该目录已 gitignore）；Gradle JVM
+  改用 Android Studio 自带 JBR 21（写入开发机 `~/.zshrc`，不入库）；`room` 2.6.1 → 2.8.5。
+  `./gradlew build` 全绿：198 tasks，四模块单元测试 + lint + debug/release 打包。
+- 防止复发：Kotlin/KSP 主版本升级时必须同步核对 Room 等注解处理器是否支持对应 KSP 引擎；
+  "DAO 的 suspend 方法返回 Unit" 记为该缺陷的触发点特征。
+
 ## 3. 待完成/已知问题
 
 - [ ] M2 SyncGateway 云同步与登录（含 CloudBase 防腐层）
 - [ ] M3 ScaleGateway BLE 称重接入（三协议解析器已在 domain 就绪）
 - [ ] 档案编辑 writer 与生日月日精度
 - [ ] `settings.gradle.kts` 的 rootProject.name 是否随产品统一命名（当前仍为 qk-health-v2）
+- [ ] 评估 wrapper 发行版由 `-all` 改为 `-bin`（体积约六成，腾讯镜像 `-all` 叶节点未缓存易超时）
 
 ## 4. 关键发现
 
@@ -62,6 +84,11 @@
   违规负例"两条元测试，确保守卫真的会红而不是空跑。
 - **文档漂移的代价在接力时显现**：生命周期文档若仍描述脚手架模板，下一位 AI 会据错误上下文
   决策——这是本次重写的直接动因。
+- **JVM 版本是构建链的第一道闸门**：Gradle 9 在启动阶段就校验 JVM 17+，被它拦下时，
+  配置期与编译期的错误全都看不见——本项目的 Room/KSP2 不兼容正是潜伏到闸门放行后才显形。
+- **"源码没变"不等于"依赖组合仍然成立"**：`libs.versions.toml` 是版本单一事实源，但当
+  Kotlin/KSP 升级而 Room 未同步时，失效的是组合而非文件；这类故障没有 diff 可查，
+  只能由一次真实构建暴露。因此 `./gradlew build` 跑通应作为迭代收口的硬动作，而非可选项。
 
 ## 5. 变更记录
 
@@ -72,13 +99,19 @@
   `gov-validate-decisions.sh` 从未被 pre-commit/gov-validate 调用，而 GOV-CONTENT-004 只看编号。
   新增 GOV-CONTENT-012 用模板 token 白名单判定，不用通用尖括号正则，因为 DEC-010 正文的
   `<源>` 会被通用正则误报。
+- 2026-10-16（DEC-015）：构建链三处叠加故障修复。`gradle-9.4.1-all` 落盘使 wrapper 免网络启动；
+  Gradle JVM 改用 JBR 21（开发机 `~/.zshrc`，不入库）；`room` 2.6.1 → 2.8.5 修复与 KSP2 的
+  不兼容（`unexpected jvm signature V`）。`./gradlew build` 全绿：198 tasks，四模块单元测试
+  + lint + debug/release 打包。
 
 ## 6. 版本历史
 
 | 版本 | 日期 | 变更摘要 |
 |------|------|---------|
+| v7 | 2026-10-16 | DEC-015 构建链修复（发行版落盘 + JBR 21 + room 2.8.5） |
 | v6 | 2026-10-16 | DEC-013 决策空模板校验（GOV-CONTENT-012） |
 | v5 | 2026-10-16 | M1 收口与文档对齐（DEC-012）：01~06 重写为真实工程描述 |
+| v5 | 2026-10-16 | DEC-013 聚合不变量加固 + 对抗评审 R1 归因实验 |
 | v4 | 2026-10-16 | DEC-011 公司全限定名迁移 com.xcwk.scalehub |
 | v3 | 2026-10-14 | DEC-003 协议文件统一更名 AGENTS.md |
 | v2 | 2026-10-13 | DEC-002 模版自一致性修复 |
