@@ -12,13 +12,16 @@
 
 ---
 
-<!-- 在此添加项目专属约束 -->
-
 ## 架构约束
 
 | 规则ID | 描述 | 违反后果 |
 |--------|------|---------|
 | ARCH-001 | 新增模块必须经过架构评审 | 拒绝合入 |
+| ARCH-002 | `:domain` / `:application` 禁止引入 Android 依赖（纯 JVM，编译期强制） | 编译失败 |
+| ARCH-003 | 依赖方向只允许向内：trigger → application → domain ← infrastructure | ArchUnit 守卫 FAIL |
+| ARCH-004 | 领域层禁止抛 `android.*` 异常；禁止以 -1 充当错误码（-1 仅作"未计算"哨兵） | 评审拒绝 |
+| ARCH-005 | 统一包坐标 com.xcwk.scalehub（DEC-011） | 评审拒绝 |
+| ARCH-006 | 改 Room 实体必须 version+1、写 Migration、导出 schema 快照入库 | 评审拒绝 |
 
 ## 流程约束
 

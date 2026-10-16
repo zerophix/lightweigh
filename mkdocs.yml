@@ -6,9 +6,9 @@
 # 导航同步: bash scripts/governance/gov-sync-mkdocs.sh
 # =============================================================================
 
-site_name: AI Project Collaboration Blueprint
-site_description: AI 与人类协作的通用协议模版
-site_author: (set by setup.sh)
+site_name: 轻刻健康 Android（qk-health-v2）
+site_description: 蓝牙体脂秤测量的记录、展示与同步 — DDD 分层 Android 工程
+site_author: neking
 
 theme:
   name: material
@@ -49,6 +49,7 @@ plugins:
 
 # nav 部分由 scripts/governance/gov-sync-mkdocs.sh 自动生成
 # 在 pre-commit 中也会自动同步
+
 
 
 
