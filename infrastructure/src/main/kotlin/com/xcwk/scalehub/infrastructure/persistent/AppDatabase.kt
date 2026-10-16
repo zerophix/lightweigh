@@ -22,13 +22,19 @@ abstract class AppDatabase : RoomDatabase() {
     companion object {
         /**
          * v1 → v2：补体脂计算输入快照三列（可空，历史行为空=未记录）。
+         * 列名必须与实体字段同名（ageYears/heightCm 驼峰）——G3 连接测试曾抓到
+         * 本处误写蛇形 age_years/height_cm 导致升级库与 schema 校验失败（2026-10-16）。
          * 对抗评审 R2-Q5：只存最终体脂率的历史无法解释，故把 male/age/height 随记录持久化。
          */
+        /** v1→v2 三列（可空）；抽为常量供静态对拍测试，migrate 与测试单一事实源。 */
+        const val MIGRATION_1_2_SQL =
+            "ALTER TABLE measurements ADD COLUMN male INTEGER;" +
+                "ALTER TABLE measurements ADD COLUMN ageYears INTEGER;" +
+                "ALTER TABLE measurements ADD COLUMN heightCm INTEGER"
+
         val MIGRATION_1_2 = object : Migration(1, 2) {
             override fun migrate(db: SupportSQLiteDatabase) {
-                db.execSQL("ALTER TABLE measurements ADD COLUMN male INTEGER")
-                db.execSQL("ALTER TABLE measurements ADD COLUMN age_years INTEGER")
-                db.execSQL("ALTER TABLE measurements ADD COLUMN height_cm INTEGER")
+                MIGRATION_1_2_SQL.split(";").forEach { stmt -> db.execSQL(stmt.trim()) }
             }
         }
 

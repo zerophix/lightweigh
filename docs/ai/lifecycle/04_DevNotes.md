@@ -124,6 +124,13 @@
   口径唯一事实源；修正 README 与生命周期文档里裸「N 项测试」等不写口径的表述；修复决策编号
   冲突——把复用了已占编号的「聚合不变量」「对抗评审 R2」分别改号为 DEC-017 / DEC-018，
   恢复 DEC-013（空模板校验）与 DEC-014（黄金标准去模板化），并修好决策索引生成器的标题解析。
+- 2026-10-16（G3 关闭）：真机迁移链测试（androidTest 新源集 + instrumentation
+  runner + schema 入 assets）。首跑抓获 R2 潜伏 bug：MIGRATION_1_2 蛇形
+  age_years/height_cm vs 实体驼峰——升级库会读崩；修复为驼峰并抽 MIGRATION_1_2_SQL
+  常量作单一事实源。静态对拍补盲 1→2 段（更名 MigrationSchemaAgreementTest、
+  可空列解析修正——原 shapeOf 要求 NOT NULL 漏抓可空列，v3 段恰全 NOT NULL 未暴露）。
+  真机证据：emulator-5554 android-35，tests=1 failures=0 errors=0
+  （2026-10-16T06:10:14），日志 /tmp/g3_final.log。G1/G3 双关闭。
 - 2026-10-16（G1 证据）：干净树构建溯源——SHA=fea604fc6e7d10ceea7aabb98da48801743a305e，
   TREE=0 非 cache 改动，CMD=`./gradlew test assembleDebug --console=plain` →
   BUILD SUCCESSFUL，91 任务（9 执行/82 复用），EXIT=0，UTC 2026-10-16T05:59:37Z；
@@ -204,6 +211,7 @@
 
 | 版本 | 日期 | 变更摘要 |
 |------|------|---------|
+| v25 | 2026-10-16 | G3 关闭：真机迁移链通过，抓获并修复 1→2 蛇形/驼峰缺陷，静态对拍补盲 |
 | v24 | 2026-10-16 | G1 收口：fea604f 干净树冷暖双跑全绿，溯源三要素在案（T-004 done） |
 | v23 | 2026-10-16 | G1 执行：接管工具链迁移 WIP（归因 DEC-015 作者=并行 session） |
 | v22 | 2026-10-16 | 归因事故补记：e0d6bcf 扫入 DEC-023（13 文件归属声明，收件箱通报） |
