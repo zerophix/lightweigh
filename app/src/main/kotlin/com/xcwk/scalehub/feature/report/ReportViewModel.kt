@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.xcwk.scalehub.App
-import com.xcwk.scalehub.application.query.MeasurementReport
+import com.xcwk.scalehub.application.query.BMI_LABELS
 import com.xcwk.scalehub.application.query.ReportQuery
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,8 +18,8 @@ import java.time.ZoneId
 import java.util.Locale
 
 /**
- * report — UDF 四件套之 ViewModel：消费 ReportQuery，格式化口径随旧库
- * （one=%.1f、delta=%+.1f）。评分/建议/体型属 BodyMetrics 规则下沉轮（披露延后）。
+ * report — UDF 四件套之 ViewModel：规则全部来自 BodyAnalysis（旧库 BodyMetrics
+ * 全套：评分/建议/体型/风险/控制/十八项指标），本层只做展示格式化与状态编排。
  */
 class ReportViewModel(
     private val reportQuery: ReportQuery,
@@ -36,8 +36,7 @@ class ReportViewModel(
 
     fun onIntent(intent: ReportIntent) {
         when (intent) {
-            // M2 云接入前占位：需求文档要求 AI 解读留在报告流程，按钮点亮待登录+联网
-            ReportIntent.AiExplain -> Unit
+            ReportIntent.AiExplain -> Unit   // M2 云接入前占位（需求：AI 解读留在报告流程）
         }
     }
 
@@ -47,36 +46,41 @@ class ReportViewModel(
             _state.update { it.copy(loading = false, found = false) }
             return
         }
+        val analysis = report.analysis
+        val bmiMetric = analysis.metrics.firstOrNull { it.name == "BMI" }
         _state.update {
             it.copy(
                 loading = false,
                 found = true,
                 timeText = fmt("yyyy/MM/dd HH:mm").format(Instant.ofEpochMilli(report.record.time)),
                 weightText = one(report.record.weight),
-                deltaLine = deltaLineOf(report),
-                bmiText = report.bmi?.let(::one) ?: "--",
-                bmiLabel = report.bmiLabel,
-                metrics = report.metrics.map { m ->
-                    ReportMetricUi(m.name, m.value?.let(::one) ?: "--", m.unit)
+                deltaLine = deltaLineOf(analysis.prevWeight, analysis.prevFat, report.record),
+                score = analysis.score,
+                advice = analysis.advice,
+                bodyShape = analysis.bodyShape,
+                risks = analysis.risks.map { r -> ReportRiskUi(r.name, r.levelText, r.tone) },
+                bmiText = bmiMetric?.valueText ?: "--",
+                bmiLabel = analysis.bmiLevel?.let { BMI_LABELS[it] },
+                metrics = analysis.metrics.map { m ->
+                    ReportMetricUi(m.name, m.valueText, m.unit, m.status, m.tone, m.delta)
                 },
-                missingText = report.missingProfile
+                fatControlText = analysis.fatControl?.let { signedOne(it) },
+                muscleControlText = analysis.muscleControl?.let { signedOne(it) },
+                standardWeightText = analysis.standardWeight?.let { one(it) },
+                missingText = analysis.missing
                     .takeIf { list -> list.isNotEmpty() }
                     ?.let { list -> "完善「${list.joinToString("、")}」档案，可解锁更完整的指标分析" },
-                disclaimer = if (report.record.impedance <= 0) {
-                    "这次测量没有阻抗，只保留体重和 BMI，不生成体成分分析"
-                } else {
-                    "体重、体脂率为实测记录；其余指标基于公认公式估算，仅供参考，不构成医疗建议"
-                },
+                disclaimer = report.disclaimer,
             )
         }
     }
 
     /** Pages:663 —— 双端有效给带符号值，否则 "--"。 */
-    private fun deltaLineOf(report: MeasurementReport): String {
-        val weightDiff = report.prevWeight?.let { "%+.1f".format(Locale.US, report.record.weight - it) } ?: "--"
-        val prevFat = report.prevFat
-        val fatDiff = if (report.record.fat >= 0 && prevFat != null) {
-            "%+.1f".format(Locale.US, report.record.fat - prevFat)
+    private fun deltaLineOf(prevWeight: Double?, prevFat: Double?, record: com.xcwk.scalehub.domain.model.MeasureRecord): String {
+        val weightDiff = prevWeight?.let { "%+.1f".format(Locale.US, record.weight - it) } ?: "--"
+        val prevFatValue = prevFat
+        val fatDiff = if (record.fat >= 0 && prevFatValue != null) {
+            "%+.1f".format(Locale.US, record.fat - prevFatValue)
         } else {
             "--"
         }
@@ -85,6 +89,7 @@ class ReportViewModel(
 
     private fun fmt(pattern: String) = java.time.format.DateTimeFormatter.ofPattern(pattern).withZone(zone)
     private fun one(value: Double): String = "%.1f".format(Locale.US, value)
+    private fun signedOne(value: Double): String = if (value > 0) "+${one(value)}" else one(value)
 
     companion object {
         fun Factory(time: Long, zone: ZoneId = ZoneId.systemDefault()) = viewModelFactory {
