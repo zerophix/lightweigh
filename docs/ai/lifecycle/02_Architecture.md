@@ -99,7 +99,58 @@ Room/SQLite 存储；蓝牙称重（M3）与云端同步（M2）是已规划但�
 UI 采用 UDF 三件套（`MeasureUiState` / `MeasureIntent` / `MeasureViewModel`），`MainActivity`
 只负责把首屏交给 Compose。时间戳在用例层盖章，存储层不各自盖章。
 
-## 6. 核心架构决策
+## 6. UI 架构（M4 立约，DEC-021）
+
+旧库 qk-health-android 的 UI 因「页面直连存储与云 + UiRefresh 全局刷新总线 + 千行页面文件」
+被判定不可持续扩展；v2 立约以下五条，先于 M4 任何页面代码生效：
+
+### 6.1 分层铁律：UI 零业务
+
+```
+Compose Screen ──渲染── UiState(不可变)   dispatch(Event) ──► ViewModel
+                                                              │ 只调用
+                                                              ▼
+                                        application 服务/查询 (suspend / Flow)
+```
+
+趋势筛选、月度汇总、差值计算、AI 摘要的业务上下文全部在 :application；Composable 只渲染，
+ViewModel 只编排。由 ArchUnit 守卫机械强制（app 的 ui 包禁 import infrastructure、存储与云
+SDK），规则随 M4 首个垂直切片落地（DEC-021 task A）——先立约、后上锁，锁的落地时点如实标注。
+
+### 6.2 UDF 替代全局刷新总线
+
+每屏一个 `StateFlow<UiState>`，动作为 sealed Event，一次性效果（导航/Toast/权限）走独立
+Effect 通道。跨屏刷新由**数据源层信号的订阅关系**决定（落库信号 → 订阅方自然重算），
+禁止复刻旧库 `UiRefresh.version++` 全局计数——谁该刷新必须可推理，不靠页面自觉。
+
+### 6.3 屏幕四件套（新增页面 = 新增目录 + 路由表一行）
+
+```
+feature/<name>/
+├── <Name>Screen.kt      # 无状态 Composable，@Preview 覆盖全状态组合
+├── <Name>ViewModel.kt    # 调 application、映射 UiModel、处理 Event
+├── <Name>UiState.kt      # State / sealed Event / sealed Effect
+└── <Name>Route.kt        # 类型安全路由
+```
+
+### 6.4 读模型下沉
+
+application 查询服务按 UiState 形状直出读模型（沿用 MeasurementQuery 方向：日末筛选、
+范围聚合在服务层完成并黄金测试），ViewModel 只做转发与格式化——UI 拿到即渲染，
+翻转旧库「UI 取原始记录自己筛」的模式。
+
+### 6.5 设计系统与导航
+
+色彩/字号/间距 token 与 5-8 个基础组件先立（卡片/空态/加载/面板/表单行），
+页面禁止散落硬编码样式。导航为类型安全 Route，**需求文档的信息架构树即导航图规格**；
+「报告 → 去完善 → 返回仍在报告」类返回语义单独立导航测试。
+
+### 6.6 交付节奏
+
+M4 按垂直切片推进：一次一个页面四件套，过「预览 + ViewModel JVM 测试 + 架构守卫」三关
+再进下一个；禁止旧库式 big-bang（14 个千行文件后集成）。
+
+## 7. 核心架构决策
 
 | 决策 | 方案（采纳） | 替代方案 | 理由 |
 |------|------------|---------|------|
@@ -108,17 +159,23 @@ UI 采用 UDF 三件套（`MeasureUiState` / `MeasureIntent` / `MeasureViewModel
 | 存储 | Room 关系表 | 旧库 SharedPreferences JSON | 关系表无 180 条截断，可按契约查询 |
 | 装配 | 手写 AppContainer | Hilt | 当前规模简单，装配点唯一，可平移 |
 | 领域错误 | domain.types.DomainException | 外层吞异常返回魔法值 | 错误类型归领域，文案转换归外层 |
+| UI 状态管理 | UDF + 每屏不可变 UiState（DEC-021） | 旧库 UiRefresh 全局计数总线 | 刷新由订阅关系决定，可推理可测试 |
+| 页面组织 | 屏幕四件套按 feature 目录 | 千行 Pages.kt 页面即文件 | 新增页面零改动现有页面，冲突面最小 |
+| UI 读路径 | application 直出读模型 | UI 取原始记录自组 | 筛选规则可黄金测试，UI 薄至可预览覆盖 |
 
-## 7. 约束条件
+## 8. 约束条件
 
 - `:domain` 与 `:application` 禁止任何 Android 依赖（编译期强制）
 - 领域内禁止抛 `android.*` 异常，禁止以 -1 充当错误码（-1 仅作"未计算"哨兵）
 - 改 Room 实体必须 version+1、写 Migration、导出 schema 快照入库
 - 统一包坐标 com.xcwk.scalehub（DEC-011）
+- UI 层禁止业务规则与全局刷新总线；跨屏刷新只经数据源信号订阅（DEC-021，
+  ArchUnit 机械守卫随 M4 首切片落地）
 
-## 8. 版本历史
+## 9. 版本历史
 
 | 版本 | 日期 | 变更摘要 |
 |------|------|---------|
+| v3 | 2026-10-16 | 新增 §6 UI 架构立约（DEC-021）：UDF/四件套/读模型/设计系统/垂直切片 |
 | v2 | 2026-10-16 | 重写为轻刻健康真实分层架构（四模块 DDD） |
 | v1 | 2026-07-10 | 初始架构：模板协作协议框架定义 |
