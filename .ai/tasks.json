@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-10-16T04:23:18Z",
+  "updated_at": "2026-10-16T05:30:29Z",
   "next_action": "人类协调并行会话提交工具链 WIP 收 G1（T-004）；随后开工 DEC-022 组 B 趋势规则下沉",
   "next_action_why": "G1 是一切交付的地基且投入产出比最高（WIP 已使全仓构建绿，只差提交+纯净复验）；组 B 纯 JVM 可测可与 G1 并行推进，产出 TrendQuery 黄金测试后 UI 层直接消费",
   "next_action_confirmed": false,
@@ -67,11 +67,11 @@
       "id": "T-006",
       "description": "M4 首个垂直切片: UI四件套范式落地+ArchUnit UI守卫上锁(DEC-021 task A)",
       "why": "",
-      "status": "pending",
+      "status": "completed",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-16T04:09:47Z",
-      "updated_at": "2026-10-16T04:09:47Z",
+      "updated_at": "2026-10-16T05:30:29Z",
       "notes": ""
     }
   ]

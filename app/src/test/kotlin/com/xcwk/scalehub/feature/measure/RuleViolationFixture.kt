@@ -9,4 +9,8 @@ import com.xcwk.scalehub.infrastructure.persistent.repository.InMemoryMeasuremen
 @Suppress("unused")
 class RuleViolationFixture {
     val bad: InMemoryMeasurementRepository = InMemoryMeasurementRepository()
+
+    /** 存储 SDK 负例（T-006 上锁随附）：Room 包级 + SharedPreferences 类名级。 */
+    val roomDb: androidx.room.RoomDatabase? = null
+    val prefs: android.content.SharedPreferences? = null
 }

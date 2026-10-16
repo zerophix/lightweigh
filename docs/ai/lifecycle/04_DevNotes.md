@@ -119,6 +119,14 @@
   口径唯一事实源；修正 README 与生命周期文档里裸「N 项测试」等不写口径的表述；修复决策编号
   冲突——把复用了已占编号的「聚合不变量」「对抗评审 R2」分别改号为 DEC-017 / DEC-018，
   恢复 DEC-013（空模板校验）与 DEC-014（黄金标准去模板化），并修好决策索引生成器的标题解析。
+- 2026-10-16（T-006 / DEC-021 task A）：首个 UI 垂直切片 feature/trend 四件套落地
+  （UiState/ViewModel/Screen/Route 分文件，Screen 无状态 + @Preview，样式仅用
+  MaterialTheme 槽位），ViewModel 消费组 B 的 TrendQuery 并按注入时区格式化；
+  ArchUnit 上锁两条存储 SDK 规则（androidx.room/java.sql 包级 + SharedPreferences
+  类名谓词，1.3.0 无 haveNameMatching 故手写 DescribedPredicate）+ 随附负例；
+  守卫合计 6 规则 9 方法，TrendViewModelTest 3 方法（初始化/意图重查/空态文案）。
+  Route 以常量契约先行（导航壳待 M4）；图表 Canvas 与设计 token（task B）待后续切片。
+
 - 2026-10-16（DEC-022 组 C）：Room health_logs 表。schema v2→v3：HealthLogPo 复合主键
   (loggedAt, type) 对齐云表唯一约束，MIGRATION_2_3 建表且 DDL 抽为可测常量；
   RoomHealthLogRepository 六字段往返 + 脏行 fail-fast 测试；迁移 DDL 与导出 3.json
@@ -161,6 +169,7 @@
 
 | 版本 | 日期 | 变更摘要 |
 |------|------|---------|
+| v19 | 2026-10-16 | T-006 首个 UI 切片 feature/trend 四件套 + ArchUnit 存储 SDK 守卫上锁 |
 | v18 | 2026-10-16 | DEC-022 组 C：Room health_logs 表 + 迁移静态对拍 |
 | v17 | 2026-10-16 | DEC-022 组 B 趋势规则下沉 + R2 读映射回归修复 |
 | v16 | 2026-10-16 | DEC-021 执行：trigger/ui → feature/measure 命名迁移 + 守卫规则扩展 |

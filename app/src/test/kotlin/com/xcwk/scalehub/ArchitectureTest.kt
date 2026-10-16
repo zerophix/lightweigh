@@ -4,6 +4,7 @@ import com.tngtech.archunit.core.domain.JavaClass
 import com.tngtech.archunit.core.domain.JavaClasses
 import com.tngtech.archunit.core.importer.ClassFileImporter
 import com.tngtech.archunit.core.importer.ImportOption
+import com.tngtech.archunit.base.DescribedPredicate
 import com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses
 import com.google.common.truth.Truth.assertWithMessage
 import com.xcwk.scalehub.feature.measure.RuleViolationFixture
@@ -23,6 +24,11 @@ import org.junit.Test
 class ArchitectureTest {
 
     companion object {
+        /** 类名级谓词：archunit 1.3.0 无 haveNameMatching，手写等价物（fullName 结尾匹配）。 */
+        private val sharedPrefsPredicate = object : DescribedPredicate<JavaClass>("依赖 SharedPreferences") {
+            override fun test(input: JavaClass): Boolean = input.fullName.endsWith("SharedPreferences")
+        }
+
         private lateinit var classes: JavaClasses
 
         /**
@@ -129,5 +135,46 @@ class ArchitectureTest {
             .that().resideInAPackage("com.xcwk.scalehub.feature..")
             .should().dependOnClassesThat().resideInAPackage("com.xcwk.scalehub.infrastructure..")
             .check(classes)
+    }
+
+    /**
+     * T-006 上锁（DEC-021 task A）：UI 直触存储 SDK 的两条规则——
+     * 包级（androidx.room/java.sql）+ 类名级（SharedPreferences）。
+     * 包级规则管不到 SharedPreferences（它在 android.content 里，UI 合法需要 Context），
+     * 故用类名谓词精确打击。
+     */
+    @Test
+    fun feature不依赖存储SDK包() {
+        noClasses()
+            .that().resideInAPackage("com.xcwk.scalehub.feature..")
+            .should().dependOnClassesThat().resideInAnyPackage(
+                "androidx.room..",
+                "java.sql..",
+            )
+            .check(classes)
+    }
+
+    @Test
+    fun feature不依赖SharedPreferences() {
+        noClasses()
+            .that().resideInAPackage("com.xcwk.scalehub.feature..")
+            .should().dependOnClassesThat(sharedPrefsPredicate)
+            .check(classes)
+    }
+
+    @Test
+    fun 守卫负例_违规的存储SDK依赖会被规则捕获() {
+        val fixture = ClassFileImporter().importClasses(RuleViolationFixture::class.java)
+        val pkgRule = noClasses()
+            .that().resideInAPackage("com.xcwk.scalehub.feature..")
+            .should().dependOnClassesThat().resideInAnyPackage("androidx.room..", "java.sql..")
+        val nameRule = noClasses()
+            .that().resideInAPackage("com.xcwk.scalehub.feature..")
+            .should().dependOnClassesThat(sharedPrefsPredicate)
+        val pkgCaught = try { pkgRule.check(fixture); false } catch (expected: AssertionError) { true }
+        val nameCaught = try { nameRule.check(fixture); false } catch (expected: AssertionError) { true }
+        assertWithMessage("守卫失效：夹具的 Room/SharedPreferences 依赖未被规则捕获")
+            .that(pkgCaught && nameCaught)
+            .isTrue()
     }
 }
