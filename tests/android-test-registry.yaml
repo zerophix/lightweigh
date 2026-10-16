@@ -123,5 +123,25 @@ commands:
   path: app/src/test/kotlin/com/xcwk/scalehub/feature/settings/SettingsViewModelTest.kt
   status: stable
   type: gradle-test
+- description: okok-1 连接秤解析黄金向量（帧头/组包/锁定语义, M3a）
+  path: domain/src/test/kotlin/com/xcwk/scalehub/domain/protocol/okok/OkokProtocolTest.kt
+  status: stable
+  type: gradle-test
+- description: 芯海云端版解析黄金向量（标记识别/MAC 正反序/表一换算, M3a）
+  path: domain/src/test/kotlin/com/xcwk/scalehub/domain/protocol/chipsea/ChipseaCloudProtocolTest.kt
+  status: stable
+  type: gradle-test
+- description: 单向广播秤报文黄金向量（三种前缀形态/表 2.3, M3a）
+  path: domain/src/test/kotlin/com/xcwk/scalehub/domain/protocol/okok/BroadcastOnlyTest.kt
+  status: stable
+  type: gradle-test
+- description: 协议注册表与识别优先级（chipsea>okok>broadcast, M3a）
+  path: domain/src/test/kotlin/com/xcwk/scalehub/domain/protocol/ProtocolsTest.kt
+  status: stable
+  type: gradle-test
+- description: 下发报文黄金向量（用户信息帧/时间帧/HEX 工具, M3a）
+  path: domain/src/test/kotlin/com/xcwk/scalehub/domain/protocol/packet/OutgoingPacketTest.kt
+  status: stable
+  type: gradle-test
 configs: []
 orphans: []
