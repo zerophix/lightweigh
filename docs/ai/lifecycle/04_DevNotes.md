@@ -121,10 +121,11 @@
   恢复 DEC-013（空模板校验）与 DEC-014（黄金标准去模板化），并修好决策索引生成器的标题解析。
 - 2026-10-16（DEC-022 组 B）：趋势查询规则下沉。MeasurementRepository 增区间读
   between（闭开区间升序，InMemory/Room DAO/伪造方四方同步）；TrendQuery 落地五类规则
-  （范围/时段/日末/统计/月汇总，逐条标注 TrendPages 行号），TrendQueryTest 10 项行为
-  测试。同车修复 R2 遗留回归：RoomMeasurementRepository.toDomain 快照透传因替换锚点
+  （范围/时段/日末/统计/月汇总，逐条标注 TrendPages 行号），TrendQueryTest 10 个单元
+  测试方法。同车修复 R2 遗留回归：RoomMeasurementRepository.toDomain 快照透传因替换锚点
   不匹配静默 no-op 未入库，读路径丢 male/age/height——补 RoomMappingTest 2 项（经公共
-  API 走写读往返），并现场演示回退即红/还原即绿。三模块合计 50 项测试全绿。
+  API 走写读往返），并现场演示回退即红/还原即绿。三模块本轮 Gradle 测试运行全部通过（执行数以
+  build/test-results 事实源为准）。
 
 - 2026-10-16（DEC-021 执行）：trigger/ui → feature/measure 命名迁移修复。3 文件 git mv
   （Screen/ViewModel/夹具）、包名与 import 更新、ArchUnit 四条规则禁区加 feature.. 并保留
@@ -152,7 +153,7 @@
 
 | 版本 | 日期 | 变更摘要 |
 |------|------|---------|
-| v17 | 2026-10-16 | DEC-022 组 B 趋势规则下沉 + R2 读映射回归修复（50 项测试） |
+| v17 | 2026-10-16 | DEC-022 组 B 趋势规则下沉 + R2 读映射回归修复 |
 | v16 | 2026-10-16 | DEC-021 执行：trigger/ui → feature/measure 命名迁移 + 守卫规则扩展 |
 | v15 | 2026-10-16 | DEC-022 移植计划 + 组 A 健康记录纵切（15 项行为测试） |
 | v14 | 2026-10-16 | DEC-021 UI 架构立约（02_Architecture §6 + 晋升） |
