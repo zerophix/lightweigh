@@ -143,5 +143,9 @@ commands:
   path: domain/src/test/kotlin/com/xcwk/scalehub/domain/protocol/packet/OutgoingPacketTest.kt
   status: stable
   type: gradle-test
+- description: 测量会话编排行为（识别/订阅/封存/确认流/超时/拿起重连, M3b）
+  path: application/src/test/kotlin/com/xcwk/scalehub/application/measure/MeasureSessionTest.kt
+  status: stable
+  type: gradle-test
 configs: []
 orphans: []

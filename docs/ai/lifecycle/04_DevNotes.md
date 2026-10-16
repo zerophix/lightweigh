@@ -257,6 +257,7 @@
 
 | 版本 | 日期 | 变更摘要 |
 |------|------|---------|
+| v39 | 2026-10-16 | M3b：BlePort 端口 + MeasureSession 测量编排（MeasureActivity 状态机移植，206 测试） |
 | v38 | 2026-10-16 | M3a：协议层黄金向量测试（okok/芯海/广播/组包/下发帧，195 测试） |
 | v37 | 2026-10-16 | M2c：设置账号三流程 UI + AI 问答客户端（AiService/CloudFunctionAi，163 测试） |
 | v36 | 2026-10-16 | M2b：SessionStore/CloudBaseGateway/AuthService + 游客门四件套（151 测试） |
