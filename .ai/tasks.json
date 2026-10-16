@@ -1,11 +1,13 @@
 {
   "version": 1,
-  "updated_at": "2026-10-16T05:30:29Z",
-  "next_action": "人类协调并行会话提交工具链 WIP 收 G1（T-004）；随后开工 DEC-022 组 B 趋势规则下沉",
-  "next_action_why": "G1 是一切交付的地基且投入产出比最高（WIP 已使全仓构建绿，只差提交+纯净复验）；组 B 纯 JVM 可测可与 G1 并行推进，产出 TrendQuery 黄金测试后 UI 层直接消费",
+  "updated_at": "2026-10-16T06:05:00Z",
+  "next_action": "M4 壳/设计token/趋势切片已落; 下一步=设备或我的切片, 或阶段1契约升级",
+  "next_action_why": "DEC-021 A/B 全闭、T-006 done; 首页/设备/我的仍为占位, 需求文档 IA 逐切片移植",
   "next_action_confirmed": false,
   "known_risks": [
-    "纯净 HEAD 仍红（kotlinOptions@application:12 + Kotlin 2.2.10 deprecated-as-error），一切测试绿均为 HEAD+WIP 口径，WIP 三件套未动勿动勿暂存；T-003 未启用，共享暂存区靠时机，任何提交前必查 git diff --cached 是否被他人占位；G5 真机对拍未做，禁止宣称算法验收通过；UI 架构守卫处于立约期未上锁；会话收尾时全量校验红 2 项源自并行 DEC-023 在途状态，非本 session 引入。"
+    "G1 阻断: 工具链WIP(3文件)仍未提交, 测试均为 HEAD+WIP 口径",
+    "T-003 未启用: 本 session 已发生归因事故(e0d6bcf 扫入13文件), 详见 DevNotes v22",
+    "G3 迁移运行时验证待 T-005; G5 真机对拍未做"
   ],
   "tasks": [
     {
