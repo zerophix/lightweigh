@@ -115,7 +115,7 @@ class ArchitectureTest {
     fun 守卫负例_违规的feature依赖会被规则捕获() {
         val fixture = ClassFileImporter().importClasses(RuleViolationFixture::class.java)
         val rule = noClasses()
-            .that().resideInAPackage("com.xcwk.scalehub.feature..")
+            .that().resideInAnyPackage("com.xcwk.scalehub.feature..", "com.xcwk.scalehub.ui..")
             .should().dependOnClassesThat().resideInAPackage("com.xcwk.scalehub.infrastructure..")
         val caughtViolation = try {
             rule.check(fixture)
@@ -132,7 +132,7 @@ class ArchitectureTest {
     @Test
     fun ui不绕过application直接依赖infrastructure() {
         noClasses()
-            .that().resideInAPackage("com.xcwk.scalehub.feature..")
+            .that().resideInAnyPackage("com.xcwk.scalehub.feature..", "com.xcwk.scalehub.ui..")
             .should().dependOnClassesThat().resideInAPackage("com.xcwk.scalehub.infrastructure..")
             .check(classes)
     }
@@ -146,7 +146,7 @@ class ArchitectureTest {
     @Test
     fun feature不依赖存储SDK包() {
         noClasses()
-            .that().resideInAPackage("com.xcwk.scalehub.feature..")
+            .that().resideInAnyPackage("com.xcwk.scalehub.feature..", "com.xcwk.scalehub.ui..")
             .should().dependOnClassesThat().resideInAnyPackage(
                 "androidx.room..",
                 "java.sql..",
@@ -157,7 +157,7 @@ class ArchitectureTest {
     @Test
     fun feature不依赖SharedPreferences() {
         noClasses()
-            .that().resideInAPackage("com.xcwk.scalehub.feature..")
+            .that().resideInAnyPackage("com.xcwk.scalehub.feature..", "com.xcwk.scalehub.ui..")
             .should().dependOnClassesThat(sharedPrefsPredicate)
             .check(classes)
     }
@@ -166,10 +166,10 @@ class ArchitectureTest {
     fun 守卫负例_违规的存储SDK依赖会被规则捕获() {
         val fixture = ClassFileImporter().importClasses(RuleViolationFixture::class.java)
         val pkgRule = noClasses()
-            .that().resideInAPackage("com.xcwk.scalehub.feature..")
+            .that().resideInAnyPackage("com.xcwk.scalehub.feature..", "com.xcwk.scalehub.ui..")
             .should().dependOnClassesThat().resideInAnyPackage("androidx.room..", "java.sql..")
         val nameRule = noClasses()
-            .that().resideInAPackage("com.xcwk.scalehub.feature..")
+            .that().resideInAnyPackage("com.xcwk.scalehub.feature..", "com.xcwk.scalehub.ui..")
             .should().dependOnClassesThat(sharedPrefsPredicate)
         val pkgCaught = try { pkgRule.check(fixture); false } catch (expected: AssertionError) { true }
         val nameCaught = try { nameRule.check(fixture); false } catch (expected: AssertionError) { true }

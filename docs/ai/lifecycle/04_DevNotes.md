@@ -92,6 +92,11 @@
 
 ## 5. 变更记录
 
+- 2026-10-16（DEC-023）：Android 治理本地化收口。评估确认治理可按语言耦合度分四层落地：
+  协议层/门禁层零耦合无需改，指标层已本地化，需收口 CI 对齐、Android 测试治理、analyzer 修整。
+  新增 GOV-ATEST-001~005 治理各模块 `src/test` 的 Kotlin/Java 测试（命名/版本/emoji/注册表），
+  配 9 个负向测试；新增 gov-lifecycle-audit.sh 供本地与 CI 共用"源码变更必须含 DEC+DevNotes"；
+  AGENTS.md CI/CD 段与校验速查表对齐真实实现。
 - 2026-10-16（DEC-011）：包坐标整体迁移 com.qingke.health → com.xcwk.scalehub，46 文件归位、
   9 处怪目录清除，Room schema 按新包名重导出，构建与测试全绿。
 - 2026-10-16（DEC-012）：生命周期 01~06 与黄金标准 architecture/index.md 改写为真实工程描述。
@@ -119,6 +124,12 @@
   口径唯一事实源；修正 README 与生命周期文档里裸「N 项测试」等不写口径的表述；修复决策编号
   冲突——把复用了已占编号的「聚合不变量」「对抗评审 R2」分别改号为 DEC-017 / DEC-018，
   恢复 DEC-013（空模板校验）与 DEC-014（黄金标准去模板化），并修好决策索引生成器的标题解析。
+- 2026-10-16（DEC-021 task B）：设计系统落地。QkTheme/QkColor 品牌色板（移植旧库
+  QingkeTheme：轻刻绿 2D8B56/Bg FAFAFA/Accent E85D04 等 9 色）+ QkSpacing 五档刻度；
+  Qk 组件库首批 5 个（Chip/Card/SectionTitle/StatRow/EmptyHint）；TrendScreen 组件化、
+  MainActivity 切 QkTheme；ArchUnit UI 层选择器 feature.. 扩为 feature.. + ui..
+  （6 处规则与负例同口径）。app 测试执行数 12 全绿。
+
 - 2026-10-16（T-006 / DEC-021 task A）：首个 UI 垂直切片 feature/trend 四件套落地
   （UiState/ViewModel/Screen/Route 分文件，Screen 无状态 + @Preview，样式仅用
   MaterialTheme 槽位），ViewModel 消费组 B 的 TrendQuery 并按注入时区格式化；
@@ -169,6 +180,8 @@
 
 | 版本 | 日期 | 变更摘要 |
 |------|------|---------|
+| v20 | 2026-10-16 | DEC-023 Android 治理本地化：GOV-ATEST 测试治理 + lifecycle-audit 脚本 + CI 对齐 |
+| v20 | 2026-10-16 | DEC-021 task B：QkTheme 设计 token + 首批 5 组件 + 守卫扩口 ui.. |
 | v19 | 2026-10-16 | T-006 首个 UI 切片 feature/trend 四件套 + ArchUnit 存储 SDK 守卫上锁 |
 | v18 | 2026-10-16 | DEC-022 组 C：Room health_logs 表 + 迁移静态对拍 |
 | v17 | 2026-10-16 | DEC-022 组 B 趋势规则下沉 + R2 读映射回归修复 |

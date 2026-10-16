@@ -1,14 +1,11 @@
 package com.xcwk.scalehub.feature.trend
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -16,6 +13,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.xcwk.scalehub.application.query.TrendRange
 import com.xcwk.scalehub.application.query.TrendSegment
+import com.xcwk.scalehub.ui.components.QkChip
+import com.xcwk.scalehub.ui.components.QkEmptyHint
+import com.xcwk.scalehub.ui.components.QkSectionTitle
+import com.xcwk.scalehub.ui.components.QkStatRow
+import com.xcwk.scalehub.ui.theme.QkTheme
 
 /**
  * feature.trend — 四件套之 Screen：无状态渲染 + 事件转发，不触任何数据层。
@@ -27,12 +29,12 @@ fun TrendScreen(state: TrendUiState, onIntent: (TrendIntent) -> Unit) {
         Text("趋势", style = MaterialTheme.typography.headlineSmall)
         Row(modifier = Modifier.fillMaxWidth().padding(top = 12.dp)) {
             TrendRange.entries.forEach { r ->
-                Chip(label(r), state.range == r) { onIntent(TrendIntent.RangeChanged(r)) }
+                QkChip(label(r), state.range == r) { onIntent(TrendIntent.RangeChanged(r)) }
             }
         }
         Row(modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
             TrendSegment.entries.forEach { s ->
-                Chip(label(s), state.segment == s) { onIntent(TrendIntent.SegmentChanged(s)) }
+                QkChip(label(s), state.segment == s) { onIntent(TrendIntent.SegmentChanged(s)) }
             }
         }
         state.weight?.let { Block("体重趋势", it, Modifier.padding(top = 20.dp)) }
@@ -43,17 +45,16 @@ fun TrendScreen(state: TrendUiState, onIntent: (TrendIntent) -> Unit) {
 @Composable
 private fun Block(title: String, block: TrendBlockUi, modifier: Modifier = Modifier) {
     Column(modifier = modifier.fillMaxWidth()) {
-        Text(title, style = MaterialTheme.typography.titleMedium)
-        Text(block.caption, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        QkSectionTitle(title, block.caption)
         if (block.emptyText != null) {
-            Text(block.emptyText, modifier = Modifier.padding(top = 12.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
+            QkEmptyHint(block.emptyText)
         } else {
-            // TODO M4 视觉轮：面积图 Canvas（旧库 AreaTrendChart 等价物）
-            Text(
-                "最高 ${block.highValue} (${block.highDay}) · 最低 ${block.lowValue} (${block.lowDay}) · 变化 ${block.changeValue}",
-                modifier = Modifier.padding(top = 8.dp),
+            QkStatRow(
+                high = block.highValue ?: "--", highCaption = "(${block.highDay})最高",
+                low = block.lowValue ?: "--", lowCaption = "(${block.lowDay})最低",
+                change = block.changeValue ?: "--",
             )
-            // 图形化：待 M4 图表组件（依赖 DEC-021 task B 设计组件库）
+            // TODO M4 视觉轮：面积图 Canvas（旧库 AreaTrendChart 等价物）
             Text(
                 block.points.joinToString("  ") { "%.1f".format(it.value) },
                 modifier = Modifier.padding(top = 4.dp),
@@ -61,18 +62,6 @@ private fun Block(title: String, block: TrendBlockUi, modifier: Modifier = Modif
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
-    }
-}
-
-@Composable
-private fun Chip(label: String, selected: Boolean, onClick: () -> Unit) {
-    OutlinedButton(
-        onClick = onClick,
-        shape = RoundedCornerShape(50),
-        border = BorderStroke(if (selected) 2.dp else 1.dp, MaterialTheme.colorScheme.outline),
-        modifier = Modifier.padding(end = 8.dp),
-    ) {
-        Text(label, color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface)
     }
 }
 
@@ -93,7 +82,7 @@ private fun label(segment: TrendSegment): String = when (segment) {
 @Preview(showBackground = true)
 @Composable
 private fun TrendScreenPreview() {
-    MaterialTheme {
+    QkTheme {
         TrendScreen(
             state = TrendUiState(
                 loading = false,
