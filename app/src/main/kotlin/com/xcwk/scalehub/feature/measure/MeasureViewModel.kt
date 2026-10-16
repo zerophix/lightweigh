@@ -7,6 +7,8 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.xcwk.scalehub.App
 import com.xcwk.scalehub.application.command.RecordMeasurementCommand
+import com.xcwk.scalehub.application.query.HealthLogItem
+import com.xcwk.scalehub.application.query.HealthLogQuery
 import com.xcwk.scalehub.application.query.MeasurementQuery
 import com.xcwk.scalehub.application.service.RecordMeasurementService
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,6 +27,8 @@ data class MeasureUiState(
     val lastRecord: String? = null,
     val error: String? = null,
     val recent: List<String> = emptyList(),
+    /** 最近健康记录（加号面板写入的可见出口）。 */
+    val recentLogs: List<HealthLogItem> = emptyList(),
 )
 
 sealed interface MeasureIntent {
@@ -35,6 +39,7 @@ sealed interface MeasureIntent {
 class MeasureViewModel(
     private val recordMeasurement: RecordMeasurementService,
     private val measurementQuery: MeasurementQuery,
+    private val healthLogQuery: HealthLogQuery,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(MeasureUiState())
@@ -77,14 +82,19 @@ class MeasureViewModel(
             val fatText = if (it.fat >= 0) " · 体脂 ${it.fat}%" else ""
             "${it.weight} kg$fatText"
         }
-        _state.update { it.copy(recent = items) }
+        val logs = healthLogQuery.recent(5)
+        _state.update { it.copy(recent = items, recentLogs = logs) }
     }
 
     companion object {
         val Factory = viewModelFactory {
             initializer {
                 val app = this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as App
-                MeasureViewModel(app.container.recordMeasurementService, app.container.measurementQuery)
+                MeasureViewModel(
+                    app.container.recordMeasurementService,
+                    app.container.measurementQuery,
+                    app.container.healthLogQuery,
+                )
             }
         }
     }

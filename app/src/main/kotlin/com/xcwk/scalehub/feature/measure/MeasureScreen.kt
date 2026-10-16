@@ -7,6 +7,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -19,7 +21,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 fun MeasureScreen(vm: MeasureViewModel = viewModel(factory = MeasureViewModel.Factory)) {
     val state by vm.state.collectAsStateWithLifecycle()
 
-    Column(modifier = Modifier.fillMaxWidth().padding(24.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(24.dp)
+            .verticalScroll(rememberScrollState()),
+    ) {
         Text("记录体重", style = androidx.compose.material3.MaterialTheme.typography.headlineSmall)
         OutlinedTextField(
             value = state.weightInput,
@@ -45,5 +52,20 @@ fun MeasureScreen(vm: MeasureViewModel = viewModel(factory = MeasureViewModel.Fa
                 Text(item, modifier = Modifier.fillMaxWidth().padding(top = 8.dp))
             }
         }
+        if (state.recentLogs.isNotEmpty()) {
+            Text(
+                "健康记录",
+                style = androidx.compose.material3.MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(top = 20.dp),
+            )
+            state.recentLogs.forEach { log ->
+                Text(
+                    "${log.timeText}  ${log.typeLabel} · ${log.valueText}",
+                    style = androidx.compose.material3.MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(top = 8.dp),
+                )
+            }
+        }
+
     }
 }
