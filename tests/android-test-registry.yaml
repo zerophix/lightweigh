@@ -1,0 +1,55 @@
+commands:
+- description: 架构分层守卫（6 依赖规则 + 3 自证元测试，T-006 上锁后）
+  path: app/src/test/kotlin/com/xcwk/scalehub/ArchitectureTest.kt
+  status: stable
+  type: gradle-test
+- description: 算体脂落库用例
+  path: application/src/test/kotlin/com/xcwk/scalehub/application/service/RecordMeasurementServiceTest.kt
+  status: stable
+  type: gradle-test
+- description: okok-bia 黄金向量
+  path: domain/src/test/java/com/xcwk/scalehub/domain/algorithm/OkokBiaGoldenTest.java
+  status: stable
+  type: gradle-test
+- description: 聚合不变量（时间戳/量程/阻抗/体脂/哨兵）
+  path: domain/src/test/kotlin/com/xcwk/scalehub/domain/model/MeasureRecordTest.kt
+  status: stable
+  type: gradle-test
+- description: 重量单位解析
+  path: domain/src/test/kotlin/com/xcwk/scalehub/domain/protocol/packet/WeightValueTest.kt
+  status: stable
+  type: gradle-test
+- description: 内存仓储（倒序限数/幂等覆盖）
+  path: infrastructure/src/test/kotlin/com/xcwk/scalehub/infrastructure/persistent/repository/InMemoryMeasurementRepositoryTest.kt
+  status: stable
+  type: gradle-test
+- description: 健康记录模型（健康记录纵切, DEC-022）
+  path: domain/src/test/kotlin/com/xcwk/scalehub/domain/model/HealthLogTest.kt
+  status: stable
+  type: gradle-test
+- description: 记录健康记录用例（DEC-022）
+  path: application/src/test/kotlin/com/xcwk/scalehub/application/service/RecordHealthLogServiceTest.kt
+  status: stable
+  type: gradle-test
+- description: 趋势查询用例（DEC-022）
+  path: application/src/test/kotlin/com/xcwk/scalehub/application/query/TrendQueryTest.kt
+  status: stable
+  type: gradle-test
+- description: 数据库版本 23 迁移 schema 一致性（DEC-022）
+  path: infrastructure/src/test/kotlin/com/xcwk/scalehub/infrastructure/persistent/Migration23SchemaAgreementTest.kt
+  status: stable
+  type: gradle-test
+- description: Room 健康记录仓储（DEC-022）
+  path: infrastructure/src/test/kotlin/com/xcwk/scalehub/infrastructure/persistent/repository/RoomHealthLogRepositoryTest.kt
+  status: stable
+  type: gradle-test
+- description: Room 映射测试（DEC-022）
+  path: infrastructure/src/test/kotlin/com/xcwk/scalehub/infrastructure/persistent/repository/RoomMappingTest.kt
+  status: stable
+  type: gradle-test
+- description: trend ViewModel 行为（初始化/意图重查/空态, T-006）
+  path: app/src/test/kotlin/com/xcwk/scalehub/feature/trend/TrendViewModelTest.kt
+  status: stable
+  type: gradle-test
+configs: []
+orphans: []

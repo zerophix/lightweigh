@@ -20,6 +20,7 @@ scripts/governance/gov-next-decision.sh
 scripts/governance/gov-next-note.sh
 scripts/governance/gov-sync-mkdocs.sh
 scripts/governance/gov-sync-standards.sh
+scripts/governance/gov-lifecycle-audit.sh
 scripts/governance/gov-validate-decisions.sh
 scripts/governance/gov-governance.sh
 scripts/governance/gov-upgrade.sh
