@@ -19,10 +19,19 @@ commands:
   path: tests/unit/test_decision_index_integrity.py
   status: stable
   type: pytest
+- description: Android 测试治理负向测试（GOV-ATEST-001~005 故意违规断言, DEC-023）
+  path: tests/unit/test_android_tests_governance.py
+  status: stable
+  type: pytest
 configs:
 - critical: false
   description: pytest 配置
   path: pytest.ini
+  status: stable
+  type: config
+- critical: false
+  description: Android 单元测试注册表（GOV-ATEST-005 单一事实源, DEC-023）
+  path: tests/android-test-registry.yaml
   status: stable
   type: config
 orphans: []

@@ -131,6 +131,11 @@ commands:
   path: governance/gov-sync-standards.sh
   status: stable
   type: sh
+- description: 生命周期审计（源码变更必须含 DEC + DevNotes, 本地/CI 共用, DEC-023）
+  name: gov-lifecycle-audit
+  path: governance/gov-lifecycle-audit.sh
+  status: stable
+  type: sh
 - description: 决策真实性校验
   name: gov-validate-decisions
   path: governance/gov-validate-decisions.sh

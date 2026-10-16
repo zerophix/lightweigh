@@ -124,6 +124,12 @@
   口径唯一事实源；修正 README 与生命周期文档里裸「N 项测试」等不写口径的表述；修复决策编号
   冲突——把复用了已占编号的「聚合不变量」「对抗评审 R2」分别改号为 DEC-017 / DEC-018，
   恢复 DEC-013（空模板校验）与 DEC-014（黄金标准去模板化），并修好决策索引生成器的标题解析。
+- 2026-10-16（M4 启动）：导航壳 ui/shell/MainShell——四页签 IA（首页挂现有记录功能、
+  趋势经 TrendRoute 首次可达、设备/我的占位）、Scaffold+NavigationBar、页签状态
+  rememberSaveable 自持（宿主导航状态域，业务状态仍归 VM）、图标用 icons-core 子集；
+  MainActivity 改挂壳。未引 navigation 库（A3 假设留详情栈验证）。四模块 gradle 与
+  治理 56 项全绿。
+
 - 2026-10-16（DEC-021 task B）：设计系统落地。QkTheme/QkColor 品牌色板（移植旧库
   QingkeTheme：轻刻绿 2D8B56/Bg FAFAFA/Accent E85D04 等 9 色）+ QkSpacing 五档刻度；
   Qk 组件库首批 5 个（Chip/Card/SectionTitle/StatRow/EmptyHint）；TrendScreen 组件化、
@@ -180,6 +186,7 @@
 
 | 版本 | 日期 | 变更摘要 |
 |------|------|---------|
+| v21 | 2026-10-16 | M4 启动：四页签导航壳 MainShell（trend 首次可达） |
 | v20 | 2026-10-16 | DEC-023 Android 治理本地化：GOV-ATEST 测试治理 + lifecycle-audit 脚本 + CI 对齐 |
 | v20 | 2026-10-16 | DEC-021 task B：QkTheme 设计 token + 首批 5 组件 + 守卫扩口 ui.. |
 | v19 | 2026-10-16 | T-006 首个 UI 切片 feature/trend 四件套 + ArchUnit 存储 SDK 守卫上锁 |

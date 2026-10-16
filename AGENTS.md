@@ -292,6 +292,7 @@ bash scripts/governance/gov-upgrade.sh --apply <模板路径>  # 备份后同步
 bash scripts/workflow/wf-promote.sh <target> --decision <DEC>   # 晋升写入黄金标准
 bash scripts/governance/gov-sync-standards.sh --dec <DEC>          # 批量同步黄金标准
 bash scripts/governance/gov-sync-mkdocs.sh                         # 同步 mkdocs.yml 导航
+bash scripts/governance/gov-lifecycle-audit.sh                     # 源码变更必须含 DEC + DevNotes（本地/CI 共用）
 
 # ── 决策与笔记 ──
 bash scripts/governance/gov-next-decision.sh --create    # 创建决策模板（原子编号）
@@ -365,13 +366,13 @@ CI 中 `docs-build` Job 构建站点，`deploy` Job 发布到 GitHub Pages。
 
 | Job | 触发条件 | 作用 |
 |-----|---------|------|
-| `docs-validate` | 所有 push/PR | 运行 gov-validate.sh 全量校验（跨平台 Linux + macOS） |
-| `lifecycle-audit` | PR | 源码变更必须含 DEC + DevNotes，否则 CI 失败（不可绕过） |
-| `docs-build` | push | 构建 MkDocs 文档站点 |
-| `deploy` | main/master | 部署到 GitHub Pages |
+| `build-and-guard` | 所有 push/PR | `./gradlew build`：编译 + 单测 + ArchUnit 分层守卫 |
+| `docs-validate` | 所有 push/PR | 运行 gov-validate.sh 全量校验（文档 + 脚本 + 治理测试） |
+| `lifecycle-audit` | PR | 源码变更必须含 DEC + DevNotes（走 gov-lifecycle-audit.sh） |
 
 pre-push 也增加了硬检查：validate.sh PASS + DEC/DevNotes 审计 + STATUS.md 新鲜度。
 pre-push 可被 `--no-verify` 绕过，但 CI 的 `lifecycle-audit` 不可绕过。
+`lifecycle-audit` 与本地审计共用同一实现：`bash scripts/governance/gov-lifecycle-audit.sh`。
 
 自定义 CI：编辑 `.github/workflows/ci.yml` 加入项目的构建/测试步骤。
 
@@ -380,7 +381,7 @@ pre-push 可被 `--no-verify` 绕过，但 CI 的 `lifecycle-audit` 不可绕过
 ## 校验规则速查
 
 > 规则数量与清单以 `bash scripts/governance/gov-validate.sh` 实时输出为准（单一事实源，勿在文档中写死数字）。
-> 引擎: `gov-validate.py` 编排 8 个校验模块（`scripts/governance/modules/`）。
+> 引擎: `gov-validate.py` 编排 9 个校验模块（`scripts/governance/modules/`）。
 
 | 规则族 | 检查内容 | 级别 |
 |--------|---------|------|
@@ -392,8 +393,9 @@ pre-push 可被 `--no-verify` 绕过，但 CI 的 `lifecycle-audit` 不可绕过
 | GOV-CONTENT-008~011 | 项目记忆格式与时效、README 占位符与 Emoji | FAIL |
 | GOV-PROTO-001~003 | 收件箱 48h 未读、session-end 24h 时效、僵尸任务 | FAIL |
 | GOV-SCRIPT-001~009 | 脚本 registry 存在、目录前缀、命名坏味道、根目录裸脚本 | FAIL |
-| GOV-TEST-001~005 | 测试命名/结构/Emoji + pytest 执行（测试失败即校验失败） | FAIL |
+| GOV-TEST-001~005 | 治理测试命名/结构/Emoji + pytest 执行（测试失败即校验失败） | FAIL |
 | GOV-TEST-GOV-001~010 | 测试 registry 完整性、前缀、反向校验、空目录 | FAIL |
+| GOV-ATEST-001~005 | Android 单元测试治理：非 ASCII/命名/版本/Emoji/注册表完整性（DEC-023） | FAIL |
 | GOV-SKILL-001~003 | 技能约束（.claude/skills 相关，仅提示不阻塞） | WARN |
 
 注意：规则编号已从旧版 R1~R20 重命名为 GOV-* 族（R0 系列保留）；内容相似度检测不在 validate 内，手动运行 `python3 tools/analyze/ana-similarity.py`。

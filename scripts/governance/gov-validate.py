@@ -16,6 +16,8 @@ from scripts.governance.modules.gov_validate_scripts import check_all as check_s
 from scripts.governance.modules.gov_validate_tests import check_all as check_tests
 from scripts.governance.modules.gov_validate_skills import check_all as check_skills
 from scripts.governance.modules.gov_validate_tests_gov import check_all as check_tests_gov
+from scripts.governance.modules.gov_validate_android_tests import check_all as check_android_tests
+from scripts.governance.modules.gov_validate_android_tests import check_all as check_android_tests
 
 from scripts.governance.modules.gov_validate_core import errors
 
@@ -35,6 +37,7 @@ def main() -> int:
     check_tests()
     check_skills()
     check_tests_gov()
+    check_android_tests()
 
     # 摘要行恒定输出（两空格缩进匹配 gov-update-metrics.sh 的 `^  违规:` 锚点），
     # 成功时附加「全部通过」——DEC-005：输出契约对全部消费者稳定可用
