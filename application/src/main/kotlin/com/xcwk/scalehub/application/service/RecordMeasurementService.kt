@@ -22,7 +22,9 @@ class RecordMeasurementService(
 
     suspend fun execute(cmd: RecordMeasurementCommand): MeasureRecord {
         val fat = if (cmd.impedanceOhm <= 0) {
-            -1.0
+            // 手动录入可直录体脂（旧库 saveManualWeight extra 口径）；缺省 -1 哨兵，
+            // 越界仍由 MeasureRecord 构造守卫 fail-fast
+            cmd.manualFat ?: -1.0
         } else {
             val algorithm = Algorithms.of(cmd.algorithmId) ?: BuiltinComposition.INSTANCE
             algorithm.fatPercent(

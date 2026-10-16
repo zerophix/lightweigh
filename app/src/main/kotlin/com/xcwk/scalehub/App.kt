@@ -2,6 +2,7 @@ package com.xcwk.scalehub
 
 import android.content.Context
 import android.app.Application
+import com.xcwk.scalehub.application.query.HealthLogQuery
 import com.xcwk.scalehub.application.query.MeasurementQuery
 import com.xcwk.scalehub.application.query.ProfileQuery
 import com.xcwk.scalehub.application.query.ReportQuery
@@ -42,6 +43,7 @@ class AppContainer(context: Context) {
         RecordMeasurementService(measurementRepository, profileStore)
     }
     val measurementQuery: MeasurementQuery by lazy { MeasurementQuery(measurementRepository) }
+    val healthLogQuery: HealthLogQuery by lazy { HealthLogQuery(healthLogRepository) }
     val trendQuery: TrendQuery by lazy { TrendQuery(measurementRepository) }
     val recordHealthLogService: RecordHealthLogService by lazy {
         RecordHealthLogService(healthLogRepository)

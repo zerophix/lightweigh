@@ -87,5 +87,13 @@ commands:
   path: app/src/test/kotlin/com/xcwk/scalehub/feature/report/ReportViewModelTest.kt
   status: stable
   type: gradle-test
+- description: 健康记录读模型格式（七类单位随旧库口径, DEC-022）
+  path: application/src/test/kotlin/com/xcwk/scalehub/application/query/HealthLogQueryTest.kt
+  status: stable
+  type: gradle-test
+- description: record 表单八类行为（预设/快捷量/双保存路径/体脂直录）
+  path: app/src/test/kotlin/com/xcwk/scalehub/feature/record/RecordViewModelTest.kt
+  status: stable
+  type: gradle-test
 configs: []
 orphans: []

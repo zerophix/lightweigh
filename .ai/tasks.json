@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "updated_at": "2026-10-16T06:58:30Z",
-  "next_action": "待人类在 G5(T-007)/T-003 与下一步开发方向（BodyMetrics规则轮/设置切片/阶段1契约/M2）之间裁决",
-  "next_action_why": "复裁仅留两个人类/硬件项；开发候选均已在 DEC-022 分诊在案，方向选择涉及硬件与跨仓口径，不可AI擅定",
+  "updated_at": "2026-10-16T08:18:27Z",
+  "next_action": "加号面板+8类记录已落;下一步=首页完整化(体重卡片→报告)/报告保真轮/设置切片/阶段1契约",
+  "next_action_why": "",
   "next_action_confirmed": false,
   "known_risks": [
     "G1 阻断: 工具链WIP(3文件)仍未提交, 测试均为 HEAD+WIP 口径",

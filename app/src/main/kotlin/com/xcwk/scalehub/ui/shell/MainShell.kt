@@ -1,14 +1,23 @@
 package com.xcwk.scalehub.ui.shell
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.material3.ExperimentalMaterial3Api
+import com.xcwk.scalehub.feature.record.RECORD_TYPE_TITLES
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -47,34 +56,85 @@ enum class MainTab(val label: String) {
     MINE("我的"),
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainShell() {
     var tab by rememberSaveable { mutableStateOf(MainTab.HOME) }
+    var showQuick by rememberSaveable { mutableStateOf(false) }
+    // 记录表单是宿主级覆盖页（任何页签打开，导航即关闭）——例外域同 Route 层声明
+    var recordType by rememberSaveable { mutableStateOf("") }
     Scaffold(
         bottomBar = {
             NavigationBar {
-                MainTab.entries.forEach { t ->
-                    NavigationBarItem(
-                        selected = tab == t,
-                        onClick = { tab = t },
-                        icon = { Icon(iconFor(t), contentDescription = t.label) },
-                        label = { Text(t.label) },
-                    )
-                }
+                @Composable
+                fun item(t: MainTab) = NavigationBarItem(
+                    selected = tab == t && recordType.isEmpty(),
+                    onClick = { recordType = ""; showQuick = false; tab = t },
+                    icon = { Icon(iconFor(t), contentDescription = t.label) },
+                    label = { Text(t.label) },
+                )
+                item(MainTab.HOME)
+                item(MainTab.TREND)
+                // 中央加号（需求：底部四页 + 中央加号打开快捷记录）
+                NavigationBarItem(
+                    selected = false,
+                    onClick = { recordType = ""; showQuick = true },
+                    icon = { Icon(Icons.Filled.Add, contentDescription = "快捷记录") },
+                    label = { Text("记录") },
+                )
+                item(MainTab.DEVICE)
+                item(MainTab.MINE)
             }
         },
     ) { padding ->
         Box(modifier = Modifier.padding(padding)) {
-            when (tab) {
-                // 首页暂挂现有记录功能（体重卡片+最近列表），首页信息架构切片后续替换
-                MainTab.HOME -> MeasureScreen()
-                MainTab.TREND -> TrendRoute()
-                MainTab.DEVICE -> PlaceholderTab(
+            when {
+                recordType.isNotEmpty() -> com.xcwk.scalehub.feature.record.RecordRoute(
+                    type = recordType,
+                    onDone = { recordType = "" },
+                )
+                tab == MainTab.HOME -> MeasureScreen()
+                tab == MainTab.TREND -> TrendRoute()
+                tab == MainTab.DEVICE -> PlaceholderTab(
                     "设备",
                     "设备绑定与搜索在设备切片接入（移植旧库 BindActivity 行为）",
                 )
-                MainTab.MINE -> MineRoute()   // 设置页待设置切片；档案编辑已接入
+                else -> MineRoute()   // 设置页待设置切片；档案编辑已接入
             }
+        }
+    }
+
+    // 快捷记录面板（需求：AI 记录 + 8 项健康记录 + 绑定入口；不可用项如实置灰）
+    if (showQuick) {
+        ModalBottomSheet(onDismissRequest = { showQuick = false }) {
+            SheetRow("AI 记录", enabled = false, hint = "需登录联网，M2 接入") { showQuick = false }
+            RECORD_TYPE_TITLES.forEach { (type, title) ->
+                SheetRow(title, enabled = true) {
+                    showQuick = false
+                    recordType = type
+                }
+            }
+            SheetRow("绑定体脂秤", enabled = false, hint = "蓝牙绑定待 M3 接入") { showQuick = false }
+            Spacer(modifier = Modifier.padding(bottom = 24.dp))
+        }
+    }
+}
+
+@Composable
+private fun SheetRow(title: String, enabled: Boolean, hint: String? = null, onClick: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(enabled = enabled, onClick = onClick)
+            .padding(horizontal = 24.dp, vertical = 14.dp),
+    ) {
+        Text(
+            title,
+            style = MaterialTheme.typography.bodyLarge,
+            color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        if (hint != null) {
+            Text(hint, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }

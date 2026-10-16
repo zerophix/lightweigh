@@ -5,6 +5,9 @@ import com.xcwk.scalehub.application.command.RecordMeasurementCommand
 import com.xcwk.scalehub.domain.model.MeasureRecord
 import com.xcwk.scalehub.domain.repository.MeasurementRepository
 import com.xcwk.scalehub.domain.repository.MemberProfileReader
+import com.xcwk.scalehub.domain.types.DomainException
+import org.junit.Assert.assertThrows
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
@@ -40,6 +43,22 @@ class RecordMeasurementServiceTest {
         assertThat(r.fat).isWithin(0.05).of(18.1)   // 黄金向量：男30/175/70/500
         assertThat(repo.saved).hasSize(1)
         assertThat(repo.saved[0].algorithm).isEqualTo("builtin-1")
+    }
+
+    @Test
+    fun `手动体重_体脂直录与缺省哨兵`() = runTest {
+        val withFat = service.execute(RecordMeasurementCommand(72.5, 0.0, "", "builtin-1", manualFat = 21.0))
+        assertThat(withFat.fat).isWithin(1e-9).of(21.0)
+        val plain = service.execute(RecordMeasurementCommand(70.0, 0.0, "", "builtin-1"))
+        assertThat(plain.fat).isWithin(1e-9).of(-1.0)
+    }
+
+    @Test
+    fun `手动体脂越界_failfast`() {
+        assertThrows(DomainException::class.java) {
+            runBlocking { service.execute(RecordMeasurementCommand(70.0, 0.0, "", "builtin-1", manualFat = 150.0)) }
+        }
+        assertThat(repo.saved).isEmpty()
     }
 
     @Test
