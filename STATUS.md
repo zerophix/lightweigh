@@ -1,6 +1,6 @@
 # 项目状态
 
-> 由 generate-status.py 自动生成。最后更新: 2026-10-16T04:23:18Z
+> 由 generate-status.py 自动生成。最后更新: 2026-10-16T06:58:30Z
 > 新 AI 启动时: `cat STATUS.md && bash scripts/session/ses-context-load.sh`
 
 ---
@@ -13,7 +13,7 @@
 | 版本 | 0.1.0 |
 | 文档语言 | zh-CN |
 | Git 分支 | master |
-| 最后提交 | 81a2763 chore: merge health log port slice |
+| 最后提交 | a7f63bc chore: merge report slice |
 | 文档校验 | 运行: `bash scripts/governance/gov-validate.sh` |
 
 ## AI 交接
@@ -28,25 +28,26 @@
 
 **上下文：**
 
-> 完成: - 零信任对抗评审三轮闭环：R1 红点归因（c1dde64 隔离构建即红）+ 聚合不变量（DEC-017）；R2 计算输入快照 schema v1→v2 + 不变量溯源 + 单位换算四向量（DEC-018）；R3 撤回金丝雀虚报并补齐 4 条可执行断言 + 修复器/检测器 tests/ 豁免分叉修复（fb1fbad）+ 发布门槛 G1-G5（DEC-020）。终审=条件通过、禁止正式放行，报告入 docs/ai/reviews/20261016_harness-zero-trust/
-- UI 架构立约（DEC-021）：UDF+屏幕四件套+读模型下沉+设计系统+垂直切片，写入 02_Architecture §6 并晋升黄金标准，ArchUnit UI 守卫标注随 T-006 上锁
-- 移植重构启动（DEC-022）：保障矩阵七项（介质/时机/可验证/盲点）+ 任务组 A-D；组 A 健康记录纵切落库（efd4f76→81a2763）：6 源文件 + 15 行为测试，domain+application 33 项全绿
-- 配套：README 交付状态表与多轮反思、T-004/005/006 任务登记、收件箱接力信、R1 隔离工作树清理 | 决策: 终审口径落地：条件通过≠放行，放行只认最终 SHA 的纯净构建(G1)+真实迁移测试(G3)+同 SHA 复验(G2/G4)，文档声明/非最终SHA的绿/迁移SQL存在都不算数。UI 架构选 UDF+四件套+读模型下沉，依据是旧库病根有原文可指（UiRefresh 全局总线、千行 Pages、业务散落页面），先立约后上锁——守卫规则如实标注未落地而不是假装已有。移植忠实性原则：行为分界>枚举表象（weight 在旧库写测量表而非健康记录，Pages.kt:537），每条移植规则必带标注出处行号的行为测试。提交纪律全程执行：路径级暂存+审计清单、DEC/DevNotes/反思同车、R0 每提交刷新反思。
+> 完成: - 四轮零信任评审完整闭环：R1-R3 取证修复、第4轮复裁=构建产物交付通过（SHA a7bfc89）、算法验收待 G5；conclusion.md 入会审目录
+- G1 收口：接管工具链 WIP（归因 DEC-015 作者）→ fea604f 干净树冷暖双跑全绿（clean 95任务89实执行）
+- G3 收口：androidTest 真机迁移链 v1→v3（emulator-5554/android-35）通过，首跑击毙 R2 蛇形/驼峰迁移缺陷并修复，静态对拍补 1→2 盲区
+- 移植五切片全部入库：健康记录纵切(组A)、趋势查询(组B)、Room health_logs(组C)、T-006 trend UI+守卫上锁、设计 token、四页签导航壳、档案编辑（关闭 height=0 功能洞）、历史记录、体测报告——四作用域测试执行 103 全绿、治理 56 全绿、0 违规 0 警告
+- 事故与整改：e0d6bcf 扫入并行 13 文件（收件箱通报+DevNotes v22 归属补记，历史不回写）；审计改非空即中止并实拦一次；分支切换打断一次（锚点断言中止无半写态） | 决策: 复裁把构建交付与算法验收拆成两个判定对象后证据才能对位（本session反思已录）；G3 不豁免被首跑战果证明正确；切片优先级按'错误数据正在发生'排序（档案 writer 缺失=体脂一直用 height=0 算）；接口演进靠编译器当清点员（delete 端口四方实现零遗漏）；R2 输入快照在报告页兑现自解释+防伪造双价值；所有提交路径级暂存+审计实列+DEC/DevNotes同车+每提交刷反思
 
 **下一步：**
 
-> 人类协调并行会话提交工具链 WIP 收 G1（T-004）；随后开工 DEC-022 组 B 趋势规则下沉
+> 待人类在 G5(T-007)/T-003 与下一步开发方向（BodyMetrics规则轮/设置切片/阶段1契约/M2）之间裁决
 
 ## 最近动态
 
 最近 5 次提交：
 
 ```
-81a2763 chore: merge health log port slice
-efd4f76 feat(application): port health log domain slice from legacy
-d6c3f06 chore: merge UI architecture conventions
-6a76180 docs(architecture): codify UI layer conventions for M4
-11d7a83 chore: merge adversarial review verdict
+a7f63bc chore: merge report slice
+24722ce feat(report): land body measurement report slice
+3b92254 chore: merge history slice
+c9efd3b feat(history): land history records vertical slice
+edf2cb1 chore: merge profile edit slice
 ```
 
 ## 工程指标
@@ -82,5 +83,5 @@ d6c3f06 chore: merge UI architecture conventions
 
 > 上次 AI session 的经验教训。新 AI 启动时必读。
 
-终审口径落地：条件通过≠放行，放行只认最终 SHA 的纯净构建(G1)+真实迁移测试(G3)+同 SHA 复验(G2/G4)，文档声明/非最终SHA的绿/迁移SQL存在都不算数。UI 架构选 UDF+四件套+读模型下沉，依据是旧库病根有原文可指（UiRefresh 全局总线、千行 Pages、业务散落页面），先立约后上锁——守卫规则如实标注未落地而不是假装已有。移植忠实性原则：行为分界>枚举表象（weight 在旧库写测量表而非健康记录，Pages.kt:537），每条移植规则必带标注出处行号的行为测试。提交纪律全程执行：路径级暂存+审计清单、DEC/DevNotes/反思同车、R0 每提交刷新反思。
+复裁把构建交付与算法验收拆成两个判定对象后证据才能对位（本session反思已录）；G3 不豁免被首跑战果证明正确；切片优先级按'错误数据正在发生'排序（档案 writer 缺失=体脂一直用 height=0 算）；接口演进靠编译器当清点员（delete 端口四方实现零遗漏）；R2 输入快照在报告页兑现自解释+防伪造双价值；所有提交路径级暂存+审计实列+DEC/DevNotes同车+每提交刷反思
 
