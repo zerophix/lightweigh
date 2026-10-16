@@ -5,6 +5,7 @@ import com.xcwk.scalehub.application.auth.AuthPort
 import com.xcwk.scalehub.application.auth.AuthService
 import com.xcwk.scalehub.application.auth.SignInResult
 import com.xcwk.scalehub.application.auth.SmsCodeResult
+import com.xcwk.scalehub.ui.legal.LegalDoc
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -50,6 +51,10 @@ class AuthGateViewModelTest {
         override suspend fun deleteCurrentUser(verifyCode: String): String? = throw UnsupportedOperationException()
         override fun isEntered() = enteredFlag
         override fun markEntered() { enteredFlag = true }
+        override fun isFormalAccount() = enteredFlag
+        override fun phone() = ""
+        override fun signOut() { enteredFlag = false }
+        override suspend fun sendDeleteCode() = null
     }
 
     private fun vm(port: FakeAuthPort) = AuthGateViewModel(AuthService(port))

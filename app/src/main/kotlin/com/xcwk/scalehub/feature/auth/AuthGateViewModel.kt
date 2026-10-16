@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.xcwk.scalehub.App
+import com.xcwk.scalehub.ui.legal.LegalDoc
 import com.xcwk.scalehub.application.auth.AuthService
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow

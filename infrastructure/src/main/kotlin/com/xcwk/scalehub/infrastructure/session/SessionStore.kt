@@ -43,6 +43,8 @@ class SessionStore(context: Context) : CloudSessionPort, AuthPort {
             .apply()
     }
 
+    override fun phone(): String = prefs.getString(KEY_PHONE, "") ?: ""
+
     override fun isEntered(): Boolean = prefs.getBoolean(KEY_ENTERED, false)
 
     override fun markEntered() {
@@ -102,6 +104,18 @@ class SessionStore(context: Context) : CloudSessionPort, AuthPort {
         }
         prefs.edit().putBoolean(KEY_FORMAL, true).putString(KEY_PHONE, rawDigits).apply()
         SignInResult(true, "登录成功")
+    }
+
+    override suspend fun sendDeleteCode(): String? = withContext(Dispatchers.IO) {
+        val token = accessToken() ?: return@withContext "登录已失效，请重新登录"
+        val result = request(
+            "POST", "$BASE/auth/v1/user/reauthenticate", token,
+            JSONObject().put("verify_opt", "phone_code").toString(),
+        ) ?: return@withContext "当前网络不可用，请联网后再试"
+        if (result.first !in 200..299) {
+            return@withContext authMessage(result.second, "验证码发送失败，请稍后再试")
+        }
+        null
     }
 
     override suspend fun deleteCurrentUser(verifyCode: String): String? = withContext(Dispatchers.IO) {

@@ -115,5 +115,13 @@ commands:
   path: infrastructure/src/test/kotlin/com/xcwk/scalehub/infrastructure/cloud/CloudBaseGatewayTest.kt
   status: stable
   type: gradle-test
+- description: AI 问答编排行为（游客拦截/空输入/网络文案, M2c）
+  path: application/src/test/kotlin/com/xcwk/scalehub/application/ai/AiServiceTest.kt
+  status: stable
+  type: gradle-test
+- description: 设置页账号三流程（恢复/退出/注销, M2c）
+  path: app/src/test/kotlin/com/xcwk/scalehub/feature/settings/SettingsViewModelTest.kt
+  status: stable
+  type: gradle-test
 configs: []
 orphans: []

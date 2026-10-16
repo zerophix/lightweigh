@@ -23,6 +23,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.xcwk.scalehub.ui.components.QkCard
+import com.xcwk.scalehub.ui.legal.AGREEMENT_SECTIONS
+import com.xcwk.scalehub.ui.legal.PRIVACY_SECTIONS
+import com.xcwk.scalehub.ui.legal.LegalDoc
 import com.xcwk.scalehub.ui.theme.QkTheme
 
 /**
