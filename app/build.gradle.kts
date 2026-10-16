@@ -3,13 +3,14 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
 }
 
 android {
-    namespace = "com.qingke.health"
+    namespace = "com.xcwk.scalehub"
     compileSdk = 34
     defaultConfig {
-        applicationId = "com.qingke.health"
+        applicationId = "com.xcwk.scalehub"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
@@ -24,7 +25,6 @@ android {
     }
     kotlinOptions { jvmTarget = "17" }
     buildFeatures { compose = true }
-    composeOptions { kotlinCompilerExtensionVersion = libs.versions.composeCompiler.get() }
     packaging { resources.excludes += "/META-INF/{AL2.0,LGPL2.1}" }
 }
 

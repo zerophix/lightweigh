@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.qingke.health.infrastructure"
+    namespace = "com.xcwk.scalehub.infrastructure"
     compileSdk = 34
     defaultConfig { minSdk = 24 }
     compileOptions {
