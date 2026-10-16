@@ -18,6 +18,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from scripts.governance.modules import gov_validate_core as core
+from scripts.governance.modules import gov_validate_content as content
 from scripts.governance.modules import gov_validate_structure as structure
 
 
@@ -465,3 +466,57 @@ def test_upgrade_check_and_apply_on_fork(tmp_path):
         (ROOT / "scripts/governance/gov-validate.sh").read_text(), "--apply 应同步到源内容"
     baks = list((fork / ".cache/upgrade-backup").rglob("gov-validate.sh"))
     assert baks and "forked old version" in baks[0].read_text(), "--apply 应先备份旧文件"
+
+
+def _dec_placeholder_check(tmp_path: Path, monkeypatch) -> list:
+    """在临时目录上运行决策占位符校验, 返回 GOV-CONTENT-012 错误。"""
+    monkeypatch.setattr(content, "DOCS", tmp_path / "docs")
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        content.check_decision_placeholders()
+    return [e for e in core.errors if "GOV-CONTENT-012" in e]
+
+
+def test_content012_placeholder_decision_fails(tmp_path, monkeypatch):
+    """GOV-CONTENT-012: 含未填充模板占位符的 DEC 必须 FAIL（DEC-012 空模板事故）。"""
+    d = tmp_path / "docs" / "ai" / "decisions"
+    d.mkdir(parents=True)
+    (d / "DEC-001.md").write_text(
+        "# DEC-001: <决策标题>\n\n## 决策\n\n<决策内容>\n", encoding="utf-8")
+    errors = _dec_placeholder_check(tmp_path, monkeypatch)
+    assert any("GOV-CONTENT-012" in e for e in errors), errors
+
+
+def test_content012_filled_decision_passes(tmp_path, monkeypatch):
+    """正向: 正常填写的决策不触发 GOV-CONTENT-012（防误报）。"""
+    d = tmp_path / "docs" / "ai" / "decisions"
+    d.mkdir(parents=True)
+    (d / "DEC-001.md").write_text(
+        "# DEC-001: 采用真实工程描述\n\n## 决策\n\n以真实工程为准改写文档。\n",
+        encoding="utf-8")
+    assert _dec_placeholder_check(tmp_path, monkeypatch) == []
+
+
+def test_content012_ignores_legit_angle_brackets(tmp_path, monkeypatch):
+    """GOV-CONTENT-012: 合法的尖括号用法（如 DEC-010 的 --check <源>）不得误报。
+
+    治理笔记曾建议用通用「含 < 占位符」判定, 但那会把 DEC-010 正文的
+    <源> 误判为未填充模板 —— 因此必须用模板 token 白名单。
+    """
+    d = tmp_path / "docs" / "ai" / "decisions"
+    d.mkdir(parents=True)
+    (d / "DEC-010.md").write_text(
+        "# DEC-010: 升级路径\n\n## 决策\n\n- `--check <源>`：只报告不修改\n",
+        encoding="utf-8")
+    assert _dec_placeholder_check(tmp_path, monkeypatch) == []
+
+
+def test_placeholder_list_covers_template():
+    """GOV-CONTENT-012: 白名单必须覆盖 gov-next-decision.sh 模板的全部 <...> token（防漂移）。"""
+    import re
+    sh = (ROOT / "scripts/governance/gov-next-decision.sh").read_text(encoding="utf-8")
+    m = re.search(r"<<TEMPLATE\n(.*?)\nTEMPLATE", sh, re.DOTALL)
+    assert m, "找不到 gov-next-decision.sh 的模板 heredoc"
+    template_tokens = set(re.findall(r"<[^<>\n]{1,40}>", m.group(1)))
+    missing = template_tokens - set(content.PLACEHOLDER_TOKENS)
+    assert not missing, f"白名单未覆盖模板占位符: {sorted(missing)}"

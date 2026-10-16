@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""GOV-CONTENT-001~011: 内容深度校验"""
+"""GOV-CONTENT-001~012: 内容深度校验"""
 import json, os, re, subprocess
 from datetime import datetime, timezone
 from pathlib import Path
@@ -211,11 +211,50 @@ def check_readme() -> None:
     print("  [PASS] README.md 内容时效性检查通过")
 
 
+# gov-next-decision.sh --create 模板里的占位符 token（单一事实源是那个模板；
+# test_placeholder_list_covers_template 钉住二者不漂移）。
+# 刻意用白名单而非通用 /<[^>]+>/ 正则：DEC-010 正文合法地使用 <源> 这类尖括号，
+# 通用正则会把合法决策误判为未填充模板。
+PLACEHOLDER_TOKENS: tuple[str, ...] = (
+    "<第 1 步待办>", "<第 2 步待办>", "<关联文件>",
+    "<决策标题>", "<一句话描述>", "<决策内容>",
+    "<假设>", "<依赖什么>", "<如果错了会怎样>",
+    "<方案A>", "<方案B>", "<理由>", "<触发条件>",
+)
+
+
+def check_decision_placeholders() -> None:
+    print("\n--- GOV-CONTENT-012: 决策模板占位符 ---")
+    dec_dir = DOCS / "ai" / "decisions"
+    if not dec_dir.is_dir():
+        print("  [SKIP] ai/decisions 目录不存在")
+        return
+    dec_files = sorted(
+        f for f in dec_dir.iterdir()
+        if f.is_file() and re.match(r"DEC-\d{3}\.md$", f.name)
+    )
+    if not dec_files:
+        print("  [SKIP] 无决策文件")
+        return
+    offenders: list[str] = []
+    for f in dec_files:
+        text = f.read_text(encoding="utf-8", errors="replace")
+        hits = [t for t in PLACEHOLDER_TOKENS if t in text]
+        if hits:
+            offenders.append(f"{f.name}（未填充: {'、'.join(hits)}）")
+    if offenders:
+        for o in offenders:
+            fail(f"GOV-CONTENT-012: 决策含未填充模板占位符，拒绝入库: {o}")
+    else:
+        print(f"  [PASS] {len(dec_files)} 份决策均无未填充占位符")
+
+
 def check_all() -> None:
     check_lifecycle_binding()
     check_metrics_timeliness()
     check_changelog()
     check_decisions()
+    check_decision_placeholders()
     check_reviews()
     check_memory()
     check_memory_freshness()
