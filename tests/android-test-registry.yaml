@@ -95,5 +95,9 @@ commands:
   path: app/src/test/kotlin/com/xcwk/scalehub/feature/record/RecordViewModelTest.kt
   status: stable
   type: gradle-test
+- description: BodyMetrics 全套规则移植 spot 检查（评分/体型/风险/系数, DEC-022）
+  path: application/src/test/kotlin/com/xcwk/scalehub/application/query/BodyAnalysisTest.kt
+  status: stable
+  type: gradle-test
 configs: []
 orphans: []

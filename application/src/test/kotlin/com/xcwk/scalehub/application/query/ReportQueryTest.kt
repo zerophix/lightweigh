@@ -7,7 +7,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
 /**
- * 体测报告读模型行为（BodyMetrics/Pages 规则出处见 ReportQuery 注释）。
+ * 体测报告读模型（BodyMetrics 全套规则入 BodyAnalysis 后的组装口径）。
  */
 class ReportQueryTest {
 
@@ -34,10 +34,10 @@ class ReportQueryTest {
         assertThat(bmiLevelOf(28.0)).isEqualTo(3)
         assertThat(bmiLevelOf(31.9)).isEqualTo(3)
         assertThat(bmiLevelOf(32.0)).isEqualTo(4)
-        // BMI = 70 / 1.75^2 = 22.9（标准）
         val report = ReportQuery(FakeRepo(listOf(fullRecord()))).report(1000L)!!
-        assertThat(report.bmi).isWithin(0.05).of(22.9)
-        assertThat(report.bmiLabel).isEqualTo("标准")
+        assertThat(report.analysis.bmi).isWithin(0.05).of(22.9)
+        assertThat(report.analysis.bmiLevel).isEqualTo(1)
+        assertThat(BMI_LABELS[report.analysis.bmiLevel!!]).isEqualTo("标准")
     }
 
     @Test
@@ -50,57 +50,57 @@ class ReportQueryTest {
                 ),
             ),
         )
-        val report = q.report(1000L)!!
-        assertThat(report.prevWeight).isWithin(1e-9).of(73.0)
-        assertThat(report.prevFat).isWithin(1e-9).of(20.0)
+        val analysis = q.report(1000L)!!.analysis
+        assertThat(analysis.prevWeight).isWithin(1e-9).of(73.0)
+        assertThat(analysis.prevFat).isWithin(1e-9).of(20.0)
     }
 
     @Test
-    fun `快照缺失_诚实给缺档与空指标`() = runTest {
-        // 旧库式行：无快照字段（6 参构造）
+    fun `快照缺失_诚实缺档与未录入指标`() = runTest {
         val legacy = MeasureRecord(1000L, 70.0, 500.0, 18.4, "", "okok-bia-1")
-        val report = ReportQuery(FakeRepo(listOf(legacy))).report(1000L)!!
-        assertThat(report.bmi).isNull()
-        assertThat(report.missingProfile).containsExactly("身高", "出生年")
-        // 体成分四项依赖快照 → null（自解释语义：不借当前档案补算）
-        val byName = report.metrics.associate { it.name to it.value }
-        assertThat(byName["水分率"]).isNull()
-        assertThat(byName["肌肉率"]).isNull()
-        assertThat(byName["骨量"]).isNull()
-        assertThat(byName["内脏脂肪"]).isNull()
-        assertThat(byName["体重"]).isNotNull()
-        assertThat(byName["体脂率"]).isNotNull()
+        val analysis = ReportQuery(FakeRepo(listOf(legacy))).report(1000L)!!.analysis
+        assertThat(analysis.missing).containsExactly("身高", "出生年")
+        val byName = analysis.metrics.associate { it.name to it }
+        assertThat(byName["BMI"]!!.valueText).isEqualTo("--")
+        assertThat(byName["内脏脂肪"]!!.valueText).isEqualTo("--")
+        assertThat(byName["肌肉率"]!!.status).isEqualTo("未录入")
+        // 自解释语义：okok 路径需年龄 → 跳过，不借当前档案
+        assertThat(analysis.score).isNull()
+        assertThat(analysis.bodyShape).isNull()
     }
 
     @Test
-    fun `无阻抗_okok分析为空但体重体脂在`() = runTest {
+    fun `无阻抗_只保留体重和BMI口径`() = runTest {
         val noZ = MeasureRecord(1000L, 70.0, 0.0, -1.0, "", "okok-bia-1", true, 30, 175)
         val report = ReportQuery(FakeRepo(listOf(noZ))).report(1000L)!!
-        val byName = report.metrics.associate { it.name to it.value }
-        assertThat(byName["体脂率"]).isNull()          // fat=-1 未计算
-        assertThat(byName["内脏脂肪"]).isNull()
-        assertThat(byName["体重"]).isNotNull()
-        assertThat(report.missingProfile).isEmpty()     // 快照齐备，缺档与阻抗无关
+        val names = report.analysis.metrics.map { it.name }
+        assertThat(names).containsExactly("BMI", "肥胖度", "身高", "实际年龄").inOrder()
+        assertThat(report.disclaimer).contains("没有阻抗")
+        assertThat(report.analysis.missing).isEmpty()
     }
 
     @Test
-    fun `builtin算法_不产体成分分析`() = runTest {
+    fun `builtin算法_通用估算路径产出体成分`() = runTest {
         val builtin = MeasureRecord(1000L, 70.0, 500.0, 18.4, "", "builtin-1", true, 30, 175)
-        val report = ReportQuery(FakeRepo(listOf(builtin))).report(1000L)!!
-        val byName = report.metrics.associate { it.name to it.value }
-        assertThat(byName["内脏脂肪"]).isNull()
-        assertThat(byName["水分率"]).isNull()
-        assertThat(byName["体脂率"]).isNotNull()
+        val analysis = ReportQuery(FakeRepo(listOf(builtin))).report(1000L)!!.analysis
+        val byName = analysis.metrics.associate { it.name to it }
+        // 通用估算：内脏脂肪 = 体脂率*0.35（BodyMetrics:106）
+        assertThat(byName["内脏脂肪"]!!.valueText).isNotEqualTo("--")
+        assertThat(byName["水分率"]!!.valueText).isNotEqualTo("--")
+        assertThat(byName["去脂体重"]!!.valueText).isNotEqualTo("--")
     }
 
     @Test
-    fun `okok全输入_体成分指标产出`() = runTest {
-        val report = ReportQuery(FakeRepo(listOf(fullRecord()))).report(1000L)!!
-        val byName = report.metrics.associate { it.name to it.value }
-        assertThat(byName["内脏脂肪"]).isNotNull()
-        assertThat(byName["肌肉率"]).isNotNull()
-        assertThat(byName["水分率"]).isNotNull()
-        assertThat(byName["骨量"]).isNotNull()
+    fun `okok全输入_指标与评分产出`() = runTest {
+        val analysis = ReportQuery(FakeRepo(listOf(fullRecord()))).report(1000L)!!.analysis
+        val byName = analysis.metrics.associate { it.name to it }
+        assertThat(byName["内脏脂肪"]!!.valueText).isNotEqualTo("--")
+        assertThat(byName["肌肉率"]!!.valueText).isNotEqualTo("--")
+        assertThat(byName["水分率"]!!.valueText).isNotEqualTo("--")
+        assertThat(byName["骨量"]!!.valueText).isNotEqualTo("--")
+        assertThat(analysis.score).isNotNull()
+        assertThat(analysis.risks.map { it.name }).contains("脂肪肝")   // 有阻抗才有
+        assertThat(analysis.advice).isNotEmpty()
     }
 
     @Test
