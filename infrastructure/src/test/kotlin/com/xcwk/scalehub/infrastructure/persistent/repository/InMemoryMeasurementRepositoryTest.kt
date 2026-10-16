@@ -29,6 +29,16 @@ class InMemoryMeasurementRepositoryTest {
     }
 
     @Test
+    fun `delete只移除目标行`() = runTest {
+        val repo = InMemoryMeasurementRepository()
+        repo.save(record(1000L)); repo.save(record(2000L))
+        repo.delete(1000L)
+        assertThat(repo.recent(10).map { it.time }).containsExactly(2000L)
+        repo.delete(1000L)   // 幂等：重复删除无副作用
+        assertThat(repo.recent(10)).hasSize(1)
+    }
+
+    @Test
     fun `同时间戳save幂等覆盖`() = runTest {
         val repo = InMemoryMeasurementRepository()
         repo.save(record(1000L))

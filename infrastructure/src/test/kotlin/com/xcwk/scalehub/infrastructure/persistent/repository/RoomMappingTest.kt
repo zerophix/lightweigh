@@ -28,6 +28,10 @@ class RoomMappingTest {
             toReturn.sortedByDescending { it.measuredAt }.take(limit)
         override suspend fun between(from: Long, to: Long): List<MeasurementPo> =
             toReturn.filter { it.measuredAt >= from && it.measuredAt < to }
+        override suspend fun delete(time: Long) {
+            saved.removeAll { it.measuredAt == time }
+            toReturn = saved.toList()
+        }
     }
 
     @Test

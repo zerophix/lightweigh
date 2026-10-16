@@ -1,7 +1,9 @@
 package com.xcwk.scalehub.feature.trend
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -24,9 +26,20 @@ import com.xcwk.scalehub.ui.theme.QkTheme
  * 样式只用 MaterialTheme 主题槽（设计 token 落地前禁止散落硬编码色值，DEC-021 支柱5）。
  */
 @Composable
-fun TrendScreen(state: TrendUiState, onIntent: (TrendIntent) -> Unit) {
+fun TrendScreen(
+    state: TrendUiState,
+    onIntent: (TrendIntent) -> Unit,
+    onOpenHistory: () -> Unit = {},
+) {
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Text("趋势", style = MaterialTheme.typography.headlineSmall)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("趋势", modifier = Modifier.weight(1f), style = MaterialTheme.typography.headlineSmall)
+            Text(
+                "历史记录",
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.clickable(onClick = onOpenHistory).padding(4.dp),
+            )
+        }
         Row(modifier = Modifier.fillMaxWidth().padding(top = 12.dp)) {
             TrendRange.entries.forEach { r ->
                 QkChip(label(r), state.range == r) { onIntent(TrendIntent.RangeChanged(r)) }
@@ -99,6 +112,7 @@ private fun TrendScreenPreview() {
                     changeValue = null, emptyText = "这段时间还没有体脂数据",
                 ),
             ),
-        ) {}
+            onIntent = {},
+        )
     }
 }

@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "updated_at": "2026-10-16T06:34:44Z",
-  "next_action": "我的切片已落(档案writer打通);下一步=历史记录页(消费月汇总) 或 阶段1契约 或 设置切片",
+  "updated_at": "2026-10-16T06:45:59Z",
+  "next_action": "历史记录切片已落;下一步=设置切片/阶段1契约/M2云同步(需人类确认方向)",
   "next_action_why": "",
   "next_action_confirmed": false,
   "known_risks": [
