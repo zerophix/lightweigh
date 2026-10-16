@@ -55,5 +55,17 @@ commands:
   path: infrastructure/src/androidTest/kotlin/com/xcwk/scalehub/infrastructure/persistent/MigrationTest.kt
   status: stable
   type: gradle-test
+- description: 档案值对象守卫与周岁算法（M4 我的切片, DEC-022）
+  path: domain/src/test/kotlin/com/xcwk/scalehub/domain/model/MemberProfileTest.kt
+  status: stable
+  type: gradle-test
+- description: 更新档案用例与档案查询（M4 我的切片）
+  path: application/src/test/kotlin/com/xcwk/scalehub/application/service/UpdateProfileServiceTest.kt
+  status: stable
+  type: gradle-test
+- description: mine ViewModel 行为（加载/拦截/保存, M4 我的切片）
+  path: app/src/test/kotlin/com/xcwk/scalehub/feature/mine/MineViewModelTest.kt
+  status: stable
+  type: gradle-test
 configs: []
 orphans: []
