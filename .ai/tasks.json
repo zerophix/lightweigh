@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-10-16T03:39:02Z",
+  "updated_at": "2026-10-16T04:09:47Z",
   "next_action": "",
   "next_action_why": "",
   "next_action_confirmed": false,
@@ -59,6 +59,17 @@
       "dec": "",
       "created_at": "2026-10-16T03:39:02Z",
       "updated_at": "2026-10-16T03:39:02Z",
+      "notes": ""
+    },
+    {
+      "id": "T-006",
+      "description": "M4 首个垂直切片: UI四件套范式落地+ArchUnit UI守卫上锁(DEC-021 task A)",
+      "why": "",
+      "status": "pending",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-16T04:09:47Z",
+      "updated_at": "2026-10-16T04:09:47Z",
       "notes": ""
     }
   ]
