@@ -38,6 +38,7 @@ fun HistoryScreen(
     state: HistoryUiState,
     onIntent: (HistoryIntent) -> Unit,
     onBack: () -> Unit = {},
+    onOpenReport: (Long) -> Unit = {},
 ) {
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -68,7 +69,10 @@ fun HistoryScreen(
                         HorizontalDivider(modifier = Modifier.padding(top = 6.dp))
                         month.rows.forEach { row ->
                             Row(
-                                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 8.dp)
+                                    .clickable { onOpenReport(row.time) },   // 需求：点击一条打开该次测量的体测报告
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 Column(modifier = Modifier.weight(1f)) {
