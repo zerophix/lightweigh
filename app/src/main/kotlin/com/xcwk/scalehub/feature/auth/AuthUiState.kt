@@ -1,7 +1,6 @@
 package com.xcwk.scalehub.feature.auth
 
-/** 法务文档态（需求：勾选前可阅读协议与隐私政策）。 */
-enum class LegalDoc { NONE, AGREEMENT, PRIVACY }
+import com.xcwk.scalehub.ui.legal.LegalDoc
 
 /** auth — 游客门四件套之 UiState（需求 3.1：先同意后进入，游客可直入）。 */
 data class AuthUiState(

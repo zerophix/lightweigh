@@ -60,6 +60,10 @@ class SyncServiceTest {
         ) = throw UnsupportedOperationException()
         override fun isEntered() = true
         override fun markEntered() = throw UnsupportedOperationException()
+        override fun isFormalAccount() = true
+        override fun phone() = "13800138000"
+        override fun signOut() = throw UnsupportedOperationException()
+        override suspend fun sendDeleteCode() = throw UnsupportedOperationException()
     }
 
     private class FakeMeasureRepo(rows: List<MeasureRecord> = emptyList()) : MeasurementRepository {

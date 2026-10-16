@@ -257,6 +257,7 @@
 
 | 版本 | 日期 | 变更摘要 |
 |------|------|---------|
+| v37 | 2026-10-16 | M2c：设置账号三流程 UI + AI 问答客户端（AiService/CloudFunctionAi，163 测试） |
 | v36 | 2026-10-16 | M2b：SessionStore/CloudBaseGateway/AuthService + 游客门四件套（151 测试） |
 | v35 | 2026-10-16 | M2a 同步语义核心：三端口 + SyncService（138 测试，无网可测） |
 | v34 | 2026-10-16 | 报告保真轮：BodyMetrics 全套移植（BodyAnalysis，127 测试） |

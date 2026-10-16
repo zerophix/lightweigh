@@ -1,5 +1,6 @@
 package com.xcwk.scalehub.feature.mine
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,6 +11,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -23,9 +25,20 @@ import com.xcwk.scalehub.ui.theme.QkTheme
  * 视觉只用主题槽与 Qk 组件（DEC-021 支柱5）；滚轮选择器属 M4 视觉轮 TODO。
  */
 @Composable
-fun MineScreen(state: MineUiState, onIntent: (MineIntent) -> Unit) {
+fun MineScreen(
+    state: MineUiState,
+    onIntent: (MineIntent) -> Unit,
+    onOpenSettings: () -> Unit = {},
+) {
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Text("我的资料", style = MaterialTheme.typography.headlineSmall)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("我的资料", modifier = Modifier.weight(1f), style = MaterialTheme.typography.headlineSmall)
+            Text(
+                "设置",
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.clickable(onClick = onOpenSettings).padding(4.dp),
+            )
+        }
         if (state.unsetHint) {
             QkEmptyHint("未设身高，体脂估算会不准确——请先完善资料", modifier = Modifier.padding(top = 4.dp))
         }
@@ -97,6 +110,7 @@ private fun MineScreenPreview() {
                 summary = "男 | 30岁 | 175cm",
                 unsetHint = false,
             ),
+            onIntent = {},
         ) {}
     }
 }
@@ -107,6 +121,7 @@ private fun MineScreenUnsetPreview() {
     QkTheme {
         MineScreen(
             state = MineUiState(loading = false, summary = "男 | --岁 | --cm", unsetHint = true),
+            onIntent = {},
         ) {}
     }
 }

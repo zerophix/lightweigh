@@ -18,6 +18,14 @@ class AuthService(
         auth.markEntered()
     }
 
+    /** 退出登录（本机测量与云端数据保留——需求口径）。 */
+    fun signOut() {
+        auth.signOut()
+    }
+
+    /** 注销验证码（仅正式用户）。 */
+    suspend fun sendDeleteCode(): String? = auth.sendDeleteCode()
+
     suspend fun sendSmsCode(phone: String): SmsCodeResult = auth.sendSmsCode(phone)
 
     suspend fun signIn(

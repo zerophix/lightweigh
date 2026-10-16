@@ -71,6 +71,8 @@ fun MainShell() {
     }
     var tab by rememberSaveable { mutableStateOf(MainTab.HOME) }
     var showQuick by rememberSaveable { mutableStateOf(false) }
+    // AI 问答是宿主级覆盖页（与记录表单同层：打开即回到刚才页面）
+    var showAi by rememberSaveable { mutableStateOf(false) }
     // 记录表单是宿主级覆盖页（任何页签打开，导航即关闭）——例外域同 Route 层声明
     var recordType by rememberSaveable { mutableStateOf("") }
     Scaffold(
@@ -78,8 +80,8 @@ fun MainShell() {
             NavigationBar {
                 @Composable
                 fun item(t: MainTab) = NavigationBarItem(
-                    selected = tab == t && recordType.isEmpty(),
-                    onClick = { recordType = ""; showQuick = false; tab = t },
+                    selected = tab == t && recordType.isEmpty() && !showAi,
+                    onClick = { recordType = ""; showQuick = false; showAi = false; tab = t },
                     icon = { Icon(iconFor(t), contentDescription = t.label) },
                     label = { Text(t.label) },
                 )
@@ -103,6 +105,7 @@ fun MainShell() {
                     type = recordType,
                     onDone = { recordType = "" },
                 )
+                showAi -> com.xcwk.scalehub.feature.ai.AiRoute(onBack = { showAi = false })
                 tab == MainTab.HOME -> MeasureScreen()
                 tab == MainTab.TREND -> TrendRoute()
                 tab == MainTab.DEVICE -> PlaceholderTab(
@@ -117,7 +120,10 @@ fun MainShell() {
     // 快捷记录面板（需求：AI 记录 + 8 项健康记录 + 绑定入口；不可用项如实置灰）
     if (showQuick) {
         ModalBottomSheet(onDismissRequest = { showQuick = false }) {
-            SheetRow("AI 记录", enabled = false, hint = "需登录联网，M2 接入") { showQuick = false }
+            SheetRow("AI 记录", enabled = true, hint = "问减脂饮食与体测指标；游客需手机号登录") {
+                showQuick = false
+                showAi = true
+            }
             RECORD_TYPE_TITLES.forEach { (type, title) ->
                 SheetRow(title, enabled = true) {
                     showQuick = false

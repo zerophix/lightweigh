@@ -3,6 +3,8 @@ package com.xcwk.scalehub
 import android.content.Context
 import android.app.Application
 import com.xcwk.scalehub.application.DataRefreshBus
+import com.xcwk.scalehub.application.ai.AiPort
+import com.xcwk.scalehub.application.ai.AiService
 import com.xcwk.scalehub.application.auth.AuthService
 import com.xcwk.scalehub.application.query.HealthLogQuery
 import com.xcwk.scalehub.application.query.MeasurementQuery
@@ -16,6 +18,7 @@ import com.xcwk.scalehub.application.service.DeleteMeasurementService
 import com.xcwk.scalehub.application.service.RecordMeasurementService
 import com.xcwk.scalehub.domain.repository.HealthLogRepository
 import com.xcwk.scalehub.domain.repository.MeasurementRepository
+import com.xcwk.scalehub.infrastructure.ai.CloudFunctionAi
 import com.xcwk.scalehub.infrastructure.cloud.CloudBaseGateway
 import com.xcwk.scalehub.infrastructure.persistent.AppDatabase
 import com.xcwk.scalehub.infrastructure.persistent.repository.RoomHealthLogRepository
@@ -76,4 +79,7 @@ class AppContainer(context: Context) {
     }
 
     val authService: AuthService by lazy { AuthService(sessionStore, syncService) }
+
+    /** AI 问答（M2c）：实现随 M2 部署联调（云函数 ai-chat）。 */
+    val aiService: AiService by lazy { AiService(sessionStore, CloudFunctionAi(sessionStore)) }
 }

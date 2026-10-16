@@ -34,4 +34,14 @@ interface AuthPort {
     /** 进入态：首次启动的登录/游客门是否已通过（旧库 guestEntered 语义）。 */
     fun isEntered(): Boolean
     fun markEntered()
+
+    /** 会话视图（设置页展示）。 */
+    fun isFormalAccount(): Boolean
+    fun phone(): String
+
+    /** 退出登录：只清本机登录态（需求：不删本机测量、不删云端）。 */
+    fun signOut()
+
+    /** 向当前登录手机号发注销验证码；null=已发送（旧库 Session.sendDeleteCode :233-246）。 */
+    suspend fun sendDeleteCode(): String?
 }

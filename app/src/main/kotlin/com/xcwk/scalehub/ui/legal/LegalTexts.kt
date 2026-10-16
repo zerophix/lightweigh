@@ -1,4 +1,7 @@
-package com.xcwk.scalehub.feature.auth
+package com.xcwk.scalehub.ui.legal
+
+/** 法务文档态（需求：勾选前可阅读；auth 门与设置页共享）。 */
+enum class LegalDoc { NONE, AGREEMENT, PRIVACY }
 
 /**
  * 协议与隐私政策全文 —— 逐条移植旧库 LegalPages.kt（agreementSections:18-23，
