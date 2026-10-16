@@ -124,6 +124,12 @@
   口径唯一事实源；修正 README 与生命周期文档里裸「N 项测试」等不写口径的表述；修复决策编号
   冲突——把复用了已占编号的「聚合不变量」「对抗评审 R2」分别改号为 DEC-017 / DEC-018，
   恢复 DEC-013（空模板校验）与 DEC-014（黄金标准去模板化），并修好决策索引生成器的标题解析。
+- 2026-10-16（G1 证据）：干净树构建溯源——SHA=fea604fc6e7d10ceea7aabb98da48801743a305e，
+  TREE=0 非 cache 改动，CMD=`./gradlew test assembleDebug --console=plain` →
+  BUILD SUCCESSFUL，91 任务（9 执行/82 复用），EXIT=0，UTC 2026-10-16T05:59:37Z；
+  冷跑 `clean test assembleDebug` → 95 任务 89 实执行，EXIT=0，0 失败，
+  UTC 2026-10-16T05:59:58Z。全量日志 /tmp/g1_build.log、/tmp/g1_cold.log。
+  G1（DEC-020 门禁）就此关闭；G2/G4 于本 SHA 全绿（pytest 56 + 钩子 0 违规）。
 - 2026-10-16（G1 执行·接管）：工具链迁移 WIP 接管提交。作者为并行 session（DEC-015：
   kotlinOptions→compilerOptions ×2 + Room 2.8.5），本 session 经人类暂停协调后接棒；
   内容逐行核对与 DEC-015 一致后以本 session 提交发出，归因以本条与提交信息声明为准。
@@ -198,6 +204,7 @@
 
 | 版本 | 日期 | 变更摘要 |
 |------|------|---------|
+| v24 | 2026-10-16 | G1 收口：fea604f 干净树冷暖双跑全绿，溯源三要素在案（T-004 done） |
 | v23 | 2026-10-16 | G1 执行：接管工具链迁移 WIP（归因 DEC-015 作者=并行 session） |
 | v22 | 2026-10-16 | 归因事故补记：e0d6bcf 扫入 DEC-023（13 文件归属声明，收件箱通报） |
 | v21 | 2026-10-16 | M4 启动：四页签导航壳 MainShell（trend 首次可达） |
