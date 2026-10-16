@@ -34,9 +34,3 @@ interface CloudSessionPort {
     fun subject(token: String): String?
     fun signOut()
 }
-
-/** 账号动作（注销先验码删云端身份；本机数据保留——需求：注销只删云端）。 */
-interface AuthPort {
-    /** @return null=成功；否则失败文案（旧库 deleteAccountNow 首段语义）。 */
-    suspend fun deleteCurrentUser(verifyCode: String): String?
-}

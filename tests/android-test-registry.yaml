@@ -103,5 +103,17 @@ commands:
   path: application/src/test/kotlin/com/xcwk/scalehub/application/sync/SyncServiceTest.kt
   status: stable
   type: gradle-test
+- description: 游客门行为（先同意后进入/倒计时/isUser 分支, M2b）
+  path: app/src/test/kotlin/com/xcwk/scalehub/feature/auth/AuthGateViewModelTest.kt
+  status: stable
+  type: gradle-test
+- description: 会话纯函数（手机号规范化/错误码映射, M2b）
+  path: infrastructure/src/test/kotlin/com/xcwk/scalehub/infrastructure/session/SessionStorePureTest.kt
+  status: stable
+  type: gradle-test
+- description: 网关纯函数（行解析类型保留/分块40, M2b）
+  path: infrastructure/src/test/kotlin/com/xcwk/scalehub/infrastructure/cloud/CloudBaseGatewayTest.kt
+  status: stable
+  type: gradle-test
 configs: []
 orphans: []

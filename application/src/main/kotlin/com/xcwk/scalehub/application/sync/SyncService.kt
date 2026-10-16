@@ -1,5 +1,6 @@
 package com.xcwk.scalehub.application.sync
 
+import com.xcwk.scalehub.application.auth.AuthPort
 import com.xcwk.scalehub.domain.model.HealthLog
 import com.xcwk.scalehub.domain.model.MeasureRecord
 import com.xcwk.scalehub.domain.model.MemberProfile
