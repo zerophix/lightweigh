@@ -32,7 +32,10 @@ CHANGED_MD=$(git diff --cached --name-only --diff-filter=ACMR | grep '\.md$' || 
 CHANGED_SCRIPTS=$(git diff --cached --name-only --diff-filter=ACMR | grep '^scripts/' | grep -v 'registry.yaml' | grep -v '/__pycache__/' | grep -v '\.pyc$' || true)
 
 # Stage 0a: emoji 检测+自动修复
-STAGED_TEXT_FILES=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.(py|sh|md|yaml|yml|json|toml|ts|tsx|js|jsx|css|html|txt)$' | grep -v '\.test\.' || true)
+# 排除 tests/: 键帽行为测试的夹具必须包含被测字符——与 GOV-TEST 检测器的
+# tests/ 豁免(gov_validate_tests.py:76-78)保持一致, 否则本修复器会在提交时
+# 吞掉检测器明确豁免的测试夹具(对抗评审 R3-Q8 发现的修复器/检测器分歧)。
+STAGED_TEXT_FILES=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.(py|sh|md|yaml|yml|json|toml|ts|tsx|js|jsx|css|html|txt)$' | grep -v '\.test\.' | grep -v '^tests/' || true)
 
 STAGED_EMOJI_FILES=""
 if [ -n "$STAGED_TEXT_FILES" ]; then

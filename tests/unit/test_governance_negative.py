@@ -520,3 +520,49 @@ def test_placeholder_list_covers_template():
     template_tokens = set(re.findall(r"<[^<>\n]{1,40}>", m.group(1)))
     missing = template_tokens - set(content.PLACEHOLDER_TOKENS)
     assert not missing, f"白名单未覆盖模板占位符: {sorted(missing)}"
+
+
+# ===== emoji 修复器金丝雀（对抗评审 R3-Q8, 2ad10b3 声称有断言但实际缺失, 本次补齐）=====
+# 夹具一律用转义序列构造: pre-commit Stage 0a 的 strip 修复器不含 GOV-TEST 的
+# tests/ 豁免(检测器有, gov_validate_tests.py:76), 裸 emoji 字面量会在提交时被钩子
+# 自己吞掉——转义构造使测试对所有 strip 路径免疫(按构造防御)。
+
+_KC = "\u20e3"                      # combining enclosing keycap
+_ZWJ = "\u200d"
+_VS16 = "\ufe0f"
+
+
+def test_canary_non_keycap_digits_survive():
+    """金丝雀1: 非键帽语境的数字/#/* 必须原样保留（历史事故的直接反例）。"""
+    from scripts.governance.modules.gov_emoji import strip_emoji
+    text = "版本 3.2 #tag *wild 100% issue#42 a1b2 维度 4x4"
+    assert strip_emoji(text) == text
+
+
+def test_canary_keycap_stripped_neighbours_survive():
+    """金丝雀2: 合法键帽被删除, 同一字符串内的普通数字与 #/* 保留。"""
+    from scripts.governance.modules.gov_emoji import strip_emoji
+    raw = "按 1" + _KC + " 开始 #tag"
+    assert strip_emoji(raw) == "按  开始 #tag"
+
+
+def test_canary_self_definition_untouched():
+    """金丝雀3(自指保护): 修复器处理自身定义文件必须零改动——
+    KEYCAP_RE 要求基字符紧邻, 本文件中 ⃣ 前一律为 ' ] 或空格, 结构上不可自匹配。"""
+    from scripts.governance.modules.gov_emoji import strip_emoji
+    src = (ROOT / "scripts/governance/modules/gov_emoji.py").read_text(encoding="utf-8")
+    assert strip_emoji(src) == src
+
+
+def test_canary_idempotent_crlf_mixed_unicode():
+    """金丝雀4: 重复运行幂等; CRLF、ZWJ 组合 emoji、不完整键帽混合输入。"""
+    from scripts.governance.modules.gov_emoji import strip_emoji
+    family = "家" + _ZWJ + "\U0001f468" + _ZWJ + "\U0001f469"   # ZWJ 组合
+    sample = "行一\r\n" + family + _VS16 + " 测试 42 # *\r\n裸键帽" + _KC + " 结束"
+    once = strip_emoji(sample)
+    assert strip_emoji(once) == once                    # 幂等
+    assert _ZWJ not in once and _VS16 not in once       # ZWJ/VS16 被清除
+    assert "\U0001f468" not in once                     # 组合成员被清除
+    assert "42 #" in once                               # 数字与 # 保留
+    # 已知边界(未覆盖): 无基字符的裸 ⃣ 不被 KEYCAP_RE 匹配, 原样保留——
+    # 故意不扩大正则以保自指安全(见 gov_emoji.py:74-76 注释), 此断言把该边界钉成已知行为。
