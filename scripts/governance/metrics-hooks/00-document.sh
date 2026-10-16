@@ -96,11 +96,11 @@ cat << METRICSEOF
 | 指标 | 当前值 | 说明 |
 |------|--------|------|
 | Gradle 模块 | ${GRADLE_MODULES} | domain / application / infrastructure / app |
-| 主源码文件 | ${MAIN_FILES} | Kotlin + Java（各模块 src/main） |
-| 主源码行数 | ${MAIN_LOC} | 四模块合计 |
+| 源文件 | ${MAIN_FILES} | Kotlin + Java（各模块 src/main） |
+| 源码行数 | ${MAIN_LOC} | 四模块合计 |
 | 测试文件 | ${TEST_FILES} | 各模块 src/test |
 | 测试代码行数 | ${TEST_LOC} | |
-| 测试 / 源码行比 | ${RATIO} | 测试行 ÷ 主源码行 |
+| 测试 / 源码行比 | ${RATIO} | 测试行 ÷ 源码行 |
 
 ## 2. 领域资产
 

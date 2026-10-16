@@ -15,6 +15,25 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 CACHE_FILE = ROOT / ".cache" / "context.jsonl"
 DOCS = ROOT / "docs"
+
+
+def doc_title(path: Path) -> str:
+    """取文档首个 H1 作标题；跳过 YAML 前置元数据。
+
+    gov-next-decision.sh --create 会写入 task_groups 前置元数据，直接取第一行会得到
+    "---" 而不是真实标题（DEC-019 修复）。
+    """
+    lines = path.read_text(encoding="utf-8", errors="replace").split("\n")
+    idx = 0
+    if lines and lines[0].strip() == "---":
+        for i in range(1, len(lines)):
+            if lines[i].strip() == "---":
+                idx = i + 1
+                break
+    for line in lines[idx:]:
+        if line.startswith("#"):
+            return line.lstrip("#").strip()
+    return path.stem
 STATUS_PATH = ROOT / "STATUS.md"
 
 
@@ -88,12 +107,12 @@ def read_cache() -> dict:
 
     # 最近 DEC
     for f in sorted((DOCS / "ai" / "decisions").glob("DEC-*.md"), reverse=True)[:3]:
-        title = f.read_text(encoding="utf-8", errors="replace").split("\n")[0].replace("# ", "").strip()
+        title = doc_title(f)
         data["decisions"].append({"id": f.stem, "title": title[:60]})
 
     # 最近 NOTE
     for f in sorted((DOCS / "notes").glob("NOTE-*.md"), reverse=True)[:3]:
-        title = f.read_text(encoding="utf-8", errors="replace").split("\n")[0].replace("# ", "").strip()
+        title = doc_title(f)
         data["recent_notes"].append({"id": f.stem, "title": title[:60]})
 
     return data

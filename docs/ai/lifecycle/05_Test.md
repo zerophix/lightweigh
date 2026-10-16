@@ -19,21 +19,26 @@
 
 ## 2. 测试清单
 
-| 测试文件 | 用例数 | 覆盖内容 |
-|---------|-------|---------|
-| OkokBiaGoldenTest.java | 2 | okok-bia 黄金向量、builtin-1 回落 |
-| RecordMeasurementServiceTest.kt | 3 | fat=-1 哨兵、age 守卫、算法回落 |
-| InMemoryMeasurementRepositoryTest.kt | 2 | 最新在前、limit 截断 |
-| ArchitectureTest.kt | 6 | 依赖方向 + 解析自检 + 违规负例 |
+| 测试文件 | 单元测试方法 | 覆盖内容 |
+|---------|:-----------:|---------|
+| OkokBiaGoldenTest.java | 2 | okok-bia 黄金向量通过、8 电极占位向量 |
+| WeightValueTest.kt | 4 | 公斤直通 / 斤折公斤 / 磅常数 / 英石拆包 |
+| MeasureRecordTest.kt | 7 | 聚合不变量：时间戳、体重量程、阻抗上下界、体脂范围、哨兵归一化 |
+| RecordMeasurementServiceTest.kt | 5 | 算体脂落库、计算输入快照持久化、改档案不改快照、无阻抗 -1、算法回落 |
+| InMemoryMeasurementRepositoryTest.kt | 2 | recent 倒序限数、同时间戳幂等覆盖 |
+| ArchitectureTest.kt | 6 | 4 条依赖规则 + 2 条自证元测试（解析自检 / 违规负例） |
 
-合计 13 个用例，分布覆盖 domain / application / infrastructure / app 四模块。
+合计 26 个单元测试方法（`@Test`），分布覆盖 domain / application / infrastructure / app 四模块
+（`RuleViolationFixture.kt` 是被守卫引用的夹具、不含 `@Test`，不计入）。按 Gradle 构建变体展开
+（app 与 infrastructure 各含 debug + release）后的**测试执行数**另计。术语定义见
+[术语与口径](../../reference/index.md)，数值快照见 [06_Metrics](06_Metrics.md)。
 
 ## 3. 运行方式
 
 ```
 ./gradlew build                            # 编译 + 全部 JVM 测试 + ArchUnit
 bash scripts/governance/gov-validate.sh    # 治理文档校验
-python3 -m pytest tests/ -q                # 治理负向测试
+python3 -m pytest tests/ -q                # 治理测试用例（负向校验 + 漂移守卫）
 ```
 
 架构守卫以两条元测试自证：`archunit能解析当前类文件`（防解析退化导致规则静默空转）与
@@ -50,5 +55,6 @@ python3 -m pytest tests/ -q                # 治理负向测试
 
 | 版本 | 日期 | 变更摘要 |
 |------|------|---------|
+| v3 | 2026-10-16 | 清单统一术语口径（单元测试方法 26）+ 补聚合不变量 / 单位向量用例（DEC-019） |
 | v2 | 2026-10-16 | 改为真实工程测试策略：JVM 单测 + 黄金向量 + ArchUnit + 治理校验 |
 | v1 | 2026-07-10 | 初始验证计划：模板项目的文档校验体系 |

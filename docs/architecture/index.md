@@ -2,7 +2,7 @@
 
 > qk-health-v2（轻刻健康 Android 客户端）采用 DDD 分层四模块工程，包坐标 com.xcwk.scalehub；
 > 依赖方向由编译器与 ArchUnit 双重强制。
-> 黄金标准快照：由 lifecycle/02_Architecture.md 晋升（DEC-012）。
+> 黄金标准快照：由 lifecycle/02_Architecture.md 晋升（DEC-019）。
 
 ---
 
@@ -54,7 +54,7 @@ Room/SQLite 存储；蓝牙称重（M3）与云端同步（M2）是已规划但�
 
 | 模块 | 类型 | 职责 | 关键内容 |
 |------|------|------|---------|
-| :domain | 纯 JVM | 领域内核：模型、协议解析、体成分算法、端口 | 28 个文件；model 4 / protocol 17 / algorithm 4 |
+| :domain | 纯 JVM | 领域内核：模型、协议解析、体成分算法、端口 | 28 个源文件（`src/main` 下 `*.kt` + `*.java`）：model 4 / protocol 17 / algorithm 4 / repository 2 / types 1 |
 | :application | 纯 JVM | 用例编排（写 command + 读 query） | RecordMeasurementService、MeasurementQuery |
 | :infrastructure | Android 库 | 端口实现层（Room / SharedPreferences） | AppDatabase、MeasurementDao/Po、两个仓储实现、ProfileStore |
 | :app | Android 应用 | 组合根 + trigger 层 + 架构守卫测试 | App/AppContainer、Compose 首屏、ArchitectureTest |
@@ -72,7 +72,7 @@ Room/SQLite 存储；蓝牙称重（M3）与云端同步（M2）是已规划但�
 
 ### ArchUnit 守卫
 
-`app/src/test/.../ArchitectureTest.kt` 以 6 条规则守住跨模块方向与"UI 不绕过用例"：
+`app/src/test/.../ArchitectureTest.kt` 以 4 条依赖规则守住跨模块方向与"UI 不绕过用例"：
 
 ```
 :domain ◄── :application ◄── :app
@@ -81,7 +81,8 @@ Room/SQLite 存储；蓝牙称重（M3）与云端同步（M2）是已规划但�
 ```
 
 守卫内含两条自证元测试：`archunit能解析当前类文件`（防 ASM 解析退化导致规则静默空转）与
-`守卫负例_违规的trigger依赖会被规则捕获`（用夹具证明违规必红）。
+`守卫负例_违规的trigger依赖会被规则捕获`（用夹具证明违规必红）；连同 4 条依赖规则，
+`ArchitectureTest.kt` 合计 6 个单元测试方法。
 
 ## 5. 运行时数据流
 
@@ -122,4 +123,4 @@ UI 采用 UDF 三件套（`MeasureUiState` / `MeasureIntent` / `MeasureViewModel
 | v2 | 2026-10-16 | 重写为轻刻健康真实分层架构（四模块 DDD） |
 | v1 | 2026-07-10 | 初始架构：模板协作协议框架定义 |
 
-## 来源: ai/decisions/DEC-012
+## 来源: ai/decisions/DEC-019
