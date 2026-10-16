@@ -156,7 +156,8 @@ def check_02():
     reviews_dir = ROOT / "docs" / "ai" / "reviews"
     if not reviews_dir.is_dir():
         return
-    review_files = list(reviews_dir.rglob("*.md"))
+    # 豁免 index.md：它是报告目录页，不是评审报告本体
+    review_files = [f for f in reviews_dir.rglob("*.md") if f.name != "index.md"]
     if not review_files:
         return
     failures = 0

@@ -3,6 +3,13 @@
 基于 your-android-scaffold 生成的生产业务工程。混合式重构路线：
 旧库 qk-health-android 冻结为行为参考，好层移植、烂层重写。
 
+## 快速开始
+
+    # 构建 + 全部测试（含 ArchUnit 守卫）
+    ./gradlew build
+
+    # Android Studio：Open 选择本目录，Gradle JDK 选 embedded jbr-21
+
 ## 当前里程碑（M1：可运行骨架）
 
 | 层 | 状态 |
@@ -31,6 +38,13 @@
 
 JDK 17+（Android Studio JBR 21）、Android SDK 34。applicationId: com.qingke.health。
 
+## 相关文档
+
+- [AGENTS.md](AGENTS.md) — AI 协作协议与治理规则
+- [STATUS.md](STATUS.md) — 自动生成的项目状态看板
+- [docs/](docs/index.md) — 架构/决策/生命周期完整文档站
+- 跨端契约：../spec/（黄金向量、data-schema、naming-map）
+
 ## 当前状态
 
 M1 里程碑完成：四模块可构建、13 测试全绿、APK 产出。治理模板已安装并通过全量校验。
@@ -45,3 +59,5 @@ M1 里程碑完成：四模块可构建、13 测试全绿、APK 产出。治理�
    使模式退化为可吞掉任意数字/#/* 的自指炸弹。已锚定 KEYCAP_RE 并加金丝雀测试防复发。**
 4. 非交互管道下 setup 的问答与 conda 分支行为与终端不同，先定位卡点再猜。
 5. 排查损坏先做字节级签名比对定位集合，再用 mtime 时间线锁定操作，比猜测快得多。
+6. 清 WARN 时踩到规则优先级：「当前状态」必须是最后一个二级章节，相关文档只能放它前面——改文档结构前先读对应检查器的判定顺序。
+7. 治理视野会随工具链生长：Android Studio 一打开就生成 local.properties，白名单要跟着工程生态更新，否则工具产物会被当成治理违规。

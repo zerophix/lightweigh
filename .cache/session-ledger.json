@@ -1,0 +1,13 @@
+{
+  "session_id": "sess-xdybv7",
+  "base_head": "8b0f1bd5d9fbfe42354e8bdbd443597cdd1ceed7",
+  "owned_files": [
+    ".cache/session-marker.json",
+    ".cache/session.lock"
+  ],
+  "committed_files": [],
+  "pending_files": [
+    ".cache/session-marker.json",
+    ".cache/session.lock"
+  ]
+}
