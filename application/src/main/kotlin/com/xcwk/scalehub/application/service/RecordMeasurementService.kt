@@ -30,9 +30,11 @@ class RecordMeasurementService(
                 cmd.weightKg, cmd.impedanceOhm,
             )
         }
+        // 计算输入随记录持久化（R2-Q5）：历史体脂永远可解释，不受档案后续变更影响
         val record = MeasureRecord(
             System.currentTimeMillis(), cmd.weightKg, cmd.impedanceOhm,
             fat, cmd.mac, cmd.algorithmId,
+            profile.male(), profile.ageYears(), profile.heightCm(),
         )
         repository.save(record)
         return record

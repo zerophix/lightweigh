@@ -18,11 +18,13 @@ class RecordMeasurementServiceTest {
     }
 
     private val repo = FakeRepo()
-    private val profile = object : MemberProfileReader {
+    private class MutableProfileFake : MemberProfileReader {
+        var heightCmValue = 175
         override fun male() = true
         override fun ageYears() = 30
-        override fun heightCm() = 175
+        override fun heightCm() = heightCmValue
     }
+    private val profile = MutableProfileFake()
     private val service = RecordMeasurementService(repo, profile)
 
     @Test
@@ -31,6 +33,22 @@ class RecordMeasurementServiceTest {
         assertThat(r.fat).isWithin(0.05).of(18.1)   // 黄金向量：男30/175/70/500
         assertThat(repo.saved).hasSize(1)
         assertThat(repo.saved[0].algorithm).isEqualTo("builtin-1")
+    }
+
+    @Test
+    fun `计算输入随记录持久化`() = runTest {
+        val r = service.execute(RecordMeasurementCommand(70.0, 500.0, "AA:BB", "builtin-1"))
+        assertThat(r.male).isTrue()
+        assertThat(r.ageYears).isEqualTo(30)
+        assertThat(r.heightCm).isEqualTo(175)
+    }
+
+    @Test
+    fun `存档后修改档案不改变已存记录的输入快照`() = runTest {
+        val saved = service.execute(RecordMeasurementCommand(70.0, 500.0, "AA:BB", "builtin-1"))
+        profile.heightCmValue = 180   // 模拟用户随后改档案
+        val stored = repo.saved.first { it.time == saved.time }
+        assertThat(stored.heightCm).isEqualTo(175)   // 快照仍是计算时的输入
     }
 
     @Test

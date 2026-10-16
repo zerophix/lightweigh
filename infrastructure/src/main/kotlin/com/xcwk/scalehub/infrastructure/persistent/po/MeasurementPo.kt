@@ -1,12 +1,13 @@
 package com.xcwk.scalehub.infrastructure.persistent.po
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 /**
- * po — 持久化对象。表结构对应 spec/contract/data-schema.json 的 measurements
- * （v2 起步列集；segments/mode 待 8 电极分支落地时随 version 升级，走 Migration）。
- * fat = -1 是"未计算"哨兵，与契约 default -1 一致。
+ * po — 持久化对象。表结构对应 spec/contract/data-schema.json 的 measurements。
+ * fat = -1 是"未计算"哨兵（契约 default -1）。
+ * v2 新增三列：体脂计算输入快照（可空，v1 旧数据为 NULL）。
  */
 @Entity(tableName = "measurements")
 data class MeasurementPo(
@@ -16,4 +17,7 @@ data class MeasurementPo(
     val fat: Double,
     val mac: String,
     val algorithmId: String,
+    val male: Boolean?,
+    val ageYears: Int?,
+    val heightCm: Int?,
 )

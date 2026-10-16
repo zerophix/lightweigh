@@ -15,6 +15,7 @@ class RoomMeasurementRepository(private val dao: MeasurementDao) : MeasurementRe
     private fun MeasureRecord.toPo() = MeasurementPo(
         measuredAt = time, weightKg = weight, impedanceOhm = impedance,
         fat = fat, mac = mac, algorithmId = algorithm,
+        male = male, ageYears = ageYears, heightCm = heightCm,
     )
 
     private fun MeasurementPo.toDomain() = MeasureRecord(
