@@ -151,5 +151,9 @@ commands:
   path: infrastructure/src/test/kotlin/com/xcwk/scalehub/infrastructure/persistent/repository/RoomDeviceRepositoryTest.kt
   status: stable
   type: gradle-test
+- description: 设备页扫描绑定行为（协议过滤/绑定切换/15s 超时, M3d）
+  path: app/src/test/kotlin/com/xcwk/scalehub/feature/device/DeviceViewModelTest.kt
+  status: stable
+  type: gradle-test
 configs: []
 orphans: []

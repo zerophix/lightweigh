@@ -73,6 +73,7 @@ fun MainShell() {
     var showQuick by rememberSaveable { mutableStateOf(false) }
     // AI 问答是宿主级覆盖页（与记录表单同层：打开即回到刚才页面）
     var showAi by rememberSaveable { mutableStateOf(false) }
+    var showScale by rememberSaveable { mutableStateOf(false) }
     // 记录表单是宿主级覆盖页（任何页签打开，导航即关闭）——例外域同 Route 层声明
     var recordType by rememberSaveable { mutableStateOf("") }
     Scaffold(
@@ -80,8 +81,8 @@ fun MainShell() {
             NavigationBar {
                 @Composable
                 fun item(t: MainTab) = NavigationBarItem(
-                    selected = tab == t && recordType.isEmpty() && !showAi,
-                    onClick = { recordType = ""; showQuick = false; showAi = false; tab = t },
+                    selected = tab == t && recordType.isEmpty() && !showAi && !showScale,
+                    onClick = { recordType = ""; showQuick = false; showAi = false; showScale = false; tab = t },
                     icon = { Icon(iconFor(t), contentDescription = t.label) },
                     label = { Text(t.label) },
                 )
@@ -106,12 +107,10 @@ fun MainShell() {
                     onDone = { recordType = "" },
                 )
                 showAi -> com.xcwk.scalehub.feature.ai.AiRoute(onBack = { showAi = false })
-                tab == MainTab.HOME -> MeasureScreen()
+                showScale -> com.xcwk.scalehub.feature.measure.scale.ScaleRoute(onBack = { showScale = false })
+                tab == MainTab.HOME -> MeasureScreen(onOpenScale = { showScale = true })
                 tab == MainTab.TREND -> TrendRoute()
-                tab == MainTab.DEVICE -> PlaceholderTab(
-                    "设备",
-                    "设备绑定与搜索在设备切片接入（移植旧库 BindActivity 行为）",
-                )
+                tab == MainTab.DEVICE -> com.xcwk.scalehub.feature.device.DeviceRoute()
                 else -> MineRoute()   // 设置页待设置切片；档案编辑已接入
             }
         }
@@ -130,7 +129,11 @@ fun MainShell() {
                     recordType = type
                 }
             }
-            SheetRow("绑定体脂秤", enabled = false, hint = "蓝牙绑定待 M3 接入") { showQuick = false }
+            SheetRow("绑定体脂秤", enabled = true, hint = "搜索并绑定附近的体脂秤") {
+                showQuick = false
+                showScale = false
+                tab = MainTab.DEVICE
+            }
             Spacer(modifier = Modifier.padding(bottom = 24.dp))
         }
     }

@@ -18,7 +18,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 
 /** feature.measure — 首屏（四件套之 Screen，DEC-021）：只渲染状态、转发事件。 */
 @Composable
-fun MeasureScreen(vm: MeasureViewModel = viewModel(factory = MeasureViewModel.Factory)) {
+fun MeasureScreen(
+    vm: MeasureViewModel = viewModel(factory = MeasureViewModel.Factory),
+    onOpenScale: () -> Unit = {},
+) {
     val state by vm.state.collectAsStateWithLifecycle()
 
     Column(
@@ -28,6 +31,10 @@ fun MeasureScreen(vm: MeasureViewModel = viewModel(factory = MeasureViewModel.Fa
             .verticalScroll(rememberScrollState()),
     ) {
         Text("记录体重", style = androidx.compose.material3.MaterialTheme.typography.headlineSmall)
+        Button(
+            onClick = onOpenScale,
+            modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
+        ) { Text("蓝牙称重（连体脂秤）") }
         OutlinedTextField(
             value = state.weightInput,
             onValueChange = { vm.onIntent(MeasureIntent.WeightChanged(it)) },
