@@ -109,6 +109,10 @@ class MeasureSessionTest {
         override fun unbind(mac: String) {
             list = list.filterNot { it.mac.equals(mac, true) }.toMutableList()
         }
+
+        override fun restoreAll(devices: List<ScaleDevice>) {
+            list = devices.toMutableList()
+        }
     }
 
     private class FakeRepo : MeasurementRepository {

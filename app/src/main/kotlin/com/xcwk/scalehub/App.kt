@@ -19,11 +19,13 @@ import com.xcwk.scalehub.application.service.RecordMeasurementService
 import com.xcwk.scalehub.domain.repository.HealthLogRepository
 import com.xcwk.scalehub.domain.repository.MeasurementRepository
 import com.xcwk.scalehub.infrastructure.ai.CloudFunctionAi
+import com.xcwk.scalehub.infrastructure.ble.AndroidBleLink
 import com.xcwk.scalehub.infrastructure.cloud.CloudBaseGateway
 import com.xcwk.scalehub.infrastructure.persistent.AppDatabase
 import com.xcwk.scalehub.infrastructure.persistent.repository.RoomHealthLogRepository
 import com.xcwk.scalehub.infrastructure.persistent.repository.RoomMeasurementRepository
 import com.xcwk.scalehub.infrastructure.profile.ProfileStore
+import com.xcwk.scalehub.infrastructure.persistent.repository.RoomDeviceRepository
 import com.xcwk.scalehub.infrastructure.session.SessionStore
 
 /**
@@ -71,9 +73,14 @@ class AppContainer(context: Context) {
         DeleteMeasurementService(measurementRepository, dataRefreshBus)
     }
 
+    /** 已绑定秤仓储（M3c）。 */
+    val deviceRepository: RoomDeviceRepository by lazy {
+        RoomDeviceRepository(AppDatabase.get(context).deviceDao())
+    }
+
     val syncService: SyncService by lazy {
         SyncService(
-            sessionStore, cloudGateway, sessionStore,
+            sessionStore, cloudGateway, sessionStore, deviceRepository,
             measurementRepository, healthLogRepository, profileStore, profileStore,
         )
     }
@@ -82,4 +89,7 @@ class AppContainer(context: Context) {
 
     /** AI 问答（M2c）：实现随 M2 部署联调（云函数 ai-chat）。 */
     val aiService: AiService by lazy { AiService(sessionStore, CloudFunctionAi(sessionStore)) }
+
+    /** 蓝牙链路（M3c）：测量页经 MeasureSession 使用；权限门在 trigger 层。 */
+    val bleLink: AndroidBleLink by lazy { AndroidBleLink(context) }
 }

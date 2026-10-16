@@ -17,6 +17,17 @@ import org.junit.Test
  */
 class SyncServiceTest {
 
+    private class FakeDevices : com.xcwk.scalehub.domain.repository.DeviceRepository {
+        var list: List<com.xcwk.scalehub.domain.model.ScaleDevice> = emptyList()
+        override fun devices() = list
+        override fun contains(mac: String) = list.any { it.mac.equals(mac, true) }
+        override fun device(mac: String) = list.firstOrNull { it.mac.equals(mac, true) }
+        override fun bind(name: String, mac: String, protocolId: String) = null
+        override fun activate(mac: String) = Unit
+        override fun unbind(mac: String) { list = list.filterNot { it.mac.equals(mac, true) } }
+        override fun restoreAll(devices: List<com.xcwk.scalehub.domain.model.ScaleDevice>) { list = devices }
+    }
+
     // ---- 假件 ----
 
     private class FakeSession(
@@ -102,9 +113,10 @@ class SyncServiceTest {
 
     private fun service(
         session: FakeSession, cloud: FakeCloud, auth: FakeAuth = FakeAuth(),
+        devices: FakeDevices = FakeDevices(),
         measures: FakeMeasureRepo = FakeMeasureRepo(), logs: FakeLogRepo = FakeLogRepo(),
         profile: FakeProfile = FakeProfile(),
-    ) = SyncService(session, cloud, auth, measures, logs, profile, profile)
+    ) = SyncService(session, cloud, auth, devices, measures, logs, profile, profile)
 
     // ---- 游客门 ----
 
@@ -295,5 +307,66 @@ class SyncServiceTest {
         val outcome = service(FakeSession(), cloud).deleteAccount("12")
         assertThat(outcome.message).isEqualTo("请输入短信验证码")
         assertThat(cloud.deletes).isEmpty()
+    }
+    // ---- devices 同步（M3c）----
+
+    @Test
+    fun `恢复_本机无设备时云端整集写入且保留active`() = runTest {
+        val cloud = FakeCloud()
+        cloud.servedRows = mapOf(
+            "devices" to listOf(
+                CloudRow(mapOf("owner_id" to "u-1", "mac" to "aa:bb:cc:dd:ee:ff", "name" to "卧室秤", "bound_at" to "2026-10-01", "active" to true)),
+                CloudRow(mapOf("owner_id" to "u-1", "mac" to "66:55:44:33:22:11", "name" to "", "bound_at" to "2026-10-02", "active" to false)),
+            ),
+        )
+        val devices = FakeDevices()
+        assertThat(service(FakeSession(), cloud, devices = devices).restore().ok).isTrue()
+        assertThat(devices.list).hasSize(2)
+        val first = devices.list.first { it.mac == "AA:BB:CC:DD:EE:FF" }
+        assertThat(first.active).isTrue()
+        assertThat(first.name).isEqualTo("卧室秤")
+        // 空名回填默认名（旧库口径），云端无协议列 → 默认 okok-1
+        val second = devices.list.first { it.mac == "66:55:44:33:22:11" }
+        assertThat(second.name).isEqualTo("智能体脂秤")
+        assertThat(second.protocolId).isEqualTo(com.xcwk.scalehub.domain.model.ScaleDevice.PROTOCOL_OKOK_1)
+    }
+
+    @Test
+    fun `恢复_本机优先_云端多出补为非当前`() = runTest {
+        val cloud = FakeCloud()
+        cloud.servedRows = mapOf(
+            "devices" to listOf(
+                CloudRow(mapOf("mac" to "AA:BB:CC:DD:EE:FF", "name" to "旧名", "active" to false)),
+                CloudRow(mapOf("mac" to "11:22:33:44:55:66", "name" to "云端新秤", "active" to true)),
+            ),
+        )
+        val devices = FakeDevices()
+        devices.list = listOf(
+            com.xcwk.scalehub.domain.model.ScaleDevice("本机秤", "AA:BB:CC:DD:EE:FF", "2026-09-01", true, "chipsea-cloud-1", "builtin-1"),
+        )
+        assertThat(service(FakeSession(), cloud, devices = devices).restore().ok).isTrue()
+        // 本机行原样保留（含协议与 active），云端新设备补为非当前
+        val kept = devices.list.first { it.mac == "AA:BB:CC:DD:EE:FF" }
+        assertThat(kept.name).isEqualTo("本机秤")
+        assertThat(kept.protocolId).isEqualTo("chipsea-cloud-1")
+        assertThat(kept.active).isTrue()
+        val added = devices.list.first { it.mac == "11:22:33:44:55:66" }
+        assertThat(added.active).isFalse()
+    }
+
+    @Test
+    fun `推送_devices五列_不带协议`() = runTest {
+        val cloud = FakeCloud()
+        val devices = FakeDevices()
+        devices.list = listOf(
+            com.xcwk.scalehub.domain.model.ScaleDevice("卧室秤", "AA:BB:CC:DD:EE:FF", "2026-10-01", true, "okok-bia-1-holder", "x"),
+        )
+        assertThat(service(FakeSession(), cloud, devices = devices).push()).isTrue()
+        val deviceUpserts = cloud.upserts.first { it.first == "devices" }
+        assertThat(deviceUpserts.second).isEqualTo("owner_id,mac")
+        val fields = deviceUpserts.third.single().fields
+        assertThat(fields.keys).containsExactly("owner_id", "mac", "name", "bound_at", "active")
+        assertThat(fields["mac"]).isEqualTo("AA:BB:CC:DD:EE:FF")
+        assertThat(fields["active"]).isEqualTo(true)
     }
 }

@@ -88,6 +88,16 @@ class SettingsViewModelTest {
         override fun signOut() { sessionSignedOut = true; auth.formal = false }
     }
 
+    private class FakeDevices : com.xcwk.scalehub.domain.repository.DeviceRepository {
+        override fun devices() = emptyList<com.xcwk.scalehub.domain.model.ScaleDevice>()
+        override fun contains(mac: String) = false
+        override fun device(mac: String) = null
+        override fun bind(name: String, mac: String, protocolId: String) = null
+        override fun activate(mac: String) = Unit
+        override fun unbind(mac: String) = Unit
+        override fun restoreAll(devices: List<com.xcwk.scalehub.domain.model.ScaleDevice>) = Unit
+    }
+
     private class FakeCloud : CloudDataPort {
         override suspend fun rows(table: String, query: String): List<CloudRow>? = emptyList()
         override suspend fun upsert(table: String, conflict: String, rows: List<CloudRow>) = true
@@ -127,7 +137,7 @@ class SettingsViewModelTest {
         val bus: DataRefreshBus = DataRefreshBus(),
     ) {
         val sync = SyncService(
-            session, FakeCloud(), auth,
+            session, FakeCloud(), auth, FakeDevices(),
             FakeMeasurements(), FakeLogs(), FakeProfileReader(), FakeProfileWriter(),
         )
         val vm = SettingsViewModel(AuthService(auth, sync), sync, auth, bus)

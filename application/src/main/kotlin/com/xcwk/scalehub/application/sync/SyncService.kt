@@ -4,6 +4,9 @@ import com.xcwk.scalehub.application.auth.AuthPort
 import com.xcwk.scalehub.domain.model.HealthLog
 import com.xcwk.scalehub.domain.model.MeasureRecord
 import com.xcwk.scalehub.domain.model.MemberProfile
+import com.xcwk.scalehub.domain.model.MacFormat
+import com.xcwk.scalehub.domain.model.ScaleDevice
+import com.xcwk.scalehub.domain.repository.DeviceRepository
 import com.xcwk.scalehub.domain.repository.HealthLogRepository
 import com.xcwk.scalehub.domain.repository.MeasurementRepository
 import com.xcwk.scalehub.domain.repository.MemberProfileReader
@@ -34,6 +37,7 @@ class SyncService(
     private val session: CloudSessionPort,
     private val cloud: CloudDataPort,
     private val auth: AuthPort,
+    private val devices: DeviceRepository,
     private val measurements: MeasurementRepository,
     private val healthLogs: HealthLogRepository,
     private val profileReader: MemberProfileReader,
@@ -86,6 +90,7 @@ class SyncService(
         val token = session.accessToken() ?: return
         val userId = session.subject(token) ?: return
         upsertProfile(userId)
+        syncDevices(userId)
         syncMeasurements(userId)
         syncHealthLogs(userId)
     }
@@ -104,6 +109,22 @@ class SyncService(
         val nickname = reader.nickname()
         if (nickname.isNotBlank() && nickname != "游客用户") fields["nickname"] = nickname
         cloud.upsert("profiles", "id", listOf(CloudRow(fields)))
+    }
+
+    /** devices 上云沿旧库五列（:305-325）：协议/算法不随云走。 */
+    private suspend fun syncDevices(userId: String) {
+        val rows = devices.devices().map { device ->
+            CloudRow(
+                buildMap {
+                    put("owner_id", userId)
+                    put("mac", device.mac)
+                    put("name", device.name)
+                    put("bound_at", device.boundAt)
+                    put("active", device.active)
+                },
+            )
+        }
+        if (rows.isNotEmpty()) cloud.upsert("devices", "owner_id,mac", rows)
     }
 
     private suspend fun syncMeasurements(userId: String) {
@@ -154,7 +175,7 @@ class SyncService(
         val token = session.accessToken() ?: return false
         val userId = session.subject(token) ?: return false
         val profileRows = cloud.rows("profiles", "id=eq.$userId&select=*") ?: return false
-        cloud.rows("devices", "owner_id=eq.$userId&select=*") ?: return false   // M3 前仅确认可达
+        val deviceRows = cloud.rows("devices", "owner_id=eq.$userId&select=*") ?: return false
         val measurementRows = cloud.rows(
             "measurements", "owner_id=eq.$userId&select=*&order=measured_at.desc&limit=180",
         ) ?: return false
@@ -162,10 +183,40 @@ class SyncService(
             "health_logs", "owner_id=eq.$userId&select=*&order=logged_at.desc&limit=300",
         ) ?: return false
 
+        mergeDevices(deviceRows)
         mergeMeasurements(measurementRows)
         mergeHealthLogs(logRows)
         mergeProfile(profileRows.firstOrNull())
         return true
+    }
+
+    /**
+     * 设备合并沿旧库 mergeDevices（AppStore:614-635）：本机优先；云端多出的补为非当前；
+     * 本机为空时云端整集写入。云端行无协议列，恢复设备默认 okok-1（旧库口径）。
+     */
+    private fun mergeDevices(rows: List<CloudRow>) {
+        if (rows.isEmpty()) return
+        val cloudList = rows.mapNotNull { row ->
+            val mac = MacFormat.normalize(row.fields["mac"] as? String)
+            if (mac.isEmpty()) return@mapNotNull null
+            val name = (row.fields["name"] as? String)?.ifBlank { "智能体脂秤" } ?: "智能体脂秤"
+            val boundAt = row.fields["bound_at"] as? String ?: ""
+            val active = when (val value = row.fields["active"]) {
+                is Boolean -> value
+                is Number -> value.toInt() != 0
+                else -> false
+            }
+            ScaleDevice(name, mac, boundAt, active)
+        }
+        if (cloudList.isEmpty()) return
+        val local = devices.devices()
+        if (local.isEmpty()) {
+            devices.restoreAll(cloudList)
+            return
+        }
+        val macs = local.map { it.mac }.toMutableSet()
+        val added = cloudList.filter { macs.add(it.mac) }.map { it.withActive(false) }
+        if (added.isNotEmpty()) devices.restoreAll(local + added)
     }
 
     private suspend fun mergeMeasurements(rows: List<CloudRow>) {

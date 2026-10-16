@@ -19,4 +19,7 @@ interface DeviceRepository {
     fun activate(mac: String)
 
     fun unbind(mac: String)
+
+    /** 云端恢复合并的基线写入：整集替换（旧库 writeDevices 语义，CloudSync 恢复路径）。 */
+    fun restoreAll(devices: List<ScaleDevice>)
 }
