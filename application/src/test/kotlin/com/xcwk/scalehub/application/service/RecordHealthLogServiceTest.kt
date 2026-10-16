@@ -1,0 +1,87 @@
+package com.xcwk.scalehub.application.service
+
+import com.google.common.truth.Truth.assertThat
+import com.xcwk.scalehub.application.command.RecordHealthLogCommand
+import com.xcwk.scalehub.domain.model.HealthLog
+import com.xcwk.scalehub.domain.repository.HealthLogRepository
+import com.xcwk.scalehub.domain.types.DomainException
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertThrows
+import org.junit.Test
+import java.util.concurrent.CopyOnWriteArrayList
+
+/**
+ * 记录健康记录用例行为测试（DEC-022 组 A）。
+ * 语义对照旧库 RecordScreen 保存分支（qk-health-android Pages.kt:531-543）。
+ */
+class RecordHealthLogServiceTest {
+
+    private class FakeRepo : HealthLogRepository {
+        val saved = CopyOnWriteArrayList<HealthLog>()
+        override suspend fun save(log: HealthLog) {
+            saved.removeAll { it.time == log.time && it.type == log.type }
+            saved.add(log)
+        }
+        override suspend fun recent(limit: Int): List<HealthLog> =
+            saved.sortedByDescending { it.time }.take(limit)
+    }
+
+    private val repo = FakeRepo()
+    private val service = RecordHealthLogService(repo)
+
+    @Test
+    fun `正常记录盖当下时间戳并落库`() = runTest {
+        val before = System.currentTimeMillis()
+        val log = service.execute(RecordHealthLogCommand("water", 250.0))
+        val after = System.currentTimeMillis()
+        assertThat(log.time).isAtLeast(before)
+        assertThat(log.time).isAtMost(after)
+        assertThat(repo.saved).hasSize(1)
+        assertThat(repo.saved[0].value).isEqualTo(250.0)
+    }
+
+    @Test
+    fun `习惯记录主值归一为1`() = runTest {
+        val log = service.execute(RecordHealthLogCommand("habit", 0.0, label = "早睡"))
+        assertThat(log.value).isEqualTo(1.0)
+        assertThat(log.label).isEqualTo("早睡")
+        assertThat(repo.saved).hasSize(1)
+    }
+
+    @Test
+    fun `习惯记录缺名称被拒`() {
+        assertThrows(DomainException::class.java) {
+            runBlocking { service.execute(RecordHealthLogCommand("habit", 1.0, label = "")) }
+        }
+        assertThat(repo.saved).isEmpty()
+    }
+
+    @Test
+    fun `副值缺失默认0随库保存`() = runTest {
+        val log = service.execute(RecordHealthLogCommand("exercise", 30.0, label = "跑步"))
+        assertThat(log.value2).isEqualTo(0.0)
+        Thread.sleep(5)   // (time,type) 唯一性：同毫秒同类型会按覆盖语义合并（同云表约束）
+        val withExtra = service.execute(RecordHealthLogCommand("exercise", 45.0, value2 = 320.0, label = "骑行"))
+        assertThat(withExtra.value2).isEqualTo(320.0)
+        assertThat(repo.saved).hasSize(2)
+    }
+
+    @Test
+    fun `weight类型被本用例拒绝`() {
+        // weight 在旧库走测量路径；本断言钉住两个用例的分界
+        assertThrows(DomainException::class.java) {
+            runBlocking { service.execute(RecordHealthLogCommand("weight", 70.0)) }
+        }
+        assertThat(repo.saved).isEmpty()
+    }
+
+    @Test
+    fun `同类型同刻重复写入按唯一性覆盖`() = runTest {
+        val log = service.execute(RecordHealthLogCommand("water", 200.0))
+        val dup = log.copy(value = 300.0)
+        repo.save(dup)
+        assertThat(repo.saved).hasSize(1)
+        assertThat(repo.saved[0].value).isEqualTo(300.0)
+    }
+}
