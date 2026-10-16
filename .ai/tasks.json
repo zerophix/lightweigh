@@ -1,13 +1,14 @@
 {
   "version": 1,
-  "updated_at": "2026-10-16T06:55:21Z",
-  "next_action": "体测报告切片已落;下一步=BodyMetrics规则轮(评分/建议/体型) 或 设置切片 或 阶段1契约",
-  "next_action_why": "",
+  "updated_at": "2026-10-16T06:58:30Z",
+  "next_action": "待人类在 G5(T-007)/T-003 与下一步开发方向（BodyMetrics规则轮/设置切片/阶段1契约/M2）之间裁决",
+  "next_action_why": "复裁仅留两个人类/硬件项；开发候选均已在 DEC-022 分诊在案，方向选择涉及硬件与跨仓口径，不可AI擅定",
   "next_action_confirmed": false,
   "known_risks": [
     "G1 阻断: 工具链WIP(3文件)仍未提交, 测试均为 HEAD+WIP 口径",
     "T-003 未启用: 本 session 已发生归因事故(e0d6bcf 扫入13文件), 详见 DevNotes v22",
-    "G3 迁移运行时验证待 T-005; G5 真机对拍未做"
+    "G3 迁移运行时验证待 T-005; G5 真机对拍未做",
+    "G5/T-003 为复裁明示的人类/硬件所有项,不可AI自闭;测试通过≠覆盖充分、事故披露≠系统性消除（评审方原话）;多session共享工作树互斥仍靠时机（T-003未启用期间两次事故实证）;云同步口径（iOS兼容窗口/CloudBase）未经人类确认前不得开工"
   ],
   "tasks": [
     {
