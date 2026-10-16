@@ -99,5 +99,9 @@ commands:
   path: application/src/test/kotlin/com/xcwk/scalehub/application/query/BodyAnalysisTest.kt
   status: stable
   type: gradle-test
+- description: 云同步编排行为（游客门/列映射/合并/注销, M2a DEC-022）
+  path: application/src/test/kotlin/com/xcwk/scalehub/application/sync/SyncServiceTest.kt
+  status: stable
+  type: gradle-test
 configs: []
 orphans: []
