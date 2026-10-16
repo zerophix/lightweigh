@@ -1,6 +1,6 @@
 # 任务图
 
-> DEC-002 模版自一致性修复 + DEC-003 协议文件统一更名 AGENTS.md：文档漂移、规则速查表失真、负向测试补齐。
+> 本迭代：M1 收口与文档对齐（DEC-012）；公司命名空间迁移（DEC-011）由并行会话先行完成。
 > 覆盖型文档：每次迭代重写。
 
 ---
@@ -9,63 +9,52 @@
 
 ### P0（关键路径）
 
-| ID | 任务 | 负责人 | 状态 | 工时 |
-|----|------|--------|------|------|
-| T-201 | 去数字化：11 处文件删除写死的校验项数 | AI | 已完成 | 0.5h |
-| T-202 | AGENTS.md 规则速查表按 8 规则族重写 | AI | 已完成 | 0.4h |
-| T-203 | 删除 AGENTS.md 游离围栏（后半文档落入代码块） | AI | 已完成 | 0.1h |
-| T-204 | 修 gov-generate-status.py 错误命令路径 + STATUS 同步 | AI | 已完成 | 0.2h |
-| T-205 | R0f 白名单补 session-marker.json / session.lock | AI | 已完成 | 0.1h |
-| T-211 | scripts/docs/ 旧路径全量修复：gov-sync-standards 3 个功能路径 + .claude 4 个 hook 与 9 个 skill（R0c 必 FAIL） | AI | 已完成 | 0.6h |
-| T-212 | 协议文件统一更名为 AGENTS.md + 全仓引用同步与旧名清除（DEC-003） | AI | 已完成 | 0.5h |
-| T-213 | R0 反思复用检测上下文感知修复 + 2 个回归用例（DEC-004，首次 push 被拦发现） | AI | 已完成 | 0.3h |
-| T-214 | validate 输出契约修复：摘要行恒定输出 + pre-push 改退出码 + 契约测试（DEC-005，同次 push 发现） | AI | 已完成 | 0.3h |
+| ID | 任务 | 负责人 | 状态 |
+|----|------|--------|------|
+| T-301 | 生命周期六文档重写为真实工程描述 | AI | 已完成 |
+| T-302 | 黄金标准 architecture/index.md 经 promote 晋升 | AI | 已完成 |
+| T-303 | 包坐标迁移 com.qingke.health → com.xcwk.scalehub（DEC-011） | AI | 已完成 |
+| T-304 | gov-validate.sh 全量校验归零 | AI | 进行中 |
 
 ### P1（重要）
 
-| ID | 任务 | 负责人 | 状态 | 工时 |
-|----|------|--------|------|------|
-| T-206 | 负向测试 tests/unit/test_governance_negative.py（6 用例） | AI | 已完成 | 0.5h |
-| T-207 | 原子锁迁入 gov-next-decision.sh + wf- 双实现收敛 wrapper | AI | 已完成 | 0.4h |
-| T-208 | setup.sh 步骤编号统一 + .gitignore .cache negation | AI | 已完成 | 0.2h |
-| T-209 | lifecycle 文档同步（03/04/05/06 + 索引 + changelog） | AI | 已完成 | 0.3h |
-| T-210 | 全量校验 + 提交（本 session 无 shell，需人类执行） | 人类 | 待开始 | 0.3h |
+| ID | 任务 | 负责人 | 状态 |
+|----|------|--------|------|
+| T-305 | docs/index.md 去模板化、按项目重写导航 | AI | 已完成 |
+| T-306 | 刷新决策索引（DEC-011 / DEC-012） | AI | 进行中 |
+| T-307 | README 坐标说明同步（applicationId） | 人类 | 已完成 |
 
 ## 2. 依赖关系
 
 ```
-T-201..T-205(文档漂移 P0) ──┐
-T-206(负向测试) ────────────┤
-T-207(锁与 wrapper) ────────┼──→ T-209(lifecycle 同步) ──→ T-210(校验+提交)
-T-208(杂项) ────────────────┤
-T-211(旧路径修复 R0c) ──────┘
+T-303(命名空间迁移, DEC-011) ─┐
+                              ├─→ T-301(六文档重写) ─→ T-302(黄金标准晋升) ─→ T-304(全量校验)
+T-305(首页去模板化) ──────────┘                              ▲
+T-306(索引刷新) ─────────────────────────────────────────────┘
 ```
 
 ## 3. 当前状态
 
-- 已完成：T-201 ~ T-209、T-211（静态编写完成）
-- 待开始：T-210 全量校验 + 提交（由人类执行 gov-validate.sh / pytest / bash -n）
-- 阻塞：T-210 依赖人类环境（本 session 无 shell 工具）
+- 已完成：T-301、T-302、T-303、T-305、T-307
+- 进行中：T-304（gov-validate 全量校验）、T-306（决策索引刷新）
+- 待开始：无
+- 阻塞：无
 
 ## 4. 已完成
 
 | ID | 任务 | 完成时间 | 交付物 |
 |----|------|---------|--------|
-| T-201 | 去数字化 | 2026-10-13 | README/AGENTS/.clinerules/.cursorrules/docs 索引等 11 处 |
-| T-202 | 速查表重写 | 2026-10-13 | AGENTS.md 校验规则速查 |
-| T-203 | 围栏修复 | 2026-10-13 | AGENTS.md CI/CD 章节 |
-| T-204 | 生成器修复 | 2026-10-13 | gov-generate-status.py + STATUS.md |
-| T-205 | 白名单补齐 | 2026-10-13 | gov_validate_status.py R0f |
-| T-206 | 负向测试 | 2026-10-13 | tests/unit/test_governance_negative.py + registry |
-| T-207 | 锁与收敛 | 2026-10-13 | gov-next-decision.sh + 2 个 wrapper |
-| T-208 | 杂项 | 2026-10-13 | setup.sh + .gitignore |
-| T-209 | lifecycle 同步 | 2026-10-13 | 03/04/05/06 + 索引 + changelog |
-| T-211 | 旧路径全量修复 | 2026-10-13 | gov-sync-standards.sh、gov-generate-index.sh、.claude/settings.json + 9 个 skill 配置 |
+| T-303 | 命名空间迁移 | 2026-10-16 | 46 文件包坐标 + 四模块 namespace + Room schema 重导出 |
+| T-301 | 六文档重写 | 2026-10-16 | docs/ai/lifecycle/01~06 |
+| T-302 | 黄金标准晋升 | 2026-10-16 | docs/architecture/index.md |
+| T-305 | 首页去模板化 | 2026-10-16 | docs/index.md |
+| T-307 | README 同步 | 2026-10-16 | README.md 坐标说明 |
 
 ## 5. 版本历史
 
 | 版本 | 日期 | 变更摘要 |
 |------|------|---------|
+| v4 | 2026-10-16 | M1 收口与文档对齐迭代 + 命名空间迁移 |
 | v3 | 2026-10-13 | DEC-002 模版自一致性修复迭代 |
 | v2 | 2026-07-21 | 黄金标准填充迭代：充实架构、创建 REF、刷新指标 |
 | v1 | 2026-07-10 | 初始任务图：模板打磨迭代任务分解 |

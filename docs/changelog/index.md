@@ -6,6 +6,8 @@
 
 | 日期 | 变更内容 | 决策 |
 |------|---------|------|
+| 2026-10-16 | 生命周期 01~06 与黄金标准 architecture/index.md 改写为轻刻健康真实工程描述 | DEC-012 |
+| 2026-10-16 | 采用公司全限定名 com.xcwk.scalehub：包/namespace/applicationId/存储键/文档全量迁移 | DEC-011 |
 | 2026-10-15 | 模板版本化 + gov-upgrade.sh 升级路径：gov-template-version 事实源、拥有区清单、check/apply 工具与 3 个测试 | DEC-010 |
 | 2026-10-15 | 修复 session-end 上下文缓存静默失败：补必填字段 to、agent 环境检测、字段契约测试 | DEC-009 |
 | 2026-10-14 | 干净 checkout 适配：R0 handoff 检查文件缺失跳过、hooks 检查 CI 环境跳过 + 4 个分流测试 | DEC-008 |

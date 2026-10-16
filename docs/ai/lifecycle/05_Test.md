@@ -1,64 +1,54 @@
 # 测试
 
-> 模板迭代的验证策略：文档校验替代代码测试。AI 提交代码前必须更新。
+> 验证策略：JVM 单元测试 + 黄金向量回归 + ArchUnit 架构守卫 + 治理文档校验。
 > 覆盖型文档：每次迭代重写。
 
 ---
 
 ## 1. 验证策略
 
-本模板项目无运行时代码（纯 Shell/Python 脚本 + Markdown 文档），测试等价于**文档校验**和**脚本正确性验证**。
+工程测试分两层：代码层（Gradle/JUnit）验证业务与架构，治理层（Python/Bash）验证文档与脚本。
+代码层不依赖 Android 运行时（纯 JVM 单测），因此可在无模拟器的 CI 环境全量执行。
 
-| 层级 | 覆盖范围 | 工具/框架 | 最低通过率 |
-|------|---------|----------|-----------|
-| 文档校验 | 所有 docs/ 文件结构、命名、语言、内容 | validate.sh (Python + Bash) | 100% (0 违规) |
-| 脚本语法 | 所有 scripts/ 脚本 | bash -n / python -m py_compile | 100% |
-| 脚本可执行 | migrate.sh/task-board.sh/promote.sh 等 | 实际运行验证 | 100% |
-| mkdocs 构建 | 文档站点可正常构建 | mkdocs build | 构建成功 |
-| git hook | pre-commit/commit-msg/pre-push | commit 测试 | 通过 |
+| 层级 | 覆盖范围 | 工具 | 通过标准 |
+|------|---------|------|---------|
+| 领域算法 | 体成分公式与黄金向量 | JUnit + Truth | 全绿 |
+| 用例与仓储 | RecordMeasurement / 仓储契约 | JUnit + coroutines-test | 全绿 |
+| 架构守卫 | 四模块依赖方向 | ArchUnit | 全绿（含负例） |
+| 治理校验 | docs 结构/命名/语言/记忆时效 | gov-validate.sh | 0 违规 |
 
-## 2. 验证结果
+## 2. 测试清单
 
-本次迭代（DEC-002）在无 shell 执行能力的 session 中完成，bash / Python 修改均为静态编写，
-以下命令在提交前由人类执行，结果回填本节：
+| 测试文件 | 用例数 | 覆盖内容 |
+|---------|-------|---------|
+| OkokBiaGoldenTest.java | 2 | okok-bia 黄金向量、builtin-1 回落 |
+| RecordMeasurementServiceTest.kt | 3 | fat=-1 哨兵、age 守卫、算法回落 |
+| InMemoryMeasurementRepositoryTest.kt | 2 | 最新在前、limit 截断 |
+| ArchitectureTest.kt | 6 | 依赖方向 + 解析自检 + 违规负例 |
 
-```bash
-# 本次迭代验证清单（DEC-002 假设 A3）
-$ bash scripts/governance/gov-validate.sh
-结果: 待运行（必须 0 违规才能提交）
+合计 13 个用例，分布覆盖 domain / application / infrastructure / app 四模块。
 
-$ find scripts/ -name "*.sh" -exec bash -n {} \;
-结果: 待运行（本次新增/修改了 4 个 bash 文件）
+## 3. 运行方式
 
-$ python3 -m py_compile scripts/governance/gov-generate-status.py scripts/governance/modules/gov_validate_status.py tests/unit/test_governance_negative.py
-结果: 待运行
-
-$ python3 -m pytest tests/ -q
-结果: 待运行（应含 6 个负向用例全部通过）
+```
+./gradlew build                            # 编译 + 全部 JVM 测试 + ArchUnit
+bash scripts/governance/gov-validate.sh    # 治理文档校验
+python3 -m pytest tests/ -q                # 治理负向测试
 ```
 
-## 3. 新增验证用例
-
-| 文件 | 验证内容 | 覆盖场景 |
-|------|---------|---------|
-| validate.sh | R0 系列 + GOV-* 全量校验 | 文档结构/命名/语言/emoji/记忆时效/索引一致性 |
-| gov-validate.py | Python 编排引擎 + 8 个校验模块 | status/structure/content/protocol/scripts/tests/skills |
-| tests/unit/test_governance_negative.py | 规则负向测试（DEC-002 新增） | GOV-STRUCT-001/002/003/004/006 故意违规必须 FAIL + 空白对照防误报 |
-| pre-commit | 提交前自动修复+校验 | 缩进/尾空格/emoji/language/校验通过门控 |
-| pre-push | 推送前分支校验 | 主干分支限制/DEC+DevNotes 审计/mkdocs 构建 |
-| generate-index.py | 决策日志索引生成 | 索引完整性/编号连续性 |
-| task-board.sh | 任务看板 CRUD + confirm | 添加/完成/确认/下一步设置 |
-| session-end.sh | 接力交接输出 | 4 项必填/收件箱/任务板状态 |
+架构守卫以两条元测试自证：`archunit能解析当前类文件`（防解析退化导致规则静默空转）与
+`守卫负例_违规的trigger依赖会被规则捕获`（用夹具证明违规必红）。
 
 ## 4. 未覆盖边界
 
-- **跨 session 接力完整性**：无法自动化验证 Session B 是否真的完成了 Session A 交接的任务。当前依赖 human-in-the-loop 确认。
-- **--no-verify 绕过**：pre-commit hook 可以被 git 的 `--no-verify` 完全绕过。这是设计上的安全阀，无法通过钩子自身防御，只能通过审计痕迹事后发现。
-- **散落文件清理验证**：migrate.sh 只扫描不自动清理，30 个待归档文件需要人工确认后再归档。
+- **BLE 真机行为**：M3 之前无 BluetoothGatt 集成测试，协议解析仅以单元测试覆盖。
+- **云同步与登录**：M2 之前 SyncGateway 未实现，无集成测试。
+- **Room 迁移**：当前 version=1 无迁移；升版本时必须补 MigrationTest（schema 快照已入库）。
+- **UI 交互**：Compose 无 UI 测试，首屏逻辑靠 ViewModel 单测间接覆盖。
 
 ## 5. 版本历史
 
 | 版本 | 日期 | 变更摘要 |
 |------|------|---------|
-| v2 | 2026-10-13 | DEC-002：新增治理负向测试，验证清单改为诚实的待运行状态 |
+| v2 | 2026-10-16 | 改为真实工程测试策略：JVM 单测 + 黄金向量 + ArchUnit + 治理校验 |
 | v1 | 2026-07-10 | 初始验证计划：模板项目的文档校验体系 |
