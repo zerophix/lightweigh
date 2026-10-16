@@ -17,7 +17,6 @@ from scripts.governance.modules.gov_validate_tests import check_all as check_tes
 from scripts.governance.modules.gov_validate_skills import check_all as check_skills
 from scripts.governance.modules.gov_validate_tests_gov import check_all as check_tests_gov
 from scripts.governance.modules.gov_validate_android_tests import check_all as check_android_tests
-from scripts.governance.modules.gov_validate_android_tests import check_all as check_android_tests
 
 from scripts.governance.modules.gov_validate_core import errors
 

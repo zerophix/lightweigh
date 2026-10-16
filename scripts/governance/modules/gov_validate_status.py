@@ -234,20 +234,36 @@ def check_dot_configs() -> None:
 
 def check_dependency_dirs() -> None:
     print("\n--- R0d: 依赖目录位置合规性 ---")
-    ALLOWED_PATHS = {".venv": {".venv"}, "venv": {"venv"}, "node_modules": {"node_modules", ".opencode/node_modules"}, ".pytest_cache": {".pytest_cache"}, ".ruff_cache": {".ruff_cache"}, ".mypy_cache": {".mypy_cache"}, ".coverage": {".coverage"}}
+    # Python/Node 依赖目录（按目录名精确匹配, 允许根及白名单位置）
+    ALLOWED_PATHS = {
+        ".venv": {".venv"}, "venv": {"venv"},
+        "node_modules": {"node_modules", ".opencode/node_modules"},
+        ".pytest_cache": {".pytest_cache"}, ".ruff_cache": {".ruff_cache"},
+        ".mypy_cache": {".mypy_cache"}, ".coverage": {".coverage"},
+    }
+    # Gradle 缓存/IDE 目录（DEC-023）：仅允许项目根（不进入内部遍历, 避免命中缓存里的同名包目录）
+    GRADLE_ROOT_ONLY = {".gradle", ".gradle-user", ".kotlin", ".idea", ".cxx"}
+    # 项目根已有的合法 Gradle 产物目录, 不进入也不检测位置
+    ROOT_PROD_DIRS = {"build", "gradle"}
     issues = 0; found = {}
     if (ROOT / ".venv").is_dir() and (ROOT / "venv").is_dir():
         fail(".venv 和 venv 同时存在（只能保留一个）"); issues += 1
     for dirpath_str, dirs, _ in os.walk(str(ROOT)):
         dirpath = Path(dirpath_str); rel = dirpath.relative_to(ROOT).as_posix()
-        if rel == ".": continue
         if rel.startswith(".git/"): dirs.clear(); continue
+        # 当前层若直接含 Gradle/IDE 缓存目录: 仅项目根(rel==".")允许, 子目录一律违规
+        for dname in GRADLE_ROOT_ONLY:
+            if dname in dirs and rel != ".":
+                found.setdefault(dname, []).append(f"{rel}/{dname}")
+        # 不进入下载缓存/构建产物/IDE 缓存内部（避免命中内部同名包目录误报）
+        dirs[:] = [d for d in dirs if d not in (GRADLE_ROOT_ONLY | ROOT_PROD_DIRS)]
+        if rel == ".": continue
         for dname, allowed in ALLOWED_PATHS.items():
             if dirpath.name == dname:
                 if rel not in allowed: found.setdefault(dname, []).append(rel)
     for dname, locations in sorted(found.items()):
         for loc in locations:
-            fail(f"{dname}: 不允许出现在 {loc}（允许: {', '.join(ALLOWED_PATHS[dname])}）"); issues += 1
+            fail(f"{dname}: 不允许出现在 {loc}（允许: {', '.join(ALLOWED_PATHS.get(dname, {dname}))}）"); issues += 1
     if issues == 0: print("  [PASS] 所有依赖目录在允许位置")
 
 

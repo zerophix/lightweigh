@@ -177,33 +177,3 @@ commands:
   path: governance/gov-next-note.sh
   status: stable
   type: sh
-- description: 文件类型统计
-  name: tools-analyze-filetypes
-  path: tools/analyze/ana-fs-filetypes.py
-  status: stable
-  type: py
-- description: 治理健康分引擎
-  name: tools-analyze-governance
-  path: tools/analyze/ana-fs-governance.py
-  status: stable
-  type: py
-- description: 治理报告生成
-  name: tools-analyze-governance-report
-  path: tools/analyze/ana-fs-governance-report.py
-  status: stable
-  type: py
-- description: 语义相似度检测
-  name: tools-analyze-similarity
-  path: tools/analyze/ana-similarity.py
-  status: stable
-  type: py
-- description: Git 统计指标
-  name: tools-metrics-git-stats
-  path: tools/metrics/ana-metrics-git-stats.sh
-  status: stable
-  type: sh
-- description: 文档计数指标
-  name: tools-metrics-doc-counts
-  path: tools/metrics/ana-metrics-doc-counts.sh
-  status: stable
-  type: sh

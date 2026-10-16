@@ -497,6 +497,81 @@ def test_content012_filled_decision_passes(tmp_path, monkeypatch):
     assert _dec_placeholder_check(tmp_path, monkeypatch) == []
 
 
+def _r0d_check(tmp_path: Path, monkeypatch, subdir=".gradle") -> list:
+    """在临时目录上运行 R0d 依赖目录位置校验, 返回相关错误。"""
+    from scripts.governance.modules import gov_validate_status as status
+    monkeypatch.setattr(status, "ROOT", tmp_path)
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        status.check_dependency_dirs()
+    return [e for e in core.errors if "允许" in e or "同时存在" in e]
+
+
+def test_r0d_gradle_cache_in_subdir_fails(tmp_path, monkeypatch):
+    """R0d(DEC-023 组D): Gradle 缓存目录置于子目录必须 FAIL（仅允许项目根）。"""
+    (tmp_path / "app" / ".gradle").mkdir(parents=True)
+    errors = _r0d_check(tmp_path, monkeypatch)
+    assert any(".gradle" in e and "app/.gradle" in e for e in errors), errors
+
+
+def test_r0d_gradle_cache_at_root_passes(tmp_path, monkeypatch):
+    """正向: Gradle 缓存目录位于项目根不触发 R0d（防误报）。"""
+    (tmp_path / ".gradle").mkdir(parents=True)
+    assert _r0d_check(tmp_path, monkeypatch) == []
+
+
+def _script004_check(tmp_path: Path, monkeypatch, registry_text: str) -> list:
+    """在临时目录上运行 GOV-SCRIPT-004 注册表完整性校验, 返回错误列表。"""
+    from scripts.governance.modules import gov_validate_scripts as scripts
+    sr = tmp_path / "scripts"
+    (sr / "governance").mkdir(parents=True, exist_ok=True)
+    (sr / "governance" / "registry.yaml").write_text(registry_text, encoding="utf-8")
+    monkeypatch.setattr(scripts, "SCRIPTS_DIR", sr)
+    monkeypatch.setattr(scripts, "REGISTRY", sr / "governance" / "registry.yaml")
+    monkeypatch.setattr(scripts, "ROOT", tmp_path)
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        scripts.check_registry_integrity()
+    return list(core.errors)
+
+
+def test_script004_zombie_registry_fails(tmp_path, monkeypatch):
+    """GOV-SCRIPT-004: 注册表登记但磁盘不存在的脚本必须 FAIL（DEC-023 组 C）。"""
+    registry_text = (
+        "commands:\n"
+        "- description: 真实脚本\n"
+        "  path: governance/gov-validate.sh\n"
+        "  status: stable\n"
+        "  type: sh\n"
+        "- description: 僵尸脚本\n"
+        "  path: tools/analyze/ana-fs-filetypes.py\n"
+        "  status: stable\n"
+        "  type: py\n"
+    )
+    # 真实脚本在磁盘上, 僵尸 tools/ 不在
+    sh = tmp_path / "scripts" / "governance" / "gov-validate.sh"
+    sh.parent.mkdir(parents=True, exist_ok=True)
+    sh.write_text("#!/usr/bin/env bash\n", encoding="utf-8")
+    errors = _script004_check(tmp_path, monkeypatch, registry_text)
+    assert any("GOV-SCRIPT-004" in e and "僵尸" in e for e in errors), errors
+
+
+def test_script004_all_exist_passes(tmp_path, monkeypatch):
+    """正向: 注册的所有脚本都在磁盘上则不触发 GOV-SCRIPT-004（防误报）。"""
+    registry_text = (
+        "commands:\n"
+        "- description: 真实脚本\n"
+        "  path: governance/gov-validate.sh\n"
+        "  status: stable\n"
+        "  type: sh\n"
+    )
+    sh = tmp_path / "scripts" / "governance" / "gov-validate.sh"
+    sh.parent.mkdir(parents=True, exist_ok=True)
+    sh.write_text("#!/usr/bin/env bash\n", encoding="utf-8")
+    errors = _script004_check(tmp_path, monkeypatch, registry_text)
+    assert not any("GOV-SCRIPT-004" in e for e in errors), errors
+
+
 def test_content012_ignores_legit_angle_brackets(tmp_path, monkeypatch):
     """GOV-CONTENT-012: 合法的尖括号用法（如 DEC-010 的 --check <源>）不得误报。
 

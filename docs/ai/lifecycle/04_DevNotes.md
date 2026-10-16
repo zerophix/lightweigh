@@ -97,6 +97,15 @@
   新增 GOV-ATEST-001~005 治理各模块 `src/test` 的 Kotlin/Java 测试（命名/版本/emoji/注册表），
   配 9 个负向测试；新增 gov-lifecycle-audit.sh 供本地与 CI 共用"源码变更必须含 DEC+DevNotes"；
   AGENTS.md CI/CD 段与校验速查表对齐真实实现。
+- 2026-10-16（DEC-023 组C）：analyzer 工具链收口。补 GOV-SCRIPT-004 注册表完整性校验（只做正向
+  "注册命令必须存在", 不做反向"磁盘脚本必须注册"—— scripts/registry 是命令清单而非测试清单,
+  反向会误报 bs-install-hooks/lib-platform 等 helper, 与 GOV-TEST-GOV 的测试注册表语义不同）;
+  删除 6 个不存在的 tools/analyze 与 tools/metrics 僵尸条目; 清 AGENTS.md 对 ana-similarity.py 的引用。
+  配 2 个负向测试。
+- 2026-10-16（DEC-023 组D）：R0d 依赖目录白名单补 Gradle 产物边界。build 目录名太通用（会命中
+  Gradle 发行版/AAR 元数据内的包目录 org.gradle.build）, 故不守护 build 位置, 仅将 .gradle/
+  .gradle-user/.kotlin/.idea/.cxx 定为"仅允许项目根"并跳过其内部遍历; 下载缓存 gradle/ 与构建产物
+  build/ 一并跳过不深挖。配 2 个负向测试。
 - 2026-10-16（DEC-011）：包坐标整体迁移 com.qingke.health → com.xcwk.scalehub，46 文件归位、
   9 处怪目录清除，Room schema 按新包名重导出，构建与测试全绿。
 - 2026-10-16（DEC-012）：生命周期 01~06 与黄金标准 architecture/index.md 改写为真实工程描述。
@@ -228,7 +237,7 @@
 
 | 版本 | 日期 | 变更摘要 |
 |------|------|---------|
-| v29 | 2026-10-16 | 体测报告切片：ReportQuery + report 四件套（103 测试） |
+| v30 | 2026-10-16 | DEC-023 组 C/D：GOV-SCRIPT-004 注册表完整性 + 清僵尸 analyzer + R0d Gradle 边界 |
 | v28 | 2026-10-16 | 历史记录切片：delete 端口 + HistoryQuery + history 四件套（93 测试） |
 | v27 | 2026-10-16 | M4 我的切片：档案编辑纵切（关闭 height=0 功能洞，73 测试） |
 | v26 | 2026-10-16 | 第 4 轮复裁落盘：构建交付通过，算法验收待 G5，评审闭环收敛 |
