@@ -62,6 +62,11 @@ class AppContainer(context: Context) {
     }
     val profileStore: ProfileStore by lazy { ProfileStore(context, memberRepository::activeId) }
 
+    /** 目标存储（移植补齐：首页目标进度卡）。 */
+    val goalStore: com.xcwk.scalehub.infrastructure.profile.GoalStore by lazy {
+        com.xcwk.scalehub.infrastructure.profile.GoalStore(context, memberRepository::activeId)
+    }
+
     val recordMeasurementService: RecordMeasurementService by lazy {
         RecordMeasurementService(measurementRepository, profileStore, dataRefreshBus)
     }
@@ -126,7 +131,7 @@ class AppContainer(context: Context) {
 
     val syncService: SyncService by lazy {
         SyncService(
-            sessionStore, cloudGateway, sessionStore, deviceRepository,
+            sessionStore, cloudGateway, sessionStore, deviceRepository, goalStore,
             measurementRepository, healthLogRepository, profileStore, profileStore,
         )
     }

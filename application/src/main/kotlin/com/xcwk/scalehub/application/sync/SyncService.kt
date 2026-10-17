@@ -7,6 +7,7 @@ import com.xcwk.scalehub.domain.model.MemberProfile
 import com.xcwk.scalehub.domain.model.MacFormat
 import com.xcwk.scalehub.domain.model.ScaleDevice
 import com.xcwk.scalehub.domain.repository.DeviceRepository
+import com.xcwk.scalehub.domain.repository.GoalRepository
 import com.xcwk.scalehub.domain.repository.HealthLogRepository
 import com.xcwk.scalehub.domain.repository.MeasurementRepository
 import com.xcwk.scalehub.domain.repository.MemberProfileReader
@@ -38,6 +39,7 @@ class SyncService(
     private val cloud: CloudDataPort,
     private val auth: AuthPort,
     private val devices: DeviceRepository,
+    private val goals: GoalRepository? = null,
     private val measurements: MeasurementRepository,
     private val healthLogs: HealthLogRepository,
     private val profileReader: MemberProfileReader,
@@ -108,6 +110,11 @@ class SyncService(
         if (height > 0) fields["height_cm"] = height
         val nickname = reader.nickname()
         if (nickname.isNotBlank() && nickname != "游客用户") fields["nickname"] = nickname
+        // 目标随 profile 推送（旧库 :305-310：非空且非默认值才上传）
+        goals?.let { g ->
+            if (g.calorieGoal > 0 && g.calorieGoal != 2049) fields["calorie_goal"] = g.calorieGoal
+            if (g.waterGoal > 0 && g.waterGoal != 2000) fields["water_goal"] = g.waterGoal
+        }
         cloud.upsert("profiles", "id", listOf(CloudRow(fields)))
     }
 

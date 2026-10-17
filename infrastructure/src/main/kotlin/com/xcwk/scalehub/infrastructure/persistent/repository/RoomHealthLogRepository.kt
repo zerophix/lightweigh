@@ -20,6 +20,9 @@ class RoomHealthLogRepository(
     override suspend fun recent(limit: Int): List<HealthLog> =
         dao.recent(limit, memberId()).map { it.toDomain() }
 
+    override suspend fun between(fromInc: Long, toExc: Long): List<HealthLog> =
+        dao.between(fromInc, toExc, memberId()).map { it.toDomain() }
+
     private fun HealthLog.toPo() = HealthLogPo(
         loggedAt = time, type = type, value = value,
         value2 = value2, label = label, note = note, memberId = "",

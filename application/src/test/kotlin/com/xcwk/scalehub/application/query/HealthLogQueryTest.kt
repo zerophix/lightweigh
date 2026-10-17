@@ -22,6 +22,10 @@ class HealthLogQueryTest {
     private class FakeRepo(private val rows: List<HealthLog>) : HealthLogRepository {
         override suspend fun save(log: HealthLog) = throw UnsupportedOperationException()
         override suspend fun recent(limit: Int) = rows.sortedByDescending { it.time }.take(limit)
+
+
+        override suspend fun between(fromInc: Long, toExc: Long) =
+            rows.filter { it.time >= fromInc && it.time < toExc }.sortedBy { it.time }
     }
 
     private fun log(t: Long, type: String, value: Double, value2: Double = 0.0, label: String = "") =

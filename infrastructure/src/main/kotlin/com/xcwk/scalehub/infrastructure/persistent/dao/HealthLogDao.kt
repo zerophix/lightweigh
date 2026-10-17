@@ -14,4 +14,7 @@ interface HealthLogDao {
 
     @Query("SELECT * FROM health_logs WHERE memberId = :memberId ORDER BY loggedAt DESC LIMIT :limit")
     suspend fun recent(limit: Int, memberId: String): List<HealthLogPo>
+
+    @Query("SELECT * FROM health_logs WHERE memberId = :memberId AND loggedAt >= :from AND loggedAt < :to ORDER BY loggedAt ASC")
+    suspend fun between(from: Long, to: Long, memberId: String): List<HealthLogPo>
 }

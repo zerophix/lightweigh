@@ -167,5 +167,9 @@ commands:
   path: app/src/test/kotlin/com/xcwk/scalehub/feature/member/MembersViewModelTest.kt
   status: stable
   type: gradle-test
+- description: 首页目标进度查询（今日汇总/BMI段/7天变化, 移植补齐）
+  path: application/src/test/kotlin/com/xcwk/scalehub/application/query/HomeGoalQueryTest.kt
+  status: stable
+  type: gradle-test
 configs: []
 orphans: []

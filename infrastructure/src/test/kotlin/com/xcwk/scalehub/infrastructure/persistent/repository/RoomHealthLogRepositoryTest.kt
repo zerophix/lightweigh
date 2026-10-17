@@ -22,6 +22,8 @@ class RoomHealthLogRepositoryTest {
         }
         override suspend fun recent(limit: Int, memberId: String): List<HealthLogPo> =
             toReturn.sortedByDescending { it.loggedAt }.take(limit)
+        override suspend fun between(from: Long, to: Long, memberId: String): List<HealthLogPo> =
+            toReturn.filter { it.loggedAt >= from && it.loggedAt < to }.sortedBy { it.loggedAt }
     }
 
     @Test
