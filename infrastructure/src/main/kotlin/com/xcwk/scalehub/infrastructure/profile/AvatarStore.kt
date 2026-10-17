@@ -13,18 +13,37 @@ import java.io.File
 class AvatarStore(context: Context) {
 
     private val appContext = context.applicationContext
-    private val file: File get() = File(File(appContext.filesDir, "avatars").apply { mkdirs() }, "avatar.jpg")
+    private fun fileFor(memberId: String): File =
+        File(File(appContext.filesDir, "avatars").apply { mkdirs() }, "avatar_$memberId.jpg")
 
-    fun path(): String? = migrateLegacy()
-
-    /** 一次性迁移：早期版本头像落在 filesDir 根，挪进 avatars/ 子目录。 */
-    private fun migrateLegacy(): String? {
-        val legacy = File(appContext.filesDir, "avatar.jpg")
-        if (!file.exists() && legacy.exists()) {
-            legacy.renameTo(file)
+    /** 按成员读头像路径；member 1 回退旧单文件名（升级前存量）。 */
+    fun path(memberId: String): String? {
+        val scoped = fileFor(memberId)
+        if (!scoped.exists() && memberId == "1") {
+            val legacySingle = File(File(appContext.filesDir, "avatars").apply { mkdirs() }, "avatar.jpg")
+            if (legacySingle.exists()) legacySingle.renameTo(scoped)
         }
-        return if (file.exists()) file.absolutePath else null
+        return if (scoped.exists()) scoped.absolutePath else null
     }
+
+    /** 删除某成员头像文件（成员移除联动）。 */
+    fun removeFor(memberId: String) {
+        fileFor(memberId).delete()
+    }
+
+    fun saveFromUri(uri: Uri, memberId: String): String? = runCatching {
+        val file = fileFor(memberId)
+        val bitmap = appContext.contentResolver.openInputStream(uri)?.use { input ->
+            BitmapFactory.decodeStream(input)
+        } ?: return null
+        val scaled = scaleDown(bitmap, MAX_EDGE)
+        file.outputStream().use { out ->
+            scaled.compress(Bitmap.CompressFormat.JPEG, 90, out)
+        }
+        scaled.recycle()
+        file.absolutePath
+    }.getOrNull()
+
 
     /**
      * 相机拍照目标（M4 相机头像）：cache/camera/avatar.jpg 的 content URI。
@@ -36,18 +55,6 @@ class AvatarStore(context: Context) {
         androidx.core.content.FileProvider.getUriForFile(
             appContext, "${appContext.packageName}.fileprovider", target,
         ).toString()
-    }.getOrNull()
-
-    fun saveFromUri(uri: Uri): String? = runCatching {
-        val bitmap = appContext.contentResolver.openInputStream(uri)?.use { input ->
-            BitmapFactory.decodeStream(input)
-        } ?: return null
-        val scaled = scaleDown(bitmap, MAX_EDGE)
-        file.outputStream().use { out ->
-            scaled.compress(Bitmap.CompressFormat.JPEG, 90, out)
-        }
-        scaled.recycle()
-        file.absolutePath
     }.getOrNull()
 
     private fun scaleDown(source: Bitmap, max: Int): Bitmap {

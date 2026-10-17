@@ -159,5 +159,9 @@ commands:
   path: domain/src/test/kotlin/com/xcwk/scalehub/domain/device/ScaleQrParserTest.kt
   status: stable
   type: gradle-test
+- description: 成员槽位与命名纯函数（多成员维, 移植补齐）
+  path: domain/src/test/kotlin/com/xcwk/scalehub/domain/model/MemberOpsTest.kt
+  status: stable
+  type: gradle-test
 configs: []
 orphans: []

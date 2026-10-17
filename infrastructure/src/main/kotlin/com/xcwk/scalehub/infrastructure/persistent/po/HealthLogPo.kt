@@ -1,5 +1,6 @@
 package com.xcwk.scalehub.infrastructure.persistent.po
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 
 /**
@@ -15,4 +16,6 @@ data class HealthLogPo(
     val value2: Double,
     val label: String,
     val note: String,
+    @ColumnInfo(defaultValue = "1")
+    val memberId: String,
 )

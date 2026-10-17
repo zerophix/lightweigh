@@ -103,9 +103,37 @@ class MigrationSchemaAgreementTest {
     }
 
     @Test
+    fun `迁移4_5补memberId列与schema5声明一致`() {
+        val json = findSchema(5).readText(Charsets.UTF_8)
+        // 两表 schema 均含 memberId 且默认值为 '1'（多成员维升级语义）
+        for (table in listOf("measurements", "health_logs")) {
+            val match = Regex(""""tableName": "$table"[\s\S]*?"createSql": "(.*?)"""")
+                .find(json) ?: error("5.json 中未找到 $table 的 createSql")
+            val sql = match.groupValues[1].replace("\\\"", "\"")
+            assertWithMessage("5.json $table 应含 memberId 列") {
+                assertThat(sql).contains("memberId")
+            }
+        }
+        // 迁移 DDL 两表各一条 ALTER，默认 '1'
+        val alters = Regex("ALTER TABLE (\\w+) ADD COLUMN (\\w+) (\\w+)(?: NOT NULL)?(?: DEFAULT '([^']*)')?")
+            .findAll(AppDatabase.MIGRATION_4_5_SQL)
+            .map { it.groupValues[1] to (it.groupValues[4] to it.groupValues[2]) }
+            .toList()
+        assertThat(alters.map { it.first }).containsExactly("measurements", "health_logs")
+        alters.forEach { (table, pair) ->
+            assertWithMessage("$table 的 memberId 默认值应为 1") {
+                assertThat(pair.first).isEqualTo("1")
+                assertThat(pair.second).isEqualTo("memberId")
+            }
+        }
+    }
+
+    @Test
     fun `迁移版本边正确`() {
         assertThat(AppDatabase.MIGRATION_2_3.startVersion).isEqualTo(2)
         assertThat(AppDatabase.MIGRATION_2_3.endVersion).isEqualTo(3)
+        assertThat(AppDatabase.MIGRATION_4_5.startVersion).isEqualTo(4)
+        assertThat(AppDatabase.MIGRATION_4_5.endVersion).isEqualTo(5)
     }
 
     private fun assertWithMessage(msg: String, block: () -> Unit) {

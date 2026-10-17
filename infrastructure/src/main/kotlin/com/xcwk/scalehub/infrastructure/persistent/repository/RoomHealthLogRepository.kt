@@ -9,16 +9,20 @@ import com.xcwk.scalehub.infrastructure.persistent.po.HealthLogPo
  * repository 实现 — Room 版（生产），取代旧库 HealthLogStore 的 SP JSON。
  * 读路径经 HealthLog 构造守卫，脏行 fail-fast（同测量仓储语义）。
  */
-class RoomHealthLogRepository(private val dao: HealthLogDao) : HealthLogRepository {
+class RoomHealthLogRepository(
+    private val dao: HealthLogDao,
+    private val memberId: () -> String,
+) : HealthLogRepository {
 
-    override suspend fun save(log: HealthLog) = dao.upsert(log.toPo())
+    /** 落库以当前成员盖章（多成员维在仓储层）。 */
+    override suspend fun save(log: HealthLog) = dao.upsert(log.toPo().copy(memberId = memberId()))
 
     override suspend fun recent(limit: Int): List<HealthLog> =
-        dao.recent(limit).map { it.toDomain() }
+        dao.recent(limit, memberId()).map { it.toDomain() }
 
     private fun HealthLog.toPo() = HealthLogPo(
         loggedAt = time, type = type, value = value,
-        value2 = value2, label = label, note = note,
+        value2 = value2, label = label, note = note, memberId = "",
     )
 
     private fun HealthLogPo.toDomain() = HealthLog(

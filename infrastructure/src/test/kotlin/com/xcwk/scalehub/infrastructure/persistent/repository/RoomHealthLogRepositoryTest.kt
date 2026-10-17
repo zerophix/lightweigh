@@ -20,14 +20,14 @@ class RoomHealthLogRepositoryTest {
             saved += po
             toReturn = saved.toList()
         }
-        override suspend fun recent(limit: Int): List<HealthLogPo> =
+        override suspend fun recent(limit: Int, memberId: String): List<HealthLogPo> =
             toReturn.sortedByDescending { it.loggedAt }.take(limit)
     }
 
     @Test
     fun `写读往返_六字段保真`() = runTest {
         val dao = CapturingDao()
-        val repo = RoomHealthLogRepository(dao)
+        val repo = RoomHealthLogRepository(dao, { "1" })
         val log = HealthLog(1700000000000L, "diet", 1500.0, 0.0, "午餐", "米饭")
         repo.save(log)
         assertThat(dao.saved).hasSize(1)
@@ -41,8 +41,8 @@ class RoomHealthLogRepositoryTest {
     @Test
     fun `读取脏行_未知类型failfast`() {
         val dao = CapturingDao()
-        val repo = RoomHealthLogRepository(dao)
-        dao.toReturn = listOf(HealthLogPo(1700000000000L, "walk", 1.0, 0.0, "", ""))
+        val repo = RoomHealthLogRepository(dao, { "1" })
+        dao.toReturn = listOf(HealthLogPo(1700000000000L, "walk", 1.0, 0.0, "", "", "1"))
         assertThrows(DomainException::class.java) {
             runBlocking { repo.recent(1) }
         }

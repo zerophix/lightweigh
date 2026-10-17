@@ -20,4 +20,6 @@ data class MeasurementPo(
     val male: Boolean?,
     val ageYears: Int?,
     val heightCm: Int?,
+    @ColumnInfo(defaultValue = "1")
+    val memberId: String,
 )

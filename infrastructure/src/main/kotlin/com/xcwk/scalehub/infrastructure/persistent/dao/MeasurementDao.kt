@@ -11,11 +11,11 @@ interface MeasurementDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(po: MeasurementPo)
 
-    @Query("SELECT * FROM measurements ORDER BY measuredAt DESC LIMIT :limit")
-    suspend fun recent(limit: Int): List<MeasurementPo>
+    @Query("SELECT * FROM measurements WHERE memberId = :memberId ORDER BY measuredAt DESC LIMIT :limit")
+    suspend fun recent(limit: Int, memberId: String): List<MeasurementPo>
 
-    @Query("SELECT * FROM measurements WHERE measuredAt >= :from AND measuredAt < :to ORDER BY measuredAt ASC")
-    suspend fun between(from: Long, to: Long): List<MeasurementPo>
+    @Query("SELECT * FROM measurements WHERE memberId = :memberId AND measuredAt >= :from AND measuredAt < :to ORDER BY measuredAt ASC")
+    suspend fun between(from: Long, to: Long, memberId: String): List<MeasurementPo>
 
     @Query("DELETE FROM measurements WHERE measuredAt = :time")
     suspend fun delete(time: Long)

@@ -18,7 +18,7 @@ import com.xcwk.scalehub.infrastructure.persistent.po.MeasurementPo
  */
 @Database(
     entities = [MeasurementPo::class, HealthLogPo::class, ScaleDevicePo::class],
-    version = 4,
+    version = 5,
     exportSchema = true,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -78,6 +78,20 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * v4 → v5：多成员维（移植补齐）——两表补 member_id 列，默认 '1' 即默认成员，
+         * 存量行归属成员 1（旧库 memberKey 升级语义）。
+         */
+        const val MIGRATION_4_5_SQL =
+            "ALTER TABLE measurements ADD COLUMN memberId TEXT NOT NULL DEFAULT '1';" +
+                "ALTER TABLE health_logs ADD COLUMN memberId TEXT NOT NULL DEFAULT '1'"
+
+        val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                MIGRATION_4_5_SQL.split(";").forEach { stmt -> db.execSQL(stmt.trim()) }
+            }
+        }
+
         @Volatile
         private var instance: AppDatabase? = null
 
@@ -85,7 +99,7 @@ abstract class AppDatabase : RoomDatabase() {
             instance ?: synchronized(this) {
                 instance ?: Room.databaseBuilder(
                     context.applicationContext, AppDatabase::class.java, "scalehub.db",
-                ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+                ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
                     // devices 沿旧库 SP 同步直读语义（表容量个位数）；其余仓储保持 suspend
                     .allowMainThreadQueries()
                     .build().also { instance = it }

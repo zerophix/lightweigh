@@ -12,6 +12,6 @@ interface HealthLogDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(po: HealthLogPo)
 
-    @Query("SELECT * FROM health_logs ORDER BY loggedAt DESC LIMIT :limit")
-    suspend fun recent(limit: Int): List<HealthLogPo>
+    @Query("SELECT * FROM health_logs WHERE memberId = :memberId ORDER BY loggedAt DESC LIMIT :limit")
+    suspend fun recent(limit: Int, memberId: String): List<HealthLogPo>
 }
