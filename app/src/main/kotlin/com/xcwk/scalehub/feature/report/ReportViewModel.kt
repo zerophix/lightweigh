@@ -53,6 +53,7 @@ class ReportViewModel(
                 weightText = one(report.record.weight),
                 deltaLine = deltaLineOf(analysis.prevWeight, analysis.prevFat, report.record),
                 score = analysis.score,
+                scoreDelta = report.scoreDelta,
                 advice = analysis.advice,
                 bodyShape = analysis.bodyShape,
                 risks = analysis.risks.map { r -> ReportRiskUi(r.name, r.levelText, r.tone) },

@@ -6,8 +6,10 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.xcwk.scalehub.App
+import com.xcwk.scalehub.application.DataRefreshBus
 import com.xcwk.scalehub.application.command.UpdateProfileCommand
 import com.xcwk.scalehub.application.query.CurrentProfile
+import com.xcwk.scalehub.application.query.HomeGoalQuery
 import com.xcwk.scalehub.application.query.ProfileQuery
 import com.xcwk.scalehub.application.service.UpdateProfileService
 import com.xcwk.scalehub.domain.types.DomainException
@@ -16,17 +18,21 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 /**
  * mine — UDF 四件套之 ViewModel：读 ProfileQuery、存 UpdateProfileService，
  * 业务规则（量程/生日/昵称）全在 domain 构造守卫，这里只做文本解析与错误转述。
  * M4 视觉轮已落：出生/身高滚轮（QkWheelPicker）与头像（QkAvatar + 相册选图）。
+ * 健康数据概览卡复用 HomeGoalQuery（首页体重卡同一事实源，DEC-026 组 I）。
  */
 class MineViewModel(
     private val profileQuery: ProfileQuery,
     private val updateProfile: UpdateProfileService,
     private val saveAvatar: (String) -> String? = { null },
     private val avatarPath: () -> String = { "" },
+    private val homeGoalQuery: HomeGoalQuery? = null,
+    private val refreshBus: DataRefreshBus? = null,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(MineUiState())
@@ -34,6 +40,10 @@ class MineViewModel(
 
     init {
         viewModelScope.launch { load() }
+        // 跨屏保存/删除等数据变更后自动重读（与 Measure/Trend VM 同口径，DEC-021 支柱2）
+        refreshBus?.changed?.let { signal ->
+            viewModelScope.launch { signal.collect { load() } }
+        }
     }
 
     fun onIntent(intent: MineIntent) {
@@ -67,6 +77,7 @@ class MineViewModel(
 
     private suspend fun load() {
         val p = profileQuery.current()
+        val home = homeGoalQuery?.state()
         _state.update {
             it.copy(
                 loading = false,
@@ -79,9 +90,15 @@ class MineViewModel(
                 avatarPath = avatarPath(),
                 summary = summaryOf(p),
                 unsetHint = !p.heightSet,
+                overviewWeight = home?.latestWeight?.let { w -> one(w) } ?: "--",
+                overviewFat = if (home != null && home.latestFatShown) one(home.latestFat) else "--",
+                overviewBmi = home?.bmi?.let { b -> one(b) } ?: "--",
+                hasOverview = home?.latestWeight != null,
             )
         }
     }
+
+    private fun one(value: Double): String = "%.1f".format(Locale.US, value)
 
     private fun summaryOf(p: CurrentProfile): String =
         "${if (p.male) "男" else "女"} | " +
@@ -123,6 +140,8 @@ class MineViewModel(
                     app.container.updateProfileService,
                     saveAvatar = app.container.saveAvatar,
                     avatarPath = app.container.avatarPath,
+                    homeGoalQuery = app.container.homeGoalQuery,
+                    refreshBus = app.container.dataRefreshBus,
                 )
             }
         }

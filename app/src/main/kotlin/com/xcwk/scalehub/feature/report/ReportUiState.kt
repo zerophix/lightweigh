@@ -20,6 +20,8 @@ data class ReportUiState(
     /** "比上次  体重 +1.5 公斤  体脂率 -0.8 %"（Pages:663 口径）。 */
     val deltaLine: String = "",
     val score: Int? = null,
+    /** 评分较上次变化（原型评分卡 pill）：两端都有评分才给，否则 null。 */
+    val scoreDelta: Int? = null,
     val advice: String? = null,
     val bodyShape: String? = null,
     val risks: List<ReportRiskUi> = emptyList(),

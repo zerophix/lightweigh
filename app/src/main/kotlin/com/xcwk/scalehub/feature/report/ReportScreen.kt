@@ -79,7 +79,7 @@ fun ReportScreen(
             ) {
                 QkBackButton(onClick = onBack)
                 QkPageTitle(
-                    title = "体测报告",
+                    title = "身体报告",
                     modifier = Modifier.weight(1f).padding(start = QkSpacing.Md),
                 )
             }
@@ -100,7 +100,7 @@ fun ReportScreen(
         ) {
             QkBackButton(onClick = onBack)
             QkPageTitle(
-                title = "体测报告",
+                title = "身体报告",
                 modifier = Modifier.weight(1f).padding(start = QkSpacing.Md),
             )
         }
@@ -132,6 +132,15 @@ fun ReportScreen(
                                 modifier = Modifier.padding(top = 6.dp),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = QkColor.Muted,
+                            )
+                        }
+                        // 较上次评分 pill（原型评分卡口径）：0 分不显示
+                        val delta = state.scoreDelta
+                        if (delta != null && delta != 0) {
+                            QkPill(
+                                "较上次 ${if (delta > 0) "+" else ""}$delta 分",
+                                if (delta > 0) QkPillTone.Green else QkPillTone.Amber,
+                                modifier = Modifier.padding(top = 10.dp),
                             )
                         }
                     }

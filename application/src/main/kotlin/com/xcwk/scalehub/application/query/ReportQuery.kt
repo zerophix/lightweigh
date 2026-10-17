@@ -13,6 +13,8 @@ import com.xcwk.scalehub.domain.repository.MeasurementRepository
 data class MeasurementReport(
     val record: MeasureRecord,
     val analysis: BodyAnalysisResult,
+    /** 上一条同口径记录的评分（对 prev 复跑 analysis 取得；无 prev 或无评分为 null）。 */
+    val prevScore: Int? = null,
 ) {
     val missingProfile: List<String> get() = analysis.missing
 
@@ -23,6 +25,10 @@ data class MeasurementReport(
         } else {
             "体重、体脂率为实测记录；其余指标基于公认公式估算，仅供参考，不构成医疗建议"
         }
+
+    /** 评分较上次变化（原型评分卡 pill）：两端都有评分才给，否则 null。 */
+    val scoreDelta: Int?
+        get() = if (analysis.score != null && prevScore != null) analysis.score - prevScore else null
 }
 
 class ReportQuery(private val repository: MeasurementRepository) {
@@ -42,6 +48,21 @@ class ReportQuery(private val repository: MeasurementRepository) {
             impedanceOhm = record.impedance,
             algorithm = record.algorithm,
         )
-        return MeasurementReport(record, analysis)
+        // 上期评分：对 prev 复跑同一规则（评分只依赖记录自身 bmi/体脂/内脏脂肪，
+        // 不吃 prevWeight/prevFat，故差值入参传 null 不影响得分）；规则不旁落到 UI。
+        val prevScore = prev?.let { p ->
+            buildBodyAnalysis(
+                male = p.male ?: false,
+                ageYearsIn = p.ageYears,
+                heightCmIn = p.heightCm,
+                weight = p.weight,
+                fatRateIn = p.fat,
+                prevWeightIn = null,
+                prevFatIn = null,
+                impedanceOhm = p.impedance,
+                algorithm = p.algorithm,
+            ).score
+        }
+        return MeasurementReport(record, analysis, prevScore)
     }
 }

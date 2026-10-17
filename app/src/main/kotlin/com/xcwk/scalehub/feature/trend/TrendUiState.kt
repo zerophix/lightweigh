@@ -1,5 +1,6 @@
 package com.xcwk.scalehub.feature.trend
 
+import com.xcwk.scalehub.application.query.TrendDirection
 import com.xcwk.scalehub.application.query.TrendRange
 import com.xcwk.scalehub.application.query.TrendSegment
 
@@ -16,6 +17,13 @@ data class TrendBlockUi(
     val lowDay: String?,
     val changeValue: String?,   // 带符号+单位（如 +1.0公斤），空集为 null
     val emptyText: String?,     // 非 null 时渲染空态（旧库文案）
+    /** 数据解读（原型 insight 卡）：方向 + 行标题 + 句子；空集为 null。 */
+    val insightDirection: TrendDirection? = null,
+    val insightTitle: String? = null,
+    val insightText: String? = null,
+    /** 周期对比（原型趋势对比卡两格）：带单位文本；无数据 null → 页面 "--"。 */
+    val periodAvgText: String? = null,
+    val prevPeriodAvgText: String? = null,
 )
 
 data class TrendUiState(
