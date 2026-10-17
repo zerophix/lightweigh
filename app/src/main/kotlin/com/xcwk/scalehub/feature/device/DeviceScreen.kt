@@ -53,6 +53,20 @@ fun DeviceScreen(vm: DeviceViewModel = viewModel(factory = DeviceViewModel.Facto
     val enableBtLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult(),
     ) { vm.onIntent(DeviceIntent.Refresh) }
+    // 扫码绑定（旧库 BindActivity btnQr → ScanContract）
+    val qrLauncher = rememberLauncherForActivityResult(
+        com.journeyapps.barcodescanner.ScanContract(),
+    ) { result ->
+        val contents = result.contents
+        if (contents != null) {
+            val qr = com.xcwk.scalehub.domain.device.ScaleQr.parse(contents)
+            if (qr == null) {
+                vm.onIntent(DeviceIntent.Refresh)
+            } else {
+                vm.onIntent(DeviceIntent.QrBind(qr.name, qr.mac))
+            }
+        }
+    }
 
     val granted = activity?.let { BleGate.granted(it) } ?: false
     val btEnabled = rememberBtEnabled()
@@ -68,6 +82,14 @@ fun DeviceScreen(vm: DeviceViewModel = viewModel(factory = DeviceViewModel.Facto
         },
         onEnableBluetooth = {
             enableBtLauncher.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
+        },
+        onScanQr = {
+            qrLauncher.launch(
+                com.journeyapps.barcodescanner.ScanOptions()
+                    .setDesiredBarcodeFormats(com.journeyapps.barcodescanner.ScanOptions.QR_CODE)
+                    .setPrompt("将体脂秤二维码放入框内")
+                    .setBeepEnabled(false),
+            )
         },
     )
 }
@@ -100,6 +122,7 @@ fun DeviceContent(
     onIntent: (DeviceIntent) -> Unit,
     onRequestPermission: () -> Unit = {},
     onEnableBluetooth: () -> Unit = {},
+    onScanQr: () -> Unit = {},
 ) {
     Column(modifier = Modifier.fillMaxSize().padding(16.dp).verticalScroll(rememberScrollState())) {
         Text("设备", style = MaterialTheme.typography.headlineSmall)
@@ -133,6 +156,7 @@ fun DeviceContent(
         } else {
             Row(modifier = Modifier.fillMaxWidth().padding(top = 12.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text(state.notice, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
+                OutlinedButton(onClick = onScanQr, modifier = Modifier.padding(end = 8.dp)) { Text("扫码") }
                 Button(onClick = { onIntent(DeviceIntent.ToggleScan) }) {
                     Text(if (state.scanning) "停止搜索" else "开始搜索设备")
                 }

@@ -41,6 +41,7 @@ class DeviceViewModel(
         when (intent) {
             DeviceIntent.ToggleScan -> if (_state.value.scanning) stopScan() else startScan()
             is DeviceIntent.Bind -> bind(intent.found)
+            is DeviceIntent.QrBind -> bindQr(intent.name, intent.mac)
             is DeviceIntent.Unbind -> {
                 devices.unbind(intent.mac)
                 refresh()
@@ -108,6 +109,15 @@ class DeviceViewModel(
     private fun stopScan() {
         timeoutJob?.cancel()
         ble.stopScan()
+    }
+
+    /** 扫码路径固定 okok-1（旧库 finishBind(qr.name, qr.mac, PROTOCOL_OKOK_1)）。 */
+    private fun bindQr(name: String, mac: String) {
+        stopScan()
+        val existed = devices.contains(mac)
+        devices.bind(name.ifBlank { "智能体脂秤" }, mac, com.xcwk.scalehub.domain.model.ScaleDevice.PROTOCOL_OKOK_1)
+        refresh()
+        _state.update { it.copy(message = (if (existed) "已切换到 " else "已绑定 ") + (devices.device(mac)?.name ?: mac)) }
     }
 
     private fun bind(found: FoundScale) {
