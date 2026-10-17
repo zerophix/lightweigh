@@ -6,11 +6,42 @@ on:
     branches: [main, master]
   pull_request:
 
+# 同一分支的新推送作废上一轮未跑完的 run：避免多轮并行各烧十来分钟
+# （私有仓库 Actions 分钟数计量，见 DEC-033）
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-and-guard:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # 需要基线提交做「本次是否动了代码」的判定
+
+      # 纯文档/治理元数据变更（docs/、*.md、mkdocs.yml、.ai/、.cache/）不触发重型
+      # 构建：代码没动，上一轮构建的结论仍然成立。基线不可用（首次/强制推送）时
+      # 一律按「动了代码」处理，宁可多跑一轮也不留门禁空洞。
+      - name: Detect change scope
+        id: scope
+        run: |
+          BASE="${{ github.event.pull_request.base.sha || github.event.before }}"
+          if [ -z "$BASE" ] || ! git cat-file -e "${BASE}^{commit}" 2>/dev/null; then
+            echo "基线提交不可用，按「动了代码」保守处理"
+            echo "code=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          FILES=$(git diff --name-only "$BASE" HEAD)
+          echo "本次变更文件:"
+          echo "$FILES" | sed 's/^/  /'
+          if echo "$FILES" | grep -qvE '^(docs/|\.ai/|\.cache/|mkdocs\.yml$|.*\.md$)'; then
+            echo "code=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "code=false" >> "$GITHUB_OUTPUT"
+            echo "仅文档/治理元数据变更，跳过重型构建；本 job 仍上报成功，分支保护不受影响"
+          fi
 
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v4
@@ -24,16 +55,32 @@ jobs:
       - name: Set up Gradle (cache)
         uses: gradle/actions/setup-gradle@v4
 
+      # 「构建缓存是否跨轮存活」是 DEC-033 的核心假设，用日志钉住而不是靠猜：
+      # gradlew 把 GRADLE_USER_HOME 固定在项目内 .gradle-user，故缓存也落在那里
+      - name: Report build cache state
+        if: steps.scope.outputs.code == 'true'
+        run: |
+          CACHE="${GRADLE_USER_HOME:-$PWD/.gradle-user}/caches/build-cache-1"
+          echo "构建缓存目录: $CACHE"
+          if [ -d "$CACHE" ]; then
+            echo "条目数: $(find "$CACHE" -maxdepth 1 -type f | wc -l)  大小: $(du -sh "$CACHE" | cut -f1)"
+          else
+            echo "目录不存在 —— 本轮无缓存可取（首轮，或未持久化）"
+          fi
+
       # 全量构建：编译 + 单测 + ArchUnit 守卫（含解析自检与负例测试）
       - name: Build and test
+        if: steps.scope.outputs.code == 'true'
         run: ./gradlew build --stacktrace
 
       # androidTest 源集纳入编译门（T-005 迁移测试已落地并在模拟器实跑通过）
       - name: Compile androidTest
+        if: steps.scope.outputs.code == 'true'
         run: ./gradlew assembleAndroidTest --stacktrace
 
   docs-validate:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
         with:
@@ -50,6 +97,7 @@ jobs:
 
   lifecycle-audit:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
         with:
