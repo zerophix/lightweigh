@@ -596,4 +596,74 @@ class MeasureSessionTest {
         assertThat(ble.connectCalls).isEqualTo(callsAfterSave)
         assertThat(session.state.value.outcome?.kind).isEqualTo(MeasureOutcomeKind.SAVED)
     }
+
+    // ---- 组 E 前置：阻抗累加与多帧锁定时序 ----
+
+    /**
+     * 过程帧只累加阻抗（取峰值），最终帧的阻抗可能是 0——此时必须沿用累加值。
+     * 若把累加写成「后帧覆盖」，结果帧的 0 会把峰值抹掉，整次测量退化成无体成分。
+     */
+    @Test
+    fun `过程帧阻抗累加取峰值_结果帧无阻抗时沿用累加值`() = runTest {
+        val ble = FakeBle()
+        val repo = FakeRepo()
+        val profile = FakeProfile()
+        val devices = FakeDevices(mutableListOf(ScaleDevice("秤", "AA:BB:CC:DD:EE:FF", "2026-10-16", true)))
+        val session = MeasureSession(
+            ble, devices, RecordMeasurementService(repo, profile, null), profile, { 0 }, backgroundScope, { false },
+        )
+        session.start(); runCurrent()
+        ble.emitFound("AA:BB:CC:DD:EE:FF", byteArrayOf(0x01))
+        ble.emitConnectSuccess()
+        ble.indicateSuccess()
+
+        ble.emit(fff1, processFrame(6550, 4800, 0x40))   // 480Ω
+        ble.emit(fff1, processFrame(6550, 5200, 0x40))   // 520Ω（峰值）
+        ble.emit(fff1, processFrame(6550, 4900, 0x40))   // 490Ω（回落）
+        assertThat(session.state.value.phase).isEqualTo(MeasurePhase.LIVE)
+        assertThat(repo.saved).isEmpty()
+
+        ble.emit(result2A9C, fourFrame(6550, 0, 0x00))   // 结果帧本身不带阻抗
+        runCurrent()
+
+        assertThat(session.state.value.outcome?.kind).isEqualTo(MeasureOutcomeKind.SAVED)
+        assertThat(repo.saved.single().impedance).isEqualTo(520.0)
+    }
+
+    /**
+     * 过程帧只刷新实时体重，不得提前封存；封存后再来的过程帧不得二次落库。
+     * 判据同时盯「落库次数」与「结果体重」：封存过早会让第一次过程帧就写库，
+     * 封存后不设防则迟到帧会覆盖已展示的结果。
+     */
+    @Test
+    fun `过程帧只刷新实时值_封存后迟到帧不再落库`() = runTest {
+        val ble = FakeBle()
+        val repo = FakeRepo()
+        val profile = FakeProfile()
+        val devices = FakeDevices(mutableListOf(ScaleDevice("秤", "AA:BB:CC:DD:EE:FF", "2026-10-16", true)))
+        val session = MeasureSession(
+            ble, devices, RecordMeasurementService(repo, profile, null), profile, { 0 }, backgroundScope, { false },
+        )
+        session.start(); runCurrent()
+        ble.emitFound("AA:BB:CC:DD:EE:FF", byteArrayOf(0x01))
+        ble.emitConnectSuccess()
+        ble.indicateSuccess()
+
+        ble.emit(fff1, processFrame(6500, 5000, 0x40))
+        ble.emit(fff1, processFrame(6600, 5100, 0x40))
+        assertThat(session.state.value.phase).isEqualTo(MeasurePhase.LIVE)
+        assertThat(session.state.value.weightText).isEqualTo("66.0")
+        assertThat(repo.saved).isEmpty()
+
+        ble.emit(result2A9C, fourFrame(6600, 5100, 0x00))
+        runCurrent()
+        assertThat(repo.saved).hasSize(1)
+        val sealedWeight = requireNotNull(session.state.value.outcome).weight
+
+        ble.emit(fff1, processFrame(7000, 5200, 0x40))   // 封存后的迟到过程帧
+        runCurrent()
+
+        assertThat(repo.saved).hasSize(1)
+        assertThat(session.state.value.outcome?.weight).isEqualTo(sealedWeight)
+    }
 }

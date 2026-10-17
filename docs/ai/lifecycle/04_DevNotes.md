@@ -113,6 +113,17 @@
   `MineRoute`（设置/成员）的局部布尔并入同一栈。有意修正两处语义：切页签现在会关闭功能页与
   报告页（旧实现漏清 featureName/reportTime），返回键不再退出 Activity。新增 `NavStateTest`
   12 项（含 1000 次随机事件序列不变量），app 模块 77 项全绿。
+- 2026-10-17（DEC-024 组 D/E）：测量会话状态机收口。新增 `SessionPhase.kt`：`Idle` /
+  `Linking(picked, suppressNextDisconnect)` / `Linked(MeasureProgress)` / `Sealed(SealedResult)` /
+  `Closed` 五个相位 + 15 个事件 + 纯 `reduce`，非法转移一律 no-op（蓝牙回调本来就会乱序到达，
+  静默忽略比崩溃更贴合现场）。`MeasureSession` 的可变字段 22 → 5：`phase`、`binding`
+  （mac/协议/算法 id 的值对象）、`secondsLeft`、`tipIndex`、`lastWeightRaw`；6 个 Job 句柄按
+  资源不计。删掉 `closed`/`linkReady`/`sealed`/`saved`/`seenWeight`/`steppingOff`/`awaitingConfirm`/
+  `heldWeightOnly`/`suppressDisconnect`/`heldWeight`/`heldImpedance`/`pendingImpedance`/`heldHeart`/
+  `scaleKind`，改为相位派生只读视图——写入口只剩 `reduce`。结构替换前后 `MeasureSessionTest`
+  20 项全绿且未改用例，是行为等价的证据；新增 `SessionPhaseTest` 21 项（状态×事件逐格 +
+  2000 步随机四条不变量）。组 D 的机械守卫落在 `gov-custom-checks.sh`：application 模块单文件
+  非 Job 可变字段 > 8 即 FAIL，以阈值 3 试跑确认规则会咬住。全模块 295 项 0 失败。
 - 2026-10-16（DEC-023）：Android 治理本地化收口。评估确认治理可按语言耦合度分四层落地：
   协议层/门禁层零耦合无需改，指标层已本地化，需收口 CI 对齐、Android 测试治理、analyzer 修整。
   新增 GOV-ATEST-001~005 治理各模块 `src/test` 的 Kotlin/Java 测试（命名/版本/emoji/注册表），
@@ -278,6 +289,7 @@
 
 | 版本 | 日期 | 变更摘要 |
 |------|------|---------|
+| v56 | 2026-10-17 | DEC-024 组 D/E 收口：SessionPhase sealed 相位 + 纯 reduce 替换 MeasureSession 的 13 个并列字段（可变字段 22→5），相位矩阵 21 项，可变字段阈值守卫入 gov-custom-checks（295 项全绿） |
 | v55 | 2026-10-17 | DEC-024 组 E 前置：补 4 项链路时序测试，MeasureSessionTest 18 项，全模块 272 项 |
 | v54 | 2026-10-17 | DEC-024 组 C：MeasureSession 抽 isSettling + confirmSave 补 closed 守卫，补 3 项路径测试（93 项 application 单测） |
 | v53 | 2026-10-17 | DEC-024 导航状态收口：NavState 单一栈 + BackHandler，Trend/Mine 局部导航并入（77 项 app 单测） |
