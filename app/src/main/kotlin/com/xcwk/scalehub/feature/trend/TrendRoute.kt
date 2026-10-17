@@ -2,9 +2,6 @@ package com.xcwk.scalehub.feature.trend
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 
@@ -15,25 +12,17 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 const val TREND_ROUTE_NAME = "trend"
 const val TREND_ROUTE_PATTERN = "trend/{range}/{segment}"
 
-/** 装配挂载点：接 ViewModel 与无状态 Screen（导航壳接入的唯一入口）。 */
+/**
+ * 装配挂载点：接 ViewModel 与无状态 Screen（导航壳接入的唯一入口）。
+ *
+ * P1 起二级页（历史记录 / 报告）上提到 NavState 覆盖页栈：本层不再持有
+ * showHistory / reportTime 两个局部导航布尔，返回键由壳层统一处理。
+ */
 @Composable
-fun TrendRoute(onAskAi: () -> Unit = {}, vm: TrendViewModel = viewModel(factory = TrendViewModel.Factory)) {
-    // 宿主级二级导航态（趋势→历史→报告），归 Route 层持有——同 MainShell 例外域声明
-    var showHistory by rememberSaveable { mutableStateOf(false) }
-    var reportTime by rememberSaveable { mutableStateOf(-1L) }
-    when {
-        reportTime >= 0L -> com.xcwk.scalehub.feature.report.ReportRoute(
-            time = reportTime,
-            onAskAi = onAskAi,
-            onBack = { reportTime = -1L },
-        )
-        showHistory -> com.xcwk.scalehub.feature.history.HistoryRoute(
-            onBack = { showHistory = false },
-            onOpenReport = { t -> reportTime = t },
-        )
-        else -> {
-            val state by vm.state.collectAsStateWithLifecycle()
-            TrendScreen(state = state, onIntent = vm::onIntent, onOpenHistory = { showHistory = true })
-        }
-    }
+fun TrendRoute(
+    onOpenHistory: () -> Unit = {},
+    vm: TrendViewModel = viewModel(factory = TrendViewModel.Factory),
+) {
+    val state by vm.state.collectAsStateWithLifecycle()
+    TrendScreen(state = state, onIntent = vm::onIntent, onOpenHistory = onOpenHistory)
 }

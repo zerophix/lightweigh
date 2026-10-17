@@ -92,6 +92,14 @@
 
 ## 5. 变更记录
 
+- 2026-10-17（DEC-024）：导航状态收口。`MainShell` 的 7 个并列导航状态（tab / showQuick /
+  showAi / showScale / reportTime / featureName / recordType）收敛为 `NavState`（页签 +
+  模态记录表单 + 覆盖页栈）+ 纯函数 `reduce`；记录表单保持模态替换层、不进栈（下层
+  `MeasureScreen` 若继续组合会持有蓝牙会话）；新增 `BackHandler` 单点处理系统返回键；
+  `listSaver` 保存栈序，进程重建后顶层页与离开时一致。P1 把 `TrendRoute`（历史/报告）与
+  `MineRoute`（设置/成员）的局部布尔并入同一栈。有意修正两处语义：切页签现在会关闭功能页与
+  报告页（旧实现漏清 featureName/reportTime），返回键不再退出 Activity。新增 `NavStateTest`
+  12 项（含 1000 次随机事件序列不变量），app 模块 77 项全绿。
 - 2026-10-16（DEC-023）：Android 治理本地化收口。评估确认治理可按语言耦合度分四层落地：
   协议层/门禁层零耦合无需改，指标层已本地化，需收口 CI 对齐、Android 测试治理、analyzer 修整。
   新增 GOV-ATEST-001~005 治理各模块 `src/test` 的 Kotlin/Java 测试（命名/版本/emoji/注册表），
@@ -257,6 +265,7 @@
 
 | 版本 | 日期 | 变更摘要 |
 |------|------|---------|
+| v53 | 2026-10-17 | DEC-024 导航状态收口：NavState 单一栈 + BackHandler，Trend/Mine 局部导航并入（77 项 app 单测） |
 | v52 | 2026-10-17 | 首页全家桶·H2：旧库 HomeScreen 全量重建 + feature 占位页族（253 测试） |
 | v51 | 2026-10-17 | 首页全家桶·H1：GoalStore 目标存储 + HomeGoalQuery 今日汇总 + 目标云推送（253 测试） |
 | v50 | 2026-10-17 | 多成员·刀B：成员页四件套 + 我的页入口 + 切换/增删信号广播（247 测试） |
