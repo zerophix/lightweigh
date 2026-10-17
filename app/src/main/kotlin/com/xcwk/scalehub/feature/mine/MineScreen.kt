@@ -37,6 +37,7 @@ import com.xcwk.scalehub.ui.components.QkEmptyHint
 import com.xcwk.scalehub.ui.components.QkIcons
 import com.xcwk.scalehub.ui.components.QkIcon
 import com.xcwk.scalehub.ui.components.QkListRow
+import com.xcwk.scalehub.ui.components.QkMetric
 import com.xcwk.scalehub.ui.components.QkSectionHead
 import com.xcwk.scalehub.ui.components.QkTextField
 import com.xcwk.scalehub.ui.components.QkWheelPicker
@@ -213,6 +214,35 @@ fun MineScreen(
                 modifier = Modifier.fillMaxWidth().padding(top = QkSpacing.Md),
                 onClick = { onIntent(MineIntent.Save) },
             )
+        }
+
+        // 健康数据概览（原型 profile 页 metric-grid 三格；与首页体重卡同一事实源）
+        if (state.hasOverview) {
+            QkSectionHead(title = "健康数据概览", modifier = Modifier.padding(top = QkSpacing.Lg))
+            QkCard(modifier = Modifier.padding(top = 2.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(top = 2.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    QkMetric(
+                        label = "体重",
+                        value = state.overviewWeight,
+                        unit = "kg",
+                        modifier = Modifier.weight(1f),
+                    )
+                    QkMetric(
+                        label = "体脂率",
+                        value = state.overviewFat,
+                        unit = "%",
+                        modifier = Modifier.weight(1f),
+                    )
+                    QkMetric(
+                        label = "BMI",
+                        value = state.overviewBmi,
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+            }
         }
 
         // 入口卡（原型 mine 页第三张卡）

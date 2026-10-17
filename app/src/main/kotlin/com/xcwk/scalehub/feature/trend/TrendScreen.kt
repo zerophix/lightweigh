@@ -1,5 +1,6 @@
 package com.xcwk.scalehub.feature.trend
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,12 +21,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.xcwk.scalehub.application.query.TrendDirection
 import com.xcwk.scalehub.application.query.TrendRange
 import com.xcwk.scalehub.application.query.TrendSegment
 import com.xcwk.scalehub.ui.components.QkAreaChart
 import com.xcwk.scalehub.ui.components.QkCard
 import com.xcwk.scalehub.ui.components.QkChip
 import com.xcwk.scalehub.ui.components.QkEmptyHint
+import com.xcwk.scalehub.ui.components.QkGlyphTone
+import com.xcwk.scalehub.ui.components.QkListRow
+import com.xcwk.scalehub.ui.components.QkMetric
+import com.xcwk.scalehub.ui.components.QkSectionHead
 import com.xcwk.scalehub.ui.components.QkSegmented
 import com.xcwk.scalehub.ui.theme.QkColor
 import com.xcwk.scalehub.ui.theme.QkSpacing
@@ -87,10 +93,59 @@ fun TrendScreen(
                 )
             } else {
                 TrendBlockBody(block = block, unit = unit)
+
+                // 数据解读（原型 section-head + 卡内两行：方向行 + 测量建议行）
+                if (block.insightText != null) {
+                    QkSectionHead(title = "数据解读", modifier = Modifier.padding(top = QkSpacing.Lg))
+                    QkCard(modifier = Modifier.padding(top = 2.dp)) {
+                        QkListRow(
+                            title = block.insightTitle ?: "整体趋势",
+                            subtitle = block.insightText,
+                            glyph = insightGlyph(block.insightDirection),
+                            showDivider = true,
+                        )
+                        QkListRow(
+                            title = "让数据更有参考价值",
+                            subtitle = "建议在每天相近的时间、相似的条件下测量。",
+                            glyph = "i",
+                            tone = QkGlyphTone.Blue,
+                            showDivider = false,
+                        )
+                    }
+                }
+
+                // 趋势对比（原型 two-col 指标格；卡内不再放分段——页级指标分段已切换同一事实）
+                QkSectionHead(title = "趋势对比", modifier = Modifier.padding(top = QkSpacing.Lg))
+                QkCard(modifier = Modifier.padding(top = 2.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(top = 2.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        QkMetric(
+                            label = "本周期平均",
+                            value = block.periodAvgText ?: "--",
+                            unit = unit,
+                            modifier = Modifier.weight(1f),
+                        )
+                        QkMetric(
+                            label = "上周期平均",
+                            value = block.prevPeriodAvgText ?: "--",
+                            unit = unit,
+                            modifier = Modifier.weight(1f),
+                        )
+                    }
+                }
             }
         }
         Spacer(modifier = Modifier.height(28.dp))
     }
+}
+
+/** 数据解读方向行字形（原型 ↘ / i 口径）。 */
+private fun insightGlyph(direction: TrendDirection?): String = when (direction) {
+    TrendDirection.DOWN -> "↘"
+    TrendDirection.UP -> "↗"
+    else -> "→"
 }
 @Composable
 private fun TrendBlockBody(block: TrendBlockUi, unit: String) {

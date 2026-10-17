@@ -40,6 +40,35 @@ data class TrendStats(
     val change: Double?,
 )
 
+/** 数据解读方向（原型 trends 屏 insight 卡口径：按区间首末值差判定）。 */
+enum class TrendDirection { FLAT, DOWN, UP }
+
+/**
+ * 数据解读读模型（原型 insight 卡）：方向 + 幅度（首末差绝对值）+ 覆盖天数。
+ * 由纯函数 trendReadingOf 计算，页面只拼句子——规则不落 UI 层。
+ */
+data class TrendReading(
+    val direction: TrendDirection,
+    val magnitude: Double,
+    val dayCount: Int,
+)
+
+/**
+ * 周期对比读模型（原型趋势对比卡 two-col）：
+ * current = 本周期平均；previous = 前一等长周期平均（无更早数据为 null）。
+ */
+data class TrendComparison(
+    val current: Double?,
+    val previous: Double?,
+)
+
+/** 单指标趋势读模型：统计 + 数据解读 + 周期对比，一次取数三用（避免重复扫仓储）。 */
+data class TrendBlockRead(
+    val stats: TrendStats,
+    val reading: TrendReading?,
+    val comparison: TrendComparison,
+)
+
 /**
  * 月汇总 —— 旧库 MonthBanner/fatMonth（TrendPages.kt:455-458, 610-614）：
  * weightLoss > 0 = 月内共减重（首记录 − 末记录）；
@@ -89,6 +118,41 @@ class TrendQuery(
         )
     }
 
+    /** 单指标一次取数：统计（页顶大数字/四格汇总）+ 数据解读 + 周期对比。 */
+    suspend fun block(range: TrendRange, segment: TrendSegment, kind: TrendSeriesKind): TrendBlockRead {
+        val stats = stats(range, segment, kind)
+        return TrendBlockRead(
+            stats = stats,
+            reading = trendReadingOf(stats.points),
+            comparison = comparison(range, segment, kind),
+        )
+    }
+
+    /**
+     * 周期对比（原型趋势对比卡 two-col：本周期平均 / 上周期平均）。
+     * 全序列一次取足，本地按时间窗切：本窗 = 范围窗；上窗 = 起点再往前等长 days 天。
+     * ALL 范围没有"上周期"定义，两端均返回 null（页面显示 "--"）。
+     */
+    suspend fun comparison(range: TrendRange, segment: TrendSegment, kind: TrendSeriesKind): TrendComparison {
+        val days = windowDays(range) ?: return TrendComparison(current = null, previous = null)
+        val points = dailySeries(TrendRange.ALL, segment, kind)
+        val start = rangeStart(range)                        // 本窗起点（TODAY=今天本地零点）
+        val prevStart = start - days * 24L * 3600 * 1000     // 上一等长窗起点
+        return TrendComparison(
+            current = points.filter { it.time >= start }.map { it.value }.average().takeIf { !it.isNaN() },
+            previous = points.filter { it.time in prevStart until start }.map { it.value }.average()
+                .takeIf { !it.isNaN() },
+        )
+    }
+
+    /** 范围窗长（天）：前一等长窗用；ALL 无上周期。 */
+    private fun windowDays(range: TrendRange): Int? = when (range) {
+        TrendRange.TODAY -> 1
+        TrendRange.LAST_7 -> 7
+        TrendRange.LAST_30 -> 30
+        TrendRange.ALL -> null
+    }
+
     /** 月汇总（委托顶层 monthlySummariesOf，历史页同源消费）。 */
     fun monthlySummaries(records: List<MeasureRecord>): List<MonthSummary> =
         monthlySummariesOf(records, ::localDate)
@@ -121,6 +185,21 @@ class TrendQuery(
     }
 
     
+}
+
+/**
+ * 数据解读纯函数（原型 insight 文案口径）：变化 = 末值 − 首值（与 stats.change
+ * 同一首末定义）；|变化| < 0.1 视为平稳（称重噪声级，单点同样平稳）。
+ */
+fun trendReadingOf(points: List<TrendPoint>): TrendReading? {
+    if (points.isEmpty()) return null
+    val change = points.last().value - points.first().value
+    val direction = when {
+        change <= -0.1 -> TrendDirection.DOWN
+        change >= 0.1 -> TrendDirection.UP
+        else -> TrendDirection.FLAT
+    }
+    return TrendReading(direction, kotlin.math.abs(change), points.size)
 }
 
 /**

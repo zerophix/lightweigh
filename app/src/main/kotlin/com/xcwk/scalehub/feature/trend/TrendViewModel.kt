@@ -7,11 +7,13 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.xcwk.scalehub.App
 import com.xcwk.scalehub.application.DataRefreshBus
+import com.xcwk.scalehub.application.query.TrendBlockRead
+import com.xcwk.scalehub.application.query.TrendDirection
 import com.xcwk.scalehub.application.query.TrendQuery
 import com.xcwk.scalehub.application.query.TrendRange
 import com.xcwk.scalehub.application.query.TrendSegment
 import com.xcwk.scalehub.application.query.TrendSeriesKind
-import com.xcwk.scalehub.application.query.TrendStats
+import com.xcwk.scalehub.application.query.TrendReading
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -61,8 +63,8 @@ class TrendViewModel(
 
     private suspend fun refresh() {
         val s = _state.value
-        val weight = query.stats(s.range, s.segment, TrendSeriesKind.WEIGHT)
-        val fat = query.stats(s.range, s.segment, TrendSeriesKind.FAT)
+        val weight = query.block(s.range, s.segment, TrendSeriesKind.WEIGHT)
+        val fat = query.block(s.range, s.segment, TrendSeriesKind.FAT)
         _state.update {
             it.copy(
                 loading = false,
@@ -72,7 +74,8 @@ class TrendViewModel(
         }
     }
 
-    private fun toUi(stats: TrendStats, label: String, unit: String): TrendBlockUi {
+    private fun toUi(read: TrendBlockRead, label: String, unit: String): TrendBlockUi {
+        val stats = read.stats
         if (stats.points.isEmpty()) {
             return TrendBlockUi(
                 points = emptyList(), caption = "",
@@ -95,8 +98,37 @@ class TrendViewModel(
             lowDay = day.format(Instant.ofEpochMilli(low.time)),
             changeValue = stats.change?.let { signed(it) + unit },
             emptyText = null,
+            insightDirection = read.reading?.direction,
+            insightTitle = read.reading?.let { insightTitleOf(it) },
+            insightText = read.reading?.let { insightOf(it, label, unit) },
+            periodAvgText = read.comparison.current?.let { "${one(it)} $unit" },
+            prevPeriodAvgText = read.comparison.previous?.let { "${one(it)} $unit" },
         )
     }
+
+    /** 数据解读行标题（原型 insight 首行口径）：单点不宣称趋势。 */
+    private fun insightTitleOf(reading: TrendReading): String =
+        if (reading.dayCount <= 1) {
+            "记录还太少"
+        } else {
+            when (reading.direction) {
+                TrendDirection.DOWN -> "整体呈下降趋势"
+                TrendDirection.UP -> "整体呈上升趋势"
+                TrendDirection.FLAT -> "整体趋势平稳"
+            }
+        }
+
+    /** 数据解读句子（原型 insight 口径）：平稳只说天数，升降带幅度；单点不硬读趋势。 */
+    private fun insightOf(reading: TrendReading, label: String, unit: String): String =
+        if (reading.dayCount <= 1) {
+            "最近 1 次测量，多记录几天才能看出趋势"
+        } else {
+            when (reading.direction) {
+                TrendDirection.FLAT -> "近 ${reading.dayCount} 天${label}基本持平"
+                TrendDirection.DOWN -> "近 ${reading.dayCount} 天${label}下降 ${one(reading.magnitude)} $unit"
+                TrendDirection.UP -> "近 ${reading.dayCount} 天${label}上升 ${one(reading.magnitude)} $unit"
+            }
+        }
 
     /** 旧库格式口径（TrendPages: one/signed）。 */
     private fun one(value: Double): String = "%.1f".format(Locale.US, value)

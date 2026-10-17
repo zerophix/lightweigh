@@ -18,6 +18,11 @@ data class MineUiState(
     val saved: Boolean = false,
     /** 头像本地路径（空串=占位头像，M4）。 */
     val avatarPath: String = "",
+    /** 健康数据概览卡（原型 profile 页 metric-grid 三格）：体重/体脂率/BMI；无测量记录时整卡隐藏。 */
+    val overviewWeight: String = "--",
+    val overviewFat: String = "--",
+    val overviewBmi: String = "--",
+    val hasOverview: Boolean = false,
 )
 
 sealed interface MineIntent {

@@ -1,8 +1,10 @@
 package com.xcwk.scalehub.feature.mine
 
 import com.google.common.truth.Truth.assertThat
+import com.xcwk.scalehub.application.query.HomeGoalQuery
 import com.xcwk.scalehub.application.query.ProfileQuery
 import com.xcwk.scalehub.application.service.UpdateProfileService
+import com.xcwk.scalehub.domain.model.MeasureRecord
 import com.xcwk.scalehub.domain.model.MemberProfile
 import com.xcwk.scalehub.domain.repository.MemberProfileReader
 import com.xcwk.scalehub.domain.repository.MemberProfileWriter
@@ -145,5 +147,72 @@ class MineViewModelTest {
             avatarPath = { "/data/avatar.jpg" },
         )
         assertThat(vm.state.value.avatarPath).isEqualTo("/data/avatar.jpg")
+    }
+
+    // ---- 健康数据概览卡（原型 profile 页 metric-grid；DEC-026 组 I）----
+
+    private class FakeMeasureRepo(rows: List<com.xcwk.scalehub.domain.model.MeasureRecord>) :
+        com.xcwk.scalehub.domain.repository.MeasurementRepository {
+        private val data = rows.toMutableList()
+        override suspend fun save(record: com.xcwk.scalehub.domain.model.MeasureRecord) { data += record }
+        override suspend fun recent(limit: Int) = data.sortedByDescending { it.time }.take(limit)
+        override suspend fun between(fromInc: Long, toExc: Long) =
+            data.filter { it.time >= fromInc && it.time < toExc }.sortedBy { it.time }
+        override suspend fun delete(time: Long) { data.removeAll { it.time == time } }
+    }
+
+    private class FakeLogRepo : com.xcwk.scalehub.domain.repository.HealthLogRepository {
+        override suspend fun save(log: com.xcwk.scalehub.domain.model.HealthLog) = Unit
+        override suspend fun recent(limit: Int) = emptyList<com.xcwk.scalehub.domain.model.HealthLog>()
+        override suspend fun between(fromInc: Long, toExc: Long) =
+            emptyList<com.xcwk.scalehub.domain.model.HealthLog>()
+    }
+
+    private class FakeGoals : com.xcwk.scalehub.domain.repository.GoalRepository {
+        override var targetWeight: Float = 0f
+        override var calorieGoal: Int = 2049
+        override var waterGoal: Int = 2000
+    }
+
+    private fun homeGoalQuery(rows: List<com.xcwk.scalehub.domain.model.MeasureRecord>, height: Int) =
+        HomeGoalQuery(FakeMeasureRepo(rows), FakeLogRepo(), FakeGoals(), FakeReader(heightValue = height))
+
+    @Test
+    fun `概览卡_有测量给三指标`() {
+        val reader = FakeReader(heightValue = 175, yearValue = 1996)
+        val now = System.currentTimeMillis()
+        val vm = MineViewModel(
+            ProfileQuery(reader), UpdateProfileService(FakeWriter(reader)),
+            homeGoalQuery = homeGoalQuery(
+                listOf(MeasureRecord(now, 70.0, 500.0, 18.4, "AA:BB", "okok-bia-1")),
+                height = 175,
+            ),
+        )
+        val s = vm.state.value
+        assertThat(s.hasOverview).isTrue()
+        assertThat(s.overviewWeight).isEqualTo("70.0")
+        assertThat(s.overviewFat).isEqualTo("18.4")     // 有阻抗 → 体脂可见
+        assertThat(s.overviewBmi).isEqualTo("22.9")     // 70 / 1.75²
+    }
+
+    @Test
+    fun `概览卡_无阻抗体脂给占位_无测量整卡隐藏`() {
+        val reader = FakeReader(heightValue = 175, yearValue = 1996)
+        val now = System.currentTimeMillis()
+        val vmNoZ = MineViewModel(
+            ProfileQuery(reader), UpdateProfileService(FakeWriter(reader)),
+            homeGoalQuery = homeGoalQuery(
+                listOf(MeasureRecord(now, 70.0, 0.0, -1.0, "AA:BB", "okok-bia-1")),
+                height = 175,
+            ),
+        )
+        assertThat(vmNoZ.state.value.hasOverview).isTrue()
+        assertThat(vmNoZ.state.value.overviewFat).isEqualTo("--")
+
+        val vmEmpty = MineViewModel(
+            ProfileQuery(reader), UpdateProfileService(FakeWriter(reader)),
+            homeGoalQuery = homeGoalQuery(emptyList(), height = 175),
+        )
+        assertThat(vmEmpty.state.value.hasOverview).isFalse()
     }
 }

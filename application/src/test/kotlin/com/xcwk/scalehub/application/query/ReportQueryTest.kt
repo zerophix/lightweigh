@@ -107,4 +107,53 @@ class ReportQueryTest {
     fun `不存在的时间_返回null`() = runTest {
         assertThat(ReportQuery(FakeRepo(listOf(fullRecord()))).report(999L)).isNull()
     }
+
+    @Test
+    fun `上期评分_对prev复跑同规则并给差值`() = runTest {
+        // 两条同快照 okok 有阻抗记录：BMI 22.9(70kg) vs 24.8(76kg) → 评分一高一低
+        val q = ReportQuery(
+            FakeRepo(
+                listOf(
+                    fullRecord(time = 500L, weight = 70.0),
+                    fullRecord(time = 1000L, weight = 76.0),
+                ),
+            ),
+        )
+        val report = q.report(1000L)!!
+        assertThat(report.prevScore).isNotNull()
+        assertThat(report.analysis.score).isNotNull()
+        assertThat(report.scoreDelta).isEqualTo(report.analysis.score!! - report.prevScore!!)
+        assertThat(report.scoreDelta).isLessThan(0)   // 体重涨到 BMI 偏胖，评分应下降
+    }
+
+    @Test
+    fun `上期评分_prev无评分时不给差值`() = runTest {
+        // prev 无阻抗（手动记录）→ 无评分；当前有评分 → scoreDelta 仍为 null
+        val q = ReportQuery(
+            FakeRepo(
+                listOf(
+                    MeasureRecord(500L, 73.0, 0.0, -1.0, "", "okok-bia-1", true, 30, 175),
+                    fullRecord(time = 1000L, weight = 70.0),
+                ),
+            ),
+        )
+        val report = q.report(1000L)!!
+        assertThat(report.prevScore).isNull()
+        assertThat(report.scoreDelta).isNull()
+    }
+
+    @Test
+    fun `上期评分_当前无评分时不给差值`() = runTest {
+        val q = ReportQuery(
+            FakeRepo(
+                listOf(
+                    fullRecord(time = 500L, weight = 70.0),
+                    MeasureRecord(1000L, 70.0, 0.0, -1.0, "", "okok-bia-1", true, 30, 175),
+                ),
+            ),
+        )
+        val report = q.report(1000L)!!
+        assertThat(report.prevScore).isNotNull()
+        assertThat(report.scoreDelta).isNull()
+    }
 }

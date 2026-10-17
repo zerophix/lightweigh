@@ -160,4 +160,77 @@ class TrendQueryTest {
         assertThat(sep.weightLoss).isWithin(1e-9).of(2.0)    // 80 − 78
         assertThat(sep.fatDelta).isNull()
     }
+
+    // ---- 数据解读（原型 trends 屏 insight 卡）----
+
+    @Test
+    fun `解读_下降_给方向与幅度`() {
+        val reading = trendReadingOf(
+            listOf(TrendPoint(ts(10, 10, 8), 72.0), TrendPoint(ts(10, 16, 8), 70.5)),
+        )!!
+        assertThat(reading.direction).isEqualTo(TrendDirection.DOWN)
+        assertThat(reading.magnitude).isWithin(1e-9).of(1.5)
+        assertThat(reading.dayCount).isEqualTo(2)
+    }
+
+    @Test
+    fun `解读_上升与平稳阈值`() {
+        assertThat(
+            trendReadingOf(listOf(TrendPoint(1L, 70.0), TrendPoint(2L, 71.2)))!!.direction,
+        ).isEqualTo(TrendDirection.UP)
+        // |变化| < 0.1 视为噪声级平稳
+        assertThat(
+            trendReadingOf(listOf(TrendPoint(1L, 70.0), TrendPoint(2L, 70.05)))!!.direction,
+        ).isEqualTo(TrendDirection.FLAT)
+        // 单点：首末同值，平稳
+        assertThat(trendReadingOf(listOf(TrendPoint(1L, 70.0)))!!.direction).isEqualTo(TrendDirection.FLAT)
+    }
+
+    @Test
+    fun `解读_空点为null`() {
+        assertThat(trendReadingOf(emptyList())).isNull()
+    }
+
+    // ---- 周期对比（原型趋势对比卡 two-col）----
+
+    @Test
+    fun `对比_近7天取前一等长7天窗`() = runTest {
+        // NOW=10-16 15:00；本窗 10/10..10/16（70,72），上窗 10/03..10/09（80,60）
+        val q = query(
+            rec(ts(10, 3, 8), 80.0), rec(ts(10, 9, 8), 60.0),
+            rec(ts(10, 10, 8), 70.0), rec(ts(10, 16, 8), 72.0),
+        )
+        val c = q.comparison(TrendRange.LAST_7, TrendSegment.ALL_DAY, TrendSeriesKind.WEIGHT)
+        assertThat(c.current).isWithin(1e-9).of(71.0)
+        assertThat(c.previous).isWithin(1e-9).of(70.0)
+    }
+
+    @Test
+    fun `对比_今天取昨天为上一窗`() = runTest {
+        val q = query(rec(ts(10, 15, 8), 69.0), rec(ts(10, 16, 9), 71.0))
+        val c = q.comparison(TrendRange.TODAY, TrendSegment.ALL_DAY, TrendSeriesKind.WEIGHT)
+        assertThat(c.current).isWithin(1e-9).of(71.0)
+        assertThat(c.previous).isWithin(1e-9).of(69.0)
+    }
+
+    @Test
+    fun `对比_无更早数据上窗为null_全部范围无上周期`() = runTest {
+        val q = query(rec(ts(10, 16, 8), 70.0))
+        val c7 = q.comparison(TrendRange.LAST_7, TrendSegment.ALL_DAY, TrendSeriesKind.WEIGHT)
+        assertThat(c7.current).isWithin(1e-9).of(70.0)
+        assertThat(c7.previous).isNull()
+        val call = q.comparison(TrendRange.ALL, TrendSegment.ALL_DAY, TrendSeriesKind.WEIGHT)
+        assertThat(call.current).isNull()
+        assertThat(call.previous).isNull()
+    }
+
+    @Test
+    fun `block_一次取数三件齐`() = runTest {
+        val q = query(rec(ts(10, 10, 8), 72.0), rec(ts(10, 16, 8), 70.5))
+        val read = q.block(TrendRange.LAST_7, TrendSegment.ALL_DAY, TrendSeriesKind.WEIGHT)
+        assertThat(read.stats.points).hasSize(2)
+        assertThat(read.reading!!.direction).isEqualTo(TrendDirection.DOWN)
+        assertThat(read.comparison.current).isWithin(1e-9).of(71.25)
+        assertThat(read.comparison.previous).isNull()
+    }
 }

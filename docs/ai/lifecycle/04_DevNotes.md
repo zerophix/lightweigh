@@ -302,6 +302,7 @@
 |------|------|---------|
 | v59 | 2026-10-17 | DEC-026 组 H 修订（用户反馈「体测报告做得不好」）：头部卡恒在（无评分记录也有日期+大数字体重+增减，修复缺测量身份）、删重复的 BMI 独立卡（体型折进 BMI 行副标题）、身高/实际年龄移出关键指标表改「分析依据」脚注、指标图标映射补全（肥胖度/代谢/年龄等，新增 QkIcons.Age）；模拟器复验 + 295 项全绿 |
 | v60 | 2026-10-17 | DEC-026 组 J 收口：设置页与加号快捷面板截图核对通过（快捷面板 8 项为真实记录类型集，原型演示的「睡眠」在产品范围外未做）；顶栏通知铃 `onBell` 空实现闭环——无通知后端时给 Toast「暂无新通知」诚实空态（MainShell）；README 补「坐标先 dump 再 tap / 瞬时 UI 用窗口 dump 证据」反思；295 项全绿 |
+| v61 | 2026-10-17 | DEC-026 组 K 补缺（对照原型逐页审计后修复）：趋势页补「数据解读」卡（TrendQuery.trendReadingOf 按首末差判方向，单点不硬读趋势→「记录还太少」）与「趋势对比」卡（comparison 取前一等长窗均值，ALL 范围无上周期给 "--"）；我的页补「健康数据概览」三格卡（原型 profile metric-grid，复用 HomeGoalQuery 与首页同源，MineViewModel 增 refreshBus 订阅）；报告页标题改原型文案「身体报告」+ 评分卡补「较上次 ±N 分」pill（ReportQuery 对 prev 复跑 analysis 取上期评分）；新增单测 12 例，307 项全绿；模拟器复验三页（pill 分支待阻抗数据） |
 | v58 | 2026-10-17 | DEC-026 逐页按原型重建（F/G 批）：QkIcons 图标表 + extended 依赖；新增 QkPageTitle/QkBackButton/QkScoreRing/QkDeviceHero/QkDateChip/QkRiskRow 六个页面级原语；首页六区块重排（8 个原型外模块编入卡片语法）；趋势/设备/我的/历史/报告/设置六页按原型重建（设备页补 .device-hero 蓝牙环，报告页评分环按分画弧）；我的页接历史/设备两个导航回调（295 项全绿，gov-validate 0 违规） |
 | v57 | 2026-10-17 | DEC-025 视觉体系换轨：令牌整体替换（主绿 #159B72 / 17dp 卡片 / 字重阶梯）+ 组件库按原型原语重建（QkButton 三态、QkTextField 标签外置）+ 壳层品牌顶栏与抬高式底栏 + 21 处按钮与 10 处输入框迁移（295 项全绿） |
 | v56 | 2026-10-17 | DEC-024 组 D/E 收口：SessionPhase sealed 相位 + 纯 reduce 替换 MeasureSession 的 13 个并列字段（可变字段 22→5），相位矩阵 21 项，可变字段阈值守卫入 gov-custom-checks（295 项全绿） |
