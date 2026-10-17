@@ -41,9 +41,14 @@ import com.xcwk.scalehub.ui.theme.QkTheme
  * report — 四件套之 Screen：体测报告（评分/建议/体型/风险/指标全表/控制建议）。
  * tone 上色：0=弱化 1=主色绿 2=注意橙 3=超标红。
  *
- * 版式按 v2 原型「身体报告」屏：返回圆钮 + 页标题 → 评分卡（84dp 评分环 + 状态文案 +
- * 建议）→ 关键身体指标（list-row 语法，值 + 状态胶囊在行尾）→ 风险评估（状态点行）→
- * 控制建议三格 → 免责声明 + AI 解读按钮。
+ * 版式按 v2 原型「身体报告」屏，并按真实数据口径做了两处修正：
+ *  - **头部卡恒在**：原型以评分卡开篇，但手动记录（无阻抗）没有评分。无评分时
+ *    头部卡退化为「日期 + 大数字体重 + 增减」——哪次测量、多少公斤必须可见，
+ *    不能因为缺评分就让页面失去测量身份。
+ *  - **指标表只放体测指标**：BMI / 肥胖度 / 体脂率等十八项是本次测量结果；
+ *    「身高 / 实际年龄」是 BodyAnalysis 无条件追加的档案回显行（"已录入"），
+ *    属于分析依据而非身体指标，移到指标卡下方的「分析依据」脚注，不混排。
+ *    体重在指标表里没有行（BodyAnalysis 不产出），由头部卡的大数字承担。
  */
 @Composable
 fun ReportScreen(
@@ -51,6 +56,17 @@ fun ReportScreen(
     onAskAi: () -> Unit = {},
     onBack: () -> Unit = {},
 ) {
+    // 档案回显行（身高/实际年龄）不进指标列表，攒成脚注
+    val profileEcho = listOfNotNull(
+        state.metrics.firstOrNull { it.name == "身高" }
+            ?.takeIf { it.valueText != "--" }
+            ?.let { "身高 ${it.valueText} ${it.unit}" },
+        state.metrics.firstOrNull { it.name == "实际年龄" }
+            ?.takeIf { it.valueText != "--" }
+            ?.let { "年龄 ${it.valueText} 岁" },
+    ).joinToString(" · ")
+    val bodyMetrics = state.metrics.filter { it.name != "身高" && it.name != "实际年龄" }
+
     if (!state.loading && !state.found) {
         Column(
             modifier = Modifier
@@ -89,14 +105,14 @@ fun ReportScreen(
             )
         }
 
-        // 评分卡：原型 report-score（环 + 状态 + 说明）
-        if (state.score != null) {
-            QkCard {
-                Text(
-                    "${state.timeText} · 综合评估",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = QkColor.Muted,
-                )
+        // 头部卡：有评分走原型评分卡；无评分（手动记录）退化为体重主卡
+        QkCard {
+            Text(
+                if (state.score != null) "${state.timeText} · 综合评估" else state.timeText,
+                style = MaterialTheme.typography.bodySmall,
+                color = QkColor.Muted,
+            )
+            if (state.score != null) {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(top = QkSpacing.Md),
                     verticalAlignment = Alignment.CenterVertically,
@@ -120,80 +136,81 @@ fun ReportScreen(
                         }
                     }
                 }
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(top = QkSpacing.Md),
+                verticalAlignment = Alignment.Bottom,
+            ) {
                 Text(
-                    state.deltaLine,
-                    modifier = Modifier.padding(top = QkSpacing.Md),
+                    state.weightText,
+                    style = if (state.score != null) {
+                        MaterialTheme.typography.headlineSmall
+                    } else {
+                        MaterialTheme.typography.displayMedium
+                    },
+                    color = QkColor.Fg,
+                )
+                Text(
+                    " 公斤",
+                    modifier = Modifier.padding(bottom = if (state.score != null) 3.dp else 5.dp),
                     style = MaterialTheme.typography.bodySmall,
                     color = QkColor.Muted,
                 )
             }
+            Text(
+                state.deltaLine,
+                modifier = Modifier.padding(top = 6.dp),
+                style = MaterialTheme.typography.bodySmall,
+                color = QkColor.Muted,
+            )
         }
 
-        // 关键身体指标：原型「关键身体指标」section-head + list-rows
+        // 关键身体指标：原型 section-head + list-rows（值 + 状态胶囊在行尾）
         QkSectionHead(
             title = "关键身体指标",
             caption = "本次测量",
             modifier = Modifier.padding(top = QkSpacing.Lg),
         )
         QkCard(modifier = Modifier.padding(top = 2.dp)) {
-            state.metrics.forEachIndexed { index, m ->
-                if (index > 0) QkDivider()
-                QkListRow(
-                    title = m.name,
-                    subtitle = m.delta?.let { "较上次 $it" },
-                    icon = metricIcon(m.name),
-                    tone = metricTone(m.tone),
-                    glyphSize = 34.dp,
-                    showDivider = false,
-                    trailing = {
-                        Column(horizontalAlignment = Alignment.End) {
-                            Text(
-                                "${m.valueText} ${m.unit}".trim(),
-                                style = MaterialTheme.typography.titleSmall,
-                                color = toneColor(m.tone),
-                            )
-                            if (m.status != "--") {
-                                QkPill(
-                                    m.status,
-                                    pillTone(m.tone),
-                                    modifier = Modifier.padding(top = 4.dp),
+            if (bodyMetrics.isEmpty()) {
+                QkEmptyHint("这次测量还没有可分析的指标")
+            } else {
+                bodyMetrics.forEachIndexed { index, m ->
+                    if (index > 0) QkDivider()
+                    QkListRow(
+                        title = m.name,
+                        subtitle = metricSubtitle(m, state.bodyShape),
+                        icon = metricIcon(m.name),
+                        tone = metricTone(m.tone),
+                        glyphSize = 34.dp,
+                        showDivider = false,
+                        trailing = {
+                            Column(horizontalAlignment = Alignment.End) {
+                                Text(
+                                    "${m.valueText} ${m.unit}".trim(),
+                                    style = MaterialTheme.typography.titleSmall,
+                                    color = toneColor(m.tone),
                                 )
+                                if (m.status != "--") {
+                                    QkPill(
+                                        m.status,
+                                        pillTone(m.tone),
+                                        modifier = Modifier.padding(top = 4.dp),
+                                    )
+                                }
                             }
-                        }
-                    },
-                )
-            }
-        }
-
-        // BMI 与体型（原型把它们并入指标行；本应用单列一小卡，体型只在里出现）
-        QkCard(modifier = Modifier.padding(top = QkSpacing.CardGap)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    "BMI 指数",
-                    modifier = Modifier.weight(1f),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = QkColor.Fg,
-                )
-                state.bmiLabel?.let { QkPill(it, pillTone(bmiTone(state))) }
-            }
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                verticalAlignment = Alignment.Bottom,
-            ) {
-                Text(
-                    state.bmiText,
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = QkColor.Fg,
-                )
-                state.bodyShape?.let {
-                    Text(
-                        "体型：$it",
-                        modifier = Modifier.weight(1f).padding(start = QkSpacing.Md, bottom = 3.dp),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = QkColor.Muted,
+                        },
                     )
                 }
             }
+        }
+        if (profileEcho.isNotBlank()) {
+            Text(
+                "分析依据：$profileEcho",
+                modifier = Modifier.padding(top = 6.dp, start = 3.dp),
+                style = MaterialTheme.typography.labelSmall,
+                color = QkColor.Hint,
+            )
         }
 
         state.missingText?.let { text ->
@@ -214,18 +231,6 @@ fun ReportScreen(
                         modifier = Modifier.padding(vertical = 2.dp),
                     )
                 }
-                Text(
-                    "以上为健康管理参考，不用于疾病诊断。体脂秤测量结果会受到水分、运动和测量条件等因素影响。",
-                    modifier = Modifier.padding(top = QkSpacing.Md),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = QkColor.Muted,
-                )
-                QkButton(
-                    text = if (state.aiEnabled) "AI 解读报告" else "AI 解读（需手机号登录）",
-                    enabled = state.aiEnabled,
-                    modifier = Modifier.fillMaxWidth().padding(top = QkSpacing.Md),
-                    onClick = onAskAi,
-                )
             }
         }
 
@@ -247,15 +252,13 @@ fun ReportScreen(
             style = MaterialTheme.typography.bodySmall,
             color = QkColor.Muted,
         )
-        if (state.risks.isEmpty()) {
-            QkButton(
-                text = if (state.aiEnabled) "AI 解读报告" else "AI 解读（需手机号登录）",
-                enabled = state.aiEnabled,
-                style = QkButtonStyle.Secondary,
-                modifier = Modifier.fillMaxWidth().padding(top = QkSpacing.Sm),
-                onClick = onAskAi,
-            )
-        }
+        QkButton(
+            text = if (state.aiEnabled) "AI 解读报告" else "AI 解读（需手机号登录）",
+            enabled = state.aiEnabled,
+            style = QkButtonStyle.Secondary,
+            modifier = Modifier.fillMaxWidth().padding(top = QkSpacing.Sm),
+            onClick = onAskAi,
+        )
         Spacer(modifier = Modifier.height(28.dp))
     }
 }
@@ -280,16 +283,33 @@ private fun scoreTitle(score: Int): String = when {
     else -> "需要关注身体信号"
 }
 
+/**
+ * 指标行副标题：增减delta + BMI 行的体型（BodyAnalysis 的 bodyShape 只对 BMI 有意义）。
+ * 两项都没有就返 null，行内不留空行。
+ */
+private fun metricSubtitle(m: ReportMetricUi, bodyShape: String?): String? {
+    val parts = buildList {
+        m.delta?.let { add("较上次 $it") }
+        if (m.name == "BMI" && bodyShape != null) add("体型 $bodyShape")
+    }
+    return if (parts.isEmpty()) null else parts.joinToString(" · ")
+}
+
 /** 指标名 → 图标（原型每行一个 glyph；映射不到就给通用图标，不空行）。 */
 private fun metricIcon(name: String): ImageVector = when {
     name.contains("BMI", ignoreCase = true) -> QkIcons.Bmi
+    name.contains("肥胖度") -> QkIcons.BodyFat
     name.contains("体脂") -> QkIcons.BodyFat
     name.contains("体重") -> QkIcons.Weight
+    name.contains("去脂") -> QkIcons.Weight
+    name.contains("骨骼肌") -> QkIcons.Rope
     name.contains("肌肉") -> QkIcons.Rope
-    name.contains("内脏") -> QkIcons.BloodPressure
-    name.contains("水分") -> QkIcons.Water
-    name.contains("蛋白") -> QkIcons.Protein
     name.contains("骨") -> QkIcons.Waist
+    name.contains("内脏") -> QkIcons.BloodPressure
+    name.contains("水分") || name.contains("水含量") -> QkIcons.Water
+    name.contains("蛋白") -> QkIcons.Protein
+    name.contains("代谢") -> QkIcons.Exercise
+    name.contains("年龄") -> QkIcons.Age
     else -> QkIcons.More
 }
 
@@ -301,14 +321,6 @@ private fun metricTone(tone: Int): QkGlyphTone = when (tone) {
 
 /** 评分档位着色：86+ 绿 / 70-85 橙 / <70 红（展示口径，规则分值本身随 BodyMetrics）。 */
 private fun ReportUiState.scoreTone(): Int = score?.let { if (it >= 86) 1 else if (it >= 70) 2 else 3 } ?: 0
-
-private fun bmiTone(state: ReportUiState): Int = state.bmiLabel?.let {
-    when (it) {
-        "标准" -> 1
-        "偏瘦", "偏胖" -> 2
-        else -> 3
-    }
-} ?: 0
 
 @Composable
 private fun toneColor(tone: Int): Color = when (tone) {
@@ -356,14 +368,49 @@ private fun ReportScreenPreview() {
                 bmiText = "23.5",
                 bmiLabel = "标准",
                 metrics = listOf(
+                    ReportMetricUi("体重", "72.0", "公斤", "标准", 1, "-1.5"),
                     ReportMetricUi("BMI", "23.5", "", "标准", 1, "+0.3"),
                     ReportMetricUi("体脂率", "19.1", "%", "标准", 1, null),
                     ReportMetricUi("肌肉率", "33.0", "%", "不足", 2, null),
                     ReportMetricUi("内脏脂肪", "7", "级", "标准", 1, null),
+                    ReportMetricUi("身高", "175", "cm", "已录入", 1, null),
+                    ReportMetricUi("实际年龄", "30", "岁", "已录入", 1, null),
                 ),
                 fatControlText = "-1.2",
                 muscleControlText = "+0.8",
                 standardWeightText = "68.0",
+                disclaimer = "体重、体脂率为实测记录；其余指标基于公认公式估算，仅供参考，不构成医疗建议",
+            ),
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ReportScreenNoScorePreview() {
+    QkTheme {
+        ReportScreen(
+            state = ReportUiState(
+                loading = false,
+                found = true,
+                timeText = "2026/10/16 21:07",
+                weightText = "123.0",
+                deltaLine = "比上次  体重 +54.5 公斤  体脂率 -- %",
+                score = null,
+                advice = null,
+                bodyShape = null,
+                risks = listOf(
+                    ReportRiskUi("肥胖症", "高风险", 3),
+                    ReportRiskUi("高血压", "中风险", 2),
+                ),
+                bmiText = "40.2",
+                bmiLabel = "重度肥胖",
+                metrics = listOf(
+                    ReportMetricUi("BMI", "40.2", "", "重度肥胖", 3, "+17.8"),
+                    ReportMetricUi("肥胖度", "85.0", "", "肥胖", 2, "+82.0"),
+                    ReportMetricUi("身高", "175", "cm", "已录入", 1, null),
+                    ReportMetricUi("实际年龄", "30", "岁", "已录入", 1, null),
+                ),
                 disclaimer = "体重、体脂率为实测记录；其余指标基于公认公式估算，仅供参考，不构成医疗建议",
             ),
         )

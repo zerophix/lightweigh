@@ -11,6 +11,7 @@ import androidx.compose.material.icons.outlined.BarChart
 import androidx.compose.material.icons.outlined.Bedtime
 import androidx.compose.material.icons.outlined.Bluetooth
 import androidx.compose.material.icons.outlined.Bloodtype
+import androidx.compose.material.icons.outlined.Cake
 import androidx.compose.material.icons.outlined.Calculate
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.CheckCircle
@@ -107,6 +108,7 @@ object QkIcons {
     val Goal: ImageVector = Icons.Outlined.Flag
     val Glucose: ImageVector = Icons.Outlined.Bloodtype
     val BloodPressure: ImageVector = Icons.Outlined.MonitorHeart
+    val Age: ImageVector = Icons.Outlined.Cake
 
     // 功能入口
     val Ai: ImageVector = Icons.Outlined.AutoAwesome
