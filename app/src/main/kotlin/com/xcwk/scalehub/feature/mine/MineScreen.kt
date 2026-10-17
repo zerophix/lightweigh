@@ -45,12 +45,20 @@ fun MineScreen(
     state: MineUiState,
     onIntent: (MineIntent) -> Unit,
     onOpenSettings: () -> Unit = {},
+    newCameraTarget: () -> String? = { null },
 ) {
     var showAvatarSheet by rememberSaveable { mutableStateOf(false) }
     var showBirthSheet by rememberSaveable { mutableStateOf(false) }
     var showHeightSheet by rememberSaveable { mutableStateOf(false) }
     val imagePicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         uri?.let { onIntent(MineIntent.AvatarChosen(it.toString())) }
+    }
+    // 相机头像：先取 FileProvider 目标 URI 交给系统相机写入，成功后再压缩落盘
+    var pendingCameraUri by rememberSaveable { mutableStateOf<String?>(null) }
+    val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == android.app.Activity.RESULT_OK) {
+            pendingCameraUri?.let { onIntent(MineIntent.AvatarChosen(it)) }
+        }
     }
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
@@ -113,7 +121,7 @@ fun MineScreen(
         ) { Text(if (state.saving) "保存中…" else "保存") }
     }
 
-    // 修改头像：相册选图（相机需 FileProvider，随后续切片）
+    // 修改头像：拍照 / 相册（旧库面板两分支）
     if (showAvatarSheet) {
         AlertDialog(
             onDismissRequest = { showAvatarSheet = false },
@@ -121,10 +129,24 @@ fun MineScreen(
             confirmButton = {
                 TextButton(onClick = {
                     showAvatarSheet = false
-                    imagePicker.launch("image/*")
-                }) { Text("从相册选择") }
+                    newCameraTarget()?.let { target ->
+                        pendingCameraUri = target
+                        val intent = android.content.Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE).apply {
+                            putExtra(android.provider.MediaStore.EXTRA_OUTPUT, android.net.Uri.parse(target))
+                        }
+                        cameraLauncher.launch(intent)
+                    }
+                }) { Text("拍照") }
             },
-            dismissButton = { TextButton(onClick = { showAvatarSheet = false }) { Text("取消") } },
+            dismissButton = {
+                Row {
+                    TextButton(onClick = {
+                        showAvatarSheet = false
+                        imagePicker.launch("image/*")
+                    }) { Text("从相册中选择") }
+                    TextButton(onClick = { showAvatarSheet = false }) { Text("取消") }
+                }
+            },
         )
     }
 
@@ -232,7 +254,8 @@ private fun MineScreenPreview() {
                 unsetHint = false,
             ),
             onIntent = {},
-        ) {}
+            onOpenSettings = {},
+        )
     }
 }
 
@@ -243,6 +266,7 @@ private fun MineScreenUnsetPreview() {
         MineScreen(
             state = MineUiState(loading = false, summary = "男 | --岁 | --cm", unsetHint = true),
             onIntent = {},
-        ) {}
+            onOpenSettings = {},
+        )
     }
 }

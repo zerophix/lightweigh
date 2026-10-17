@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 相机头像临时文件授权范围（M4 相机切片）：只暴露 cache/camera/ 子目录 -->
+<paths>
+    <cache-path name="camera_avatar" path="camera/" />
+</paths>
