@@ -275,6 +275,8 @@ class MeasureSessionTest {
         assertThat(record.impedance).isEqualTo(500.0)
         assertThat(record.fat).isAtLeast(0.0)
         assertThat(record.mac).isEqualTo("AA:BB:CC:DD:EE:FF")
+        // M4：查看报告入口需要落库时间戳随 outcome 传出
+        assertThat(outcome.recordTime).isEqualTo(record.time)
     }
 
     @Test

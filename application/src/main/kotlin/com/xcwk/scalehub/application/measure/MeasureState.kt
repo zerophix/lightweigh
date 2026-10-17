@@ -27,6 +27,8 @@ data class MeasureOutcome(
     val impedanceOhm: Double = 0.0,
     val heartRate: Int = 0,
     val confirmable: Boolean = false,
+    /** SAVED 时为落库记录时间戳（查看报告入口，M4）。 */
+    val recordTime: Long? = null,
 )
 
 data class MeasureState(

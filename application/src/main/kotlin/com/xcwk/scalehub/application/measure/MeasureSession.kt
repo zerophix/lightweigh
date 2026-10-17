@@ -504,6 +504,7 @@ class MeasureSession(
                     else String.format(java.util.Locale.US, "%.1f%%", record.fat),
                     impedanceOhm = impedance,
                     heartRate = heldHeart,
+                    recordTime = record.time,
                 ),
             )
         }

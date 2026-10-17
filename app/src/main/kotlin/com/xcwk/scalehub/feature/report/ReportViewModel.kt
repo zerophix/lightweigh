@@ -25,19 +25,16 @@ class ReportViewModel(
     private val reportQuery: ReportQuery,
     private val time: Long,
     private val zone: ZoneId = ZoneId.systemDefault(),
+    isFormalAccount: () -> Boolean = { true },
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ReportUiState())
     val state: StateFlow<ReportUiState> = _state.asStateFlow()
 
     init {
+        // AI 解读仅对正式账号开放（旧库口径：游客数据不送出本机）
+        _state.update { it.copy(aiEnabled = isFormalAccount()) }
         viewModelScope.launch { load() }
-    }
-
-    fun onIntent(intent: ReportIntent) {
-        when (intent) {
-            ReportIntent.AiExplain -> Unit   // M2 云接入前占位（需求：AI 解读留在报告流程）
-        }
     }
 
     private suspend fun load() {
@@ -95,7 +92,10 @@ class ReportViewModel(
         fun Factory(time: Long, zone: ZoneId = ZoneId.systemDefault()) = viewModelFactory {
             initializer {
                 val app = this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as App
-                ReportViewModel(ReportQuery(app.container.measurementRepository), time, zone)
+                ReportViewModel(
+                    ReportQuery(app.container.measurementRepository), time, zone,
+                    isFormalAccount = app.container.isFormalAccount,
+                )
             }
         }
     }

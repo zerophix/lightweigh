@@ -32,8 +32,10 @@ data class ReportUiState(
     /** 缺档提示行（"完善「身高」档案…"）。 */
     val missingText: String? = null,
     val disclaimer: String = "",
+    /** AI 解读可用（正式账号口径，M4 联动）。 */
+    val aiEnabled: Boolean = false,
 )
 
 sealed interface ReportIntent {
-    data object AiExplain : ReportIntent   // AI 解读（M2 云接入前仅占位）
+
 }
