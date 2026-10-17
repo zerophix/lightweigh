@@ -24,6 +24,7 @@ class ScaleViewModel(
     profile: MemberProfileReader,
     lastWeightTenths: suspend () -> Int,
     skipWeightOnlyPrompt: () -> Boolean,
+    memberSlot: () -> Int = { 1 },
 ) : ViewModel() {
 
     private val session = MeasureSession(
@@ -34,6 +35,7 @@ class ScaleViewModel(
         lastWeightTenths = lastWeightTenths,
         scope = viewModelScope,
         skipWeightOnlyPrompt = skipWeightOnlyPrompt,
+        memberSlot = memberSlot,
     )
 
     val state: StateFlow<MeasureState> get() = session.state
@@ -67,6 +69,7 @@ class ScaleViewModel(
                             ?.let { record -> (record.weight * 10.0).roundToInt() } ?: 0
                     },
                     skipWeightOnlyPrompt = app.container.skipWeightOnlyPrompt,
+                    memberSlot = app.container.activeMemberSlot,
                 )
             }
         }

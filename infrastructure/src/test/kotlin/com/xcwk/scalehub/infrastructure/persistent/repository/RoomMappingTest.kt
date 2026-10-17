@@ -24,9 +24,9 @@ class RoomMappingTest {
             saved += po
             toReturn = saved.toList()
         }
-        override suspend fun recent(limit: Int): List<MeasurementPo> =
+        override suspend fun recent(limit: Int, memberId: String): List<MeasurementPo> =
             toReturn.sortedByDescending { it.measuredAt }.take(limit)
-        override suspend fun between(from: Long, to: Long): List<MeasurementPo> =
+        override suspend fun between(from: Long, to: Long, memberId: String): List<MeasurementPo> =
             toReturn.filter { it.measuredAt >= from && it.measuredAt < to }
         override suspend fun delete(time: Long) {
             saved.removeAll { it.measuredAt == time }
@@ -37,7 +37,7 @@ class RoomMappingTest {
     @Test
     fun `写读映射保真_输入快照与核心字段不丢失`() = runTest {
         val dao = CapturingDao()
-        val repo = RoomMeasurementRepository(dao)
+        val repo = RoomMeasurementRepository(dao, { "1" })
         val record = MeasureRecord(
             1700000000000L, 70.0, 500.0, 18.4, "AA:BB", "okok-bia-1",
             true, 30, 175,
@@ -61,10 +61,10 @@ class RoomMappingTest {
     @Test
     fun `旧数据无快照读为null_兼容语义`() = runTest {
         val dao = CapturingDao()
-        val repo = RoomMeasurementRepository(dao)
+        val repo = RoomMeasurementRepository(dao, { "1" })
         // 模拟 v1 旧行为：仅 6 字段（经 PO 直塞）
         dao.toReturn = listOf(
-            MeasurementPo(1690000000000L, 68.0, 400.0, -1.0, "CC:DD", "builtin-1", null, null, null),
+            MeasurementPo(1690000000000L, 68.0, 400.0, -1.0, "CC:DD", "builtin-1", null, null, null, "1"),
         )
         val back = repo.between(0L, Long.MAX_VALUE).single()
         assertThat(back.male).isNull()

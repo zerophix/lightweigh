@@ -29,6 +29,8 @@ public final class MeasureRecord {
     public final double fat;
     public final String mac;
     public final String algorithm;
+    /** 归属成员（多成员维；仓储落库时以当前成员盖章，聚合默认空串）。 */
+    public final String memberId;
     /** 计算输入快照（旧数据/未记录为 null）。 */
     public final Boolean male;
     public final Integer ageYears;
@@ -36,11 +38,16 @@ public final class MeasureRecord {
 
     /** 兼容构造（无档案快照）——仅限测试与迁移场景。 */
     public MeasureRecord(long time, double weight, double impedance, double fat, String mac, String algorithm) {
-        this(time, weight, impedance, fat, mac, algorithm, null, null, null);
+        this(time, weight, impedance, fat, mac, algorithm, null, null, null, "");
     }
 
     public MeasureRecord(long time, double weight, double impedance, double fat, String mac, String algorithm,
                          Boolean male, Integer ageYears, Integer heightCm) {
+        this(time, weight, impedance, fat, mac, algorithm, male, ageYears, heightCm, "");
+    }
+
+    public MeasureRecord(long time, double weight, double impedance, double fat, String mac, String algorithm,
+                         Boolean male, Integer ageYears, Integer heightCm, String memberId) {
         if (time <= 0) {
             throw new DomainException("测量时间戳非法: " + time);
         }
@@ -58,6 +65,7 @@ public final class MeasureRecord {
         this.impedance = impedance;
         this.fat = fat;
         this.mac = mac == null ? "" : mac;
+        this.memberId = memberId == null ? "" : memberId;
         this.algorithm = algorithm == null || algorithm.isEmpty() ? ScaleDevice.ALGORITHM_BUILTIN_1 : algorithm;
         this.male = male;
         this.ageYears = ageYears;

@@ -49,13 +49,18 @@ class AppContainer(context: Context) {
 
     val database: AppDatabase by lazy { AppDatabase.get(context) }
 
+    /** 本机测量用户（移植补齐：多成员）。 */
+    val memberRepository: com.xcwk.scalehub.infrastructure.member.MemberStore by lazy {
+        com.xcwk.scalehub.infrastructure.member.MemberStore(context)
+    }
+
     val measurementRepository: MeasurementRepository by lazy {
-        RoomMeasurementRepository(database.measurementDao())
+        RoomMeasurementRepository(database.measurementDao(), memberRepository::activeId)
     }
     val healthLogRepository: HealthLogRepository by lazy {
-        RoomHealthLogRepository(database.healthLogDao())
+        RoomHealthLogRepository(database.healthLogDao(), memberRepository::activeId)
     }
-    val profileStore: ProfileStore = ProfileStore(context)
+    val profileStore: ProfileStore by lazy { ProfileStore(context, memberRepository::activeId) }
 
     val recordMeasurementService: RecordMeasurementService by lazy {
         RecordMeasurementService(measurementRepository, profileStore, dataRefreshBus)
@@ -77,9 +82,19 @@ class AppContainer(context: Context) {
     private val avatarStore: com.xcwk.scalehub.infrastructure.profile.AvatarStore by lazy {
         com.xcwk.scalehub.infrastructure.profile.AvatarStore(context)
     }
-    val avatarPath: () -> String = { avatarStore.path() ?: "" }
-    val saveAvatar: (String) -> String? = { s -> avatarStore.saveFromUri(android.net.Uri.parse(s)) }
+    val avatarPath: () -> String = { avatarStore.path(memberRepository.activeId()) ?: "" }
+    val saveAvatar: (String) -> String? =
+        { s -> avatarStore.saveFromUri(android.net.Uri.parse(s), memberRepository.activeId()) }
     val newCameraTarget: () -> String? = { avatarStore.newCameraTarget() }
+
+    /** 当前成员槽位读取口（MemberStore 藏在容器后，feature 层不直调 infra）。 */
+    val activeMemberSlot: () -> Int = { memberRepository.activeSlot() }
+
+    /** 删除某成员的本机痕迹：档案键 + 头像文件（测量/健康记录随 member_id 留档，声明口径）。 */
+    val removeMemberLocalData: (String) -> Unit = { id ->
+        profileStore.clearMember(id)
+        avatarStore.removeFor(id)
+    }
 
     /** 正式账号读取口（SessionStore 藏在容器后，feature 层不直调 infra）。 */
     val isFormalAccount: () -> Boolean = { sessionStore.isFormalAccount() }

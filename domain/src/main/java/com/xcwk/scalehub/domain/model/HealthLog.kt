@@ -22,6 +22,8 @@ data class HealthLog(
     val value2: Double,
     val label: String,
     val note: String,
+    /** 归属成员（多成员维；仓储落库时以当前成员盖章）。 */
+    val memberId: String = "",
 ) {
     init {
         if (time <= 0) {

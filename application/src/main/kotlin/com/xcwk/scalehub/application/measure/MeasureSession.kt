@@ -33,7 +33,7 @@ import kotlinx.coroutines.launch
  *    蓝牙开关与空设备列表守卫留在会话内（:152-162），BlePort 可伪造故可测。
  *  - 旧库 Handler 定时器（连接 30s 倒计时/重试 1500ms/断线提示 700ms/静默重连 800ms/
  *    归零 1000ms/贴士 4000ms）收敛为注入 scope 的协程延时，虚拟时间可测。
- *  - 用户槽位：v2 单成员档案，slot 恒 1（旧库 MemberStore.activeSlot）。
+ *  - 用户槽位：经 memberSlot 注入（多成员接入后由 MemberRepository.activeSlot 提供）。
  *  - 落库走 RecordMeasurementService（记录用例已抽 application，旧库 finishSave :951-970）。
  */
 class MeasureSession(
@@ -45,6 +45,8 @@ class MeasureSession(
     private val lastWeightTenths: suspend () -> Int,
     private val scope: CoroutineScope,
     private val skipWeightOnlyPrompt: () -> Boolean = { false },
+    /** 下发给秤的用户编号（多成员；旧库 MemberStore.activeSlot）。 */
+    private val memberSlot: () -> Int = { 1 },
 ) {
 
     private val _state = MutableStateFlow(MeasureState())
@@ -329,7 +331,7 @@ class MeasureSession(
 
     private fun sendUser() {
         val proto = protocol ?: return
-        val data = proto.userPacket(1, profile.male(), profile.ageYears(), profile.heightCm(), lastWeightRaw.coerceAtLeast(0))
+        val data = proto.userPacket(memberSlot(), profile.male(), profile.ageYears(), profile.heightCm(), lastWeightRaw.coerceAtLeast(0))
         val userChar = proto.userCharacteristic() ?: return
         ble.write(userChar, data, object : BleWriteListener {
             override fun onWriteSuccess() {
