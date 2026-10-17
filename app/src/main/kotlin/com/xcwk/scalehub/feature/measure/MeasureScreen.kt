@@ -22,7 +22,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -38,9 +37,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.xcwk.scalehub.application.query.HomeGoalState
 import com.xcwk.scalehub.ui.components.QkAreaChart
+import com.xcwk.scalehub.ui.components.QkButton
+import com.xcwk.scalehub.ui.components.QkButtonStyle
 import com.xcwk.scalehub.ui.components.QkCard
 import com.xcwk.scalehub.ui.components.QkEmptyHint
 import com.xcwk.scalehub.ui.components.QkWheelPicker
+import com.xcwk.scalehub.ui.components.QkTextField
+import com.xcwk.scalehub.ui.theme.QkColor
 import java.util.Locale
 
 /**
@@ -127,16 +130,18 @@ fun MeasureScreen(
         // ---- AI 询问 ----
         QkCard(modifier = Modifier.padding(top = 12.dp)) {
             var query by rememberSaveable { mutableStateOf("") }
-            OutlinedTextField(
+            QkTextField(
                 value = query,
                 onValueChange = { if (it.length <= 200) query = it },
-                label = { Text("问问轻刻 AI：减脂期能吃西瓜吗？") },
+                placeholder = "问问轻刻 AI：减脂期能吃西瓜吗？",
                 modifier = Modifier.fillMaxWidth(),
             )
             Row(modifier = Modifier.fillMaxWidth().padding(top = 8.dp), horizontalArrangement = Arrangement.End) {
-                Button(onClick = { val text = query.trim(); query = ""; onAskAi(text) }, enabled = text48(query)) {
-                    Text("发送")
-                }
+                QkButton(
+                    text = "发送",
+                    enabled = text48(query),
+                    onClick = { val text = query.trim(); query = ""; onAskAi(text) },
+                )
             }
         }
 
@@ -169,9 +174,19 @@ fun MeasureScreen(
             }
             Row(modifier = Modifier.padding(top = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 listOf("+早餐" to "早餐", "+午餐" to "午餐", "+晚餐" to "晚餐").forEach { (label, meal) ->
-                    OutlinedButton(onClick = { onOpenRecord("diet", meal) }, modifier = Modifier.weight(1f)) { Text(label) }
+                    QkButton(
+                        text = label,
+                        modifier = Modifier.weight(1f),
+                        style = QkButtonStyle.Secondary,
+                        onClick = { onOpenRecord("diet", meal) },
+                    )
                 }
-                OutlinedButton(onClick = { onOpenRecord("exercise", "") }, modifier = Modifier.weight(1f)) { Text("+运动") }
+                QkButton(
+                    text = "+运动",
+                    modifier = Modifier.weight(1f),
+                    style = QkButtonStyle.Secondary,
+                    onClick = { onOpenRecord("exercise", "") },
+                )
             }
         }
 
@@ -354,21 +369,23 @@ fun MeasureScreen(
         // ---- 手动记录体重（保留原有）----
         HorizontalDivider(modifier = Modifier.padding(top = 16.dp))
         Text("记录体重", modifier = Modifier.padding(top = 12.dp), style = MaterialTheme.typography.titleMedium)
-        Button(
-            onClick = onOpenScale,
+        QkButton(
+            text = "蓝牙称重（连体脂秤）",
             modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-        ) { Text("蓝牙称重（连体脂秤）") }
-        OutlinedTextField(
+            onClick = onOpenScale,
+        )
+        QkTextField(
             value = state.weightInput,
             onValueChange = { vm.onIntent(MeasureIntent.WeightChanged(it)) },
-            label = { Text("体重 (kg)") },
+            label = "体重 (kg)",
             modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
         )
-        Button(
-            onClick = { vm.onIntent(MeasureIntent.Save) },
-            enabled = !state.saving,
+        QkButton(
+            text = if (state.saving) "保存中…" else "保存",
             modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-        ) { Text(if (state.saving) "保存中…" else "保存") }
+            enabled = !state.saving,
+            onClick = { vm.onIntent(MeasureIntent.Save) },
+        )
         state.lastRecord?.let { Text(it, modifier = Modifier.padding(top = 8.dp)) }
         state.error?.let {
             Text(it, modifier = Modifier.padding(top = 6.dp), color = MaterialTheme.colorScheme.error)
@@ -427,10 +444,10 @@ private fun BmiSegments(segment: String?, onSetHeight: () -> Unit) {
         return
     }
     val segments = listOf(
-        "偏瘦" to androidx.compose.ui.graphics.Color(0xFF38BDF8),
-        "标准" to androidx.compose.ui.graphics.Color(0xFF2D8B56),
-        "偏胖" to androidx.compose.ui.graphics.Color(0xFFF59E0B),
-        "肥胖" to androidx.compose.ui.graphics.Color(0xFFE85D04),
+        "偏瘦" to QkColor.BmiThin,
+        "标准" to QkColor.BmiNormal,
+        "偏胖" to QkColor.BmiOver,
+        "肥胖" to QkColor.BmiObese,
     )
     Row {
         segments.forEach { (label, color) ->
@@ -438,13 +455,16 @@ private fun BmiSegments(segment: String?, onSetHeight: () -> Unit) {
             Box(
                 Modifier.padding(horizontal = 2.dp)
                     .width(34.dp).height(22.dp)
-                    .clip(RoundedCornerShape(4.dp))
-                    .background(color.copy(alpha = if (active) 1f else 0.25f)),
+                    .clip(RoundedCornerShape(5.dp))
+                    .background(if (active) color else color.copy(alpha = 0.16f)),
                 contentAlignment = Alignment.Center,
             ) {
-                if (active) {
-                    Text(label, color = androidx.compose.ui.graphics.Color.White, style = MaterialTheme.typography.labelSmall)
-                }
+                Text(
+                    label,
+                    color = if (active) androidx.compose.ui.graphics.Color.White else QkColor.SegmentInactive,
+                    style = MaterialTheme.typography.labelSmall,
+                    maxLines = 1,
+                )
             }
         }
     }

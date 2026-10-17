@@ -19,7 +19,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -35,6 +34,7 @@ import com.xcwk.scalehub.ui.components.QkCard
 import com.xcwk.scalehub.ui.legal.AGREEMENT_SECTIONS
 import com.xcwk.scalehub.ui.legal.LegalDoc
 import com.xcwk.scalehub.ui.legal.PRIVACY_SECTIONS
+import com.xcwk.scalehub.ui.components.QkTextField
 import com.xcwk.scalehub.ui.theme.QkTheme
 
 /**
@@ -208,11 +208,10 @@ fun SettingsScreen(
             text = {
                 Column {
                     Text("将删除云端档案、体脂秤、测量与健康记录，且不可恢复；本机测量保留。")
-                    OutlinedTextField(
+                    QkTextField(
                         value = state.deleteCode,
                         onValueChange = { onIntent(SettingsIntent.DeleteCodeChanged(it)) },
-                        label = { Text("短信验证码") },
-                        singleLine = true,
+                        label = "短信验证码",
                         modifier = Modifier.padding(top = 8.dp),
                     )
                 }

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>轻刻健康 v2 · 交互式原型</title>
+<style>
+:root{--green:#159b72;--green-dark:#087b59;--mint:#e7f7f0;--ink:#20312d;--muted:#87948f;--line:#edf1ef;--bg:#f4f7f6;--white:#fff;--orange:#f3a64a;--blue:#58a9e8;--purple:#9c83ec;--shadow:0 8px 28px rgba(26,69,54,.055)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:14px}
+button,input,select{font:inherit}button{cursor:pointer;border:0}.app{max-width:430px;min-height:100vh;margin:0 auto;background:#f7f9f8;position:relative;padding-bottom:92px;box-shadow:0 0 45px #dfe8e4}
+.topbar{height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:#f7f9f8;position:sticky;top:0;z-index:5}
+.brand{font-size:19px;font-weight:800;letter-spacing:-.5px}.brand span{color:var(--green)}.subtitle{font-size:11px;color:var(--muted);margin-top:3px}.icon-btn{width:36px;height:36px;border-radius:50%;background:white;color:#61736c;display:grid;place-items:center;border:1px solid var(--line)}
+main{padding:0 14px}.page{display:none;animation:fade .18s ease}.page.active{display:block}@keyframes fade{from{opacity:.5;transform:translateY(3px)}to{opacity:1;transform:none}}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin:17px 3px 10px}.section-head h2{font-size:15px;margin:0;font-weight:750}.muted{color:var(--muted);font-size:12px}.card{background:var(--white);border:1px solid #edf2ef;border-radius:17px;padding:15px;margin-bottom:11px;box-shadow:var(--shadow)}
+.card-title{font-size:13px;font-weight:700;display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.big-number{font-size:32px;font-weight:800;letter-spacing:-1px}.unit{font-size:12px;color:var(--muted);font-weight:500;margin-left:4px}.positive{color:var(--green);font-size:12px;font-weight:700}
+.metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}.metric{background:#f7faf8;border-radius:12px;padding:10px 8px}.metric .label{font-size:11px;color:var(--muted)}.metric .value{font-weight:750;margin-top:6px;font-size:16px}.pill{font-size:10px;padding:3px 7px;border-radius:20px;background:var(--mint);color:var(--green);font-weight:700}
+.bodybar{height:7px;border-radius:10px;background:linear-gradient(90deg,#64b9f4 0 24%,#43b99b 24% 50%,#f4c75d 50% 74%,#ef8b78 74%);margin:15px 0 6px}.bar-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--muted)}
+.btn{padding:11px 15px;border-radius:12px;background:var(--green);color:#fff;font-weight:700;box-shadow:0 5px 12px #159b7220}.btn:active{transform:scale(.98)}.btn.secondary{background:#eff8f4;color:var(--green);box-shadow:none}.btn.ghost{background:white;color:#64766e;border:1px solid var(--line);box-shadow:none}.btn.full{width:100%}.btn.small{padding:8px 11px;font-size:12px}
+.quick-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.quick{background:#f7faf8;border-radius:13px;padding:12px 3px 10px;text-align:center;color:#3e554c;border:1px solid #f0f4f1}.quick .glyph{margin:0 auto 8px}.quick span:last-child{font-size:11px}
+.glyph{width:38px;height:38px;border-radius:13px;background:var(--mint);color:var(--green);display:grid;place-items:center;font-size:19px;font-weight:700}.glyph.blue{background:#edf7ff;color:var(--blue)}.glyph.purple{background:#f3efff;color:var(--purple)}.glyph.orange{background:#fff5e8;color:var(--orange)}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px}.mini-stat{min-height:100px}.mini-stat .value{font-size:21px;font-weight:800;margin:7px 0}.mini-stat .desc{font-size:11px;color:var(--muted)}
+.list-row{display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid #f0f3f1}.list-row:last-child{border-bottom:0}.list-row .row-main{flex:1;min-width:0}.row-title{font-weight:650;font-size:13px}.row-sub{font-size:11px;color:var(--muted);margin-top:4px}.row-end{font-size:12px;color:var(--muted);text-align:right}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(430px,100%);height:76px;padding:8px 12px max(8px,env(safe-area-inset-bottom));background:#ffffffed;backdrop-filter:blur(16px);border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-around;z-index:8}
+.nav-item{background:transparent;color:#89968f;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;min-width:48px}.nav-item .nav-icon{font-size:19px;height:22px}.nav-item.active{color:var(--green);font-weight:750}.nav-add{width:43px;height:43px;border-radius:16px;background:var(--green);color:white;font-size:25px;box-shadow:0 6px 15px #159b7230;margin-top:-15px}
+.segment{display:flex;gap:4px;padding:4px;background:#f0f4f2;border-radius:12px;margin-bottom:12px}.segment button{flex:1;padding:9px 4px;background:transparent;color:#77857e;border-radius:9px;font-size:12px}.segment button.active{background:white;color:var(--green);font-weight:750;box-shadow:0 2px 6px #173c2a0b}
+.chart{width:100%;height:145px;display:block;overflow:visible}.chart text{font-size:10px;fill:#96a39c}.chart .grid{stroke:#edf2ef;stroke-width:1}.chart .line{fill:none;stroke:var(--green);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}.chart .area{fill:url(#areaGrad)}.chart .dot{fill:white;stroke:var(--green);stroke-width:2}
+.chart-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;border-top:1px solid var(--line);padding-top:11px;margin-top:5px}.chart-summary div{text-align:center}.chart-summary span{display:block;font-size:10px;color:var(--muted)}.chart-summary b{display:block;font-size:13px;margin-top:5px}
+.page-title{font-size:21px;font-weight:800;margin:12px 2px 16px}.report-score{display:flex;align-items:center;gap:17px}.score-ring{width:84px;height:84px;border-radius:50%;border:7px solid #d8f1e7;border-top-color:var(--green);display:grid;place-items:center;color:var(--green);font-size:23px;font-weight:800;flex-shrink:0}.risk{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f0f3f1}.risk:last-child{border:0}.risk-label{display:flex;align-items:center;gap:8px}.risk-dot{width:8px;height:8px;border-radius:50%;background:var(--green)}
+.device-hero{text-align:center;padding:27px 15px}.bluetooth-ring{width:150px;height:150px;border-radius:50%;border:1px solid #c9ecdf;margin:0 auto 18px;display:grid;place-items:center;box-shadow:inset 0 0 0 12px #f2fbf7,inset 0 0 0 25px #e8f7f1}.bluetooth-ring span{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;background:var(--green);color:white;font-size:28px}.status{font-size:14px;font-weight:750}.status-sub{font-size:12px;color:var(--muted);margin-top:7px}
+.field{margin:13px 0}.field label{display:block;color:#66766e;font-size:12px;margin-bottom:7px}.field input,.field select{width:100%;border:1px solid #e5ece8;background:#fbfcfb;border-radius:11px;padding:12px;color:var(--ink);outline:none}.field input:focus{border-color:var(--green)}
+.modal-backdrop{position:fixed;inset:0;background:#10251dcc;display:none;align-items:flex-end;justify-content:center;z-index:20}.modal-backdrop.open{display:flex}.modal{width:min(430px,100%);background:#f8faf9;border-radius:24px 24px 0 0;padding:20px 18px 28px;max-height:85vh;overflow:auto;animation:up .2s ease}.modal-head{display:flex;align-items:center;justify-content:space-between;font-size:17px;font-weight:800;margin-bottom:16px}@keyframes up{from{transform:translateY(35px);opacity:.5}to{transform:none;opacity:1}}
+.toast{position:fixed;left:50%;bottom:90px;transform:translate(-50%,15px);opacity:0;pointer-events:none;background:#20312d;color:white;padding:11px 16px;border-radius:12px;font-size:12px;z-index:30;transition:.2s;white-space:nowrap}.toast.show{opacity:1;transform:translate(-50%,0)}
+.history-date{background:#f5f8f6;border-radius:10px;padding:9px 11px;font-size:12px;color:#66766e;font-weight:700;margin:12px 0 4px}.history-item{display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid #f0f3f1}.history-item:last-child{border:0}.history-item strong{font-size:14px}.history-item span{font-size:11px;color:var(--muted)}
+@media(min-width:700px){body{padding:24px 0}.app{border-radius:28px;overflow:hidden;min-height:850px}.nav{bottom:24px;border-radius:0 0 28px 28px}.topbar{position:relative}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div><div class="brand"><span>轻刻</span>健康</div><div class="subtitle" id="greeting">关注身体，也关注此刻的自己</div></div>
+    <button class="icon-btn" aria-label="通知" onclick="toast('暂时没有新通知')"></button>
+  </header>
+  <main>
+    <section class="page active" id="page-home">
+      <div class="section-head"><h2>今日身体数据</h2><span class="muted">10月17日 · 今天</span></div>
+      <div class="card">
+        <div class="card-title"><span>体重</span><span class="pill">健康范围</span></div>
+        <div><span class="big-number" id="homeWeight">58.6</span><span class="unit">kg</span><span class="positive" style="float:right;margin-top:14px">↓ 0.4 kg</span></div>
+        <div class="metric-grid">
+          <div class="metric"><div class="label">体脂率</div><div class="value">18.3<span class="unit">%</span></div></div>
+          <div class="metric"><div class="label">BMI</div><div class="value">20.8 <span class="pill">正常</span></div></div>
+          <div class="metric"><div class="label">内脏脂肪</div><div class="value">6.5 <span class="unit">级</span></div></div>
+        </div>
+        <div class="bodybar"></div><div class="bar-labels"><span>偏瘦</span><span>标准</span><span>偏重</span><span>肥胖</span></div>
+        <div style="display:flex;gap:8px;margin-top:14px"><button class="btn secondary full" onclick="showPage('report')">查看身体报告</button><button class="btn ghost full" onclick="showPage('history')">历史记录</button></div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span>快捷记录</span><button class="btn secondary small" onclick="openModal('quick')">＋ 添加记录</button></div>
+        <div class="quick-actions">
+          <button class="quick" onclick="openRecord('饮食记录','记录今天摄入的食物与热量','')"><span class="glyph">餐</span><span>饮食</span></button>
+          <button class="quick" onclick="openRecord('运动记录','记录运动类型与时长','↗')"><span class="glyph blue">动</span><span>运动</span></button>
+          <button class="quick" onclick="openRecord('饮水记录','记录今天喝了多少水','滴')"><span class="glyph blue">水</span><span>饮水</span></button>
+          <button class="quick" onclick="openRecord('睡眠记录','记录昨晚睡眠时长','月')"><span class="glyph purple">月</span><span>睡眠</span></button>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="card mini-stat"><div class="muted">今日饮水</div><div class="value">1200 <span class="unit">ml</span></div><div class="desc">目标 2000 ml</div><div style="height:5px;background:#edf3f0;border-radius:8px;margin-top:10px"><div style="width:60%;height:5px;background:var(--blue);border-radius:8px"></div></div><button class="btn secondary small" style="margin-top:10px" onclick="openRecord('饮水记录','记录今天喝了多少水','滴')">＋ 记录饮水</button></div>
+        <div class="card mini-stat"><div class="muted">今日步数</div><div class="value">6,820</div><div class="desc">目标 8,000 步</div><div style="height:5px;background:#edf3f0;border-radius:8px;margin-top:10px"><div style="width:85%;height:5px;background:var(--green);border-radius:8px"></div></div><button class="btn secondary small" style="margin-top:10px" onclick="toast('步数数据已同步')">同步步数</button></div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span>体重趋势</span><button class="muted" style="background:none" onclick="showPage('trends')">查看全部 ›</button></div>
+        <div style="display:flex;align-items:baseline;gap:8px"><strong style="font-size:23px">58.6 kg</strong><span class="positive">近 7 天 ↓ 0.5 kg</span></div>
+        <svg class="chart" viewBox="0 0 330 130" role="img" aria-label="最近七天体重趋势"><defs><linearGradient id="homeGrad" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#159b72" stop-opacity=".2"/><stop offset="1" stop-color="#159b72" stop-opacity="0"/></linearGradient></defs><path d="M8 28 L60 38 L112 48 L164 43 L216 68 L268 78 L322 88 L322 120 L8 120Z" fill="url(#homeGrad)"/><path d="M8 28 L60 38 L112 48 L164 43 L216 68 L268 78 L322 88" fill="none" stroke="#159b72" stroke-width="2.5" stroke-linecap="round"/><g fill="#fff" stroke="#159b72" stroke-width="2"><circle cx="8" cy="28" r="3"/><circle cx="112" cy="48" r="3"/><circle cx="216" cy="68" r="3"/><circle cx="322" cy="88" r="3"/></g><g fill="#96a39c" font-size="10"><text x="5" y="127">10/11</text><text x="104" y="127">10/13</text><text x="210" y="127">10/15</text><text x="292" y="127">10/17</text></g></svg>
+      </div>
+      <div class="section-head"><h2>最近测量</h2><button class="muted" style="background:none" onclick="showPage('history')">全部 ›</button></div>
+      <div class="card" style="padding-top:4px">
+        <div class="list-row"><span class="glyph">秤</span><div class="row-main"><div class="row-title">体重测量</div><div class="row-sub">今天 08:30 · 蓝牙体脂秤</div></div><div class="row-end"><b>58.6 kg</b><div class="positive">↓ 0.4 kg</div></div></div>
+        <div class="list-row"><span class="glyph blue">体</span><div class="row-main"><div class="row-title">体脂率</div><div class="row-sub">今天 08:30</div></div><div class="row-end"><b>18.3%</b><div class="positive">↓ 0.6%</div></div></div>
+      </div>
+    </section>
+
+    <section class="page" id="page-trends">
+      <div class="page-title">趋势分析</div>
+      <div class="card">
+        <div class="segment" id="metricTabs"><button class="active" data-metric="weight">体重</button><button data-metric="fat">体脂率</button><button data-metric="bmi">BMI</button></div>
+        <div class="segment" id="rangeTabs"><button class="active" data-range="7">7天</button><button data-range="30">30天</button><button data-range="all">全部</button></div>
+        <div class="muted" id="chartCaption">体重趋势（kg）</div>
+        <div style="margin:8px 0"><strong style="font-size:29px" id="trendValue">58.6</strong><span class="unit" id="trendUnit">kg</span><span class="positive" style="float:right;margin-top:12px" id="trendChange">较上期 ↓ 0.4</span></div>
+        <svg class="chart" id="trendChart" viewBox="0 0 330 145" aria-label="趋势图"></svg>
+        <div class="chart-summary"><div><span>平均值</span><b id="avg">59.2</b></div><div><span>最高</span><b id="high">61.3</b></div><div><span>最低</span><b id="low">57.8</b></div><div><span>变化</span><b class="positive" id="change">-0.5</b></div></div>
+      </div>
+      <div class="section-head"><h2>数据解读</h2></div>
+      <div class="card"><div class="list-row"><span class="glyph">↘</span><div class="row-main"><div class="row-title">整体趋势平稳</div><div class="row-sub" id="insight">近 7 天体重略有下降，继续保持规律测量。</div></div></div><div class="list-row"><span class="glyph blue">i</span><div class="row-main"><div class="row-title">让数据更有参考价值</div><div class="row-sub">建议在每天相近的时间、相似的条件下测量。</div></div></div></div>
+      <div class="section-head"><h2>趋势对比</h2></div>
+      <div class="card"><div class="segment"><button class="active" onclick="toast('已切换到体重对比')">体重</button><button onclick="toast('体脂率对比暂用演示数据')">体脂率</button><button onclick="toast('BMI 对比暂用演示数据')">BMI</button></div><div class="two-col"><div class="metric"><div class="label">本周期平均</div><div class="value">58.9 kg</div></div><div class="metric"><div class="label">上周期平均</div><div class="value">59.4 kg</div></div></div></div>
+    </section>
+
+    <section class="page" id="page-report">
+      <div class="page-title">身体报告</div>
+      <div class="card">
+        <div class="muted" style="margin-bottom:12px">2026年10月17日 · 综合评估</div>
+        <div class="report-score"><div class="score-ring">86<span style="font-size:11px">分</span></div><div><div style="font-size:18px;font-weight:800;margin-bottom:6px">身体状态良好</div><div class="muted">当前指标总体处于健康参考范围</div><div style="margin-top:10px"><span class="pill">较上次 +2 分</span></div></div></div>
+      </div>
+      <div class="section-head"><h2>关键身体指标</h2><span class="muted">本次测量</span></div>
+      <div class="card">
+        <div class="list-row"><span class="glyph">秤</span><div class="row-main"><div class="row-title">体重</div><div class="row-sub">健康参考范围因个人情况而异</div></div><div class="row-end"><b>58.6 kg</b><div class="pill">标准</div></div></div>
+        <div class="list-row"><span class="glyph blue">体</span><div class="row-main"><div class="row-title">体脂率</div><div class="row-sub">受年龄、性别及设备算法影响</div></div><div class="row-end"><b>18.3%</b><div class="pill">参考</div></div></div>
+        <div class="list-row"><span class="glyph purple">BMI</span><div class="row-main"><div class="row-title">身体质量指数</div><div class="row-sub">体重与身高的比例指标</div></div><div class="row-end"><b>20.8</b><div class="pill">正常</div></div></div>
+        <div class="list-row"><span class="glyph orange">脂</span><div class="row-main"><div class="row-title">内脏脂肪等级</div><div class="row-sub">用于观察长期变化</div></div><div class="row-end"><b>6.5</b><div class="pill">较低</div></div></div>
+        <div class="list-row"><span class="glyph">肌</span><div class="row-main"><div class="row-title">肌肉量</div><div class="row-sub">建议结合运动与饮食观察</div></div><div class="row-end"><b>43.2 kg</b><div class="pill">参考</div></div></div>
+      </div>
+      <div class="card"><div class="card-title">风险评估 <span class="muted">仅供健康管理参考</span></div><div class="risk"><span class="risk-label"><span class="risk-dot"></span>体重指标</span><span class="pill">正常</span></div><div class="risk"><span class="risk-label"><span class="risk-dot"></span>体脂指标</span><span class="pill">参考范围</span></div><div class="risk"><span class="risk-label"><span class="risk-dot" style="background:var(--orange)"></span>运动习惯</span><span class="pill" style="background:#fff4e5;color:#c17b1e">可提升</span></div><button class="btn full" style="margin-top:15px" onclick="toast('AI 解读正在准备中')"> AI 解读报告</button><p class="muted" style="line-height:1.7;margin-bottom:0">本报告为健康管理参考，不用于疾病诊断。体脂秤测量结果会受到水分、运动和测量条件等因素影响。</p></div>
+    </section>
+
+    <section class="page" id="page-device">
+      <div class="page-title">设备</div>
+      <div class="card">
+        <div class="list-row"><span class="glyph" style="width:48px;height:48px;border-radius:50%;font-size:22px"></span><div class="row-main"><div class="row-title">轻刻用户</div><div class="row-sub">个人健康档案</div></div><span class="muted">›</span></div>
+        <div class="section-head"><h2>我的设备</h2><span class="pill" id="deviceBadge">未连接</span></div>
+        <div class="device-hero"><div class="bluetooth-ring"><span>ᛒ</span></div><div class="status" id="deviceStatus">连接蓝牙体脂秤</div><div class="status-sub" id="deviceSub">请打开体脂秤并靠近手机</div></div>
+        <button class="btn full" id="connectBtn" onclick="connectScale()">搜索并连接设备</button>
+        <button class="btn ghost full" style="margin-top:9px" onclick="toast('设备帮助：打开蓝牙并唤醒体脂秤')">连接帮助</button>
+      </div>
+      <div class="card"><div class="card-title">设备配对流程</div><div class="list-row"><span class="glyph">1</span><div class="row-main"><div class="row-title">开启蓝牙</div><div class="row-sub">确保手机蓝牙功能已开启</div></div><span class="pill">准备</span></div><div class="list-row"><span class="glyph">2</span><div class="row-main"><div class="row-title">唤醒体脂秤</div><div class="row-sub">轻踩秤面，等待设备广播</div></div><span class="muted">待完成</span></div><div class="list-row"><span class="glyph">3</span><div class="row-main"><div class="row-title">开始测量</div><div class="row-sub">赤脚站上秤面并保持稳定</div></div><span class="muted">待完成</span></div></div>
+      <div class="card"><div class="card-title">测量说明</div><p class="muted" style="line-height:1.8;margin-bottom:0">此 HTML 原型使用模拟连接状态，不会真实扫描或连接蓝牙设备。正式 Android 版本需接入蓝牙权限、设备协议和连接状态管理。</p></div>
+    </section>
+
+    <section class="page" id="page-profile">
+      <div class="page-title">我的</div>
+      <div class="card"><div class="list-row"><span class="glyph" style="width:54px;height:54px;border-radius:50%;font-size:22px"></span><div class="row-main"><div class="row-title" style="font-size:16px">轻刻用户</div><div class="row-sub">完善资料，获得更贴合的健康参考</div></div><button class="btn secondary small" onclick="openModal('profile')">编辑</button></div></div>
+      <div class="card"><div class="card-title">我的健康档案 <button class="muted" style="background:none" onclick="openModal('profile')">编辑资料 ›</button></div><div class="list-row"><div class="row-main"><div class="row-title">性别</div></div><div class="row-end" id="profileSex">男</div></div><div class="list-row"><div class="row-main"><div class="row-title">出生年份</div></div><div class="row-end" id="profileBirth">1990 年</div></div><div class="list-row"><div class="row-main"><div class="row-title">身高</div></div><div class="row-end" id="profileHeight">170 cm</div></div></div>
+      <div class="card"><div class="card-title">健康数据概览</div><div class="metric-grid"><div class="metric"><div class="label">体重</div><div class="value">58.6 kg</div></div><div class="metric"><div class="label">体脂率</div><div class="value">18.3%</div></div><div class="metric"><div class="label">BMI</div><div class="value">20.8</div></div></div></div>
+      <div class="card">
+        <div class="list-row" onclick="showPage('history')" style="cursor:pointer"><span class="glyph">▤</span><div class="row-main"><div class="row-title">历史记录</div><div class="row-sub">查看全部测量数据</div></div><span class="muted">›</span></div>
+        <div class="list-row" onclick="showPage('device')" style="cursor:pointer"><span class="glyph blue"></span><div class="row-main"><div class="row-title">设备管理</div><div class="row-sub">连接与管理体脂秤</div></div><span class="muted">›</span></div>
+        <div class="list-row" onclick="showPage('settings')" style="cursor:pointer"><span class="glyph purple"></span><div class="row-main"><div class="row-title">设置</div><div class="row-sub">隐私、安全与应用信息</div></div><span class="muted">›</span></div>
+      </div>
+    </section>
+
+    <section class="page" id="page-history">
+      <div class="page-title">历史记录</div>
+      <div class="card"><div class="segment" id="historyTabs"><button class="active" data-history="weight">体重</button><button data-history="fat">体脂率</button></div><div class="field"><label for="historyDate">筛选日期</label><input id="historyDate" type="date" value="2026-10-17" onchange="toast('已筛选 '+this.value)"></div><div class="history-date">2026年10月</div><div id="historyList"><div class="history-item"><div><strong>10月17日</strong><br><span>08:30 · 早晨空腹</span></div><strong>58.6 kg</strong><span class="positive">↓ 0.4</span></div><div class="history-item"><div><strong>10月16日</strong><br><span>08:24 · 早晨空腹</span></div><strong>59.0 kg</strong><span>—</span></div><div class="history-item"><div><strong>10月15日</strong><br><span>08:35 · 早晨空腹</span></div><strong>59.2 kg</strong><span>↑ 0.2</span></div><div class="history-item"><div><strong>10月13日</strong><br><span>08:40 · 早晨空腹</span></div><strong>59.8 kg</strong><span>↓ 0.3</span></div><div class="history-item"><div><strong>10月11日</strong><br><span>08:31 · 早晨空腹</span></div><strong>60.1 kg</strong><span>—</span></div></div></div>
+      <div class="two-col"><button class="btn secondary" onclick="toast('已按日期筛选')">按日期筛选</button><button class="btn ghost" onclick="exportHistory()">导出记录</button></div>
+    </section>
+
+    <section class="page" id="page-settings">
+      <div class="page-title">设置</div>
+      <div class="section-head"><h2>账号与安全</h2></div>
+      <div class="card"><div class="list-row" onclick="toast('账号恢复功能为演示项')" style="cursor:pointer"><span class="glyph">↻</span><div class="row-main"><div class="row-title">恢复账号</div></div><span class="muted">›</span></div><div class="list-row" onclick="toast('退出登录功能为演示项')" style="cursor:pointer"><span class="glyph">⇥</span><div class="row-main"><div class="row-title">退出登录</div></div><span class="muted">›</span></div></div>
+      <div class="section-head"><h2>隐私与协议</h2></div>
+      <div class="card"><div class="list-row" onclick="toast('用户协议将在正式版本中提供')" style="cursor:pointer"><div class="row-main"><div class="row-title">用户协议</div></div><span class="muted">›</span></div><div class="list-row" onclick="toast('隐私政策将在正式版本中提供')" style="cursor:pointer"><div class="row-main"><div class="row-title">隐私政策</div></div><span class="muted">›</span></div><div class="list-row" onclick="toast('个人信息收集清单将在正式版本中提供')" style="cursor:pointer"><div class="row-main"><div class="row-title">个人信息收集清单</div></div><span class="muted">›</span></div></div>
+      <div class="section-head"><h2>其他</h2></div><div class="card"><div class="list-row"><div class="row-main"><div class="row-title">清除缓存</div></div><span class="row-end">12.8 MB</span><button class="btn secondary small" onclick="toast('缓存已清除（模拟）')">清除</button></div><div class="list-row"><div class="row-main"><div class="row-title">关于轻刻健康</div></div><span class="row-end">v2.0.0</span></div></div>
+    </section>
+  </main>
+  <nav class="nav" aria-label="主导航">
+    <button class="nav-item active" data-page="home"><span class="nav-icon"></span><span>首页</span></button>
+    <button class="nav-item" data-page="trends"><span class="nav-icon"></span><span>趋势</span></button>
+    <button class="nav-add" aria-label="添加记录" onclick="openModal('quick')">＋</button>
+    <button class="nav-item" data-page="device"><span class="nav-icon">▣</span><span>设备</span></button>
+    <button class="nav-item" data-page="profile"><span class="nav-icon"></span><span>我的</span></button>
+  </nav>
+</div>
+
+<div class="modal-backdrop" id="modalBackdrop" onclick="if(event.target===this)closeModal()">
+  <div class="modal"><div class="modal-head"><span id="modalTitle">快捷记录</span><button class="icon-btn" onclick="closeModal()">×</button></div><div id="modalBody"></div></div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const pageTitles={home:'关注身体，也关注此刻的自己',trends:'用趋势理解身体变化',report:'你的身体状态一览',device:'管理你的健康设备',profile:'你的健康档案',history:'持续记录每一次变化',settings:'应用设置'};
+function showPage(name){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id==='page-'+name));document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.page===name));document.getElementById('greeting').textContent=pageTitles[name]||'轻刻健康';window.scrollTo({top:0,behavior:'smooth'});if(name==='trends')drawTrend();}
+document.querySelectorAll('.nav-item').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));
+let toastTimer;function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2200)}
+function openModal(type){const title=document.getElementById('modalTitle'),body=document.getElementById('modalBody');if(type==='quick'){title.textContent='快捷记录';body.innerHTML=`<div class="quick-actions"><button class="quick" onclick="openRecord('饮食记录','记录食物与热量','餐')"><span class="glyph">餐</span><span>饮食</span></button><button class="quick" onclick="openRecord('运动记录','记录运动类型与时长','动')"><span class="glyph blue">动</span><span>运动</span></button><button class="quick" onclick="openRecord('饮水记录','记录今天喝了多少水','水')"><span class="glyph blue">水</span><span>饮水</span></button><button class="quick" onclick="openRecord('睡眠记录','记录睡眠时长','月')"><span class="glyph purple">月</span><span>睡眠</span></button><button class="quick" onclick="openRecord('体重记录','手动记录体重','秤')"><span class="glyph">秤</span><span>体重</span></button><button class="quick" onclick="openRecord('围度记录','记录腰围等身体围度','围')"><span class="glyph orange">围</span><span>围度</span></button></div>`;}else if(type==='profile'){title.textContent='编辑健康档案';body.innerHTML=`<div class="field"><label>昵称</label><input id="nickname" value="轻刻用户" placeholder="请输入昵称"></div><div class="field"><label>性别</label><select id="sex"><option>男</option><option>女</option></select></div><div class="field"><label>出生年份</label><input id="birth" type="number" value="1990" min="1900" max="2026"></div><div class="field"><label>身高（cm）</label><input id="height" type="number" value="170" min="80" max="250"></div><button class="btn full" onclick="saveProfile()">保存资料</button>`;}document.getElementById('modalBackdrop').classList.add('open')}
+function openRecord(name,desc,icon){const body=document.getElementById('modalBody');document.getElementById('modalTitle').textContent=name;let field='';if(name==='饮水记录')field='<div class="field"><label>饮水量（ml）</label><input id="recordValue" type="number" value="250" min="1"></div>';else if(name==='运动记录')field='<div class="field"><label>运动类型</label><select id="recordType"><option>步行</option><option>跑步</option><option>骑行</option><option>力量训练</option><option>瑜伽</option></select></div><div class="field"><label>时长（分钟）</label><input id="recordValue" type="number" value="30" min="1"></div>';else if(name==='饮食记录')field='<div class="field"><label>食物名称</label><input id="recordName" placeholder="例如：鸡蛋、燕麦"></div><div class="field"><label>热量（kcal）</label><input id="recordValue" type="number" value="320" min="0"></div>';else if(name==='睡眠记录')field='<div class="field"><label>睡眠时长（小时）</label><input id="recordValue" type="number" value="7.5" min="0" max="24" step="0.1"></div>';else if(name==='体重记录')field='<div class="field"><label>体重（kg）</label><input id="recordValue" type="number" value="58.6" min="1" max="400" step="0.1"></div>';else field='<div class="field"><label>围度类型</label><select id="recordType"><option>腰围</option><option>臀围</option><option>胸围</option></select></div><div class="field"><label>围度（cm）</label><input id="recordValue" type="number" value="76" min="1" max="300" step="0.1"></div>';body.innerHTML=`<p class="muted">${desc}</p>${field}<div class="field"><label>备注（选填）</label><input id="recordNote" placeholder="添加备注"></div><button class="btn full" onclick="saveRecord('${name}')">保存记录</button>`;document.getElementById('modalBackdrop').classList.add('open')}
+function saveRecord(name){const val=document.getElementById('recordValue')?.value; if(val!==undefined&&val!==''&&Number(val)<=0){toast('请输入有效数值');return}closeModal();toast(name+'已保存（原型演示）')}
+function closeModal(){document.getElementById('modalBackdrop').classList.remove('open')}
+function saveProfile(){const sex=document.getElementById('sex').value,birth=document.getElementById('birth').value,height=document.getElementById('height').value;if(+height<80||+height>250||+birth<1900||+birth>2026){toast('请检查身高或出生年份');return}document.getElementById('profileSex').textContent=sex;document.getElementById('profileBirth').textContent=birth+' 年';document.getElementById('profileHeight').textContent=height+' cm';closeModal();toast('健康档案已更新')}
+let currentMetric='weight',currentRange='7';const metricInfo={weight:{label:'体重趋势（kg）',value:'58.6',unit:'kg',change:'较上期 ↓ 0.4',avg:'59.2',high:'61.3',low:'57.8',delta:'-0.5',data:[60.1,59.8,59.2,59.4,59.0,58.9,58.6]},fat:{label:'体脂率趋势（%）',value:'18.3',unit:'%',change:'较上期 ↓ 0.6%',avg:'19.6',high:'21.2',low:'17.8',delta:'-0.6',data:[20.8,20.4,19.8,20.0,19.1,18.7,18.3]},bmi:{label:'BMI 趋势',value:'20.8',unit:'',change:'较上期 ↓ 0.2',avg:'21.1',high:'21.8',low:'20.8',delta:'-0.2',data:[21.4,21.3,21.1,21.2,21.0,20.9,20.8]}};
+function drawTrend(){const d=metricInfo[currentMetric],svg=document.getElementById('trendChart');document.getElementById('chartCaption').textContent=d.label;document.getElementById('trendValue').textContent=d.value;document.getElementById('trendUnit').textContent=d.unit;document.getElementById('trendChange').textContent=d.change;document.getElementById('avg').textContent=d.avg;document.getElementById('high').textContent=d.high;document.getElementById('low').textContent=d.low;document.getElementById('change').textContent=d.delta;document.getElementById('insight').textContent=`所选周期内${currentMetric==='weight'?'体重':currentMetric==='fat'?'体脂率':'BMI'}整体变化平稳，建议在相近时间和条件下持续测量。`;let vals=d.data;if(currentRange==='30')vals=[...vals,...vals.slice(1,5).map((v,i)=>v+(i%2?-.4:.3))];if(currentRange==='all')vals=[...vals,...vals.slice(0,4).map((v,i)=>v+(i%2?.6:-.7))];let min=Math.min(...vals),max=Math.max(...vals),span=max-min||1;let pts=vals.map((v,i)=>[8+i*314/(vals.length-1),116-(v-min)/span*86]);let path=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');let area=path+` L ${pts[pts.length-1][0]} 128 L ${pts[0][0]} 128 Z`;svg.innerHTML=`<defs><linearGradient id="areaGrad" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#159b72" stop-opacity=".18"/><stop offset="1" stop-color="#159b72" stop-opacity="0"/></linearGradient></defs><line class="grid" x1="6" y1="30" x2="324" y2="30"/><line class="grid" x1="6" y1="73" x2="324" y2="73"/><line class="grid" x1="6" y1="116" x2="324" y2="116"/><path class="area" d="${area}"/><path class="line" d="${path}"/>${pts.map(p=>`<circle class="dot" cx="${p[0]}" cy="${p[1]}" r="3"/>`).join('')}<text x="6" y="142">周期开始</text><text x="275" y="142">最新</text>`}
+document.querySelectorAll('#metricTabs button').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('#metricTabs button').forEach(x=>x.classList.toggle('active',x===b));currentMetric=b.dataset.metric;drawTrend()}));document.querySelectorAll('#rangeTabs button').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('#rangeTabs button').forEach(x=>x.classList.toggle('active',x===b));currentRange=b.dataset.range;drawTrend()}));
+document.querySelectorAll('#historyTabs button').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('#historyTabs button').forEach(x=>x.classList.toggle('active',x===b));let fat=b.dataset.history==='fat';document.getElementById('historyList').querySelectorAll('.history-item').forEach((el,i)=>{let vals=fat?['18.3%','18.7%','19.1%','19.4%','20.1%']:['58.6 kg','59.0 kg','59.2 kg','59.8 kg','60.1 kg'];el.children[1].textContent=vals[i]})}));
+let connected=false;function connectScale(){const btn=document.getElementById('connectBtn'),status=document.getElementById('deviceStatus'),sub=document.getElementById('deviceSub'),badge=document.getElementById('deviceBadge');if(!connected){btn.disabled=true;btn.textContent='正在搜索…';status.textContent='正在搜索附近设备';sub.textContent='请保持体脂秤处于唤醒状态';setTimeout(()=>{connected=true;btn.disabled=false;btn.textContent='开始模拟称重';status.textContent='轻刻智能体脂秤';sub.textContent='已连接 · 信号良好';badge.textContent='已连接';badge.style.background='#e7f7f0';btn.classList.remove('');toast('模拟设备连接成功')},1100)}else{document.getElementById('homeWeight').textContent='58.6';status.textContent='测量完成';sub.textContent='体重 58.6 kg · 体脂率 18.3%';toast('模拟测量完成，数据仅用于原型展示')}}
+function exportHistory(){const rows=[['日期','时间','体重(kg)'],['2026-10-17','08:30','58.6'],['2026-10-16','08:24','59.0'],['2026-10-15','08:35','59.2'],['2026-10-13','08:40','59.8']];const csv='\ufeff'+rows.map(r=>r.join(',')).join('\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='轻刻健康-历史记录.csv';a.click();URL.revokeObjectURL(url);toast('历史记录已导出')}
+drawTrend();
+</script>
+</body>
+</html>

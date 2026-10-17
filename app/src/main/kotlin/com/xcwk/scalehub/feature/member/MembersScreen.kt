@@ -17,7 +17,6 @@ import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -34,6 +33,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.xcwk.scalehub.domain.model.Member
 import com.xcwk.scalehub.ui.components.QkAvatar
 import com.xcwk.scalehub.ui.components.QkCard
+import com.xcwk.scalehub.ui.components.QkTextField
 import com.xcwk.scalehub.ui.theme.QkTheme
 
 /**
@@ -145,11 +145,10 @@ fun MembersScreen(
             onDismissRequest = { onIntent(MembersIntent.CancelAdd) },
             title = { Text("添加用户") },
             text = {
-                OutlinedTextField(
+                QkTextField(
                     value = name,
                     onValueChange = { name = it.take(20) },
-                    singleLine = true,
-                    placeholder = { Text("昵称") },
+                    placeholder = "昵称",
                     modifier = Modifier.fillMaxWidth(),
                 )
             },

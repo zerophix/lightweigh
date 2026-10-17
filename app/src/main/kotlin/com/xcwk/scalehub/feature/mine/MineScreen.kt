@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -27,10 +26,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.xcwk.scalehub.ui.components.QkAvatar
+import com.xcwk.scalehub.ui.components.QkButton
 import com.xcwk.scalehub.ui.components.QkCard
 import com.xcwk.scalehub.ui.components.QkChip
 import com.xcwk.scalehub.ui.components.QkEmptyHint
 import com.xcwk.scalehub.ui.components.QkWheelPicker
+import com.xcwk.scalehub.ui.components.QkTextField
 import com.xcwk.scalehub.ui.theme.QkTheme
 import java.time.YearMonth
 
@@ -83,10 +84,10 @@ fun MineScreen(
                 Text("头像", modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
                 QkAvatar(path = state.avatarPath.ifBlank { null }, size = 48.dp)
             }
-            OutlinedTextField(
+            QkTextField(
                 value = state.nickname,
                 onValueChange = { onIntent(MineIntent.NicknameChanged(it)) },
-                label = { Text("昵称（≤20 字，可空）") },
+                label = "昵称（≤20 字，可空）",
                 modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
             )
             Row(modifier = Modifier.fillMaxWidth().padding(top = 12.dp)) {
@@ -121,11 +122,12 @@ fun MineScreen(
         if (state.saved) {
             Text("已保存", modifier = Modifier.padding(top = 8.dp), color = MaterialTheme.colorScheme.primary)
         }
-        Button(
-            onClick = { onIntent(MineIntent.Save) },
+        QkButton(
+            text = if (state.saving) "保存中…" else "保存",
             enabled = !state.saving && !state.loading,
             modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
-        ) { Text(if (state.saving) "保存中…" else "保存") }
+            onClick = { onIntent(MineIntent.Save) },
+        )
     }
 
     // 修改头像：拍照 / 相册（旧库面板两分支）

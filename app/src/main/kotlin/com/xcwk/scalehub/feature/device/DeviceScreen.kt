@@ -31,6 +31,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.xcwk.scalehub.BleGate
+import com.xcwk.scalehub.ui.components.QkButton
+import com.xcwk.scalehub.ui.components.QkButtonStyle
 import com.xcwk.scalehub.ui.components.QkCard
 import com.xcwk.scalehub.ui.theme.QkTheme
 
@@ -136,9 +138,11 @@ fun DeviceContent(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-                Button(onClick = onRequestPermission, modifier = Modifier.fillMaxWidth().padding(top = 10.dp)) {
-                    Text("授权蓝牙权限")
-                }
+                QkButton(
+                    text = "授权蓝牙权限",
+                    modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
+                    onClick = onRequestPermission,
+                )
             }
         } else if (!bluetoothEnabled) {
             QkCard(modifier = Modifier.padding(top = 12.dp)) {
@@ -149,17 +153,25 @@ fun DeviceContent(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-                Button(onClick = onEnableBluetooth, modifier = Modifier.fillMaxWidth().padding(top = 10.dp)) {
-                    Text("打开蓝牙")
-                }
+                QkButton(
+                    text = "打开蓝牙",
+                    modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
+                    onClick = onEnableBluetooth,
+                )
             }
         } else {
             Row(modifier = Modifier.fillMaxWidth().padding(top = 12.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text(state.notice, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
-                OutlinedButton(onClick = onScanQr, modifier = Modifier.padding(end = 8.dp)) { Text("扫码") }
-                Button(onClick = { onIntent(DeviceIntent.ToggleScan) }) {
-                    Text(if (state.scanning) "停止搜索" else "开始搜索设备")
-                }
+                QkButton(
+                    text = "扫码",
+                    style = QkButtonStyle.Ghost,
+                    modifier = Modifier.padding(end = 8.dp),
+                    onClick = onScanQr,
+                )
+                QkButton(
+                    text = if (state.scanning) "停止搜索" else "开始搜索设备",
+                    onClick = { onIntent(DeviceIntent.ToggleScan) },
+                )
             }
         }
 

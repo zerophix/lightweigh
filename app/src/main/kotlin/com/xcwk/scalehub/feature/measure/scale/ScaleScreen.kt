@@ -37,12 +37,15 @@ import com.xcwk.scalehub.application.measure.MeasureOutcomeKind
 import com.xcwk.scalehub.application.measure.MeasurePhase
 import com.xcwk.scalehub.application.measure.MeasureState
 import com.xcwk.scalehub.BleGate
+import com.xcwk.scalehub.ui.components.QkButton
+import com.xcwk.scalehub.ui.components.QkButtonStyle
 import com.xcwk.scalehub.ui.components.QkCard
+import com.xcwk.scalehub.ui.theme.QkColor
 import com.xcwk.scalehub.ui.theme.QkTheme
 
-private val LinkGreen = Color(0xFF2D8B56)
-private val LinkGray = Color(0xFF76797E)
-private val LinkRed = Color(0xFFDC4C4C)
+private val LinkGreen = QkColor.Primary
+private val LinkGray = QkColor.Muted
+private val LinkRed = QkColor.Danger
 
 /**
  * scale — 四件套之 Screen：渲染 MeasureSession 三相六态。
@@ -152,7 +155,11 @@ fun ScaleContent(
                         Text(it, modifier = Modifier.padding(top = 16.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     if (state.showRetry) {
-                        Button(onClick = { onIntent(ScaleIntent.Retry) }, modifier = Modifier.padding(top = 16.dp)) { Text("重新连接") }
+                        QkButton(
+                            text = "重新连接",
+                            modifier = Modifier.padding(top = 16.dp),
+                            onClick = { onIntent(ScaleIntent.Retry) },
+                        )
                     }
                 }
             }
@@ -177,24 +184,57 @@ fun ScaleContent(
                         MeasureOutcomeKind.SAVED -> {
                             val time = outcome.recordTime
                             if (time != null) {
-                                Button(onClick = { onOpenReport(time) }, modifier = Modifier.fillMaxWidth().padding(top = 24.dp)) { Text("查看报告") }
-                                OutlinedButton(onClick = onBack, modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) { Text("完成") }
+                                QkButton(
+                                    text = "查看报告",
+                                    modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
+                                    onClick = { onOpenReport(time) },
+                                )
+                                QkButton(
+                                    text = "完成",
+                                    style = QkButtonStyle.Secondary,
+                                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                                    onClick = onBack,
+                                )
                             } else {
-                                Button(onClick = onBack, modifier = Modifier.fillMaxWidth().padding(top = 24.dp)) { Text("完成") }
+                                QkButton(
+                                    text = "完成",
+                                    modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
+                                    onClick = onBack,
+                                )
                             }
                         }
                         MeasureOutcomeKind.CONFIRM_WEIGHT, MeasureOutcomeKind.NO_COMPOSITION -> {
-                            Button(onClick = { onIntent(ScaleIntent.ConfirmSave) }, modifier = Modifier.fillMaxWidth().padding(top = 24.dp)) {
-                                Text(if (outcome.kind == MeasureOutcomeKind.NO_COMPOSITION) "保存当前数据" else "确认保存")
-                            }
-                            OutlinedButton(onClick = { onIntent(ScaleIntent.Reconnect) }, modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) { Text("重新测量") }
+                            QkButton(
+                                text = if (outcome.kind == MeasureOutcomeKind.NO_COMPOSITION) "保存当前数据" else "确认保存",
+                                modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
+                                onClick = { onIntent(ScaleIntent.ConfirmSave) },
+                            )
+                            QkButton(
+                                text = "重新测量",
+                                style = QkButtonStyle.Secondary,
+                                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                                onClick = { onIntent(ScaleIntent.Reconnect) },
+                            )
                         }
                         MeasureOutcomeKind.TOO_LIGHT, MeasureOutcomeKind.NO_DATA -> {
-                            Button(onClick = { onIntent(ScaleIntent.Reconnect) }, modifier = Modifier.fillMaxWidth().padding(top = 24.dp)) { Text("重新测量") }
-                            OutlinedButton(onClick = onBack, modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) { Text("返回") }
+                            QkButton(
+                                text = "重新测量",
+                                modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
+                                onClick = { onIntent(ScaleIntent.Reconnect) },
+                            )
+                            QkButton(
+                                text = "返回",
+                                style = QkButtonStyle.Ghost,
+                                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                                onClick = onBack,
+                            )
                         }
                         MeasureOutcomeKind.NOT_BOUND -> {
-                            Button(onClick = onBack, modifier = Modifier.fillMaxWidth().padding(top = 24.dp)) { Text("去设备页绑定（返回后切换设备页签）") }
+                            QkButton(
+                                text = "去设备页绑定（返回后切换设备页签）",
+                                modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
+                                onClick = onBack,
+                            )
                         }
                     }
                 }
@@ -208,7 +248,11 @@ private fun GateCard(title: String, desc: String, action: String, onAction: () -
     QkCard(modifier = Modifier.padding(top = 24.dp)) {
         Text(title, style = MaterialTheme.typography.titleSmall)
         Text(desc, modifier = Modifier.padding(top = 6.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Button(onClick = onAction, modifier = Modifier.fillMaxWidth().padding(top = 10.dp)) { Text(action) }
+        QkButton(
+            text = action,
+            modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
+            onClick = onAction,
+        )
     }
 }
 

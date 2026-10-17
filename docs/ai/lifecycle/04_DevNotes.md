@@ -92,6 +92,17 @@
 
 ## 5. 变更记录
 
+- 2026-10-17（DEC-025）：视觉体系换轨。以交互原型为唯一视觉事实源，三层收口：令牌
+  （`QkTheme.kt` 整体替换，主绿 `#2D8B56`→`#159B72`，卡片 17dp、按钮 12dp、图标块 13dp，
+  新增 `QkRadius`/`QkSpacing.Page`/`QkTypography` 显式字重阶梯与组件内部色 token）、组件库
+  （`QkCard` 改 1px 细边、`QkButton` 三态、`QkTextField` 用 `BasicTextField` 自绘把标签移到
+  框外、新增 `QkGlyph`/`QkPill`/`QkSegmented`/`QkListRow`/`QkProgress`/`QkMetric`）、壳层
+  （`ShellChrome.kt` 品牌顶栏 + 四页签底栏 + 抬高 15dp 中央 + 按钮）。调用点全部迁移：21 处
+  `Button`/`OutlinedButton` → `QkButton`，10 处 `OutlinedTextField` → `QkTextField`。两处
+  非视觉修正：详情页压栈时顶栏让位（否则与页面自带「← 标题」双标题）；快捷记录面板改
+  `skipPartiallyExpanded` + `navigationBarsPadding`（半展态会把最后一行记录项切在屏幕边缘）。
+  全模块 295 项 0 失败，`gov-validate.sh` 0 违规。附带把未入库的原型目录 `docs/protorype/`
+  更名为 `docs/prototype/`、展示板 PNG 改 ASCII 名（原目录触发 GOV-STRUCT-001）。
 - 2026-10-17（DEC-024 组 E 前置）：补齐状态机的链路时序测试网，为 sealed 状态替换做前置。
   新增四项：`reconnect` 后首次断连被 `suppressDisconnect` 吞掉（判据取「扫描计数不多一次」）、
   已连接未上秤时断连延迟 700ms 才弹提示、已上秤时订阅失败走 `holdStepOff` 回到「请光脚站上秤」、
@@ -289,6 +300,7 @@
 
 | 版本 | 日期 | 变更摘要 |
 |------|------|---------|
+| v57 | 2026-10-17 | DEC-025 视觉体系换轨：令牌整体替换（主绿 #159B72 / 17dp 卡片 / 字重阶梯）+ 组件库按原型原语重建（QkButton 三态、QkTextField 标签外置）+ 壳层品牌顶栏与抬高式底栏 + 21 处按钮与 10 处输入框迁移（295 项全绿） |
 | v56 | 2026-10-17 | DEC-024 组 D/E 收口：SessionPhase sealed 相位 + 纯 reduce 替换 MeasureSession 的 13 个并列字段（可变字段 22→5），相位矩阵 21 项，可变字段阈值守卫入 gov-custom-checks（295 项全绿） |
 | v55 | 2026-10-17 | DEC-024 组 E 前置：补 4 项链路时序测试，MeasureSessionTest 18 项，全模块 272 项 |
 | v54 | 2026-10-17 | DEC-024 组 C：MeasureSession 抽 isSettling + confirmSave 补 closed 守卫，补 3 项路径测试（93 项 application 单测） |
