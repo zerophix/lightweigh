@@ -13,7 +13,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -21,6 +20,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.xcwk.scalehub.ui.components.QkButton
+import com.xcwk.scalehub.ui.components.QkButtonStyle
 import com.xcwk.scalehub.ui.components.QkCard
 import com.xcwk.scalehub.ui.components.QkEmptyHint
 import com.xcwk.scalehub.ui.components.QkSectionTitle
@@ -129,11 +130,13 @@ fun ReportScreen(
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            OutlinedButton(
-                onClick = onAskAi,
+            QkButton(
+                text = if (state.aiEnabled) "AI 解读" else "AI 解读（需手机号登录）",
                 enabled = state.aiEnabled,
+                style = QkButtonStyle.Secondary,
                 modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-            ) { Text(if (state.aiEnabled) "AI 解读" else "AI 解读（需手机号登录）") }
+                onClick = onAskAi,
+            )
         }
     }
 }

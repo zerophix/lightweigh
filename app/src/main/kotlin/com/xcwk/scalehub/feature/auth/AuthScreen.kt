@@ -14,7 +14,6 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -22,10 +21,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.xcwk.scalehub.ui.components.QkButton
+import com.xcwk.scalehub.ui.components.QkButtonStyle
 import com.xcwk.scalehub.ui.components.QkCard
 import com.xcwk.scalehub.ui.legal.AGREEMENT_SECTIONS
 import com.xcwk.scalehub.ui.legal.PRIVACY_SECTIONS
 import com.xcwk.scalehub.ui.legal.LegalDoc
+import com.xcwk.scalehub.ui.components.QkTextField
 import com.xcwk.scalehub.ui.theme.QkTheme
 
 /**
@@ -64,46 +66,45 @@ fun AuthScreen(state: AuthUiState, onIntent: (AuthIntent) -> Unit) {
                 }
             }
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-            OutlinedTextField(
+            QkTextField(
                 value = state.phone,
                 onValueChange = { onIntent(AuthIntent.PhoneChanged(it)) },
-                label = { Text("手机号") },
-                singleLine = true,
+                label = "手机号",
                 modifier = Modifier.fillMaxWidth(),
             )
-            OutlinedTextField(
+            QkTextField(
                 value = state.code,
                 onValueChange = { onIntent(AuthIntent.CodeChanged(it)) },
-                label = { Text("短信验证码") },
-                singleLine = true,
+                label = "短信验证码",
                 modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
             )
-            Button(
-                onClick = { onIntent(AuthIntent.SendCode) },
+            QkButton(
+                text = when {
+                    state.countdown > 0 -> "${state.countdown}s 后可重发"
+                    state.sendingCode -> "发送中…"
+                    else -> "获取验证码"
+                },
                 enabled = !state.sendingCode && state.countdown == 0,
+                style = QkButtonStyle.Secondary,
                 modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
-            ) {
-                Text(
-                    when {
-                        state.countdown > 0 -> "${state.countdown}s 后可重发"
-                        state.sendingCode -> "发送中…"
-                        else -> "获取验证码"
-                    },
-                )
-            }
-            Button(
-                onClick = { onIntent(AuthIntent.SignIn) },
+                onClick = { onIntent(AuthIntent.SendCode) },
+            )
+            QkButton(
+                text = if (state.signingIn) "登录中…" else "登录 / 注册",
                 enabled = !state.signingIn,
                 modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-            ) { Text(if (state.signingIn) "登录中…" else "登录 / 注册") }
+                onClick = { onIntent(AuthIntent.SignIn) },
+            )
             state.message?.let {
                 Text(it, modifier = Modifier.padding(top = 8.dp), color = MaterialTheme.colorScheme.error)
             }
             HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
-            OutlinedButton(
-                onClick = { onIntent(AuthIntent.EnterGuest) },
+            QkButton(
+                text = "游客进入（数据只存本机）",
+                style = QkButtonStyle.Ghost,
                 modifier = Modifier.fillMaxWidth(),
-            ) { Text("游客进入（数据只存本机）") }
+                onClick = { onIntent(AuthIntent.EnterGuest) },
+            )
         }
     }
 

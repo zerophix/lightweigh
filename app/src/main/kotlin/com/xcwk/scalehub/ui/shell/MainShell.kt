@@ -1,28 +1,29 @@
 package com.xcwk.scalehub.ui.shell
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -31,12 +32,16 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import com.xcwk.scalehub.App
 import com.xcwk.scalehub.feature.ai.AiRoute
 import com.xcwk.scalehub.feature.auth.AuthGateViewModel
@@ -55,6 +60,10 @@ import com.xcwk.scalehub.feature.settings.SettingsRoute
 import com.xcwk.scalehub.feature.trend.TrendRoute
 import com.xcwk.scalehub.ui.components.QkCard
 import com.xcwk.scalehub.ui.components.QkEmptyHint
+import com.xcwk.scalehub.ui.components.QkGlyph
+import com.xcwk.scalehub.ui.components.QkGlyphTone
+import com.xcwk.scalehub.ui.components.QkIconButton
+import com.xcwk.scalehub.ui.theme.QkColor
 import com.xcwk.scalehub.ui.theme.QkTheme
 
 /**
@@ -96,30 +105,27 @@ fun MainShell() {
     }
 
     Scaffold(
-        bottomBar = {
-            NavigationBar {
-                @Composable
-                fun item(t: MainTab) = NavigationBarItem(
-                    selected = nav.tab == t && !nav.canPop,
-                    onClick = { go(NavEvent.SelectTab(t)) },
-                    icon = { Icon(iconFor(t), contentDescription = t.label) },
-                    label = { Text(t.label) },
+        containerColor = MaterialTheme.colorScheme.background,
+        topBar = {
+            // 详情页自带返回头（← 标题），壳层品牌栏在其上会形成双标题；
+            // 副标题也只描述四个页签，压栈后即失真。故栈内有层时让位。
+            if (!nav.canPop) {
+                QkTopBar(
+                    subtitle = subtitleFor(nav.tab),
+                    trailing = SimpleDateFormat("M月d日", Locale.CHINA).format(Date()),
                 )
-                item(MainTab.HOME)
-                item(MainTab.TREND)
-                // 中央加号（需求：底部四页 + 中央加号打开快捷记录）
-                NavigationBarItem(
-                    selected = false,
-                    onClick = {
-                        nav = nav.reduce(NavEvent.CloseAll)
-                        showQuick = true
-                    },
-                    icon = { Icon(Icons.Filled.Add, contentDescription = "快捷记录") },
-                    label = { Text("记录") },
-                )
-                item(MainTab.DEVICE)
-                item(MainTab.MINE)
             }
+        },
+        bottomBar = {
+            QkBottomNav(
+                tab = nav.tab,
+                canPop = nav.canPop,
+                onTab = { go(NavEvent.SelectTab(it)) },
+                onAdd = {
+                    nav = nav.reduce(NavEvent.CloseAll)
+                    showQuick = true
+                },
+            )
         },
     ) { padding ->
         Box(modifier = Modifier.padding(padding)) {
@@ -175,23 +181,157 @@ fun MainShell() {
         }
     }
 
-    // 快捷记录面板（需求：AI 记录 + 8 项健康记录 + 绑定入口；不可用项如实置灰）
+    // 快捷记录面板（对齐原型 quick modal：AI 入口 + 8 项记录网格 + 绑定入口）
     if (showQuick) {
-        ModalBottomSheet(onDismissRequest = { showQuick = false }) {
-            SheetRow("AI 记录", enabled = true, hint = "问减脂饮食与体测指标；游客需手机号登录") {
-                go(NavEvent.Push(NavOverlay.Ai))
-            }
-            RECORD_TYPE_TITLES.forEach { (type, title) ->
-                SheetRow(title, enabled = true) {
-                    go(NavEvent.OpenRecord(type))
+        ModalBottomSheet(
+            onDismissRequest = { showQuick = false },
+            // 半展态会把最后一行记录项切在屏幕边缘，像被裁掉了；面板本来就矮，直接全展。
+            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+            containerColor = QkColor.Bg,
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(horizontal = 18.dp)
+                    .navigationBarsPadding()
+                    .verticalScroll(rememberScrollState()),
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        "快捷记录",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = QkColor.Fg,
+                        modifier = Modifier.weight(1f),
+                    )
+                    QkIconButton("×") { showQuick = false }
                 }
+
+                QuickAiRow(
+                    modifier = Modifier.padding(top = 16.dp),
+                    onClick = { go(NavEvent.Push(NavOverlay.Ai)) },
+                )
+
+                Column(
+                    modifier = Modifier.padding(top = 12.dp),
+                    verticalArrangement = Arrangement.spacedBy(9.dp),
+                ) {
+                    RECORD_TYPE_TITLES.entries.chunked(3).forEach { row ->
+                        Row(horizontalArrangement = Arrangement.spacedBy(9.dp)) {
+                            row.forEach { (type, title) ->
+                                QuickTile(
+                                    glyph = quickGlyph(type),
+                                    label = quickLabel(title),
+                                    tone = quickTone(type),
+                                    modifier = Modifier.weight(1f),
+                                    onClick = { go(NavEvent.OpenRecord(type)) },
+                                )
+                            }
+                            repeat(3 - row.size) { Spacer(modifier = Modifier.weight(1f)) }
+                        }
+                    }
+                }
+
+                QkCard(
+                    modifier = Modifier.padding(top = 12.dp),
+                    onClick = { go(NavEvent.SelectTab(MainTab.DEVICE)) },
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        QkGlyph("秤", QkGlyphTone.Green)
+                        Column(modifier = Modifier.weight(1f).padding(start = 11.dp)) {
+                            Text("绑定体脂秤", style = MaterialTheme.typography.titleSmall, color = QkColor.Fg)
+                            Text(
+                                "搜索并绑定附近的体脂秤",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = QkColor.Muted,
+                                modifier = Modifier.padding(top = 3.dp),
+                            )
+                        }
+                        Text("›", style = MaterialTheme.typography.titleMedium, color = QkColor.Muted)
+                    }
+                }
+                Spacer(modifier = Modifier.height(24.dp))
             }
-            SheetRow("绑定体脂秤", enabled = true, hint = "搜索并绑定附近的体脂秤") {
-                go(NavEvent.SelectTab(MainTab.DEVICE))
-            }
-            Spacer(modifier = Modifier.padding(bottom = 24.dp))
         }
     }
+}
+
+/** 面板里的 AI 入口：整宽次级底，视觉上高于普通记录项。 */
+@Composable
+private fun QuickAiRow(modifier: Modifier = Modifier, onClick: () -> Unit) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(13.dp))
+            .background(QkColor.Mint)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 14.dp, vertical = 13.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        QkGlyph("✧", QkGlyphTone.Green)
+        Column(modifier = Modifier.weight(1f).padding(start = 11.dp)) {
+            Text("AI 记录", style = MaterialTheme.typography.titleSmall, color = QkColor.PrimaryDark)
+            Text(
+                "问减脂饮食与体测指标；游客需手机号登录",
+                style = MaterialTheme.typography.bodySmall,
+                color = QkColor.PrimaryDark.copy(alpha = 0.7f),
+                modifier = Modifier.padding(top = 3.dp),
+            )
+        }
+        Text("›", style = MaterialTheme.typography.titleMedium, color = QkColor.PrimaryDark)
+    }
+}
+
+/** 记录项磁贴（原型 .quick）。 */
+@Composable
+private fun QuickTile(
+    glyph: String,
+    label: String,
+    tone: QkGlyphTone,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+) {
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(13.dp))
+            .background(QkColor.Card)
+            .clickable(onClick = onClick)
+            .padding(vertical = 12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        QkGlyph(glyph, tone)
+        Text(
+            label,
+            style = MaterialTheme.typography.bodySmall,
+            color = QkColor.GhostInk,
+            modifier = Modifier.padding(top = 8.dp),
+        )
+    }
+}
+
+private fun quickGlyph(type: String): String = when (type) {
+    "weight" -> "秤"
+    "diet" -> "餐"
+    "exercise" -> "动"
+    "water" -> "水"
+    "waist" -> "围"
+    "glucose" -> "糖"
+    "blood_pressure" -> "压"
+    "habit" -> "习"
+    else -> "记"
+}
+
+private fun quickTone(type: String): QkGlyphTone = when (type) {
+    "exercise", "water" -> QkGlyphTone.Blue
+    "glucose", "blood_pressure" -> QkGlyphTone.Purple
+    "waist" -> QkGlyphTone.Orange
+    else -> QkGlyphTone.Green
+}
+
+/** 标题去掉动词前缀，磁贴里只留名词（「添加体重」→「体重」）。 */
+private fun quickLabel(title: String): String = when {
+    title.startsWith("添加") -> title.removePrefix("添加")
+    title.startsWith("记") -> title.removePrefix("记")
+    title.startsWith("去") -> title.removePrefix("去")
+    else -> title
 }
 
 /** 覆盖页装配点：栈里每层只认自己的参数，宿主不判断优先级。 */
@@ -289,11 +429,12 @@ private fun SheetRow(title: String, enabled: Boolean, hint: String? = null, onCl
     }
 }
 
-private fun iconFor(tab: MainTab): ImageVector = when (tab) {
-    MainTab.HOME -> Icons.Filled.Home
-    MainTab.TREND -> Icons.Filled.DateRange
-    MainTab.DEVICE -> Icons.Filled.List
-    MainTab.MINE -> Icons.Filled.Person
+/** 顶栏副标题随页签变化（原型 pageTitles 口径）。 */
+private fun subtitleFor(tab: MainTab): String = when (tab) {
+    MainTab.HOME -> "关注身体，也关注此刻的自己"
+    MainTab.TREND -> "用趋势理解身体变化"
+    MainTab.DEVICE -> "管理你的健康设备"
+    MainTab.MINE -> "你的健康档案"
 }
 
 @Composable

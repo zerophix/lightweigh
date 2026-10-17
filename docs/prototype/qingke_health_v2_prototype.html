@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>轻刻健康 v2 · 交互原型</title>
+<style>
+:root{--green:#2D8B56;--green-dark:#216A41;--green-soft:#E7F3EB;--bg:#F4F6F4;--card:#fff;--text:#202722;--muted:#7B837D;--line:#E9EDE9;--red:#DC4C4C;--blue:#38BDF8;--amber:#F59E0B;--orange:#E85D04;--shadow:0 8px 28px rgba(28,54,36,.06)}
+*{box-sizing:border-box}body{margin:0;background:#E9EEEA;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}button,input{font:inherit}button{cursor:pointer;border:0}button:focus-visible,input:focus-visible{outline:3px solid #A5D8B7;outline-offset:2px}
+.shell{max-width:430px;min-height:100vh;margin:0 auto;background:var(--bg);position:relative;box-shadow:0 0 60px #172a1d1a;padding-bottom:90px;overflow:hidden}.status{height:28px;padding:7px 22px 0;display:flex;justify-content:space-between;font-size:11px;font-weight:700;color:#29342d}.topbar{padding:14px 20px 12px;display:flex;align-items:center;justify-content:space-between}.brand{font-size:21px;font-weight:800;letter-spacing:-.6px}.brand span{color:var(--green)}.subdate{font-size:12px;color:var(--muted);margin-top:4px}.avatar{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:#E1EFE5;color:var(--green);font-weight:800;border:1px solid #D4E7D9}.page{display:none;padding:0 16px 24px;animation:fade .18s ease}.page.active{display:block}@keyframes fade{from{opacity:.55;transform:translateY(3px)}to{opacity:1;transform:none}}.section-head{display:flex;align-items:center;justify-content:space-between;margin:20px 3px 10px}.section-head h2{font-size:16px;margin:0;font-weight:750}.section-head small{color:var(--muted);font-size:12px}.card{background:var(--card);border-radius:20px;padding:17px;margin-bottom:12px;box-shadow:var(--shadow);border:1px solid rgba(225,232,226,.7)}.hero{background:linear-gradient(135deg,#2D8B56 0%,#3A9A65 100%);color:#fff;padding:20px;position:relative;overflow:hidden}.hero:after{content:"";position:absolute;width:180px;height:180px;border:1px solid #ffffff22;border-radius:50%;right:-70px;top:-85px;box-shadow:0 0 0 24px #ffffff0a,0 0 0 48px #ffffff08}.hero-top{display:flex;justify-content:space-between;align-items:center;position:relative;z-index:1}.eyebrow{font-size:12px;opacity:.85}.eye-btn{background:#ffffff22;color:#fff;border-radius:20px;padding:6px 9px;font-size:12px}.weight-line{display:flex;align-items:baseline;gap:7px;margin:11px 0 5px;position:relative;z-index:1}.weight-num{font-size:46px;line-height:1.1;font-weight:800;letter-spacing:-1.5px}.unit{font-size:15px;opacity:.9}.change{font-size:12px;background:#ffffff20;padding:5px 8px;border-radius:12px}.hero-foot{display:flex;align-items:center;justify-content:space-between;margin-top:17px;padding-top:14px;border-top:1px solid #ffffff30;position:relative;z-index:1}.hero-stat{display:flex;flex-direction:column;gap:4px}.hero-stat span{font-size:11px;opacity:.78}.hero-stat b{font-size:16px}.hero-link{font-size:12px;color:#fff;background:transparent;padding:7px 0}.row{display:flex;gap:10px}.row>.card,.row>.mini{flex:1;min-width:0}.mini{background:#fff;border-radius:18px;padding:14px;box-shadow:var(--shadow);border:1px solid rgba(225,232,226,.7);margin-bottom:12px}.mini-title{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700}.iconbox{width:28px;height:28px;border-radius:10px;display:grid;place-items:center;background:var(--green-soft);color:var(--green);font-size:15px}.big-small{font-size:23px;font-weight:800;margin:12px 0 3px;letter-spacing:-.5px}.muted{color:var(--muted);font-size:12px}.progress{height:6px;border-radius:9px;background:#EAF0EB;overflow:hidden;margin:12px 0 8px}.progress span{display:block;height:100%;background:var(--green);border-radius:9px;width:65%}.action{background:var(--green);color:white;border-radius:13px;padding:11px 14px;font-weight:700;font-size:13px}.action.full{width:100%}.outline{border:1px solid #DCE6DE;background:#fff;color:var(--green);border-radius:12px;padding:10px 12px;font-size:13px;font-weight:650}.ghost{background:#F2F5F2;color:#4D5B50;border-radius:11px;padding:8px 10px;font-size:12px}.textbtn{background:transparent;color:var(--green);font-size:12px;font-weight:700;padding:4px}.quickchips{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.chip{padding:7px 11px;border-radius:18px;background:#F2F5F2;color:#57645A;font-size:12px;border:1px solid transparent}.chip.active{background:var(--green-soft);color:var(--green);border-color:#CBE3D2;font-weight:700}.ai-box{display:flex;gap:8px;margin-top:13px}.ai-box input{min-width:0;flex:1;border:1px solid #E4EAE5;border-radius:13px;padding:12px;background:#FAFCFA;font-size:13px}.send{width:42px;border-radius:13px;background:var(--green);color:white;font-weight:800}.meal-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:13px}.meal{background:#F7F9F7;border-radius:12px;text-align:center;padding:10px 3px}.meal b{display:block;font-size:12px;margin-top:5px}.meal span{font-size:10px;color:var(--muted)}.habit-list{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.habit{background:#F7F9F7;border-radius:13px;padding:11px 5px;text-align:center;font-size:11px;color:#59645B}.habit i{font-style:normal;font-size:19px;display:block;margin-bottom:6px}.habit.done{background:var(--green-soft);color:var(--green)}.habit.done:after{content:" 已完成";font-size:9px;display:block;margin-top:5px}.chart-wrap{margin-top:12px}.chart{width:100%;height:130px;display:block;overflow:visible}.chart-labels{display:flex;justify-content:space-between;font-size:10px;color:#9AA29B;margin-top:3px}.chart-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.chart-stat{background:#F7F9F7;border-radius:12px;padding:10px}.chart-stat span{font-size:10px;color:var(--muted);display:block}.chart-stat b{font-size:15px;display:block;margin-top:5px}.bottomnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(430px,100%);height:76px;padding:9px 14px calc(9px + env(safe-area-inset-bottom));display:flex;justify-content:space-around;align-items:center;background:#ffffffed;backdrop-filter:blur(16px);border-top:1px solid #E7ECE8;z-index:20}.navitem{background:transparent;color:#8B938D;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;min-width:48px;padding:2px}.navicon{font-size:20px;line-height:22px}.navitem.active{color:var(--green);font-weight:750}.plus{width:48px;height:48px;border-radius:17px;background:var(--green);color:#fff;font-size:29px;line-height:1;box-shadow:0 6px 14px #2D8B5635;margin-top:-20px;border:4px solid var(--bg)}.page-title{font-size:23px;font-weight:800;margin:10px 3px 5px;letter-spacing:-.5px}.page-desc{font-size:12px;color:var(--muted);margin:0 3px 17px}.segmented{display:flex;padding:4px;background:#EAEFEB;border-radius:13px;gap:3px;margin:12px 0}.segmented button{flex:1;padding:9px 4px;border-radius:10px;background:transparent;color:#667168;font-size:12px}.segmented button.active{background:#fff;color:var(--green);font-weight:750;box-shadow:0 2px 7px #1d38240d}.filter-row{display:flex;gap:7px;overflow:auto;padding:1px 0 4px}.filter-row .chip{white-space:nowrap}.metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.metric{background:#F7F9F7;border-radius:13px;padding:11px}.metric span{display:block;font-size:11px;color:var(--muted)}.metric b{display:block;font-size:18px;margin-top:5px}.list-row{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--line)}.list-row:last-child{border-bottom:0}.list-icon{width:39px;height:39px;border-radius:13px;background:#F0F5F1;display:grid;place-items:center;font-size:18px}.list-main{flex:1;min-width:0}.list-main b{font-size:13px;display:block}.list-main small{font-size:11px;color:var(--muted);display:block;margin-top:4px}.list-value{text-align:right;font-weight:750;font-size:14px}.list-value small{display:block;font-size:10px;font-weight:400;color:var(--muted);margin-top:4px}.device-illustration{height:142px;display:grid;place-items:center;background:linear-gradient(145deg,#EDF6EF,#F8FBF8);border-radius:17px;margin:14px 0}.scale{width:100px;height:100px;border-radius:23px;background:#fff;border:2px solid #D8E8DC;box-shadow:0 8px 22px #2d8b5614;display:grid;place-items:center;position:relative}.scale:before{content:"";position:absolute;top:14px;width:40px;height:18px;border-radius:5px;background:#E8F5EB}.scale:after{content:"";position:absolute;bottom:14px;width:62px;height:2px;background:#E3EAE4}.scale-screen{font-size:11px;color:var(--green);font-weight:800;margin-top:8px}.status-pill{font-size:10px;padding:5px 8px;border-radius:12px;background:#E7F5EA;color:var(--green)}.profile-top{display:flex;align-items:center;gap:13px;margin-bottom:17px}.profile-avatar{width:64px;height:64px;border-radius:50%;background:#E1EFE5;display:grid;place-items:center;color:var(--green);font-size:26px}.profile-top h3{margin:0 0 5px;font-size:17px}.profile-top p{margin:0;color:var(--muted);font-size:12px}.field{margin:15px 0}.field label{display:block;font-size:12px;color:#6D776F;margin-bottom:8px}.field input{width:100%;padding:12px;border:1px solid #E0E7E1;border-radius:12px;background:#FAFCFA;color:var(--text)}.gender-row{display:flex;gap:8px}.gender-row button{flex:1;padding:11px;border-radius:12px;background:#F2F5F2;color:#667168}.gender-row button.active{background:var(--green-soft);color:var(--green);border:1px solid #C9E1D0;font-weight:700}.report-score{display:flex;align-items:center;gap:15px}.score-circle{width:82px;height:82px;border-radius:50%;border:6px solid #B7DEC4;display:grid;place-items:center;color:var(--green);font-size:25px;font-weight:800;flex-shrink:0}.bmi-band{display:flex;height:9px;border-radius:9px;overflow:hidden;gap:2px;margin:13px 0 7px}.bmi-band span{flex:1}.bmi-legend{display:flex;justify-content:space-between;font-size:10px;color:var(--muted)}.modal-backdrop{display:none;position:fixed;inset:0;background:#15251bcc;z-index:40;align-items:flex-end;justify-content:center}.modal-backdrop.show{display:flex}.sheet{width:min(430px,100%);max-height:88vh;overflow:auto;background:#F7F9F7;border-radius:25px 25px 0 0;padding:10px 18px calc(24px + env(safe-area-inset-bottom));animation:up .22s ease}.sheet-handle{width:38px;height:4px;border-radius:5px;background:#D5DDD6;margin:2px auto 17px}.sheet-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}.sheet-head h2{font-size:18px;margin:0}.close{background:#E9EEEA;border-radius:50%;width:30px;height:30px;color:#657066;font-size:18px}.shortcut-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.shortcut{background:#fff;border-radius:15px;padding:15px 5px;text-align:center;border:1px solid #E9EEE9;color:var(--text)}.shortcut .em{font-size:22px;display:block;margin-bottom:8px}.shortcut b{font-size:12px}.shortcut small{display:block;font-size:10px;color:var(--muted);margin-top:4px}.toast{position:fixed;left:50%;bottom:94px;transform:translate(-50%,15px);background:#26352B;color:#fff;padding:11px 16px;border-radius:12px;font-size:12px;opacity:0;pointer-events:none;transition:.2s;z-index:70;white-space:nowrap}.toast.show{opacity:1;transform:translate(-50%,0)}.modal-content{background:#fff;border-radius:18px;padding:16px;margin-bottom:12px}.measure-number{font-size:52px;font-weight:800;text-align:center;color:var(--green);margin:18px 0 5px}.measure-state{text-align:center;font-size:14px;font-weight:750}.measure-note{text-align:center;font-size:12px;color:var(--muted);line-height:1.7;margin:9px 12px 18px}.steps{display:flex;gap:5px;margin:17px 0}.steps span{height:4px;background:#E2E9E3;border-radius:5px;flex:1}.steps span.on{background:var(--green)}.divider{height:1px;background:var(--line);margin:12px 0}.hidden{display:none!important}.footer-note{text-align:center;color:#9AA29B;font-size:10px;padding:12px 0 4px}
+@keyframes up{from{transform:translateY(30px);opacity:.7}to{transform:none;opacity:1}}
+@media(min-width:600px){body{padding:24px 0}.shell{min-height:calc(100vh - 48px);border-radius:28px}.bottomnav{bottom:24px;border-radius:0 0 28px 28px}.modal-backdrop{align-items:center}.sheet{border-radius:25px;max-height:80vh}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="status"><span>9:41</span><span>●●●　◔　▰</span></div>
+  <header class="topbar">
+    <div><div class="brand"><span>轻刻</span>健康</div><div class="subdate" id="todayText">记录一点，健康多一点</div></div>
+    <button class="avatar" onclick="switchPage('mine')" aria-label="个人资料">QK</button>
+  </header>
+
+  <main id="home" class="page active">
+    <section class="card hero">
+      <div class="hero-top"><span class="eyebrow">最近一次测量 · 今天 08:16</span><button class="eye-btn" onclick="toggleWeight()" id="eyeButton">隐藏数据 ◉</button></div>
+      <div class="weight-line"><span class="weight-num privacy-value" id="mainWeight">68.5</span><span class="unit">kg</span><span class="change privacy-value">↓ 0.3 kg</span></div>
+      <div class="hero-foot">
+        <div class="hero-stat"><span>体脂率</span><b class="privacy-value">22.4%</b></div>
+        <div class="hero-stat"><span>BMI</span><b class="privacy-value">22.1</b></div>
+        <button class="hero-link" onclick="switchPage('report')">查看测量报告 ↗</button>
+      </div>
+    </section>
+
+    <section class="card" style="padding:15px 16px">
+      <div style="display:flex;align-items:center;gap:9px"><div class="iconbox"></div><div><b style="font-size:14px">问问轻刻 AI</b><div class="muted" style="margin-top:3px">结合你的健康记录，给你更贴近实际的建议</div></div></div>
+      <div class="ai-box"><input id="aiInput" placeholder="减脂期可以吃西瓜吗？" onkeydown="if(event.key==='Enter')askAI()"><button class="send" onclick="askAI()">↑</button></div>
+    </section>
+
+    <div class="section-head"><h2>今日热量</h2><small>目标 1800 kcal</small></div>
+    <section class="card">
+      <div style="display:flex;align-items:baseline;justify-content:space-between"><div><span class="muted">还可以摄入</span><div class="big-small" style="font-size:29px;margin:4px 0"><span id="remaining">1260</span> <small style="font-size:12px;color:var(--muted)">kcal</small></div></div><span class="status-pill">进度 30%</span></div>
+      <div class="progress"><span id="calProgress" style="width:30%"></span></div>
+      <div class="meal-row"><div class="meal"><span>早餐</span><b id="breakfast">320 kcal</b></div><div class="meal"><span>午餐</span><b id="lunch">220 kcal</b></div><div class="meal"><span>晚餐</span><b id="dinner">未记录</b></div><div class="meal"><span>运动</span><b id="exercise">+80 kcal</b></div></div>
+      <div class="quickchips"><button class="chip" onclick="addMeal('早餐',180)">+ 鸡蛋</button><button class="chip" onclick="addMeal('午餐',250)">+ 米饭</button><button class="chip" onclick="addMeal('晚餐',120)">+ 水果</button><button class="chip" onclick="openQuick()">更多记录</button></div>
+    </section>
+
+    <div class="row">
+      <section class="mini">
+        <div class="mini-title"><span class="iconbox">◎</span>体重目标</div>
+        <div class="big-small"><span id="goalWeight">65.0</span><span style="font-size:12px;font-weight:500"> kg</span></div>
+        <div class="muted">距离目标还有 3.5 kg</div>
+        <div class="progress"><span style="width:68%"></span></div>
+        <button class="textbtn" onclick="editGoal()">调整目标 →</button>
+      </section>
+      <section class="mini">
+        <div class="mini-title"><span class="iconbox">↗</span>近 7 天趋势</div>
+        <div class="big-small">−0.6<span style="font-size:12px;font-weight:500"> kg</span></div>
+        <div class="muted">整体稳步下降</div>
+        <svg viewBox="0 0 150 48" width="100%" height="48" style="margin-top:8px"><path d="M0 12 L25 17 L50 13 L75 28 L100 23 L125 35 L150 31 L150 48 L0 48Z" fill="#2D8B56" opacity=".12"/><path d="M0 12 L25 17 L50 13 L75 28 L100 23 L125 35 L150 31" fill="none" stroke="#2D8B56" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <button class="textbtn" onclick="switchPage('trend')">查看趋势 →</button>
+      </section>
+    </div>
+
+    <div class="row">
+      <section class="mini">
+        <div class="mini-title"><span class="iconbox"></span>今日饮水</div>
+        <div class="big-small"><span id="waterNum">1200</span><span style="font-size:12px;font-weight:500"> ml</span></div>
+        <div class="muted">目标 2000 ml · <span id="waterPct">60</span>%</div>
+        <div class="progress"><span id="waterProgress" style="width:60%"></span></div>
+        <button class="outline" style="width:100%;padding:8px" onclick="addWater(250)">+250 ml</button>
+      </section>
+      <section class="mini">
+        <div class="mini-title"><span class="iconbox">↗</span>今日运动</div>
+        <div class="big-small"><span id="jumpNum">12</span><span style="font-size:12px;font-weight:500"> 分钟</span></div>
+        <div class="muted">跳绳 · 约 80 kcal</div>
+        <button class="outline" style="width:100%;padding:8px;margin-top:10px" onclick="recordExercise()">记录运动</button>
+      </section>
+    </div>
+
+    <div class="section-head"><h2>小习惯，大改变</h2><small id="habitCount">今日完成 2/6</small></div>
+    <section class="card">
+      <div class="habit-list">
+        <button class="habit done" onclick="toggleHabit(this)"><i></i>喝够水</button>
+        <button class="habit done" onclick="toggleHabit(this)"><i></i>均衡饮食</button>
+        <button class="habit" onclick="toggleHabit(this)"><i></i>饭后走走</button>
+        <button class="habit" onclick="toggleHabit(this)"><i></i>规律作息</button>
+        <button class="habit" onclick="toggleHabit(this)"><i></i>放松片刻</button>
+        <button class="habit" onclick="toggleHabit(this)"><i></i>记录体重</button>
+      </div>
+    </section>
+    <section class="card">
+      <div class="section-head" style="margin:0 0 6px"><h2>最近记录</h2><button class="textbtn" onclick="switchPage('trend')">全部记录 →</button></div>
+      <div class="list-row" onclick="switchPage('report')" style="cursor:pointer"><div class="list-icon"></div><div class="list-main"><b>体重测量</b><small>今天 08:16 · 轻刻体脂秤</small></div><div class="list-value">68.5 kg<small>查看报告 ›</small></div></div>
+      <div class="list-row"><div class="list-icon"></div><div class="list-main"><b>午餐记录</b><small>今天 12:20 · 米饭与鸡胸肉</small></div><div class="list-value">220 kcal</div></div>
+    </section>
+    <button class="action full" onclick="openMeasure()">＋ 开始蓝牙称重</button>
+  </main>
+
+  <main id="trend" class="page">
+    <div class="page-title">趋势</div><p class="page-desc">看见变化，比单次数值更重要</p>
+    <div class="filter-row" id="timeFilters"><button class="chip active" onclick="setTimeFilter(this)">7 天</button><button class="chip" onclick="setTimeFilter(this)">30 天</button><button class="chip" onclick="setTimeFilter(this)">全部</button></div>
+    <div class="segmented" id="metricFilters"><button class="active" onclick="setMetric(this,'weight')">体重</button><button onclick="setMetric(this,'fat')">体脂率</button></div>
+    <section class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center"><div><div class="muted">当前趋势</div><div class="big-small" id="trendMain">68.5 kg <span style="font-size:12px;color:var(--green)">↓ 0.6</span></div></div><span class="status-pill">稳步变化</span></div>
+      <div class="chart-wrap"><svg class="chart" viewBox="0 0 340 130" preserveAspectRatio="none"><defs><linearGradient id="area" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#2D8B56" stop-opacity=".22"/><stop offset="100%" stop-color="#2D8B56" stop-opacity=".015"/></linearGradient></defs><g stroke="#EDF1ED" stroke-width="1"><path d="M0 20 H340 M0 50 H340 M0 80 H340 M0 110 H340"/></g><path id="chartArea" d="M0 24 L48 34 L96 29 L144 55 L192 49 L240 73 L288 81 L340 92 L340 120 L0 120Z" fill="url(#area)"/><path id="chartLine" d="M0 24 L48 34 L96 29 L144 55 L192 49 L240 73 L288 81 L340 92" fill="none" stroke="#2D8B56" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="340" cy="92" r="4.5" fill="#2D8B56" stroke="#fff" stroke-width="2"/></svg><div class="chart-labels"><span id="chartStart">10/10</span><span>10/12</span><span>10/14</span><span id="chartEnd">10/17</span></div></div>
+      <div class="chart-stats"><div class="chart-stat"><span>平均</span><b id="avgVal">68.9 kg</b></div><div class="chart-stat"><span>最高</span><b id="maxVal">69.4 kg</b></div><div class="chart-stat"><span>最低</span><b id="minVal">68.5 kg</b></div></div>
+    </section>
+    <div class="section-head"><h2>测量历史</h2><button class="textbtn" onclick="showToast('已切换到完整历史列表')">按日期筛选 </button></div>
+    <section class="card">
+      <div class="list-row" onclick="switchPage('report')" style="cursor:pointer"><div class="list-icon"></div><div class="list-main"><b>今天 · 10月17日</b><small>08:16 · 轻刻体脂秤</small></div><div class="list-value">68.5 kg<small>查看报告 ›</small></div></div>
+      <div class="list-row"><div class="list-icon"></div><div class="list-main"><b>昨天 · 10月16日</b><small>07:52 · 轻刻体脂秤</small></div><div class="list-value">68.8 kg</div></div>
+      <div class="list-row"><div class="list-icon"></div><div class="list-main"><b>10月15日</b><small>08:04 · 轻刻体脂秤</small></div><div class="list-value">69.0 kg</div></div>
+      <button class="outline full" style="width:100%;margin-top:14px" onclick="showToast('原型演示：完整历史列表')">查看全部历史</button>
+    </section>
+  </main>
+
+  <main id="devices" class="page">
+    <div class="page-title">设备</div><p class="page-desc">管理你的健康设备，让每次测量都有记录</p>
+    <section class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center"><b>添加设备</b><span class="muted">蓝牙需保持开启</span></div>
+      <div class="device-illustration"><div class="scale"><div class="scale-screen">68.5</div></div></div>
+      <button class="action full" onclick="searchDevices()" id="searchBtn">　搜索附近设备</button>
+      <button class="outline full" style="margin-top:9px" onclick="showToast('原型演示：打开扫码绑定')">▦　扫码添加设备</button>
+      <div id="searchResult" class="hidden" style="margin-top:15px">
+        <div class="divider"></div><div class="muted" style="margin-bottom:8px">发现附近设备</div>
+        <div class="list-row"><div class="list-icon"></div><div class="list-main"><b>QK Smart Scale</b><small>蓝牙信号良好 · 协议兼容</small></div><button class="action" onclick="bindDevice(this)">绑定</button></div>
+      </div>
+    </section>
+    <div class="section-head"><h2>已绑定设备</h2><small id="deviceCount">1 台设备</small></div>
+    <section class="card" id="boundDevices">
+      <div class="list-row"><div class="list-icon"></div><div class="list-main"><b>轻刻体脂秤</b><small><span class="status-pill">当前设备</span>　已绑定 · 2026/10/12</small></div><button class="textbtn" onclick="showToast('这已经是当前设备')">管理</button></div>
+      <div class="muted" style="line-height:1.7;margin-top:10px">测量前请将体脂秤放置在坚硬、平整的地面上，并确保蓝牙连接正常。</div>
+    </section>
+  </main>
+
+  <main id="mine" class="page">
+    <div class="page-title">我的</div><p class="page-desc">管理个人资料与健康设置</p>
+    <section class="card">
+      <div class="profile-top"><div class="profile-avatar">Q</div><div><h3 id="profileName">轻刻用户</h3><p>完善资料，让健康建议更适合你</p></div><button class="textbtn" style="margin-left:auto" onclick="showToast('资料已是当前演示状态')">编辑 ›</button></div>
+      <div class="divider"></div>
+      <div class="list-row" onclick="showToast('原型演示：进入测量用户管理')"><div class="list-icon"></div><div class="list-main"><b>测量用户</b><small>当前成员：轻刻用户 · 支持多成员</small></div><span>›</span></div>
+      <div class="list-row" onclick="switchPage('devices')"><div class="list-icon"></div><div class="list-main"><b>我的设备</b><small>轻刻体脂秤 · 已连接过</small></div><span>›</span></div>
+      <div class="list-row" onclick="showToast('原型演示：健康目标设置')"><div class="list-icon">◎</div><div class="list-main"><b>健康目标</b><small>体重目标 65.0 kg</small></div><span>›</span></div>
+    </section>
+    <section class="card">
+      <div class="list-row" onclick="showToast('原型演示：账号与安全')"><div class="list-icon"></div><div class="list-main"><b>账号与安全</b><small>登录、退出与账号注销</small></div><span>›</span></div>
+      <div class="list-row" onclick="showToast('原型演示：隐私政策')"><div class="list-icon">◇</div><div class="list-main"><b>隐私与权限</b><small>隐私政策、数据收集清单</small></div><span>›</span></div>
+      <div class="list-row" onclick="showToast('轻刻健康 v2 · 原型演示版')"><div class="list-icon"></div><div class="list-main"><b>关于轻刻健康</b><small>版本信息与服务说明</small></div><span>›</span></div>
+    </section>
+    <div class="footer-note">轻刻健康 · 认真记录，轻松改变</div>
+  </main>
+
+  <main id="report" class="page">
+    <div style="display:flex;align-items:center;gap:10px;margin:8px 0 15px"><button class="ghost" onclick="switchPage('home')">← 返回</button><div><div style="font-size:20px;font-weight:800">测量报告</div><div class="muted" style="margin-top:3px">2026年10月17日 · 08:16</div></div></div>
+    <section class="card"><div class="report-score"><div class="score-circle">良好</div><div><div class="muted">本次身体状态</div><h2 style="font-size:18px;margin:5px 0">保持稳定，继续保持</h2><div class="muted">报告基于本次体脂秤测量数据</div></div></div></section>
+    <section class="card"><div class="section-head" style="margin:0 0 8px"><h2>核心指标</h2><span class="muted">本次测量</span></div><div class="metric-grid"><div class="metric"><span>体重</span><b>68.5 kg</b></div><div class="metric"><span>BMI</span><b>22.1</b></div><div class="metric"><span>体脂率</span><b>22.4%</b></div><div class="metric"><span>肌肉量</span><b>49.2 kg</b></div><div class="metric"><span>基础代谢</span><b>1510 kcal</b></div><div class="metric"><span>身体水分</span><b>53.1%</b></div></div><div class="bmi-band"><span style="background:#38BDF8"></span><span style="background:#2D8B56"></span><span style="background:#F59E0B"></span><span style="background:#E85D04"></span></div><div class="bmi-legend"><span>偏瘦</span><span>标准</span><span>偏胖</span><span>肥胖</span></div></section>
+    <section class="card"><h3 style="margin:0 0 8px;font-size:15px">报告解读</h3><p class="muted" style="line-height:1.8;margin:0">体重和 BMI 可用于观察整体变化，但不能单独判断健康状况。体脂秤的体成分数据属于估算值，建议在相近时间与测量条件下持续观察趋势。</p><button class="action full" style="margin-top:14px" onclick="showToast('原型演示：AI 将结合当前报告进行解读')">　AI 解读本次报告</button></section>
+    <div class="footer-note">本报告用于健康管理参考，不用于疾病诊断。</div>
+  </main>
+</div>
+
+<nav class="bottomnav" aria-label="底部导航">
+  <button class="navitem active" data-page="home" onclick="switchPage('home')"><span class="navicon"></span><span>首页</span></button>
+  <button class="navitem" data-page="trend" onclick="switchPage('trend')"><span class="navicon"></span><span>趋势</span></button>
+  <button class="navitem" onclick="openQuick()" aria-label="新增记录"><span class="plus">+</span><span style="margin-top:-2px">记录</span></button>
+  <button class="navitem" data-page="devices" onclick="switchPage('devices')"><span class="navicon">▱</span><span>设备</span></button>
+  <button class="navitem" data-page="mine" onclick="switchPage('mine')"><span class="navicon"></span><span>我的</span></button>
+</nav>
+
+<div class="modal-backdrop" id="quickModal" onclick="backdropClose(event,'quickModal')">
+  <div class="sheet"><div class="sheet-handle"></div><div class="sheet-head"><div><h2>记录一点健康</h2><div class="muted" style="margin-top:5px">选择你想记录的内容</div></div><button class="close" onclick="closeModal('quickModal')">×</button></div>
+    <div class="shortcut-grid">
+      <button class="shortcut" onclick="openMeasure()"><span class="em"></span><b>蓝牙称重</b><small>测量体成分</small></button>
+      <button class="shortcut" onclick="addMeal('午餐',250);closeModal('quickModal')"><span class="em"></span><b>饮食记录</b><small>记录热量</small></button>
+      <button class="shortcut" onclick="addWater(250);closeModal('quickModal')"><span class="em"></span><b>喝水</b><small>补充水分</small></button>
+      <button class="shortcut" onclick="recordExercise();closeModal('quickModal')"><span class="em"></span><b>运动记录</b><small>记录活动</small></button>
+      <button class="shortcut" onclick="showToast('原型演示：打开 AI 记录');closeModal('quickModal')"><span class="em"></span><b>AI 记录</b><small>自然语言输入</small></button>
+      <button class="shortcut" onclick="showToast('原型演示：记录腰围');closeModal('quickModal')"><span class="em">◉</span><b>腰围</b><small>身体围度</small></button>
+      <button class="shortcut" onclick="showToast('原型演示：生理期记录');closeModal('quickModal')"><span class="em"></span><b>生理期</b><small>周期记录</small></button>
+      <button class="shortcut" onclick="showToast('原型演示：习惯打卡');closeModal('quickModal')"><span class="em"></span><b>习惯打卡</b><small>今日目标</small></button>
+      <button class="shortcut" onclick="switchPage('devices');closeModal('quickModal')"><span class="em">▱</span><b>绑定设备</b><small>添加体脂秤</small></button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="measureModal" onclick="backdropClose(event,'measureModal')">
+  <div class="sheet"><div class="sheet-handle"></div><div class="sheet-head"><div><h2>蓝牙称重</h2><div class="muted" style="margin-top:5px">轻刻体脂秤 · 当前成员：轻刻用户</div></div><button class="close" onclick="closeModal('measureModal')">×</button></div>
+    <div class="steps"><span class="on" id="step1"></span><span id="step2"></span><span id="step3"></span></div>
+    <div class="modal-content" style="text-align:center;padding:22px 16px">
+      <div id="measureIcon" style="font-size:40px"></div>
+      <div class="measure-state" id="measureState">正在搜索体脂秤</div>
+      <div class="measure-number" id="measureNumber" style="font-size:35px">···</div>
+      <div class="measure-note" id="measureNote">请站上体脂秤，保持身体稳定<br>请确保蓝牙已开启</div>
+      <div class="progress"><span id="measureProgress" style="width:25%"></span></div>
+    </div>
+    <button class="action full" id="measureAction" onclick="nextMeasure()">开始测量</button>
+    <button class="outline full" style="margin-top:9px" id="measureSecondary" onclick="closeModal('measureModal')">稍后再测</button>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="goalModal" onclick="backdropClose(event,'goalModal')"><div class="sheet"><div class="sheet-handle"></div><div class="sheet-head"><h2>设置体重目标</h2><button class="close" onclick="closeModal('goalModal')">×</button></div><div class="modal-content"><div class="muted">目标体重（kg）</div><div style="display:flex;align-items:center;gap:12px;margin:15px 0"><button class="outline" onclick="adjustGoal(-0.5)">−</button><div id="goalEditValue" style="font-size:32px;font-weight:800;flex:1;text-align:center;color:var(--green)">65.0</div><button class="outline" onclick="adjustGoal(0.5)">＋</button></div><div class="muted">建议结合长期趋势设置目标，避免过度追求短期波动。</div></div><button class="action full" onclick="saveGoal()">保存目标</button></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+let hiddenWeight=false,water=1200,calories=540,goal=65,measureStep=0,measureTimer=null,toastTimer=null;
+function switchPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.navitem[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===id));window.scrollTo({top:0,behavior:'smooth'});closeModal('quickModal');}
+function openQuick(){document.getElementById('quickModal').classList.add('show')}
+function closeModal(id){document.getElementById(id).classList.remove('show');if(id==='measureModal'&&measureTimer){clearTimeout(measureTimer);measureTimer=null}}
+function backdropClose(e,id){if(e.target.id===id)closeModal(id)}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2200)}
+function toggleWeight(){hiddenWeight=!hiddenWeight;document.querySelectorAll('.privacy-value').forEach(el=>el.style.filter=hiddenWeight?'blur(7px)':'none');document.getElementById('eyeButton').textContent=hiddenWeight?'显示数据 ◉':'隐藏数据 ◉';}
+function addWater(n){water+=n;document.getElementById('waterNum').textContent=water;let p=Math.min(100,Math.round(water/2000*100));document.getElementById('waterPct').textContent=p;document.getElementById('waterProgress').style.width=p+'%';showToast('已记录饮水 '+n+' ml')}
+function addMeal(type,n){calories+=n;let remaining=Math.max(0,1800-calories);document.getElementById('remaining').textContent=remaining;document.getElementById('calProgress').style.width=Math.min(100,calories/1800*100)+'%';if(type==='早餐')document.getElementById('breakfast').textContent=(320+n)+' kcal';else if(type==='晚餐')document.getElementById('dinner').textContent=n+' kcal';else document.getElementById('lunch').textContent=(220+n)+' kcal';showToast('已添加'+type+'记录 · '+n+' kcal')}
+function recordExercise(){document.getElementById('jumpNum').textContent=Number(document.getElementById('jumpNum').textContent)+10;document.getElementById('exercise').textContent='+120 kcal';showToast('已记录 10 分钟运动')}
+function toggleHabit(el){el.classList.toggle('done');const n=document.querySelectorAll('.habit.done').length;document.getElementById('habitCount').textContent='今日完成 '+n+'/6'}
+function askAI(){const i=document.getElementById('aiInput');if(!i.value.trim()){showToast('先输入你想问的问题');return}showToast('原型演示：正在准备回答「'+i.value.trim()+'」');i.value=''}
+function editGoal(){document.getElementById('goalEditValue').textContent=goal.toFixed(1);document.getElementById('goalModal').classList.add('show')}
+function adjustGoal(n){goal=Math.min(250,Math.max(25,goal+n));document.getElementById('goalEditValue').textContent=goal.toFixed(1)}
+function saveGoal(){document.getElementById('goalWeight').textContent=goal.toFixed(1);closeModal('goalModal');showToast('目标已更新为 '+goal.toFixed(1)+' kg')}
+function setTimeFilter(btn){document.querySelectorAll('#timeFilters .chip').forEach(b=>b.classList.remove('active'));btn.classList.add('active');const t=btn.textContent;document.getElementById('chartStart').textContent=t==='7 天'?'10/10':t==='30 天'?'09/18':'更早';showToast('已切换到 '+t+' 数据范围')}
+function setMetric(btn,type){document.querySelectorAll('#metricFilters button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');if(type==='fat'){document.getElementById('trendMain').innerHTML='22.4% <span style="font-size:12px;color:var(--green)">↓ 0.2%</span>';document.getElementById('avgVal').textContent='22.7%';document.getElementById('maxVal').textContent='23.1%';document.getElementById('minVal').textContent='22.4%'}else{document.getElementById('trendMain').innerHTML='68.5 kg <span style="font-size:12px;color:var(--green)">↓ 0.6</span>';document.getElementById('avgVal').textContent='68.9 kg';document.getElementById('maxVal').textContent='69.4 kg';document.getElementById('minVal').textContent='68.5 kg'}showToast('已切换指标：'+(type==='fat'?'体脂率':'体重'))}
+function searchDevices(){const b=document.getElementById('searchBtn');b.textContent='正在搜索…';b.disabled=true;setTimeout(()=>{document.getElementById('searchResult').classList.remove('hidden');b.textContent='重新搜索设备';b.disabled=false;showToast('发现 1 台兼容设备')},850)}
+function bindDevice(btn){btn.textContent='已绑定';btn.disabled=true;btn.style.background='#E7F3EB';btn.style.color='#2D8B56';document.getElementById('deviceCount').textContent='2 台设备';showToast('设备绑定成功（原型状态）')}
+function openMeasure(){closeModal('quickModal');measureStep=0;renderMeasure();document.getElementById('measureModal').classList.add('show')}
+function renderMeasure(){const state=document.getElementById('measureState'),num=document.getElementById('measureNumber'),note=document.getElementById('measureNote'),act=document.getElementById('measureAction'),icon=document.getElementById('measureIcon'),prog=document.getElementById('measureProgress');['step1','step2','step3'].forEach((id,i)=>document.getElementById(id).classList.toggle('on',i<=measureStep));if(measureStep===0){icon.textContent='';state.textContent='准备连接体脂秤';num.textContent='···';num.style.color='var(--green)';note.innerHTML='请确认当前测量成员：轻刻用户<br>站上体脂秤后保持稳定';prog.style.width='25%';act.textContent='开始测量';act.disabled=false}else if(measureStep===1){icon.textContent='◉';state.textContent='正在测量，请保持站立';num.textContent='68.5';num.style.color='var(--green)';note.innerHTML='正在读取体重与体成分数据…<br>请暂时不要离开体脂秤';prog.style.width='68%';act.textContent='模拟测量完成';act.disabled=false}else{icon.textContent='';state.textContent='测量完成，记录已保存';num.textContent='68.5 kg';num.style.color='var(--green)';note.innerHTML='体脂率 22.4% · BMI 22.1<br>已保存到「轻刻用户」的测量历史';prog.style.width='100%';act.textContent='查看测量报告';act.disabled=false;document.getElementById('measureSecondary').textContent='完成'}}
+function nextMeasure(){if(measureStep===0){measureStep=1;renderMeasure()}else if(measureStep===1){measureStep=2;renderMeasure()}else{closeModal('measureModal');switchPage('report')}}
+document.getElementById('measureSecondary').addEventListener('click',()=>{if(measureStep===2){closeModal('measureModal');switchPage('home')}});
+document.getElementById('todayText').textContent='今天也为健康做一点小事';
+</script>
+</body>
+</html>

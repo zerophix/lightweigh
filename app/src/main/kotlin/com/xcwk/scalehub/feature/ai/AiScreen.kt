@@ -14,14 +14,15 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.xcwk.scalehub.ui.components.QkButton
 import com.xcwk.scalehub.ui.components.QkCard
+import com.xcwk.scalehub.ui.components.QkTextField
 import com.xcwk.scalehub.ui.theme.QkTheme
 
 /**
@@ -67,17 +68,19 @@ fun AiScreen(
             Text(it, modifier = Modifier.padding(top = 4.dp), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
         }
         Row(modifier = Modifier.fillMaxWidth().padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-            OutlinedTextField(
+            QkTextField(
                 value = state.input,
                 onValueChange = { onIntent(AiIntent.InputChanged(it)) },
-                label = { Text("问点什么，如：减脂期怎么吃") },
+                placeholder = "问点什么，如：减脂期怎么吃",
+                enabled = !state.sending,
                 modifier = Modifier.weight(1f),
             )
-            Button(
-                onClick = { onIntent(AiIntent.Send) },
+            QkButton(
+                text = if (state.sending) "…" else "发送",
                 enabled = !state.sending,
                 modifier = Modifier.padding(start = 8.dp),
-            ) { Text(if (state.sending) "…" else "发送") }
+                onClick = { onIntent(AiIntent.Send) },
+            )
         }
     }
 }

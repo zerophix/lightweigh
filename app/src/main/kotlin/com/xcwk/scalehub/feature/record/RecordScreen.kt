@@ -13,14 +13,15 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.xcwk.scalehub.ui.components.QkButton
 import com.xcwk.scalehub.ui.components.QkChip
+import com.xcwk.scalehub.ui.components.QkTextField
 import com.xcwk.scalehub.ui.theme.QkTheme
 
 /**
@@ -50,17 +51,17 @@ fun RecordScreen(
                     }
                 }
             }
-            OutlinedTextField(
+            QkTextField(
                 value = state.primaryValue,
                 onValueChange = { onIntent(RecordIntent.ValueChanged(it)) },
-                label = { Text(state.primaryLabel) },
+                label = state.primaryLabel,
                 modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
             )
             if (state.extraLabel != null) {
-                OutlinedTextField(
+                QkTextField(
                     value = state.extraValue,
                     onValueChange = { onIntent(RecordIntent.ExtraChanged(it)) },
-                    label = { Text(state.extraLabel) },
+                    label = state.extraLabel,
                     modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                 )
             }
@@ -76,11 +77,12 @@ fun RecordScreen(
             state.error?.let {
                 Text(it, modifier = Modifier.padding(top = 10.dp), color = MaterialTheme.colorScheme.error)
             }
-            Button(
-                onClick = { onIntent(RecordIntent.Save) },
+            QkButton(
+                text = if (state.saving) "保存中…" else "保存",
                 enabled = !state.saving,
                 modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
-            ) { Text(if (state.saving) "保存中…" else "保存") }
+                onClick = { onIntent(RecordIntent.Save) },
+            )
         }
     }
 }
