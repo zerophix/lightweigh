@@ -20,11 +20,13 @@ import kotlinx.coroutines.launch
 /**
  * mine — UDF 四件套之 ViewModel：读 ProfileQuery、存 UpdateProfileService，
  * 业务规则（量程/生日/昵称）全在 domain 构造守卫，这里只做文本解析与错误转述。
- * TODO M4 视觉轮：出生/身高滚轮选择器（旧库 Wheel 等价物），现以数字输入替代。
+ * M4 视觉轮已落：出生/身高滚轮（QkWheelPicker）与头像（QkAvatar + 相册选图）。
  */
 class MineViewModel(
     private val profileQuery: ProfileQuery,
     private val updateProfile: UpdateProfileService,
+    private val saveAvatar: (String) -> String? = { null },
+    private val avatarPath: () -> String = { "" },
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(MineUiState())
@@ -42,6 +44,23 @@ class MineViewModel(
             is MineIntent.DayChanged -> _state.update { it.copy(birthDay = intent.value, error = null) }
             is MineIntent.HeightChanged -> _state.update { it.copy(heightCm = intent.value, error = null) }
             is MineIntent.NicknameChanged -> _state.update { it.copy(nickname = intent.value, error = null) }
+            is MineIntent.BirthPicked -> _state.update {
+                it.copy(
+                    birthYear = intent.year.toString(),
+                    birthMonth = intent.month.toString(),
+                    birthDay = intent.day.toString(),
+                    error = null,
+                )
+            }
+            is MineIntent.HeightPicked -> _state.update { it.copy(heightCm = intent.cm.toString(), error = null) }
+            is MineIntent.AvatarChosen -> {
+                val saved = saveAvatar(intent.uriString)
+                if (saved != null) {
+                    _state.update { it.copy(avatarPath = saved) }
+                } else {
+                    _state.update { it.copy(error = "头像保存失败，请换一张图片") }
+                }
+            }
             MineIntent.Save -> save()
         }
     }
@@ -57,6 +76,7 @@ class MineViewModel(
                 birthDay = p.birthDay.takeIf { d -> d in 1..31 }?.toString() ?: "",
                 heightCm = p.heightCm.takeIf { h -> h > 0 }?.toString() ?: "",
                 nickname = p.nickname,
+                avatarPath = avatarPath(),
                 summary = summaryOf(p),
                 unsetHint = !p.heightSet,
             )
@@ -98,7 +118,12 @@ class MineViewModel(
         val Factory = viewModelFactory {
             initializer {
                 val app = this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as App
-                MineViewModel(app.container.profileQuery, app.container.updateProfileService)
+                MineViewModel(
+                    app.container.profileQuery,
+                    app.container.updateProfileService,
+                    saveAvatar = app.container.saveAvatar,
+                    avatarPath = app.container.avatarPath,
+                )
             }
         }
     }

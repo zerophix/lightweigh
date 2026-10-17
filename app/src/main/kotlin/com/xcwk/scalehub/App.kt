@@ -73,6 +73,13 @@ class AppContainer(context: Context) {
         DeleteMeasurementService(measurementRepository, dataRefreshBus)
     }
 
+    /** 头像存取口（AvatarStore 藏在容器后，feature 层只见函数类型）。 */
+    private val avatarStore: com.xcwk.scalehub.infrastructure.profile.AvatarStore by lazy {
+        com.xcwk.scalehub.infrastructure.profile.AvatarStore(context)
+    }
+    val avatarPath: () -> String = { avatarStore.path() ?: "" }
+    val saveAvatar: (String) -> String? = { s -> avatarStore.saveFromUri(android.net.Uri.parse(s)) }
+
     /** 正式账号读取口（SessionStore 藏在容器后，feature 层不直调 infra）。 */
     val isFormalAccount: () -> Boolean = { sessionStore.isFormalAccount() }
 

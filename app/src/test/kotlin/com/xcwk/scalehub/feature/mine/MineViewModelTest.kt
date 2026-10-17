@@ -104,4 +104,46 @@ class MineViewModelTest {
         assertThat(writer.saved!!.nickname).isEqualTo("新昵称")
         assertThat(vm.state.value.summary).contains("176cm")
     }
+
+    @Test
+    fun `滚轮选择_出生与身高落入表单态`() {
+        val (vm, _) = vm(FakeReader())
+        vm.onIntent(MineIntent.BirthPicked(1990, 6, 15))
+        vm.onIntent(MineIntent.HeightPicked(180))
+        val s = vm.state.value
+        assertThat(s.birthYear).isEqualTo("1990")
+        assertThat(s.birthMonth).isEqualTo("6")
+        assertThat(s.birthDay).isEqualTo("15")
+        assertThat(s.heightCm).isEqualTo("180")
+        assertThat(s.error).isNull()
+    }
+
+    @Test
+    fun `头像选图_保存成功即更新路径_失败给提示`() {
+        val okWriter = FakeWriter(FakeReader())
+        val okVm = MineViewModel(
+            ProfileQuery(FakeReader()), UpdateProfileService(okWriter),
+            saveAvatar = { _ -> "/data/avatar.jpg" },
+        )
+        okVm.onIntent(MineIntent.AvatarChosen("content://media/1"))
+        assertThat(okVm.state.value.avatarPath).isEqualTo("/data/avatar.jpg")
+        assertThat(okVm.state.value.error).isNull()
+
+        val badVm = MineViewModel(
+            ProfileQuery(FakeReader()), UpdateProfileService(FakeWriter(FakeReader())),
+            saveAvatar = { null },
+        )
+        badVm.onIntent(MineIntent.AvatarChosen("content://media/2"))
+        assertThat(badVm.state.value.avatarPath).isEmpty()
+        assertThat(badVm.state.value.error).isEqualTo("头像保存失败，请换一张图片")
+    }
+
+    @Test
+    fun `加载带回头像路径`() {
+        val vm = MineViewModel(
+            ProfileQuery(FakeReader()), UpdateProfileService(FakeWriter(FakeReader())),
+            avatarPath = { "/data/avatar.jpg" },
+        )
+        assertThat(vm.state.value.avatarPath).isEqualTo("/data/avatar.jpg")
+    }
 }

@@ -16,6 +16,8 @@ data class MineUiState(
     val saving: Boolean = false,
     val error: String? = null,
     val saved: Boolean = false,
+    /** 头像本地路径（空串=占位头像，M4）。 */
+    val avatarPath: String = "",
 )
 
 sealed interface MineIntent {
@@ -25,5 +27,8 @@ sealed interface MineIntent {
     data class DayChanged(val value: String) : MineIntent
     data class HeightChanged(val value: String) : MineIntent
     data class NicknameChanged(val value: String) : MineIntent
+    data class BirthPicked(val year: Int, val month: Int, val day: Int) : MineIntent
+    data class HeightPicked(val cm: Int) : MineIntent
+    data class AvatarChosen(val uriString: String) : MineIntent
     data object Save : MineIntent
 }
