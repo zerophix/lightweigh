@@ -484,4 +484,116 @@ class MeasureSessionTest {
         session.retry()
         assertThat(ble.connectCalls).isEqualTo(2)
     }
+
+    // ---- 组 E 前置：suppressDisconnect / holdStepOff / 静默重连 ----
+
+    /**
+     * reconnect() 会置 suppressDisconnect，用来吞掉「旧链路自己断开」这一次回调。
+     * 判据取「是否触发重新扫描」：被吞掉时链路层不该因这次断连再排一次重试；
+     * 漏吞则会走 scheduleRetry → retryConnect → watchForScale，扫描计数多一次。
+     */
+    @Test
+    fun `reconnect 后首次断连被吞掉不触发重试扫描`() = runTest {
+        val ble = FakeBle()
+        val devices = FakeDevices(mutableListOf(ScaleDevice("秤", "AA:BB:CC:DD:EE:FF", "2026-10-16", true)))
+        val session = harness(backgroundScope, devices, ble)
+        session.start(); runCurrent()
+        ble.emitFound("AA:BB:CC:DD:EE:FF", byteArrayOf(0x01))
+        ble.emitConnectSuccess()
+        ble.indicateSuccess()
+        assertThat(session.state.value.link).isEqualTo("已连接")
+
+        session.reconnect()          // suppressDisconnect = true
+        runCurrent()
+        assertThat(ble.scans).isEqualTo(2)   // start() 重新扫描一次
+
+        ble.emitDisconnected()       // 旧链路断开，应被吞掉
+        advanceTimeBy(MeasureSession.RETRY_DELAY_MS + 1)
+        runCurrent()
+
+        assertThat(ble.scans).isEqualTo(2)   // 没有因这次断连再排一次重试扫描
+        assertThat(session.state.value.showRetry).isFalse()
+        assertThat(session.state.value.outcome).isNull()
+    }
+
+    /**
+     * 已连上但还没上秤时断连：延迟 700ms 才弹提示，给锁定结果帧留落地时间。
+     * 立即弹会把「结果帧紧跟着断连」的正常时序误判成链路故障。
+     */
+    @Test
+    fun `已连接但未上秤时断连_延迟后弹出重连提示`() = runTest {
+        val ble = FakeBle()
+        val devices = FakeDevices(mutableListOf(ScaleDevice("秤", "AA:BB:CC:DD:EE:FF", "2026-10-16", true)))
+        val session = harness(backgroundScope, devices, ble)
+        session.start(); runCurrent()
+        ble.emitFound("AA:BB:CC:DD:EE:FF", byteArrayOf(0x01))
+        ble.emitConnectSuccess()
+        ble.indicateSuccess()        // linkReady=true，但还没上秤
+
+        ble.emitDisconnected()
+        assertThat(session.state.value.title).isNotEqualTo("连接已断开")   // 先不弹
+        advanceTimeBy(MeasureSession.DISCONNECT_PROMPT_DELAY_MS + 1)
+        runCurrent()
+
+        val s = session.state.value
+        assertThat(s.title).isEqualTo("连接已断开")
+        assertThat(s.showRetry).isTrue()
+        assertThat(s.link).isEqualTo("已断开")
+    }
+
+    /**
+     * 已上秤（seenWeight）时订阅失败：走 holdStepOff 回到「请光脚站上秤」，
+     * 保持已连接、不弹重连——踩上再拿起时秤常闪断，这是正常时序。
+     */
+    @Test
+    fun `已上秤时订阅失败进入下秤保持而非重连提示`() = runTest {
+        val ble = FakeBle()
+        val devices = FakeDevices(mutableListOf(ScaleDevice("秤", "AA:BB:CC:DD:EE:FF", "2026-10-16", true)))
+        val session = harness(backgroundScope, devices, ble)
+        session.start(); runCurrent()
+        ble.emitFound("AA:BB:CC:DD:EE:FF", byteArrayOf(0x01))
+        ble.emitConnectSuccess()
+        ble.indicateSuccess()
+        ble.emit(fff1, processFrame(6550, 5000, 0x00))   // 站上：65.5kg
+        assertThat(session.state.value.phase).isEqualTo(MeasurePhase.LIVE)
+
+        ble.indicate?.onIndicateFailure("订阅中断")
+
+        val s = session.state.value
+        assertThat(s.phase).isEqualTo(MeasurePhase.WAIT)
+        assertThat(s.title).isEqualTo("请光脚站上秤")
+        assertThat(s.notice).isEqualTo("请重新上秤")
+        assertThat(s.link).isEqualTo("已连接")
+        assertThat(s.outcome).isNull()
+    }
+
+    /**
+     * 结果已封存（sealed）后的断连不再触发静默重连——
+     * 否则保存完成后还会无意义地重连一次，白耗电量并可能与下一次测量抢链路。
+     */
+    @Test
+    fun `密封之后断连不再发起静默重连`() = runTest {
+        val ble = FakeBle()
+        val repo = FakeRepo()
+        val profile = FakeProfile()
+        val devices = FakeDevices(mutableListOf(ScaleDevice("秤", "AA:BB:CC:DD:EE:FF", "2026-10-16", true)))
+        val session = MeasureSession(
+            ble, devices, RecordMeasurementService(repo, profile, null), profile, { 0 }, backgroundScope, { false },
+        )
+        session.start(); runCurrent()
+        ble.emitFound("AA:BB:CC:DD:EE:FF", byteArrayOf(0x01))
+        ble.emitConnectSuccess()
+        ble.indicateSuccess()
+        ble.emit(result2A9C, fourFrame(6550, 5000, 0x00))
+        runCurrent()
+        assertThat(session.state.value.outcome?.kind).isEqualTo(MeasureOutcomeKind.SAVED)
+        val callsAfterSave = ble.connectCalls
+
+        ble.emitDisconnected()
+        advanceTimeBy(MeasureSession.QUIET_RETRY_DELAY_MS + 1)
+        runCurrent()
+
+        assertThat(ble.connectCalls).isEqualTo(callsAfterSave)
+        assertThat(session.state.value.outcome?.kind).isEqualTo(MeasureOutcomeKind.SAVED)
+    }
 }

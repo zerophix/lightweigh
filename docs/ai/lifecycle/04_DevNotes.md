@@ -92,6 +92,12 @@
 
 ## 5. 变更记录
 
+- 2026-10-17（DEC-024 组 E 前置）：补齐状态机的链路时序测试网，为 sealed 状态替换做前置。
+  新增四项：`reconnect` 后首次断连被 `suppressDisconnect` 吞掉（判据取「扫描计数不多一次」）、
+  已连接未上秤时断连延迟 700ms 才弹提示、已上秤时订阅失败走 `holdStepOff` 回到「请光脚站上秤」、
+  密封后断连不再发起静默重连。`MeasureSessionTest` 14 → 18 项，全模块 272 项 0 失败（强制重跑）。
+  过程记录：首版 suppressDisconnect 测试断言「不弹重连提示」，去掉早退后仍然通过——因为漏吞时
+  走的是 `scheduleRetry` 而非弹提示，两条路径在该断言上同值，属无效断言；改判据后才红。
 - 2026-10-17（DEC-024 组 C）：`MeasureSession` 状态机化第一步。抽 `isSettling()`
   收敛 `onConnectFail` / `onDisConnected` / `onIndicateFailure` 三处重复守卫；`confirmSave()`
   补 `closed` 守卫，修掉「stop() 只取消定时器、不清 awaitingConfirm，导致会话结束后迟到的确认
@@ -272,6 +278,7 @@
 
 | 版本 | 日期 | 变更摘要 |
 |------|------|---------|
+| v55 | 2026-10-17 | DEC-024 组 E 前置：补 4 项链路时序测试，MeasureSessionTest 18 项，全模块 272 项 |
 | v54 | 2026-10-17 | DEC-024 组 C：MeasureSession 抽 isSettling + confirmSave 补 closed 守卫，补 3 项路径测试（93 项 application 单测） |
 | v53 | 2026-10-17 | DEC-024 导航状态收口：NavState 单一栈 + BackHandler，Trend/Mine 局部导航并入（77 项 app 单测） |
 | v53 | 2026-10-17 | T-005 关闭：v1→v5 真机全链迁移测试（模拟器实跑通过）+ CI androidTest 编译门启用 |
