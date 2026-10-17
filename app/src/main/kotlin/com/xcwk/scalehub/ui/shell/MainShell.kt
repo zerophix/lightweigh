@@ -77,6 +77,9 @@ fun MainShell() {
     var showScale by rememberSaveable { mutableStateOf(false) }
     // 报告覆盖页（测量保存后查看报告入口，M4）：-1=未打开
     var reportTime by rememberSaveable { mutableStateOf(-1L) }
+    var recordPreset by rememberSaveable { mutableStateOf("") }
+    var featureName by rememberSaveable { mutableStateOf("") }
+    val appContext = androidx.compose.ui.platform.LocalContext.current.applicationContext as com.xcwk.scalehub.App
     // 记录表单是宿主级覆盖页（任何页签打开，导航即关闭）——例外域同 Route 层声明
     var recordType by rememberSaveable { mutableStateOf("") }
     Scaffold(
@@ -107,9 +110,24 @@ fun MainShell() {
             when {
                 recordType.isNotEmpty() -> com.xcwk.scalehub.feature.record.RecordRoute(
                     type = recordType,
-                    onDone = { recordType = "" },
+                    preset = recordPreset,
+                    onDone = { recordType = ""; recordPreset = "" },
                 )
-                tab == MainTab.HOME -> MeasureScreen(onOpenScale = { showScale = true })
+                tab == MainTab.HOME -> MeasureScreen(
+                    onOpenScale = { showScale = true },
+                    onOpenReport = { time -> reportTime = time },
+                    onOpenHistory = { tab = MainTab.TREND },
+                    onAskAi = { q ->
+                        appContext.container.aiPrefillText = q
+                        showAi = true
+                    },
+                    onOpenRecord = { type, preset ->
+                        recordType = type
+                        recordPreset = preset
+                    },
+                    onOpenFeature = { name -> featureName = name },
+                    onOpenMine = { tab = MainTab.MINE },
+                )
                 tab == MainTab.TREND -> TrendRoute(onAskAi = { showAi = true })
                 tab == MainTab.DEVICE -> com.xcwk.scalehub.feature.device.DeviceRoute()
                 else -> MineRoute()   // 设置页已接入；档案编辑已接入
@@ -132,7 +150,12 @@ fun MainShell() {
                     )
                 }
             }
-            if (overlayOpen && !showAi && !showScale && reportTime >= 0L) {
+            if (overlayOpen && featureName.isNotEmpty()) {
+                androidx.compose.material3.Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+                    com.xcwk.scalehub.feature.featurepage.FeatureRoute(name = featureName, onBack = { featureName = "" })
+                }
+            }
+            if (overlayOpen && !showAi && !showScale && reportTime >= 0L && featureName.isEmpty()) {
                 androidx.compose.material3.Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
                     com.xcwk.scalehub.feature.report.ReportRoute(
                         time = reportTime,

@@ -67,6 +67,9 @@ class AppContainer(context: Context) {
         com.xcwk.scalehub.infrastructure.profile.GoalStore(context, memberRepository::activeId)
     }
 
+    /** 目标写入口（GoalStore 藏在容器后，feature 层只见函数类型）。 */
+    val setTargetWeight: (Float) -> Unit = { kg -> goalStore.targetWeight = kg }
+
     val recordMeasurementService: RecordMeasurementService by lazy {
         RecordMeasurementService(measurementRepository, profileStore, dataRefreshBus)
     }
@@ -77,6 +80,13 @@ class AppContainer(context: Context) {
         RecordHealthLogService(healthLogRepository, dataRefreshBus)
     }
     val profileQuery: ProfileQuery by lazy { ProfileQuery(profileStore) }
+
+    /** 首页目标进度查询（移植补齐 H1）。 */
+    val homeGoalQuery: com.xcwk.scalehub.application.query.HomeGoalQuery by lazy {
+        com.xcwk.scalehub.application.query.HomeGoalQuery(
+            measurementRepository, healthLogRepository, goalStore, profileStore,
+        )
+    }
     val reportQuery: ReportQuery by lazy { ReportQuery(measurementRepository) }
     val updateProfileService: UpdateProfileService by lazy { UpdateProfileService(profileStore) }
     val deleteMeasurementService: DeleteMeasurementService by lazy {
@@ -120,6 +130,10 @@ class AppContainer(context: Context) {
         profileStore.clearMember(id)
         avatarStore.removeFor(id)
     }
+
+    /** AI 预填问题暂存（首页提问框 → AI 页；进程内有效即可）。 */
+    var aiPrefillText: String = ""
+    val aiPrefill: () -> String = { aiPrefillText }
 
     /** 正式账号读取口（SessionStore 藏在容器后，feature 层不直调 infra）。 */
     val isFormalAccount: () -> Boolean = { sessionStore.isFormalAccount() }

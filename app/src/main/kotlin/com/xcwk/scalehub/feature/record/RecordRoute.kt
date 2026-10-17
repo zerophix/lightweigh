@@ -15,7 +15,8 @@ fun recordRouteOf(type: String): String = "record/$type"
 fun RecordRoute(
     type: String,
     onDone: () -> Unit,
-    vm: RecordViewModel = viewModel(factory = RecordViewModel.Factory(type)),
+    preset: String = "",
+    vm: RecordViewModel = viewModel(factory = RecordViewModel.Factory(type, preset)),
 ) {
     val state by vm.state.collectAsState()
     LaunchedEffect(state.saved) {
