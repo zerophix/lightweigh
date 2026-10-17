@@ -130,7 +130,7 @@ class RecordViewModel(
             "habit" to TypeSpec("记习惯", "习惯名称", isHabit = true),
         )
 
-        fun Factory(type: String) = viewModelFactory {
+        fun Factory(type: String, preset: String = "") = viewModelFactory {
             initializer {
                 val app = this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as App
                 RecordViewModel(type, app.container.recordHealthLogService, app.container.recordMeasurementService)

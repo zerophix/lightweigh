@@ -23,6 +23,9 @@ import kotlinx.coroutines.launch
  * TODO 后续阶段：BLE 称重流接入（ScaleGateway）、登录/云同步、趋势与报告。
  */
 data class MeasureUiState(
+    /** 首页目标进度（H2 移植补齐）。 */
+    val home: com.xcwk.scalehub.application.query.HomeGoalState =
+        com.xcwk.scalehub.application.query.HomeGoalState(),
     val weightInput: String = "",
     val saving: Boolean = false,
     val lastRecord: String? = null,
@@ -35,6 +38,7 @@ data class MeasureUiState(
 sealed interface MeasureIntent {
     data class WeightChanged(val value: String) : MeasureIntent
     data object Save : MeasureIntent
+    data class SetTargetWeight(val kg: Float) : MeasureIntent
 }
 
 class MeasureViewModel(
@@ -42,6 +46,8 @@ class MeasureViewModel(
     private val measurementQuery: MeasurementQuery,
     private val healthLogQuery: HealthLogQuery,
     private val refreshBus: DataRefreshBus? = null,
+    private val homeQuery: com.xcwk.scalehub.application.query.HomeGoalQuery? = null,
+    private val setTargetWeight: (Float) -> Unit = {},
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(MeasureUiState())
@@ -55,10 +61,19 @@ class MeasureViewModel(
         }
     }
 
+    private suspend fun refreshHome() {
+        val query = homeQuery ?: return
+        _state.update { it.copy(home = query.state()) }
+    }
+
     fun onIntent(intent: MeasureIntent) {
         when (intent) {
             is MeasureIntent.WeightChanged -> _state.update { it.copy(weightInput = intent.value, error = null) }
             MeasureIntent.Save -> save()
+            is MeasureIntent.SetTargetWeight -> {
+                setTargetWeight(intent.kg)
+                viewModelScope.launch { refreshHome() }
+            }
         }
     }
 
@@ -84,6 +99,7 @@ class MeasureViewModel(
     }
 
     private suspend fun refresh() {
+        refreshHome()
         val items = measurementQuery.recent(20).map {
             val fatText = if (it.fat >= 0) " · 体脂 ${it.fat}%" else ""
             "${it.weight} kg$fatText"
@@ -101,6 +117,8 @@ class MeasureViewModel(
                     app.container.measurementQuery,
                     app.container.healthLogQuery,
                     app.container.dataRefreshBus,
+                    homeQuery = app.container.homeGoalQuery,
+                    setTargetWeight = app.container.setTargetWeight,
                 )
             }
         }

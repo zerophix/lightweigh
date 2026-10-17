@@ -21,9 +21,10 @@ import kotlinx.coroutines.launch
 class AiViewModel(
     private val aiService: AiService,
     private val auth: AuthPort,
+    initialInput: String = "",
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(AiUiState())
+    private val _state = MutableStateFlow(AiUiState(input = initialInput))
     val state: StateFlow<AiUiState> = _state.asStateFlow()
 
     init {
@@ -61,7 +62,7 @@ class AiViewModel(
         val Factory = viewModelFactory {
             initializer {
                 val app = this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as App
-                AiViewModel(app.container.aiService, app.container.sessionStore)
+                AiViewModel(app.container.aiService, app.container.sessionStore, initialInput = app.container.aiPrefill())
             }
         }
     }
