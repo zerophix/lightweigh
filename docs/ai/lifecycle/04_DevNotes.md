@@ -108,6 +108,7 @@
 
 ## 5. 变更记录
 
+- 2026-10-17（DEC-031）：构建链依赖可获取性修复——catalog 的 KSP 由公开仓库不存在的 2.3.2 钉到 2.3.9；本地在把 2.3.9 缓存一并移走、停掉 daemon 的前提下全量 build + assembleAndroidTest 通过（254 任务，247 真实执行）。该版本的可解析性以 PR #1 的 CI 复跑结果为最终判定。
 - 2026-10-17（DEC-030）：构建层启用 core library desugaring，java.time 在 minSdk 24 可用；撤回 HistoryScreen 上的 @RequiresApi 注解，该注解在两会话间反弹两次，本批落盘「平台新增 API 只用脱糖、不把注解推给调用方」的共识。
 - 2026-10-17（DEC-027）：云同步上传断链修复——SyncService.push() 实装且注入容器但生产零调用，新增 SyncTrigger 点火并接入三个写用例，本地写成功后 fire-and-forget 上云。
 - 2026-10-17（DEC-026 组 L）：导航两处修正与称重未绑定出口打通——首页历史入口直达历史覆盖页、称重未绑定态经 needBind 标志在 WAIT 相渲染「去绑定设备」，FeatureScreen 包名归位 features。
