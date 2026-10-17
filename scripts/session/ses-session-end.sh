@@ -173,10 +173,10 @@ do_handoff() {
   if [ -f "$CACHE_SCRIPT" ]; then
     # agent 身份按环境检测, 不冒充 (DEC-009); to= 为 handoff 必填字段, 漏传会被
     # save 拒写且错误被 2>/dev/null 吞掉 — 契约由静态测试钉住
-    local AGENT_NAME="unknown-ai"
-    if [ -n "${OPENCODE:-}" ]; then AGENT_NAME="opencode"
-    elif [ -n "${CLAUDECODE:-}" ] || [ -n "${CLAUDE_CODE:-}" ]; then AGENT_NAME="claude"
-    fi
+    # 身份由 lib-platform.sh 的 detect_agent 统一检测（DEC-009: 不冒充）,
+    # 与 wf-inbox.sh 的接力信署名共用同一实现, 避免两处漂移
+    local AGENT_NAME
+    AGENT_NAME="$(detect_agent 2>/dev/null || echo unknown-ai)"
     bash "$CACHE_SCRIPT" save handoff \
       from="${AGENT_NAME}" \
       to="next-ai" \

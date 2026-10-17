@@ -37,7 +37,9 @@ case "${1:-}" in
       exit 1
     fi
     TIMESTAMP=$(ts)
-    AGENT="claude"
+    # 署名走 lib-platform.sh 的统一身份检测（DEC-009: 不冒充）；此前这里硬编码
+    # "claude", 导致任何平台的接力信都署 claude
+    AGENT="$(detect_agent 2>/dev/null || echo unknown-ai)"
     FILE="$INBOX_DIR/$TIMESTAMP.md"
     cat > "$FILE" << EOF
 ---

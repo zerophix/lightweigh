@@ -45,3 +45,17 @@ portable_realpath() {
         python3 -c "import os; print(os.path.realpath('$path'))"
     fi
 }
+
+# 检测当前 AI 平台身份（DEC-009: 按环境检测, 不冒充）
+# 注意: 交接信的署名(wf-inbox.sh)与上下文缓存的身份(ses-session-end.sh)必须
+# 共用本实现 — 两处各写一份时, 其中一处漏改会让署名静默失真。
+# 返回: opencode | claude | unknown-ai
+detect_agent() {
+    if [ -n "${OPENCODE:-}" ]; then
+        echo "opencode"
+    elif [ -n "${CLAUDECODE:-}" ] || [ -n "${CLAUDE_CODE:-}" ]; then
+        echo "claude"
+    else
+        echo "unknown-ai"
+    fi
+}
