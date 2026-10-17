@@ -2,6 +2,7 @@ package com.xcwk.scalehub.application.service
 
 import com.xcwk.scalehub.application.DataRefreshBus
 import com.xcwk.scalehub.application.command.RecordMeasurementCommand
+import com.xcwk.scalehub.application.sync.SyncTrigger
 import com.xcwk.scalehub.domain.algorithm.Algorithms
 import com.xcwk.scalehub.domain.algorithm.BuiltinComposition
 import com.xcwk.scalehub.domain.model.MeasureRecord
@@ -15,11 +16,13 @@ import com.xcwk.scalehub.domain.repository.MemberProfileReader
  *  - 无阻抗（<=0）体脂记 -1（"未计算"哨兵，对应 data-schema 的 fat=-1）
  *  - 未知算法编号回落 builtin-1
  *  - 时间戳在此盖章（存储不再各自盖章）
+ *  - 落库后点火云推送（P0 断链修复：新测量写在本机即上云，失败不阻塞用例）
  */
 class RecordMeasurementService(
     private val repository: MeasurementRepository,
     private val profile: MemberProfileReader,
     private val refreshBus: DataRefreshBus? = null,
+    private val syncTrigger: SyncTrigger? = null,
 ) {
 
     suspend fun execute(cmd: RecordMeasurementCommand): MeasureRecord {
@@ -42,6 +45,7 @@ class RecordMeasurementService(
         )
         repository.save(record)
         refreshBus?.notifyChanged()
+        syncTrigger?.fire()
         return record
     }
 }

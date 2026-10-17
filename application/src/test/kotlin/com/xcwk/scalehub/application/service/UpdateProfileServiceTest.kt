@@ -8,6 +8,7 @@ import com.xcwk.scalehub.domain.repository.MemberProfileReader
 import com.xcwk.scalehub.domain.repository.MemberProfileWriter
 import com.xcwk.scalehub.domain.types.DomainException
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -47,6 +48,16 @@ class UpdateProfileServiceTest {
         val p = service.execute(cmd)
         assertThat(p.nickname.length).isEqualTo(20)     // take(20) 旧库口径
         assertThat(writer.saved).isEqualTo(p)
+    }
+
+    @Test
+    fun `落库后点火云推送`() = runTest {
+        val fired = mutableListOf<Unit>()
+        val trigger = com.xcwk.scalehub.application.sync.SyncTrigger(this) { fired += Unit }
+        val svc = UpdateProfileService(writer, trigger)
+        svc.execute(UpdateProfileCommand(true, 1996, 5, 20, 175, "小明"))
+        runCurrent()
+        assertThat(fired).hasSize(1)
     }
 
     @Test
