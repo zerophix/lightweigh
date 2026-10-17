@@ -22,6 +22,8 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        // java.time 属 API 26；minSdk 24 由此脱糖补到低版本
+        isCoreLibraryDesugaringEnabled = true
     }
     kotlinOptions { jvmTarget = "17" }
     buildFeatures { compose = true }
@@ -34,6 +36,7 @@ dependencies {
     implementation(project(":infrastructure"))
 
     implementation(libs.core.ktx)
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
     implementation(libs.zxing.embedded)   // 扫码绑定体脂秤（移植补齐）
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.ui)
