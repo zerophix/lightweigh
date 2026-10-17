@@ -35,6 +35,14 @@ import kotlinx.coroutines.launch
  *    归零 1000ms/贴士 4000ms）收敛为注入 scope 的协程延时，虚拟时间可测。
  *  - 用户槽位：经 memberSlot 注入（多成员接入后由 MemberRepository.activeSlot 提供）。
  *  - 落库走 RecordMeasurementService（记录用例已抽 application，旧库 finishSave :951-970）。
+ *
+ * 状态表达（DEC-024 组 E）：
+ *  - 相位与进度收进 [SessionPhase]（sealed + 纯 [reduce]），不再用 13 个并列可变字段；
+ *    字段的可组合性曾是「未封存却在等确认」这类非法状态的温床，且编译器无从拦截。
+ *  - 仍保留的可变字段只剩三类：设备绑定（选中的秤与协议）、UI 计时（倒计时/贴士/
+ *    上次体重缓存）、以及 6 个 Job 句柄。前两类是输入，Job 是资源，都不是状态机语义。
+ *  - 定时器仍由本类命令式驱动：`reduce` 只管「应该处于哪个相位」，不管「哪个 Job 该活着」。
+ *    这是有意的边界——把 Job 也塞进状态会让纯函数变成副作用清单，反而不可测。
  */
 class MeasureSession(
     private val ble: BlePort,
@@ -49,28 +57,21 @@ class MeasureSession(
     private val memberSlot: () -> Int = { 1 },
 ) {
 
+    /** 选中的秤与协议（一次测量内不变）。 */
+    private data class DeviceBinding(
+        val mac: String,
+        val protocol: ScaleProtocol,
+        val algorithmId: String,
+    )
+
     private val _state = MutableStateFlow(MeasureState())
     val state: StateFlow<MeasureState> = _state.asStateFlow()
 
-    private var closed = false
-    private var protocol: ScaleProtocol? = null
-    private var algorithmId: String = ScaleDevice.ALGORITHM_BUILTIN_1
-    private var mac: String? = null
-    private var picked = false
-    private var linkReady = false
-    private var sealed = false
-    private var saved = false
-    private var seenWeight = false
-    private var steppingOff = false
-    private var awaitingConfirm = false
-    private var heldWeightOnly = false
-    private var suppressDisconnect = false
-    private var scaleKind = ScaleEvent.KIND_UNKNOWN
+    /** 单一事实源：相位与进度。写入只经 [reduce]。 */
+    private var phase: SessionPhase = SessionPhase.Idle
+
+    private var binding: DeviceBinding? = null
     private var secondsLeft = COUNTDOWN_SECONDS
-    private var heldHeart = 0
-    private var heldWeight = 0.0
-    private var heldImpedance = 0.0
-    private var pendingImpedance = 0.0
     private var tipIndex = 0
     /** 上次体重缓存（0.1kg 原始值；-1=无记录）。启动/重连/落库后刷新（旧库同步 SP 读的可测性替代）。 */
     private var lastWeightRaw = -1
@@ -81,6 +82,10 @@ class MeasureSession(
     private var quietRetryJob: Job? = null
     private var zeroJob: Job? = null
     private var tipsJob: Job? = null
+
+    private val closed: Boolean get() = phase is SessionPhase.Closed
+    private val mac: String? get() = binding?.mac
+    private val protocol: ScaleProtocol? get() = binding?.protocol
 
     // ---- 对外入口（trigger 层调用）----
 
@@ -97,8 +102,7 @@ class MeasureSession(
             _state.update { it.copy(link = "未连接") }
             return
         }
-        picked = false
-        mac = null
+        binding = null
         refreshLastWeight()
         beginConnectWait()
         watchForScale()
@@ -112,37 +116,30 @@ class MeasureSession(
     /** 重新测量（旧库 btnDone 未保存分支 :101-107 → reconnect :246-261）。 */
     fun reconnect() {
         cancelZero()
-        saved = false
-        seenWeight = false
-        pendingImpedance = 0.0
-        sealed = false
-        linkReady = false
-        awaitingConfirm = false
-        suppressDisconnect = true
+        phase = SessionPhase.Linking(picked = false, suppressNextDisconnect = true)
         cancelCountdown()
         cancelRetry()
-        refreshLastWeight()
         start()
     }
 
     /**
      * 确认保存（旧库 btnReport awaitingConfirm 分支 :108-114 与保存当前数据 :1006）。
      *
-     * closed 守卫：stop() 只取消定时器、不清 awaitingConfirm，会话结束后迟到的确认
-     * 仍会走到 finishSave 写库。这类非法转移编译器不会拦，靠本守卫与
-     * 「stop 之后迟到的确认不再写库」测试钉住。
+     * closed 守卫：stop() 只取消定时器、不清确认态，会话结束后迟到的确认仍会走到
+     * finishSave 写库。这类非法转移编译器不会拦，靠本守卫与「stop 之后迟到的确认
+     * 不再写库」测试钉住。
      */
     fun confirmSave() {
         if (closed) return
-        if (awaitingConfirm) {
-            scope.launch { finishSave(heldWeightOnly) }
+        if (phase.awaitingConfirm) {
+            val weightOnly = phase.weightOnly
+            scope.launch { finishSave(weightOnly) }
         }
     }
 
     /** 再次提示退出（旧库 leave :215-231，返回行为由 trigger 层接管）。 */
     fun stop() {
-        closed = true
-        cancelZero()
+        phase = phase.reduce(SessionEvent.Close)
         cancelCountdown()
         cancelRetry()
         cancelZero()
@@ -168,9 +165,9 @@ class MeasureSession(
             override fun onDeviceFound(name: String, deviceMac: String, rssi: Int, scanRecord: ByteArray?) {
                 if (closed || ble.isConnected()) return
                 val device = matchBound(deviceMac, scanRecord) ?: return
-                if (!picked) {
+                if (!phase.picked) {
                     val chosen = preferAdvertisedProtocol(device, scanRecord) ?: return
-                    picked = true
+                    phase = phase.reduce(SessionEvent.MarkPicked)
                     useDevice(chosen)
                     _state.update { it.copy(notice = "识别到 ${chosen.name}") }
                     val proto = protocol ?: return
@@ -218,16 +215,16 @@ class MeasureSession(
     }
 
     private fun useDevice(device: ScaleDevice) {
-        mac = device.mac
         val proto = Protocols.of(device.protocolId) ?: Protocols.of(ScaleDevice.PROTOCOL_OKOK_1)
-        protocol = proto
-        algorithmId = if (proto != null && OkokBia.uses(proto.id())) OkokBia.ID else device.algorithmId
         proto?.reset()
+        if (proto == null) return
+        val algorithm = if (OkokBia.uses(proto.id())) OkokBia.ID else device.algorithmId
+        binding = DeviceBinding(device.mac, proto, algorithm)
     }
 
     private fun deliverBroadcast(scanRecord: ByteArray?) {
         val proto = protocol ?: return
-        if (saved || scanRecord == null) return
+        if (phase.saved || scanRecord == null) return
         val event = proto.broadcast(scanRecord)
         markLinked()
         if (event?.weightKg == null) return
@@ -243,20 +240,20 @@ class MeasureSession(
     private val connectListener = object : BleConnectListener {
         override fun onStartConnect() {
             protocol?.reset()
-            if (!linkReady) {
+            if (!phase.linkReady) {
                 _state.update { it.copy(link = "连接中", notice = "正在连接设备，请踩亮体脂秤屏幕…") }
             }
         }
 
         override fun onConnectFail(reason: String) {
-            suppressDisconnect = false
+            phase = phase.reduce(SessionEvent.ClearSuppress)
             _state.update { it.copy(notice = reason) }
-            if (closed || sealed) return
-            if (isSettling()) {
+            if (closed || phase.sealed) return
+            if (phase.settling) {
                 holdStepOff()
                 return
             }
-            if (linkReady) {
+            if (phase.linkReady) {
                 scheduleDisconnectPrompt()
                 return
             }
@@ -271,17 +268,17 @@ class MeasureSession(
         }
 
         override fun onDisConnected(mac: String) {
-            if (suppressDisconnect) {
-                suppressDisconnect = false
+            if (phase.suppressNextDisconnect) {
+                phase = phase.reduce(SessionEvent.ClearSuppress)
                 return
             }
             if (closed) return
-            if (sealed) return
-            if (isSettling()) {
+            if (phase.sealed) return
+            if (phase.settling) {
                 holdStepOff()
                 return
             }
-            if (!linkReady) {
+            if (!phase.linkReady) {
                 _state.update { it.copy(link = "连接中") }
                 scheduleRetry()
                 return
@@ -294,7 +291,7 @@ class MeasureSession(
         override fun onIndicateSuccess() {
             if (closed) return
             _state.update { it.copy(notice = "") }
-            if (linkReady) {
+            if (phase.linkReady) {
                 _state.update { it.copy(link = "已连接") }
                 writeTimeThenUser()
                 return
@@ -305,16 +302,16 @@ class MeasureSession(
 
         override fun onIndicateFailure(reason: String) {
             _state.update { it.copy(notice = reason) }
-            if (isSettling()) {
+            if (phase.settling) {
                 holdStepOff()
                 return
             }
-            if (linkReady) {
+            if (phase.linkReady) {
                 scheduleDisconnectPrompt()
                 return
             }
             _state.update { it.copy(link = "连接中") }
-            if (!sealed && secondsLeft > 1) scheduleRetry()
+            if (!phase.sealed && secondsLeft > 1) scheduleRetry()
         }
 
         override fun onCharacteristicChanged(characteristic: UUID, data: ByteArray) {
@@ -357,7 +354,7 @@ class MeasureSession(
             _state.update { it.copy(notice = "电量 ${event.batteryPercent}%") }
             return
         }
-        if (sealed) return
+        if (phase.sealed) return
         if (event.weightKg == null) return
         present(event)
     }
@@ -365,12 +362,14 @@ class MeasureSession(
     // ---- 呈现与封存（:628-777）----
 
     private fun present(event: ScaleEvent) {
-        if (closed || sealed || event.weightKg == null) return
-        noteKind(event.kind)
+        if (closed || phase.sealed || event.weightKg == null) return
+        // 订阅刚建立就可能来帧：帧到了说明链路其实已通，补齐就绪态（旧实现靠后续回调补齐）
+        if (!phase.linkReady) markLinked()
+        phase = phase.reduce(SessionEvent.KindObserved(event.kind))
         val kilograms = event.weightKg
         if (kilograms <= 0) {
-            if (seenWeight) {
-                steppingOff = true
+            phase = phase.reduce(SessionEvent.ZeroSeen)
+            if (phase.steppingOff) {
                 cancelDisconnectPrompt()
                 cancelRetry()
             }
@@ -379,12 +378,9 @@ class MeasureSession(
         }
         cancelZero()
         cancelCountdown()
-        steppingOff = false
+        phase = phase.reduce(SessionEvent.WeightSeen(kilograms, event.impedanceOhm, event.heartRate))
         cancelDisconnectPrompt()
         cancelRetry()
-        seenWeight = true
-        if (event.impedanceOhm > pendingImpedance) pendingImpedance = event.impedanceOhm
-        if (event.heartRate > heldHeart) heldHeart = event.heartRate
         val number = String.format(java.util.Locale.US, "%.1f", kilograms)
         if (!finishesNow(event)) {
             _state.update { it.copy(link = "已连接") }
@@ -392,22 +388,20 @@ class MeasureSession(
             return
         }
         cancelDisconnectPrompt()
-        sealed = true
+        phase = phase.reduce(SessionEvent.Seal(kilograms))
         cancelZero()
-        heldWeight = kilograms
-        heldImpedance = pendingImpedance
         if (kilograms < MIN_WEIGHT_KG) {
             outcome(MeasureOutcomeKind.TOO_LIGHT, "体重过轻", "低于 10 公斤，这次不写入。请重新上秤。")
             return
         }
-        val weightScale = scaleKind == ScaleEvent.KIND_WEIGHT
+        val heldImpedance = phase.sealedResult?.impedance ?: 0.0
+        val weightScale = phase.scaleKind == ScaleEvent.KIND_WEIGHT
         val noBody = !weightScale && heldImpedance <= 0
         val last = lastWeightSync()
         val far = last > 0 && Math.abs(kilograms - last) >= LARGE_DELTA_KG
         if (weightScale) {
             if (far) {
-                awaitingConfirm = true
-                heldWeightOnly = true
+                phase = phase.reduce(SessionEvent.AwaitConfirm(weightOnly = true))
                 confirmOutcome(number, fat = "--")
                 return
             }
@@ -423,8 +417,7 @@ class MeasureSession(
             return
         }
         if (noBody && !far) {
-            awaitingConfirm = true
-            heldWeightOnly = true
+            phase = phase.reduce(SessionEvent.AwaitConfirm(weightOnly = true))
             outcome(
                 MeasureOutcomeKind.NO_COMPOSITION, "没有测出身体成分",
                 "赤脚站上秤，双脚尽量覆盖所有电极片。确保脚底干净，避免沾有脏污或过于潮湿",
@@ -432,15 +425,15 @@ class MeasureSession(
             )
             return
         }
-        awaitingConfirm = true
-        heldWeightOnly = noBody
+        phase = phase.reduce(SessionEvent.AwaitConfirm(weightOnly = noBody))
         confirmOutcome(number, fat = if (noBody) "--" else "待计算")
     }
 
     private fun confirmOutcome(number: String, fat: String) {
         val last = lastWeightSync()
+        val held = phase.sealedResult?.weight ?: 0.0
         val extra = String.format(
-            java.util.Locale.US, "和最近一次相差 %.1f 公斤。确认后才写入。", Math.abs(heldWeight - last),
+            java.util.Locale.US, "和最近一次相差 %.1f 公斤。确认后才写入。", Math.abs(held - last),
         )
         outcome(
             MeasureOutcomeKind.CONFIRM_WEIGHT, "请确认这次体重", extra,
@@ -451,19 +444,11 @@ class MeasureSession(
     /** 体重秤锁定即结束。体脂秤要阻抗锁定才出报告；测心率时还不结束（旧库 :738-754）。 */
     private fun finishesNow(event: ScaleEvent): Boolean {
         if (!event.locked || event.impedanceMeasuring || event.heartMeasuring) return false
-        if (scaleKind == ScaleEvent.KIND_WEIGHT) return true
-        if (pendingImpedance > 0) return true
+        if (phase.scaleKind == ScaleEvent.KIND_WEIGHT) return true
+        if (phase.pendingImpedance > 0) return true
         val label = event.label ?: ""
-        if (label.contains("广播") && scaleKind != ScaleEvent.KIND_WEIGHT) return false
-        return scaleKind == ScaleEvent.KIND_FAT || scaleKind == ScaleEvent.KIND_FAT_HR
-    }
-
-    private fun noteKind(kind: Int) {
-        when {
-            kind == ScaleEvent.KIND_FAT_HR -> scaleKind = kind
-            kind == ScaleEvent.KIND_FAT && scaleKind != ScaleEvent.KIND_FAT_HR -> scaleKind = kind
-            kind == ScaleEvent.KIND_WEIGHT && scaleKind == ScaleEvent.KIND_UNKNOWN -> scaleKind = kind
-        }
+        if (label.contains("广播") && phase.scaleKind != ScaleEvent.KIND_WEIGHT) return false
+        return phase.scaleKind == ScaleEvent.KIND_FAT || phase.scaleKind == ScaleEvent.KIND_FAT_HR
     }
 
     private fun liveHint(event: ScaleEvent): String = when {
@@ -482,17 +467,20 @@ class MeasureSession(
 
     /** 落库（旧库 finishSave :951-970）。 */
     private suspend fun finishSave(weightOnly: Boolean) {
-        awaitingConfirm = false
-        val currentMac = mac
-        if (currentMac == null || !devices.contains(currentMac)) {
+        // 先消费确认态：否则落库过程中重复点确认会再起一次落库
+        phase = phase.reduce(SessionEvent.ConfirmConsumed)
+        val sealed = phase.sealedResult ?: return
+        val currentBinding = binding
+        val currentMac = currentBinding?.mac
+        if (currentBinding == null || currentMac == null || !devices.contains(currentMac)) {
             outcome(MeasureOutcomeKind.NOT_BOUND, "这不是已绑定的秤", "地址不一致，这次不写入。")
             return
         }
-        val impedance = if (weightOnly) 0.0 else heldImpedance
+        val impedance = if (weightOnly) 0.0 else sealed.impedance
         val record = recordService.execute(
-            RecordMeasurementCommand(heldWeight, impedance, currentMac, algorithmId),
+            RecordMeasurementCommand(sealed.weight, impedance, currentMac, currentBinding.algorithmId),
         )
-        saved = true
+        phase = phase.reduce(SessionEvent.SaveCommitted)
         refreshLastWeight()
         ble.stopScan()
         val extra = when {
@@ -500,7 +488,7 @@ class MeasureSession(
                 "体重已保存在本机。到「我的档案」填写身高和出生年后，报告才能算出 BMI 和体脂"
             impedance <= 0 -> "未检测到体脂阻抗，这次只保存了体重。请赤脚踩在电极上再测一次"
             else -> String.format(java.util.Locale.US, "阻抗 %.1f Ω，记录已写入本机", impedance)
-        } + if (heldHeart > 0) "    心率 $heldHeart" else ""
+        } + if (sealed.heartPeak > 0) "    心率 ${sealed.heartPeak}" else ""
         _state.update {
             it.copy(
                 phase = MeasurePhase.DONE,
@@ -508,11 +496,11 @@ class MeasureSession(
                     kind = MeasureOutcomeKind.SAVED,
                     title = "已写入本机",
                     extra = extra,
-                    weight = String.format(java.util.Locale.US, "%.1f", heldWeight),
+                    weight = String.format(java.util.Locale.US, "%.1f", sealed.weight),
                     fat = if (record.fat < 0) "--"
                     else String.format(java.util.Locale.US, "%.1f%%", record.fat),
                     impedanceOhm = impedance,
-                    heartRate = heldHeart,
+                    heartRate = sealed.heartPeak,
                     recordTime = record.time,
                 ),
             )
@@ -522,35 +510,24 @@ class MeasureSession(
     // ---- 计时与链路守卫（:628-654, 797-894, 908-949）----
 
     private fun showZero() {
-        if (sealed || !seenWeight || zeroJob != null) return
+        if (phase.sealed || !phase.seenWeight || zeroJob != null) return
         zeroJob = scope.launch {
             delay(ZERO_DELAY_MS)
             zeroJob = null
-            if (sealed || closed || !seenWeight) return@launch
-            seenWeight = false
-            steppingOff = true
-            pendingImpedance = 0.0
+            if (closed || phase.sealed || !phase.seenWeight) return@launch
+            phase = phase.reduce(SessionEvent.StepOff)
             cancelDisconnectPrompt()
             _state.update { it.copy(weightText = "0.0", link = "已连接", notice = "请重新上秤") }
             showWaitKeepLink("请光脚站上秤", TIPS[tipIndex])
         }
     }
 
-    /**
-     * 已连上且已经见到体重（或正在下秤）——此时链路抖动属正常，不弹重连提示。
-     * 该判断原先在 onConnectFail / onDisConnected / onIndicateFailure 三处各写一遍，
-     * 收敛为单一来源：策略要改只改这里。
-     */
-    private fun isSettling(): Boolean = linkReady && (seenWeight || steppingOff)
-
     /** 踩上再拿起时秤常会闪断。回到请光脚站上秤，保持已连接，后台把链路接回来（:831-848）。 */
     private fun holdStepOff() {
-        if (closed || sealed) return
+        if (closed || phase.sealed) return
         cancelDisconnectPrompt()
-        steppingOff = true
+        phase = phase.reduce(SessionEvent.StepOff)
         cancelZero()
-        seenWeight = false
-        pendingImpedance = 0.0
         showWaitKeepLink("请光脚站上秤", TIPS[tipIndex])
         _state.update { it.copy(link = "已连接", notice = "请重新上秤") }
         if (!ble.isConnected() && !ble.isConnecting()) {
@@ -564,7 +541,7 @@ class MeasureSession(
 
     private fun quietReconnect() {
         quietRetryJob = null
-        if (closed || sealed || !linkReady || !steppingOff) return
+        if (closed || phase.sealed || !phase.linkReady || !phase.steppingOff) return
         val currentMac = mac ?: return
         ble.connect(currentMac, connectListener)
     }
@@ -574,9 +551,9 @@ class MeasureSession(
         cancelDisconnectPrompt()
         disconnectPromptJob = scope.launch {
             delay(DISCONNECT_PROMPT_DELAY_MS)
-            if (closed || sealed) return@launch
-            if (!linkReady || steppingOff || seenWeight) {
-                if (linkReady) _state.update { it.copy(link = "已连接") }
+            if (closed || phase.sealed) return@launch
+            if (!phase.linkReady || phase.steppingOff || phase.seenWeight) {
+                if (phase.linkReady) _state.update { it.copy(link = "已连接") }
                 return@launch
             }
             showReconnectPrompt()
@@ -597,7 +574,7 @@ class MeasureSession(
 
     private fun scheduleRetry() {
         cancelRetry()
-        if (closed || sealed || linkReady || secondsLeft <= 1) return
+        if (closed || phase.sealed || phase.linkReady || secondsLeft <= 1) return
         retryJob = scope.launch {
             delay(RETRY_DELAY_MS)
             retryConnect()
@@ -606,23 +583,19 @@ class MeasureSession(
 
     private fun retryConnect() {
         retryJob = null
-        if (closed || sealed || linkReady) return
+        if (closed || phase.sealed || phase.linkReady) return
         if (ble.isConnecting()) return
         val currentMac = mac
         val proto = protocol
         if (currentMac == null || proto == null || proto.requiredCharacteristic() == null) {
-            if (!picked) watchForScale()
+            if (!phase.picked) watchForScale()
             return
         }
         ble.connect(currentMac, connectListener)
     }
 
     private fun beginConnectWait() {
-        linkReady = false
-        scaleKind = ScaleEvent.KIND_UNKNOWN
-        seenWeight = false
-        steppingOff = false
-        pendingImpedance = 0.0
+        phase = phase.reduce(SessionEvent.ResetForConnect)
         cancelZero()
         tipIndex = 0
         _state.update {
@@ -638,22 +611,19 @@ class MeasureSession(
     }
 
     private fun markLinked() {
-        if (linkReady) return
-        linkReady = true
+        if (phase.linkReady) return
+        phase = phase.reduce(SessionEvent.LinkEstablished)
         cancelCountdown()
         cancelRetry()
         _state.update { it.copy(link = "已连接") }
-        if (!seenWeight && !sealed && !awaitingConfirm) {
+        if (!phase.seenWeight && !phase.sealed && !phase.awaitingConfirm) {
             showLive(null, "0.0")
             startTips()
         }
     }
 
     private fun beginStand() {
-        sealed = false
-        awaitingConfirm = false
-        seenWeight = false
-        pendingImpedance = 0.0
+        phase = phase.reduce(SessionEvent.Reseat)
         cancelZero()
         markLinked()
         showLive(null, "0.0")
@@ -679,14 +649,14 @@ class MeasureSession(
     }
 
     private fun publishCountdown() {
-        if (sealed || awaitingConfirm || seenWeight || linkReady) return
+        if (phase.sealed || phase.awaitingConfirm || phase.seenWeight || phase.linkReady) return
         _state.update { it.copy(countdown = secondsLeft) }
     }
 
     private fun onCountdownEnd() {
         countdownJob = null
-        if (closed || awaitingConfirm || seenWeight || sealed || linkReady) return
-        sealed = true
+        if (closed || phase.awaitingConfirm || phase.seenWeight || phase.sealed || phase.linkReady) return
+        phase = phase.reduce(SessionEvent.Timeout)
         cancelTips()
         cancelRetry()
         ble.stopScan()
@@ -734,7 +704,7 @@ class MeasureSession(
         }
         if (!desc.isNullOrEmpty()) _state.update { it.copy(desc = desc) }
         val stand = title == "请光脚站上秤"
-        _state.update { it.copy(showCountdown = stand && !linkReady) }
+        _state.update { it.copy(showCountdown = stand && !phase.linkReady) }
     }
 
     private fun showWaitKeepLink(title: String, desc: String?) {
@@ -757,6 +727,7 @@ class MeasureSession(
 
     private fun outcome(kind: MeasureOutcomeKind, title: String, extra: String, weight: String = "", fat: String = "--", confirmable: Boolean = false) {
         cancelTips()
+        val heldWeight = phase.sealedResult?.weight ?: 0.0
         _state.update {
             it.copy(
                 phase = MeasurePhase.DONE, showCountdown = false, showRetry = false,

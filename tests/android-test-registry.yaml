@@ -147,6 +147,10 @@ commands:
   path: application/src/test/kotlin/com/xcwk/scalehub/application/measure/MeasureSessionTest.kt
   status: stable
   type: gradle-test
+- description: 测量会话相位转移矩阵（状态×事件逐格 + 2000 步随机不变量, DEC-024）
+  path: application/src/test/kotlin/com/xcwk/scalehub/application/measure/SessionPhaseTest.kt
+  status: stable
+  type: gradle-test
 - description: 设备仓储行为（绑定/失活/规范化/云端基线, M3c）
   path: infrastructure/src/test/kotlin/com/xcwk/scalehub/infrastructure/persistent/repository/RoomDeviceRepositoryTest.kt
   status: stable
