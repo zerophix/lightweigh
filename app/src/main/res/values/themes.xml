@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  应用主题：在系统 Light 主题上把系统栏刷成设计稿的浅底 + 深色图标。
+
+  此前清单直接引用 @android:style/Theme.Material.Light.NoActionBar，它自带的
+  statusBarColor 是深灰，于是每个页面顶部都有一条与页面底色（#F4F7F6）割裂的黑边。
+  这里只覆盖系统栏与窗口底色，其余仍继承系统 Light 主题，避免自造一套主题体系。
+-->
+<resources>
+    <style name="Theme.Qk" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">@color/qk_bg</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:navigationBarColor">@color/qk_card</item>
+        <item name="android:windowBackground">@color/qk_bg</item>
+        <item name="android:colorAccent">@color/qk_primary</item>
+    </style>
+</resources>

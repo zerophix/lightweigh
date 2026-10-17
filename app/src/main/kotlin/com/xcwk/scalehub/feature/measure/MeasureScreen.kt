@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -13,43 +14,65 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material3.Button
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.xcwk.scalehub.application.query.HomeGoalState
+import com.xcwk.scalehub.feature.trend.TrendPointUi
+import com.xcwk.scalehub.ui.components.QkActionChip
 import com.xcwk.scalehub.ui.components.QkAreaChart
+import com.xcwk.scalehub.ui.components.QkBodyBar
 import com.xcwk.scalehub.ui.components.QkButton
 import com.xcwk.scalehub.ui.components.QkButtonStyle
 import com.xcwk.scalehub.ui.components.QkCard
 import com.xcwk.scalehub.ui.components.QkEmptyHint
-import com.xcwk.scalehub.ui.components.QkWheelPicker
+import com.xcwk.scalehub.ui.components.QkGlyphTone
+import com.xcwk.scalehub.ui.components.QkIcon
+import com.xcwk.scalehub.ui.components.QkIconBubble
+import com.xcwk.scalehub.ui.components.QkIcons
+import com.xcwk.scalehub.ui.components.QkMiniCard
+import com.xcwk.scalehub.ui.components.QkPill
+import com.xcwk.scalehub.ui.components.QkProgress
+import com.xcwk.scalehub.ui.components.QkSectionHead
 import com.xcwk.scalehub.ui.components.QkTextField
+import com.xcwk.scalehub.ui.components.QkWheelPicker
 import com.xcwk.scalehub.ui.theme.QkColor
+import com.xcwk.scalehub.ui.theme.QkRadius
+import com.xcwk.scalehub.ui.theme.QkSpacing
 import java.util.Locale
 
 /**
- * feature.measure — 首页（四件套之 Screen）：旧库 HomeScreen 全家桶移植（H2）。
- * 体重卡（遮罩/比上次/BMI 段条）、AI 询问、热量记录、目标+体重趋势、喝水/跳绳、
- * 腰围/习惯、运动三卡、轻断食/生理期占位入口；保留手动记录与最近列表。
+ * feature.measure — 首页（设计稿「首页」屏）。
+ *
+ * 版式按设计稿自上而下：体重卡（指标格 + 四段条 + 双按钮）→ AI 询问 → 今日饮食 →
+ * 目标 / 体重趋势 → 喝水 / 跳绳 → 习惯打卡 / 运动 → 腰围·轻断食·生理期 → 手动记录体重
+ * → 最近测量 → 健康记录。
+ *
+ * 设计稿没有的模块（腰围 / 轻断食 / 生理期 / 手动记录 / 健康记录 / 热量明细）不是删掉，
+ * 而是编进同一套卡片语法里：腰围并入体重卡的第三个指标格，轻断食与生理期用同尺寸的
+ * 浅底卡承接，热量明细展开在「今日饮食」的四格内。
  */
 @Composable
 fun MeasureScreen(
@@ -61,6 +84,7 @@ fun MeasureScreen(
     onOpenRecord: (String, String) -> Unit = { _, _ -> },
     onOpenFeature: (String) -> Unit = {},
     onOpenMine: () -> Unit = {},
+    onOpenQuick: () -> Unit = {},
 ) {
     val state by vm.state.collectAsStateWithLifecycle()
     val home = state.home
@@ -69,403 +93,714 @@ fun MeasureScreen(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(16.dp),
+            .padding(horizontal = QkSpacing.Page),
     ) {
-        // ---- 体重卡片（眼睛遮罩 + 比上次 + BMI 段条）----
-        var masked by rememberSaveable { mutableStateOf(false) }
-        QkCard {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    if (masked) "显示" else "隐藏",
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.clickable { masked = !masked }.padding(end = 6.dp),
-                )
-                Text(
-                    if (home.latestTime == 0L) "暂无测量" else "今天有记录",
-                    modifier = Modifier.weight(1f).padding(start = 6.dp),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Row(modifier = Modifier.clickable(onClick = onOpenHistory), verticalAlignment = Alignment.CenterVertically) {
-                    Text("历史记录", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Text(" ›", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-            }
-            Row(modifier = Modifier.padding(top = 8.dp), verticalAlignment = Alignment.Bottom) {
-                Column(
-                    modifier = Modifier.weight(1f).clickable(enabled = home.latestTime > 0L) {
-                        onOpenReport(home.latestTime)
-                    },
-                ) {
-                    if (home.latestWeight == null) {
-                        Text("--", style = MaterialTheme.typography.displaySmall)
-                        Text(
-                            "点击底部 + 添加体重",
-                            modifier = Modifier.padding(top = 8.dp),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    } else {
-                        Row(verticalAlignment = Alignment.Bottom) {
-                            Text(
-                                if (masked) "***" else String.format(Locale.US, "%.1f", home.latestWeight),
-                                style = MaterialTheme.typography.displayMedium,
-                            )
-                            Text(" 公斤", modifier = Modifier.padding(bottom = 6.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                        Text(
-                            "比上次  体重 ${if (masked) "***" else (home.diffText ?: "--")} 公斤  " +
-                                "体脂率 ${if (masked || !home.latestFatShown) "--" else String.format(Locale.US, "%.1f", home.latestFat)} %",
-                            modifier = Modifier.padding(top = 6.dp),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                }
-                BmiSegments(segment = home.bmiSegment, onSetHeight = onOpenMine)
-            }
+        WeightCard(
+            home = home,
+            onOpenReport = onOpenReport,
+            onOpenHistory = onOpenHistory,
+            onSetHeight = onOpenMine,
+        )
+        AiAskRow(onAskAi = onAskAi)
+        TodayDietCard(home = home, onOpenRecord = onOpenRecord, onOpenQuick = onOpenQuick)
+        Row(modifier = Modifier.padding(top = QkSpacing.CardGap), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            GoalCard(home = home, modifier = Modifier.weight(1f), onSetTarget = { vm.onIntent(MeasureIntent.SetTargetWeight(it)) })
+            WeekTrendCard(home = home, modifier = Modifier.weight(1f), onOpenHistory = onOpenHistory)
         }
-
-        // ---- AI 询问 ----
-        QkCard(modifier = Modifier.padding(top = 12.dp)) {
-            var query by rememberSaveable { mutableStateOf("") }
-            QkTextField(
-                value = query,
-                onValueChange = { if (it.length <= 200) query = it },
-                placeholder = "问问轻刻 AI：减脂期能吃西瓜吗？",
-                modifier = Modifier.fillMaxWidth(),
+        Row(modifier = Modifier.padding(top = QkSpacing.CardGap), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            WaterCard(home = home, modifier = Modifier.weight(1f), onRecord = { onOpenRecord("water", "") })
+            QkMiniCard(
+                title = "跳绳",
+                value = "${home.ropeToday}",
+                caption = if (home.ropeToday > 0) "今日累计" else "还没开始",
+                icon = QkIcons.Rope,
+                iconTone = QkGlyphTone.Blue,
+                modifier = Modifier.weight(1f),
+                onClick = { onOpenRecord("exercise", "跳绳") },
             )
-            Row(modifier = Modifier.fillMaxWidth().padding(top = 8.dp), horizontalArrangement = Arrangement.End) {
-                QkButton(
-                    text = "发送",
-                    enabled = text48(query),
-                    onClick = { val text = query.trim(); query = ""; onAskAi(text) },
-                )
+        }
+        Row(modifier = Modifier.padding(top = QkSpacing.CardGap), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            HabitCard(home = home, modifier = Modifier.weight(1f), onRecord = { onOpenRecord("habit", "") })
+            SportCard(home = home, modifier = Modifier.weight(1f), onOpenRecord = onOpenRecord)
+        }
+        Row(modifier = Modifier.padding(top = QkSpacing.CardGap), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            TintCard(
+                title = "轻断食",
+                value = "16:8",
+                caption = "尚未开始",
+                icon = QkIcons.Fasting,
+                tint = QkColor.MintSoft,
+                ink = QkColor.Primary,
+                modifier = Modifier.weight(1f),
+                tone = QkGlyphTone.Green,
+                onClick = { onOpenFeature("fasting") },
+            )
+            TintCard(
+                title = "生理期",
+                value = "未记录",
+                caption = "点击记录周期",
+                icon = QkIcons.Period,
+                tint = QkColor.PurpleSoft,
+                ink = QkColor.Purple,
+                modifier = Modifier.weight(1f),
+                tone = QkGlyphTone.Purple,
+                onClick = { onOpenFeature("period") },
+            )
+        }
+        ManualWeightCard(
+            value = state.weightInput,
+            saving = state.saving,
+            onChange = { vm.onIntent(MeasureIntent.WeightChanged(it)) },
+            onSave = { vm.onIntent(MeasureIntent.Save) },
+            onScale = onOpenScale,
+        )
+        state.lastRecord?.let {
+            Text(
+                it,
+                modifier = Modifier.padding(top = 8.dp),
+                style = MaterialTheme.typography.bodySmall,
+                color = QkColor.Primary,
+            )
+        }
+        state.error?.let {
+            Text(
+                it,
+                modifier = Modifier.padding(top = 6.dp),
+                style = MaterialTheme.typography.bodySmall,
+                color = QkColor.Danger,
+            )
+        }
+
+        QkSectionHead(
+            title = "最近测量",
+            modifier = Modifier.padding(top = QkSpacing.Lg, bottom = 2.dp),
+            action = { TextAction("全部 ›", onOpenHistory) },
+        )
+        QkCard(padding = 6.dp) {
+            if (state.recent.isEmpty()) {
+                QkEmptyHint("还没有测量记录", modifier = Modifier.padding(horizontal = 9.dp, vertical = 8.dp))
+            } else {
+                state.recent.take(4).forEachIndexed { index, item ->
+                    if (index > 0) Line()
+                    RecentRow(item = item, onClick = { onOpenReport(item.time) })
+                }
             }
         }
 
-        // ---- 热量记录 ----
-        QkCard(modifier = Modifier.padding(top = 12.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("热量记录", modifier = Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)
-                Text(
-                    "还可以吃 ",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Text(
-                    "${home.calorieRemaining}",
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-                Text(" 千卡", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-            Row(modifier = Modifier.padding(top = 10.dp)) {
-                listOf("早餐" to "早餐", "午餐" to "午餐", "晚餐" to "晚餐", "运动" to null).forEach { (label, meal) ->
-                    Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
+        QkSectionHead(title = "健康记录", modifier = Modifier.padding(top = QkSpacing.Lg, bottom = 2.dp))
+        QkCard(padding = 6.dp) {
+            if (state.recentLogs.isEmpty()) {
+                QkEmptyHint("今天还没有记录", modifier = Modifier.padding(horizontal = 9.dp, vertical = 8.dp))
+            } else {
+                state.recentLogs.forEachIndexed { index, log ->
+                    if (index > 0) Line()
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 9.dp, vertical = 11.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    ) {
+                        QkIconBubble(iconOfLog(log.typeLabel), QkGlyphTone.Green, 30.dp)
+                        Text(log.typeLabel, style = MaterialTheme.typography.titleSmall, color = QkColor.Fg)
                         Text(
-                            if (meal == null) "${home.exerciseKcal}" else "${home.dietByMeal[meal] ?: 0}",
-                            style = MaterialTheme.typography.titleMedium,
+                            log.valueText,
+                            modifier = Modifier.weight(1f),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = QkColor.Muted,
+                            maxLines = 1,
                         )
-                        Text(label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(log.timeText, style = MaterialTheme.typography.labelSmall, color = QkColor.Hint)
                     }
                 }
             }
-            Row(modifier = Modifier.padding(top = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                listOf("+早餐" to "早餐", "+午餐" to "午餐", "+晚餐" to "晚餐").forEach { (label, meal) ->
-                    QkButton(
-                        text = label,
-                        modifier = Modifier.weight(1f),
-                        style = QkButtonStyle.Secondary,
-                        onClick = { onOpenRecord("diet", meal) },
-                    )
-                }
-                QkButton(
-                    text = "+运动",
-                    modifier = Modifier.weight(1f),
-                    style = QkButtonStyle.Secondary,
-                    onClick = { onOpenRecord("exercise", "") },
-                )
-            }
         }
+        Spacer(modifier = Modifier.height(28.dp))
+    }
+}
 
-        // ---- 目标 + 体重趋势 ----
-        Row(modifier = Modifier.padding(top = 12.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            var showTarget by rememberSaveable { mutableStateOf(false) }
-            QkCard(modifier = Modifier.weight(1f)) {
-                Text("目标", style = MaterialTheme.typography.titleSmall)
-                if (home.targetWeight > 0f) {
-                    Text(
-                        String.format(Locale.US, "目标 %.1f 公斤", home.targetWeight),
-                        modifier = Modifier.padding(top = 6.dp),
-                        style = MaterialTheme.typography.titleMedium,
-                    )
-                    val gap = home.latestWeight?.let { it - home.targetWeight }
+// ---------------------------------------------------------------- 体重卡
+
+@Composable
+private fun WeightCard(
+    home: HomeGoalState,
+    onOpenReport: (Long) -> Unit,
+    onOpenHistory: () -> Unit,
+    onSetHeight: () -> Unit,
+) {
+    var masked by rememberSaveable { mutableStateOf(false) }
+    QkCard(padding = QkSpacing.CardPad) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("体重", style = MaterialTheme.typography.titleMedium, color = QkColor.Fg, modifier = Modifier.weight(1f))
+            Text("隐藏", style = MaterialTheme.typography.bodySmall, color = QkColor.Muted)
+            Switch(
+                checked = !masked,
+                onCheckedChange = { masked = !it },
+                modifier = Modifier.padding(start = 6.dp),
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = Color.White,
+                    checkedTrackColor = QkColor.Primary,
+                    checkedBorderColor = QkColor.Primary,
+                    uncheckedThumbColor = Color.White,
+                    uncheckedTrackColor = QkColor.Secondary,
+                    uncheckedBorderColor = QkColor.Secondary,
+                ),
+            )
+        }
+        Row(modifier = Modifier.padding(top = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable(enabled = home.latestTime > 0L) { onOpenReport(home.latestTime) },
+            ) {
+                Row(verticalAlignment = Alignment.Bottom) {
                     Text(
                         when {
-                            gap == null -> "记录体重后查看进度"
-                            gap > 0 -> String.format(Locale.US, "距目标还差 %.1f 公斤", gap)
-                            else -> "已达成目标，继续保持"
+                            masked -> "***"
+                            home.latestWeight == null -> "--"
+                            else -> String.format(Locale.US, "%.1f", home.latestWeight)
                         },
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.displayLarge,
+                        color = QkColor.Fg,
                     )
-                } else {
                     Text(
-                        "设置目标计划，轻刻帮你管理体重",
-                        modifier = Modifier.padding(top = 6.dp),
+                        " kg",
+                        modifier = Modifier.padding(bottom = 5.dp),
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = QkColor.Muted,
                     )
                 }
-                TextButton(onClick = { showTarget = true }) { Text("设置目标") }
-                if (showTarget) {
-                    val initial = home.targetWeight.toInt().coerceIn(30, 200).takeIf { home.targetWeight > 0 } ?: 60
-                    var picked by androidx.compose.runtime.remember { mutableStateOf(initial) }
-                    androidx.compose.material3.AlertDialog(
-                        onDismissRequest = { showTarget = false },
-                        title = { Text("设置目标体重") },
-                        text = {
-                            QkWheelPicker(
-                                labels = (30..200).map { "$it 公斤" },
-                                initialIndex = initial - 30,
-                            ) { picked = 30 + it }
-                        },
-                        confirmButton = {
-                            TextButton(onClick = {
-                                vm.onIntent(MeasureIntent.SetTargetWeight(picked.toFloat()))
-                                showTarget = false
-                            }) { Text("确定") }
-                        },
-                        dismissButton = { TextButton(onClick = { showTarget = false }) { Text("取消") } },
-                    )
-                }
-            }
-            QkCard(modifier = Modifier.weight(1f)) {
-                Text("体重趋势", style = MaterialTheme.typography.titleSmall)
                 Text(
-                    if (home.weekChange == null) "-- 公斤" else String.format(Locale.US, "%+.1f 公斤", home.weekChange),
-                    modifier = Modifier.padding(top = 4.dp),
-                    style = MaterialTheme.typography.titleMedium,
-                )
-                Text("近7天变化", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                if (home.weekWeights.size >= 2) {
-                    QkAreaChart(
-                        points = home.weekWeights.mapIndexed { i, v ->
-                            com.xcwk.scalehub.feature.trend.TrendPointUi(i.toLong(), v)
-                        },
-                        modifier = Modifier.padding(top = 8.dp).fillMaxWidth().height(48.dp),
-                        height = 48,
-                    )
-                }
-            }
-        }
-
-        // ---- 喝水 + 跳绳 ----
-        Row(modifier = Modifier.padding(top = 12.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            QkCard(modifier = Modifier.weight(1f)) {
-                Row(verticalAlignment = Alignment.Bottom) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Row(verticalAlignment = Alignment.Bottom) {
-                            Text("${home.waterTodayMl}", style = MaterialTheme.typography.headlineSmall)
-                            Text(" ml", modifier = Modifier.padding(bottom = 2.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    when {
+                        home.latestWeight == null -> "点击下方 ＋ 添加体重"
+                        masked -> "比上次 ***"
+                        home.diffText == null -> "暂无对比数据"
+                        else -> {
+                            val down = home.diffText!!.startsWith("-")
+                            "比上次 ${if (down) "↓" else "↑"} ${home.diffText} kg"
                         }
-                        Text(
-                            "已完成 ${home.waterPercent}%",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                    // 水位进度条
-                    Box(
-                        Modifier.width(32.dp).height(48.dp)
-                            .clip(RoundedCornerShape(6.dp))
-                            .background(MaterialTheme.colorScheme.surfaceVariant),
-                    ) {
-                        Box(
-                            Modifier.align(Alignment.BottomCenter)
-                                .fillMaxWidth()
-                                .height((48 * home.waterPercent / 100).dp)
-                                .clip(RoundedCornerShape(6.dp))
-                                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)),
-                        )
-                    }
-                }
-                Row(modifier = Modifier.fillMaxWidth().padding(top = 8.dp), horizontalArrangement = Arrangement.End) {
-                    Icon(
-                        Icons.Outlined.Add,
-                        contentDescription = "喝水",
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier
-                            .size(30.dp)
-                            .clip(androidx.compose.foundation.shape.CircleShape)
-                            .background(MaterialTheme.colorScheme.primary)
-                            .clickable { onOpenRecord("water", "") }
-                            .padding(6.dp),
-                    )
-                }
-            }
-            QkCard(modifier = Modifier.weight(1f)) {
-                Text("跳绳", style = MaterialTheme.typography.titleSmall)
-                Text("${home.ropeToday}个", modifier = Modifier.padding(top = 4.dp), style = MaterialTheme.typography.headlineSmall)
-                TextButton(onClick = { onOpenRecord("exercise", "跳绳") }) { Text("去记录") }
-            }
-        }
-
-        // ---- 腰围 + 习惯 ----
-        Row(modifier = Modifier.padding(top = 12.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            QkCard(modifier = Modifier.weight(1f).clickable { onOpenRecord("waist", "") }) {
-                Text("腰围", style = MaterialTheme.typography.titleSmall)
-                Text(
-                    if (home.waistCm == null) "暂无数据" else String.format(Locale.US, "%.1f cm", home.waistCm),
+                    },
                     modifier = Modifier.padding(top = 4.dp),
-                    style = if (home.waistCm == null) MaterialTheme.typography.bodyMedium else MaterialTheme.typography.headlineSmall,
-                    color = if (home.waistCm == null) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
-                )
-            }
-            QkCard(modifier = Modifier.weight(1f).clickable { onOpenRecord("habit", "") }) {
-                Text("习惯", style = MaterialTheme.typography.titleSmall)
-                Row(verticalAlignment = Alignment.Bottom) {
-                    Text("${home.habitCount}", style = MaterialTheme.typography.headlineSmall)
-                    Text(" /6 个", modifier = Modifier.padding(bottom = 2.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-                Text("小习惯，大改变", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-        }
-
-        // ---- 运动三卡 ----
-        Row(modifier = Modifier.padding(top = 12.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            SportCard("健走", home.sportToday["健走"] ?: 0, Modifier.weight(1f)) { onOpenRecord("exercise", "健走") }
-            SportCard("跑步", home.sportToday["跑步"] ?: 0, Modifier.weight(1f)) { onOpenRecord("exercise", "跑步") }
-        }
-        Row(modifier = Modifier.padding(top = 12.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            SportCard("骑行", home.sportToday["骑行"] ?: 0, Modifier.weight(1f)) { onOpenRecord("exercise", "骑行") }
-            QkCard(modifier = Modifier.weight(1f).clickable { onOpenFeature("fasting") }) {
-                Text("轻断食", style = MaterialTheme.typography.titleSmall)
-                Text(
-                    "开始断食计划吧！",
-                    modifier = Modifier.padding(top = 10.dp),
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = if (home.diffText != null && !masked) {
+                        if (home.diffText!!.startsWith("-")) QkColor.Primary else QkColor.AmberInk
+                    } else {
+                        QkColor.Muted
+                    },
+                )
+            }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                MetricCell(
+                    label = "体脂率",
+                    value = if (masked || !home.latestFatShown) "--" else String.format(Locale.US, "%.1f%%", home.latestFat),
+                )
+                Box(modifier = Modifier.width(1.dp).height(34.dp).background(QkColor.LineSoft))
+                MetricCell(
+                    label = "BMI",
+                    value = if (masked) "--" else home.bmi?.let { String.format(Locale.US, "%.1f", it) } ?: "--",
+                    pill = home.bmiSegment?.let { if (it == "标准") "正常" else it },
+                )
+                Box(modifier = Modifier.width(1.dp).height(34.dp).background(QkColor.LineSoft))
+                MetricCell(
+                    label = "腰围",
+                    value = if (home.waistCm == null) "--" else String.format(Locale.US, "%.0f", home.waistCm),
                 )
             }
         }
-
-        // ---- 生理期 ----
-        Row(modifier = Modifier.padding(top = 12.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            QkCard(modifier = Modifier.weight(1f).clickable { onOpenFeature("period") }) {
-                Text("生理期", style = MaterialTheme.typography.titleSmall)
-                Text(
-                    "尚未记录",
-                    modifier = Modifier.padding(top = 10.dp),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-            androidx.compose.foundation.layout.Spacer(Modifier.weight(1f))
+        Box(modifier = Modifier.padding(top = 12.dp)) {
+            QkBodyBar(
+                labels = listOf("偏瘦", "标准", "偏重", "肥胖"),
+                active = home.bmiSegment?.let { if (it == "偏胖") "偏重" else it },
+            )
         }
-
-        // ---- 手动记录体重（保留原有）----
-        HorizontalDivider(modifier = Modifier.padding(top = 16.dp))
-        Text("记录体重", modifier = Modifier.padding(top = 12.dp), style = MaterialTheme.typography.titleMedium)
-        QkButton(
-            text = "蓝牙称重（连体脂秤）",
-            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-            onClick = onOpenScale,
-        )
-        QkTextField(
-            value = state.weightInput,
-            onValueChange = { vm.onIntent(MeasureIntent.WeightChanged(it)) },
-            label = "体重 (kg)",
-            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-        )
-        QkButton(
-            text = if (state.saving) "保存中…" else "保存",
-            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-            enabled = !state.saving,
-            onClick = { vm.onIntent(MeasureIntent.Save) },
-        )
-        state.lastRecord?.let { Text(it, modifier = Modifier.padding(top = 8.dp)) }
-        state.error?.let {
-            Text(it, modifier = Modifier.padding(top = 6.dp), color = MaterialTheme.colorScheme.error)
+        if (home.bmiSegment == null) {
+            Text(
+                "设置身高后计算 BMI",
+                modifier = Modifier.padding(top = 6.dp).clickable(onClick = onSetHeight),
+                style = MaterialTheme.typography.labelSmall,
+                color = QkColor.Primary,
+            )
         }
-
-        // ---- 最近测量 / 健康记录（保留原有，卡片化）----
-        QkCard(modifier = Modifier.fillMaxWidth().padding(top = 12.dp)) {
-            Text("最近测量", style = MaterialTheme.typography.titleMedium)
-            if (state.recent.isEmpty()) {
-                QkEmptyHint("还没有测量记录")
-            } else {
-                state.recent.forEachIndexed { index, item ->
-                    if (index > 0) HorizontalDivider(modifier = Modifier.padding(vertical = 6.dp))
-                    Text(item)
-                }
-            }
-        }
-        if (state.recentLogs.isNotEmpty()) {
-            QkCard(modifier = Modifier.fillMaxWidth().padding(top = 12.dp)) {
-                Text("健康记录", style = MaterialTheme.typography.titleMedium)
-                state.recentLogs.forEach { log ->
-                    Text(
-                        "${log.timeText}  ${log.typeLabel} · ${log.valueText}",
-                        modifier = Modifier.padding(top = 6.dp),
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                }
-            }
+        Row(modifier = Modifier.padding(top = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            QkButton(
+                text = "查看报告",
+                style = QkButtonStyle.Secondary,
+                modifier = Modifier.weight(1f),
+                onClick = { onOpenReport(home.latestTime) },
+            )
+            QkButton(
+                text = "历史记录",
+                style = QkButtonStyle.Secondary,
+                modifier = Modifier.weight(1f),
+                onClick = onOpenHistory,
+            )
         }
     }
 }
 
-private fun text48(query: String): Boolean = query.trim().isNotEmpty()
-
 @Composable
-private fun SportCard(name: String, todayKcal: Int, modifier: Modifier = Modifier, onClick: () -> Unit) {
-    QkCard(modifier = modifier.clickable(onClick = onClick)) {
-        Text(name, style = MaterialTheme.typography.titleSmall)
+private fun MetricCell(label: String, value: String, pill: String? = null) {
+    Column(
+        modifier = Modifier.padding(horizontal = 11.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(label, style = MaterialTheme.typography.labelSmall, color = QkColor.Muted)
         Text(
-            if (todayKcal > 0) "今日 $todayKcal 千卡" else "暂无记录",
-            modifier = Modifier.padding(top = 8.dp),
-            style = if (todayKcal > 0) MaterialTheme.typography.titleMedium else MaterialTheme.typography.bodySmall,
-            color = if (todayKcal > 0) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
+            value,
+            modifier = Modifier.padding(top = 5.dp),
+            style = MaterialTheme.typography.titleMedium,
+            color = QkColor.Fg,
+        )
+        if (pill != null) {
+            Box(modifier = Modifier.padding(top = 4.dp)) {
+                QkPill(pill)
+            }
+        }
+    }
+}
+
+// ---------------------------------------------------------------- AI 询问
+
+@Composable
+private fun AiAskRow(onAskAi: (String) -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = QkSpacing.CardGap)
+            .clip(RoundedCornerShape(24.dp))
+            .background(QkColor.Card)
+            .clickable { onAskAi("") }
+            .padding(start = 13.dp, top = 6.dp, end = 6.dp, bottom = 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        QkIcon(QkIcons.Ai, tint = QkColor.Primary, size = 18.dp)
+        Text(
+            "问问轻刻 AI：减脂期能吃西瓜吗？",
+            modifier = Modifier.weight(1f).padding(start = 8.dp),
+            style = MaterialTheme.typography.bodySmall,
+            color = QkColor.Muted,
+            maxLines = 1,
+        )
+        Box(
+            modifier = Modifier
+                .size(34.dp)
+                .clip(CircleShape)
+                .background(QkColor.Primary),
+            contentAlignment = Alignment.Center,
+        ) {
+            QkIcon(QkIcons.Send, tint = Color.White, size = 17.dp)
+        }
+    }
+}
+
+// ---------------------------------------------------------------- 今日饮食
+
+@Composable
+private fun TodayDietCard(
+    home: HomeGoalState,
+    onOpenRecord: (String, String) -> Unit,
+    onOpenQuick: () -> Unit,
+) {
+    QkCard(padding = QkSpacing.CardPad) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            QkIcon(QkIcons.Vegetable, tint = QkColor.Primary, size = 16.dp)
+            Text(
+                "今日饮食",
+                modifier = Modifier.padding(start = 5.dp),
+                style = MaterialTheme.typography.titleMedium,
+                color = QkColor.Fg,
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            Text("还可以吃 ", style = MaterialTheme.typography.bodySmall, color = QkColor.Muted)
+            Text(
+                "${home.calorieRemaining}",
+                style = MaterialTheme.typography.titleMedium,
+                color = QkColor.Primary,
+            )
+            Text(" 千卡", style = MaterialTheme.typography.bodySmall, color = QkColor.Muted)
+        }
+        Row(modifier = Modifier.padding(top = 13.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            MealCell("早餐", home.dietByMeal["早餐"] ?: 0, QkIcons.Breakfast, QkGlyphTone.Green, Modifier.weight(1f)) {
+                onOpenRecord("diet", "早餐")
+            }
+            MealCell("午餐", home.dietByMeal["午餐"] ?: 0, QkIcons.Lunch, QkGlyphTone.Green, Modifier.weight(1f)) {
+                onOpenRecord("diet", "午餐")
+            }
+            MealCell("晚餐", home.dietByMeal["晚餐"] ?: 0, QkIcons.Dinner, QkGlyphTone.Green, Modifier.weight(1f)) {
+                onOpenRecord("diet", "晚餐")
+            }
+            MealCell("运动", home.exerciseKcal, QkIcons.Exercise, QkGlyphTone.Blue, Modifier.weight(1f)) {
+                onOpenRecord("exercise", "")
+            }
+        }
+        Row(modifier = Modifier.padding(top = 12.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            QkActionChip("记录饮食", QkIcons.Meal) { onOpenRecord("diet", "") }
+            QkActionChip("记录运动", QkIcons.Exercise) { onOpenRecord("exercise", "") }
+            QkActionChip("记录饮水", QkIcons.Water) { onOpenRecord("water", "") }
+            QkActionChip("更多", QkIcons.More, onClick = onOpenQuick)
+        }
+    }
+}
+
+@Composable
+private fun MealCell(
+    label: String,
+    value: Int,
+    icon: ImageVector,
+    tone: QkGlyphTone,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+) {
+    Column(
+        modifier = modifier.clickable(onClick = onClick),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        QkIconBubble(icon, tone, 34.dp)
+        Text(
+            label,
+            modifier = Modifier.padding(top = 6.dp),
+            style = MaterialTheme.typography.labelSmall,
+            color = QkColor.Muted,
+        )
+        Text(
+            "$value",
+            style = MaterialTheme.typography.titleSmall,
+            color = QkColor.Fg,
         )
     }
 }
 
-/** BMI 四段条（旧库 bmiSegments 配色口径，token 化）。 */
+// ---------------------------------------------------------------- 目标 / 体重趋势
+
 @Composable
-private fun BmiSegments(segment: String?, onSetHeight: () -> Unit) {
-    if (segment == null) {
-        Column(horizontalAlignment = Alignment.End, modifier = Modifier.clickable(onClick = onSetHeight)) {
-            Text("设置身高", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.titleSmall)
-            Text("设置后计算 BMI", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-        return
+private fun GoalCard(home: HomeGoalState, modifier: Modifier = Modifier, onSetTarget: (Float) -> Unit) {
+    var showPicker by rememberSaveable { mutableStateOf(false) }
+    QkCard(modifier = modifier, padding = QkSpacing.CardPad) {
+        Text("目标", style = MaterialTheme.typography.titleMedium, color = QkColor.Fg)
+        val gap = home.latestWeight?.let { it - home.targetWeight }
+        Text(
+            when {
+                home.targetWeight <= 0f -> "未设置"
+                gap == null -> String.format(Locale.US, "目标 %.1f kg", home.targetWeight)
+                gap > 0 -> String.format(Locale.US, "减重 %.1f kg", gap)
+                gap < 0 -> String.format(Locale.US, "增重 %.1f kg", -gap)
+                else -> "已达成"
+            },
+            modifier = Modifier.padding(top = 8.dp),
+            style = MaterialTheme.typography.titleLarge,
+            color = QkColor.Fg,
+        )
+        QkButton(
+            text = "设置目标",
+            modifier = Modifier.padding(top = 10.dp),
+            onClick = { showPicker = true },
+        )
     }
-    val segments = listOf(
-        "偏瘦" to QkColor.BmiThin,
-        "标准" to QkColor.BmiNormal,
-        "偏胖" to QkColor.BmiOver,
-        "肥胖" to QkColor.BmiObese,
-    )
-    Row {
-        segments.forEach { (label, color) ->
-            val active = label == segment
-            Box(
-                Modifier.padding(horizontal = 2.dp)
-                    .width(34.dp).height(22.dp)
-                    .clip(RoundedCornerShape(5.dp))
-                    .background(if (active) color else color.copy(alpha = 0.16f)),
-                contentAlignment = Alignment.Center,
-            ) {
+    if (showPicker) {
+        val initial = home.targetWeight.toInt().coerceIn(30, 200).takeIf { home.targetWeight > 0 } ?: 60
+        var picked by remember { mutableStateOf(initial) }
+        AlertDialog(
+            onDismissRequest = { showPicker = false },
+            title = { Text("设置目标体重") },
+            text = {
+                QkWheelPicker(
+                    labels = (30..200).map { "$it 公斤" },
+                    initialIndex = initial - 30,
+                ) { picked = 30 + it }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    onSetTarget(picked.toFloat())
+                    showPicker = false
+                }) { Text("确定") }
+            },
+            dismissButton = { TextButton(onClick = { showPicker = false }) { Text("取消") } },
+        )
+    }
+}
+
+@Composable
+private fun WeekTrendCard(home: HomeGoalState, modifier: Modifier = Modifier, onOpenHistory: () -> Unit) {
+    QkCard(modifier = modifier, padding = QkSpacing.CardPad, onClick = onOpenHistory) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("体重趋势", style = MaterialTheme.typography.titleMedium, color = QkColor.Fg)
+            Text(
+                " 7天",
+                style = MaterialTheme.typography.labelSmall,
+                color = QkColor.Muted,
+            )
+        }
+        if (home.weekWeights.size >= 2) {
+            Row(modifier = Modifier.padding(top = 6.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    label,
-                    color = if (active) androidx.compose.ui.graphics.Color.White else QkColor.SegmentInactive,
+                    String.format(Locale.US, "%.1f", home.weekWeights.first()),
                     style = MaterialTheme.typography.labelSmall,
-                    maxLines = 1,
+                    color = QkColor.Muted,
                 )
+                Spacer(modifier = Modifier.weight(1f))
+                Text(
+                    String.format(Locale.US, "%.1f", home.weekWeights.last()),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = QkColor.Primary,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
+            QkAreaChart(
+                points = home.weekWeights.mapIndexed { i, v -> TrendPointUi(i.toLong(), v) },
+                modifier = Modifier.padding(top = 4.dp).fillMaxWidth().height(46.dp),
+                height = 46,
+                padY = 6,
+            )
+        } else {
+            QkEmptyHint("记录两次以上可见趋势")
+        }
+        Text(
+            home.weekChange?.let { String.format(Locale.US, "近 7 天 %+.1f kg", it) } ?: "近 7 天 --",
+            modifier = Modifier.padding(top = 4.dp),
+            style = MaterialTheme.typography.labelSmall,
+            color = QkColor.Muted,
+        )
+    }
+}
+
+// ---------------------------------------------------------------- 喝水 / 习惯 / 运动
+
+@Composable
+private fun WaterCard(home: HomeGoalState, modifier: Modifier = Modifier, onRecord: () -> Unit) {
+    QkCard(modifier = modifier, padding = QkSpacing.CardPad) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            QkIconBubble(QkIcons.Water, QkGlyphTone.Blue, 30.dp)
+            Text(
+                "喝水",
+                modifier = Modifier.padding(start = 8.dp).weight(1f),
+                style = MaterialTheme.typography.titleSmall,
+                color = QkColor.Fg,
+            )
+            Text("${home.waterPercent}%", style = MaterialTheme.typography.labelSmall, color = QkColor.Muted)
+        }
+        Row(modifier = Modifier.padding(top = 8.dp), verticalAlignment = Alignment.Bottom) {
+            Text("${home.waterTodayMl}", style = MaterialTheme.typography.headlineSmall, color = QkColor.Fg)
+            Text(" ml", modifier = Modifier.padding(bottom = 3.dp), style = MaterialTheme.typography.bodySmall, color = QkColor.Muted)
+        }
+        QkProgress(
+            percent = home.waterPercent,
+            color = QkColor.Blue,
+            modifier = Modifier.padding(top = 9.dp),
+        )
+        QkActionChip("加水", QkIcons.Add, modifier = Modifier.padding(top = 9.dp), onClick = onRecord)
+    }
+}
+
+@Composable
+private fun HabitCard(home: HomeGoalState, modifier: Modifier = Modifier, onRecord: () -> Unit) {
+    QkCard(modifier = modifier, padding = QkSpacing.CardPad, onClick = onRecord) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("习惯打卡", style = MaterialTheme.typography.titleSmall, color = QkColor.Fg)
+            Text(
+                " ${home.habitCount}/6",
+                modifier = Modifier.weight(1f),
+                style = MaterialTheme.typography.labelSmall,
+                color = QkColor.Primary,
+            )
+            QkIcon(QkIcons.ChevronRight, size = 15.dp, tint = QkColor.Hint)
+        }
+        Row(modifier = Modifier.padding(top = 10.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            repeat(6) { index ->
+                val hit = index < home.habitCount
+                Box(
+                    modifier = Modifier
+                        .size(22.dp)
+                        .clip(CircleShape)
+                        .background(if (hit) QkColor.Primary else QkColor.Secondary),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    if (hit) QkIcon(QkIcons.Habit, tint = Color.White, size = 13.dp)
+                }
+            }
+        }
+        Text(
+            "小习惯，大改变",
+            modifier = Modifier.padding(top = 8.dp),
+            style = MaterialTheme.typography.labelSmall,
+            color = QkColor.Muted,
+        )
+    }
+}
+
+@Composable
+private fun SportCard(home: HomeGoalState, modifier: Modifier = Modifier, onOpenRecord: (String, String) -> Unit) {
+    QkCard(modifier = modifier, padding = QkSpacing.CardPad) {
+        Text("运动", style = MaterialTheme.typography.titleSmall, color = QkColor.Fg)
+        Row(modifier = Modifier.padding(top = 10.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            SportItem("健走", QkIcons.Walk, home.sportToday["健走"] ?: 0, Modifier.weight(1f)) {
+                onOpenRecord("exercise", "健走")
+            }
+            SportItem("跑步", QkIcons.Run, home.sportToday["跑步"] ?: 0, Modifier.weight(1f)) {
+                onOpenRecord("exercise", "跑步")
+            }
+            SportItem("骑行", QkIcons.Bike, home.sportToday["骑行"] ?: 0, Modifier.weight(1f)) {
+                onOpenRecord("exercise", "骑行")
             }
         }
     }
+}
+
+@Composable
+private fun SportItem(
+    label: String,
+    icon: ImageVector,
+    kcal: Int,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+) {
+    Column(
+        modifier = modifier.clickable(onClick = onClick),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        QkIconBubble(icon, QkGlyphTone.Green, 30.dp)
+        Text(
+            label,
+            modifier = Modifier.padding(top = 5.dp),
+            style = MaterialTheme.typography.labelSmall,
+            color = QkColor.Muted,
+        )
+        Text(
+            if (kcal > 0) "$kcal" else "--",
+            style = MaterialTheme.typography.labelSmall,
+            color = if (kcal > 0) QkColor.Fg else QkColor.Hint,
+        )
+    }
+}
+
+/** 浅底小卡（设计稿「轻断食 / 生理期」）：整卡染色，图标与标题同色系。 */
+@Composable
+private fun TintCard(
+    title: String,
+    value: String,
+    caption: String,
+    icon: ImageVector,
+    tint: Color,
+    ink: Color,
+    modifier: Modifier = Modifier,
+    tone: QkGlyphTone = QkGlyphTone.Green,
+    onClick: () -> Unit,
+) {
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(QkRadius.Card))
+            .background(tint)
+            .clickable(onClick = onClick)
+            .padding(QkSpacing.CardPad),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            QkIconBubble(icon, tone, 28.dp)
+            Text(
+                title,
+                modifier = Modifier.padding(start = 7.dp).weight(1f),
+                style = MaterialTheme.typography.titleSmall,
+                color = QkColor.Fg,
+            )
+        }
+        Text(
+            value,
+            modifier = Modifier.padding(top = 8.dp),
+            style = MaterialTheme.typography.headlineSmall,
+            color = ink,
+        )
+        Text(
+            caption,
+            modifier = Modifier.padding(top = 2.dp),
+            style = MaterialTheme.typography.labelSmall,
+            color = QkColor.Muted,
+        )
+    }
+}
+
+// ---------------------------------------------------------------- 手动记录体重
+
+@Composable
+private fun ManualWeightCard(
+    value: String,
+    saving: Boolean,
+    onChange: (String) -> Unit,
+    onSave: () -> Unit,
+    onScale: () -> Unit,
+) {
+    val typed = value.isNotBlank()
+    QkCard(modifier = Modifier.padding(top = QkSpacing.CardGap), padding = QkSpacing.CardPad) {
+        Text("手动记录体重", style = MaterialTheme.typography.titleMedium, color = QkColor.Fg)
+        Row(
+            modifier = Modifier.padding(top = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(9.dp),
+        ) {
+            QkTextField(
+                value = value,
+                onValueChange = onChange,
+                placeholder = "请输入体重 (kg)",
+                modifier = Modifier.weight(1f),
+            )
+            // 一个按钮位两种语义：填了数字就是「保存」，空着就是「蓝牙称重」。
+            // 设计稿只有一个绿色按钮，硬塞两个会挤掉输入框宽度。
+            QkButton(
+                text = if (typed) (if (saving) "保存中…" else "保存") else "蓝牙称重",
+                enabled = !saving,
+                onClick = { if (typed) onSave() else onScale() },
+            )
+        }
+    }
+}
+
+// ---------------------------------------------------------------- 列表行
+
+@Composable
+private fun RecentRow(item: RecentMeasureItem, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(horizontal = 9.dp, vertical = 11.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        QkIconBubble(QkIcons.Weight, QkGlyphTone.Green, 30.dp)
+        Column(modifier = Modifier.weight(1f)) {
+            Text("体重 ${item.weightText}", style = MaterialTheme.typography.titleSmall, color = QkColor.Fg)
+            item.fatText?.let {
+                Text(
+                    "体脂率 $it",
+                    modifier = Modifier.padding(top = 2.dp),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = QkColor.Muted,
+                )
+            }
+        }
+        Text(item.timeText, style = MaterialTheme.typography.labelSmall, color = QkColor.Hint)
+        QkIcon(QkIcons.ChevronRight, size = 15.dp, tint = QkColor.Hint)
+    }
+}
+
+@Composable
+private fun Line() {
+    Box(modifier = Modifier.fillMaxWidth().padding(horizontal = 9.dp).height(1.dp).background(QkColor.LineSoft))
+}
+
+@Composable
+private fun TextAction(text: String, onClick: () -> Unit) {
+    Text(
+        text,
+        modifier = Modifier.clickable(onClick = onClick),
+        style = MaterialTheme.typography.labelMedium,
+        color = QkColor.Muted,
+    )
+}
+
+private fun iconOfLog(typeLabel: String): ImageVector = when (typeLabel) {
+    "饮食" -> QkIcons.Meal
+    "运动" -> QkIcons.Exercise
+    "饮水" -> QkIcons.Water
+    "睡眠" -> QkIcons.Sleep
+    "腰围" -> QkIcons.Waist
+    "体脂" -> QkIcons.BodyFat
+    "生理期" -> QkIcons.Period
+    "习惯" -> QkIcons.Habit
+    else -> QkIcons.More
 }

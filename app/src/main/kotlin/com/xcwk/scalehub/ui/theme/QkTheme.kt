@@ -69,6 +69,18 @@ object QkColor {
     val BmiOver = Color(0xFFF4C75D)
     val BmiObese = Color(0xFFEF8B78)
 
+    // 设备页蓝牙环（原型 .bluetooth-ring 三层：外描边 + 两圈内嵌浅环）
+    val RingEdge = Color(0xFFC9ECDF)
+    val RingIn1 = Color(0xFFF2FBF7)
+    val RingIn2 = Color(0xFFE8F7F1)
+
+    // 报告页评分环（原型 .score-ring 的底环色）
+    val ScoreTrack = Color(0xFFD8F1E7)
+
+    // 历史页月标头（原型 .history-date）
+    val ChipBg = Color(0xFFF5F8F6)
+    val ChipInk = Color(0xFF66766E)
+
     /** 卡片阴影色：rgba(26,69,54,.055) 的 Compose 表达。 */
     val Shadow = Color(0x121A4536)
 }

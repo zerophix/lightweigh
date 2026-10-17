@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 主题用色：与 QkTheme.kt 的 token 一一对应（改色两边一起改）。 -->
+<resources>
+    <color name="qk_bg">#F4F7F6</color>
+    <color name="qk_card">#FFFFFF</color>
+    <color name="qk_primary">#159B72</color>
+</resources>
