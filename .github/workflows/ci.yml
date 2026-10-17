@@ -24,25 +24,9 @@ jobs:
       - name: Set up Gradle (cache)
         uses: gradle/actions/setup-gradle@v4
 
-      # 临时诊断（DEC-031 组 B）：从 runner 视角探测各插件仓库对 KSP marker 的返回码，
-      # 用于判定「六源全 404」是仓库不可达还是 artifact 真的缺失。取证完毕后删除。
-      - name: Probe plugin repositories
-        run: |
-          P="com/google/devtools/ksp/com.google.devtools.ksp.gradle.plugin/2.3.9/com.google.devtools.ksp.gradle.plugin-2.3.9.pom"
-          for r in \
-            "https://maven.aliyun.com/repository/google" \
-            "https://maven.aliyun.com/repository/gradle-plugin" \
-            "https://maven.aliyun.com/repository/public" \
-            "https://dl.google.com/dl/android/maven2" \
-            "https://repo.maven.apache.org/maven2" \
-            "https://plugins.gradle.org/m2" ; do
-            code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 25 "$r/$P" 2>&1) || code="ERR"
-            echo "PROBE $code  $r"
-          done
-
       # 全量构建：编译 + 单测 + ArchUnit 守卫（含解析自检与负例测试）
       - name: Build and test
-        run: ./gradlew build --stacktrace --info
+        run: ./gradlew build --stacktrace
 
       # androidTest 源集纳入编译门（T-005 迁移测试已落地并在模拟器实跑通过）
       - name: Compile androidTest

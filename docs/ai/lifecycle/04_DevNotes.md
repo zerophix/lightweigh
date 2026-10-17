@@ -108,6 +108,7 @@
 
 ## 5. 变更记录
 
+- 2026-10-17（DEC-032）：CI 插件解析真因定位与修复——runner 访问阿里云三个镜像全部 502，而 Gradle 解析遇 5xx 直接终止、不回退后续仓库，排首位的镜像令插件解析在第一个仓库即失败；settings.gradle.kts 两个 repositories 块改为按 `CI` 环境变量分流，CI 只用官方源、本地保留阿里云优先。同批更正 DEC-031 的根因判断（版本非主因），并撤掉临时探针步骤。
 - 2026-10-17（DEC-031）：构建链依赖可获取性修复——catalog 的 KSP 由公开仓库不存在的 2.3.2 钉到 2.3.9；本地在把 2.3.9 缓存一并移走、停掉 daemon 的前提下全量 build + assembleAndroidTest 通过（254 任务，247 真实执行）。该版本的可解析性以 PR #1 的 CI 复跑结果为最终判定。
 - 2026-10-17（DEC-030）：构建层启用 core library desugaring，java.time 在 minSdk 24 可用；撤回 HistoryScreen 上的 @RequiresApi 注解，该注解在两会话间反弹两次，本批落盘「平台新增 API 只用脱糖、不把注解推给调用方」的共识。
 - 2026-10-17（DEC-027）：云同步上传断链修复——SyncService.push() 实装且注入容器但生产零调用，新增 SyncTrigger 点火并接入三个写用例，本地写成功后 fire-and-forget 上云。
