@@ -28,6 +28,10 @@ jobs:
       - name: Build and test
         run: ./gradlew build --stacktrace
 
+      # T-005 仪器测试落地后启用（androidTest 源集纳入编译门，DEC-021 执行记录 2026-10-17）：
+      # - name: Compile androidTest
+      #   run: ./gradlew assembleAndroidTest --stacktrace
+
   docs-validate:
     runs-on: ubuntu-latest
     steps:

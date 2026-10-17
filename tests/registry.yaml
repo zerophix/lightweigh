@@ -23,6 +23,10 @@ commands:
   path: tests/unit/test_android_tests_governance.py
   status: stable
   type: pytest
+- description: 反射收口规则可执行性（规则在脚本 + 违例阻断 + 对照通过, DEC-021）
+  path: tests/unit/test_custom_checks_governance.py
+  status: stable
+  type: pytest
 configs:
 - critical: false
   description: pytest 配置
