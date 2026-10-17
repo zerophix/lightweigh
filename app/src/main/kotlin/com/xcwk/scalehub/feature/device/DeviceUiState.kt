@@ -23,6 +23,9 @@ data class DeviceUiState(
 sealed interface DeviceIntent {
     data object ToggleScan : DeviceIntent
     data class Bind(val found: FoundScale) : DeviceIntent
+
+    /** 扫码绑定（旧库 ScaleQr 路径：二维码只带 MAC/名称，默认 okok-1 协议）。 */
+    data class QrBind(val name: String, val mac: String) : DeviceIntent
     data class Unbind(val mac: String) : DeviceIntent
     data class Activate(val mac: String) : DeviceIntent
     data object Refresh : DeviceIntent

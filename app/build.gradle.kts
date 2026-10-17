@@ -34,6 +34,7 @@ dependencies {
     implementation(project(":infrastructure"))
 
     implementation(libs.core.ktx)
+    implementation(libs.zxing.embedded)   // 扫码绑定体脂秤（移植补齐）
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.tooling.preview)
