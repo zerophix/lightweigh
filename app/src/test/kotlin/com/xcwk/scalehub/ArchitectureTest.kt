@@ -132,7 +132,9 @@ class ArchitectureTest {
     @Test
     fun ui不绕过application直接依赖infrastructure() {
         noClasses()
-            .that().resideInAnyPackage("com.xcwk.scalehub.feature..", "com.xcwk.scalehub.ui..")
+            .that().resideInAnyPackage(
+                "com.xcwk.scalehub.feature..", "com.xcwk.scalehub.ui..", "com.xcwk.scalehub.trigger..",
+            )
             .should().dependOnClassesThat().resideInAPackage("com.xcwk.scalehub.infrastructure..")
             .check(classes)
     }
@@ -146,7 +148,9 @@ class ArchitectureTest {
     @Test
     fun feature不依赖存储SDK包() {
         noClasses()
-            .that().resideInAnyPackage("com.xcwk.scalehub.feature..", "com.xcwk.scalehub.ui..")
+            .that().resideInAnyPackage(
+                "com.xcwk.scalehub.feature..", "com.xcwk.scalehub.ui..", "com.xcwk.scalehub.trigger..",
+            )
             .should().dependOnClassesThat().resideInAnyPackage(
                 "androidx.room..",
                 "java.sql..",
@@ -157,9 +161,83 @@ class ArchitectureTest {
     @Test
     fun feature不依赖SharedPreferences() {
         noClasses()
-            .that().resideInAnyPackage("com.xcwk.scalehub.feature..", "com.xcwk.scalehub.ui..")
+            .that().resideInAnyPackage(
+                "com.xcwk.scalehub.feature..", "com.xcwk.scalehub.ui..", "com.xcwk.scalehub.trigger..",
+            )
             .should().dependOnClassesThat(sharedPrefsPredicate)
             .check(classes)
+    }
+
+    // ---- P1/P2 收口（DEC-021 执行记录 2026-10-17）----
+
+    /** 组合根显式桥面：feature/ui 仅允许触达这些根包类（其余根类走私即红）。 R/BuildConfig/ComposableSingletons 为构建器生成物，按名放行。 */
+    private val bridgeRoots = setOf("App", "AppContainer", "BleGate", "MainActivity", "BuildConfig", "R", "ComposableSingletons")
+
+    private val presentationPrefixes = listOf(
+        "com.xcwk.scalehub.feature.", "com.xcwk.scalehub.ui.", "com.xcwk.scalehub.trigger.",
+    )
+
+    /** 表现层依赖闭包扫描：本工程内、不在内层四包、不在桥面白名单 → 违规清单。 */
+    private fun forbiddenPresentationDeps(target: JavaClasses): List<String> =
+        target.filter { cls -> presentationPrefixes.any { cls.fullName.startsWith(it) } }
+            .flatMap { cls -> cls.directDependenciesFromSelf }
+            .mapNotNull { it.targetClass }
+            .map { it.fullName }
+            .filter { it.startsWith("com.xcwk.scalehub.") }
+            .filter { full ->
+                val rest = full.removePrefix("com.xcwk.scalehub.")
+                val head = rest.substringBefore('$')
+                val isRootClass = !head.contains('.')
+                val inInnerLayer = listOf("feature.", "ui.", "application.", "domain.")
+                    .any { rest.startsWith(it) }
+                if (inInnerLayer) false
+                else if (isRootClass) head !in bridgeRoots
+                else true   // trigger 等未开放包也被这里兜住
+            }
+            .distinct().sorted()
+
+    /**
+     * P1 收口：传递依赖只能经登记桥面白名单。规则只查直接依赖，
+     * 未登记根类是走私 infra 的唯一通道——登记动作发生在守卫测试里即强制 review。
+     */
+    @Test
+    fun 表现层只依赖内层与登记的组合根桥面() {
+        val offenders = forbiddenPresentationDeps(classes)
+        assertWithMessage("表现层出现白名单外的根包/跨层依赖")
+            .that(offenders)
+            .isEmpty()
+    }
+
+    @Test
+    fun 守卫负例_白名单外根包依赖会被捕获() {
+        val fixture = ClassFileImporter().importClasses(
+            RuleViolationFixture::class.java, RootSneakFixture::class.java,
+        )
+        assertWithMessage("守卫失效：夹具对白名单外根类的依赖未被扫描捕获")
+            .that(forbiddenPresentationDeps(fixture).any { it.contains("RootSneakFixture") })
+            .isTrue()
+    }
+
+    /** P2 收口：组合根（根包无子包）只允许白名单类——新增根类必须有意识改守卫。 */
+    private fun rootOffenders(target: JavaClasses): List<String> =
+        target.filter { it.packageName == "com.xcwk.scalehub" }
+            .map { it.fullName.removePrefix("com.xcwk.scalehub.").substringBefore('$') }
+            .filter { it !in bridgeRoots }
+            .distinct().sorted()
+
+    @Test
+    fun 组合根只含白名单类() {
+        assertWithMessage("组合根出现未登记类（业务逻辑不许藏进组合根）")
+            .that(rootOffenders(classes))
+            .isEmpty()
+    }
+
+    @Test
+    fun 守卫负例_未登记的根包类会被捕获() {
+        val fixture = ClassFileImporter().importClasses(RootSneakFixture::class.java)
+        assertWithMessage("守卫失效：未登记根类未被白名单规则捕获")
+            .that(rootOffenders(fixture))
+            .contains("RootSneakFixture")
     }
 
     @Test
