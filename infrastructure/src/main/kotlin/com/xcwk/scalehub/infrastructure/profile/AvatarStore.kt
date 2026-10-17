@@ -13,9 +13,30 @@ import java.io.File
 class AvatarStore(context: Context) {
 
     private val appContext = context.applicationContext
-    private val file: File get() = File(appContext.filesDir, "avatar.jpg")
+    private val file: File get() = File(File(appContext.filesDir, "avatars").apply { mkdirs() }, "avatar.jpg")
 
-    fun path(): String? = if (file.exists()) file.absolutePath else null
+    fun path(): String? = migrateLegacy()
+
+    /** 一次性迁移：早期版本头像落在 filesDir 根，挪进 avatars/ 子目录。 */
+    private fun migrateLegacy(): String? {
+        val legacy = File(appContext.filesDir, "avatar.jpg")
+        if (!file.exists() && legacy.exists()) {
+            legacy.renameTo(file)
+        }
+        return if (file.exists()) file.absolutePath else null
+    }
+
+    /**
+     * 相机拍照目标（M4 相机头像）：cache/camera/avatar.jpg 的 content URI。
+     * 相机写入此文件后调用方再走 saveFromUri 压缩落盘；授权范围见 file_paths.xml。
+     */
+    fun newCameraTarget(): String? = runCatching {
+        val dir = File(appContext.cacheDir, "camera").apply { mkdirs() }
+        val target = File(dir, "avatar.jpg")
+        androidx.core.content.FileProvider.getUriForFile(
+            appContext, "${appContext.packageName}.fileprovider", target,
+        ).toString()
+    }.getOrNull()
 
     fun saveFromUri(uri: Uri): String? = runCatching {
         val bitmap = appContext.contentResolver.openInputStream(uri)?.use { input ->

@@ -40,6 +40,7 @@ dependencies {
 
     // AppDatabase 属于本模块公开 API，其超类型 RoomDatabase 必须对消费方可见
     api(libs.room.runtime)
+    implementation(libs.core.ktx)
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
     implementation(libs.coroutines.core)

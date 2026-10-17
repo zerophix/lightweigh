@@ -79,6 +79,7 @@ class AppContainer(context: Context) {
     }
     val avatarPath: () -> String = { avatarStore.path() ?: "" }
     val saveAvatar: (String) -> String? = { s -> avatarStore.saveFromUri(android.net.Uri.parse(s)) }
+    val newCameraTarget: () -> String? = { avatarStore.newCameraTarget() }
 
     /** 正式账号读取口（SessionStore 藏在容器后，feature 层不直调 infra）。 */
     val isFormalAccount: () -> Boolean = { sessionStore.isFormalAccount() }

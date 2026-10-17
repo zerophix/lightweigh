@@ -20,10 +20,12 @@ fun MineRoute(vm: MineViewModel = viewModel(factory = MineViewModel.Factory)) {
         com.xcwk.scalehub.feature.settings.SettingsRoute(onBack = { showSettings = false })
     } else {
         val state by vm.state.collectAsStateWithLifecycle()
+        val app = androidx.compose.ui.platform.LocalContext.current.applicationContext as com.xcwk.scalehub.App
         MineScreen(
             state = state,
             onIntent = vm::onIntent,
             onOpenSettings = { showSettings = true },
+            newCameraTarget = app.container.newCameraTarget,
         )
     }
 }
