@@ -22,6 +22,14 @@ import kotlinx.coroutines.launch
  * feature.measure — UDF 四件套之 ViewModel（v2 首屏：手动记体重 + 最近列表）。
  * TODO 后续阶段：BLE 称重流接入（ScaleGateway）、登录/云同步、趋势与报告。
  */
+/** 首页「最近测量」的一行：结构化而非预拼字符串，列表行要分别排版时间与数值。 */
+data class RecentMeasureItem(
+    val time: Long,
+    val weightText: String,
+    val fatText: String?,
+    val timeText: String,
+)
+
 data class MeasureUiState(
     /** 首页目标进度（H2 移植补齐）。 */
     val home: com.xcwk.scalehub.application.query.HomeGoalState =
@@ -30,7 +38,7 @@ data class MeasureUiState(
     val saving: Boolean = false,
     val lastRecord: String? = null,
     val error: String? = null,
-    val recent: List<String> = emptyList(),
+    val recent: List<RecentMeasureItem> = emptyList(),
     /** 最近健康记录（加号面板写入的可见出口）。 */
     val recentLogs: List<HealthLogItem> = emptyList(),
 )
@@ -100,9 +108,14 @@ class MeasureViewModel(
 
     private suspend fun refresh() {
         refreshHome()
-        val items = measurementQuery.recent(20).map {
-            val fatText = if (it.fat >= 0) " · 体脂 ${it.fat}%" else ""
-            "${it.weight} kg$fatText"
+        val stamp = java.text.SimpleDateFormat("MM-dd HH:mm", java.util.Locale.CHINA)
+        val items = measurementQuery.recent(20).map { row ->
+            RecentMeasureItem(
+                time = row.time,
+                weightText = String.format(java.util.Locale.US, "%.1f kg", row.weight),
+                fatText = if (row.fat >= 0) String.format(java.util.Locale.US, "%.1f%%", row.fat) else null,
+                timeText = stamp.format(java.util.Date(row.time)),
+            )
         }
         val logs = healthLogQuery.recent(5)
         _state.update { it.copy(recent = items, recentLogs = logs) }

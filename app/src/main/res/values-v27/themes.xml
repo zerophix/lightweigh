@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- API 27+ 才有 windowLightNavigationBar；单独放 v27，避免低版本解析不到属性。 -->
+<resources>
+    <style name="Theme.Qk" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">@color/qk_bg</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:navigationBarColor">@color/qk_card</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:windowBackground">@color/qk_bg</item>
+        <item name="android:colorAccent">@color/qk_primary</item>
+    </style>
+</resources>

@@ -20,6 +20,8 @@ const val MINE_ROUTE_NAME = "mine"
 fun MineRoute(
     onOpenSettings: () -> Unit = {},
     onOpenMembers: () -> Unit = {},
+    onOpenHistory: () -> Unit = {},
+    onOpenDevice: () -> Unit = {},
     vm: MineViewModel = viewModel(factory = MineViewModel.Factory),
 ) {
     val state by vm.state.collectAsStateWithLifecycle()
@@ -30,5 +32,7 @@ fun MineRoute(
         onOpenSettings = onOpenSettings,
         newCameraTarget = app.container.newCameraTarget,
         onOpenMembers = onOpenMembers,
+        onOpenHistory = onOpenHistory,
+        onOpenDevice = onOpenDevice,
     )
 }

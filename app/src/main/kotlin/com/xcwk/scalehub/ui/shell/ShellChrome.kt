@@ -12,13 +12,8 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.DateRange
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.List
-import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -32,6 +27,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.xcwk.scalehub.ui.components.QkIcon
+import com.xcwk.scalehub.ui.components.QkIcons
 import com.xcwk.scalehub.ui.theme.QkColor
 import com.xcwk.scalehub.ui.theme.QkRadius
 import com.xcwk.scalehub.ui.theme.QkSpacing
@@ -43,9 +40,9 @@ import com.xcwk.scalehub.ui.theme.QkSpacing
  * 本文件的两个组件都是无状态入参出参，便于单独预览。
  */
 
-/** 顶栏：品牌字标 + 随页副标题 + 右侧日期。 */
+/** 顶栏：品牌字标 + 随页副标题 + 右侧通知铃。 */
 @Composable
-fun QkTopBar(subtitle: String, trailing: String, modifier: Modifier = Modifier) {
+fun QkTopBar(subtitle: String, modifier: Modifier = Modifier, onBell: () -> Unit = {}) {
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -77,7 +74,15 @@ fun QkTopBar(subtitle: String, trailing: String, modifier: Modifier = Modifier) 
                 modifier = Modifier.padding(top = 3.dp),
             )
         }
-        Text(trailing, style = MaterialTheme.typography.bodySmall, color = QkColor.Muted)
+        Box(
+            modifier = Modifier
+                .size(34.dp)
+                .clip(CircleShape)
+                .clickable(onClick = onBell),
+            contentAlignment = Alignment.Center,
+        ) {
+            QkIcon(QkIcons.Bell, size = 21.dp, contentDescription = "通知")
+        }
     }
 }
 
@@ -164,7 +169,7 @@ private fun CenterAddButton(onAdd: () -> Unit) {
         contentAlignment = Alignment.Center,
     ) {
         Icon(
-            imageVector = Icons.Outlined.Add,
+            imageVector = QkIcons.Add,
             contentDescription = "快捷记录",
             tint = Color.White,
             modifier = Modifier.size(25.dp),
@@ -173,8 +178,8 @@ private fun CenterAddButton(onAdd: () -> Unit) {
 }
 
 private fun iconOf(tab: MainTab): ImageVector = when (tab) {
-    MainTab.HOME -> Icons.Outlined.Home
-    MainTab.TREND -> Icons.Outlined.DateRange
-    MainTab.DEVICE -> Icons.Outlined.List
-    MainTab.MINE -> Icons.Outlined.Person
+    MainTab.HOME -> QkIcons.Home
+    MainTab.TREND -> QkIcons.Trend
+    MainTab.DEVICE -> QkIcons.Device
+    MainTab.MINE -> QkIcons.Mine
 }

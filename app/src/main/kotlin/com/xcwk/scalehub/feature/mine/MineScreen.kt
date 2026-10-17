@@ -5,14 +5,17 @@ package com.xcwk.scalehub.feature.mine
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -29,17 +32,29 @@ import com.xcwk.scalehub.ui.components.QkAvatar
 import com.xcwk.scalehub.ui.components.QkButton
 import com.xcwk.scalehub.ui.components.QkCard
 import com.xcwk.scalehub.ui.components.QkChip
+import com.xcwk.scalehub.ui.components.QkDivider
 import com.xcwk.scalehub.ui.components.QkEmptyHint
-import com.xcwk.scalehub.ui.components.QkWheelPicker
+import com.xcwk.scalehub.ui.components.QkIcons
+import com.xcwk.scalehub.ui.components.QkIcon
+import com.xcwk.scalehub.ui.components.QkListRow
+import com.xcwk.scalehub.ui.components.QkSectionHead
 import com.xcwk.scalehub.ui.components.QkTextField
+import com.xcwk.scalehub.ui.components.QkWheelPicker
+import com.xcwk.scalehub.ui.theme.QkColor
+import com.xcwk.scalehub.ui.theme.QkSpacing
 import com.xcwk.scalehub.ui.theme.QkTheme
 import java.time.YearMonth
 
 /**
- * mine — 四件套之 Screen：我的资料表单，无状态渲染 + 事件转发。
+ * mine — 四件套之 Screen：无状态渲染 + 事件转发。
  * 视觉只用主题槽与 Qk 组件（DEC-021 支柱5）；M4：头像（相册选图）与
  * 出生/身高滚轮（旧库 HeightSheet/BirthSheet 口径：年 1930..今年、月 01..12、
  * 日随月长、身高 100..230）。
+ *
+ * 版式按 v2 原型「我的」屏：资料卡（头像 + 昵称 + 一句引导）→ 我的健康档案卡
+ * （性别胶囊、出生/身高/测量用户三行带箭头，编辑入口都在行内）→ 更多入口卡
+ * （历史记录 / 设备管理 / 设置）。原型把编辑收进弹窗，本应用把编辑行直接铺开——
+ * 少一层弹窗，行式语法与原型一致。
  */
 @Composable
 fun MineScreen(
@@ -48,6 +63,8 @@ fun MineScreen(
     onOpenSettings: () -> Unit = {},
     newCameraTarget: () -> String? = { null },
     onOpenMembers: () -> Unit = {},
+    onOpenHistory: () -> Unit = {},
+    onOpenDevice: () -> Unit = {},
 ) {
     var showAvatarSheet by rememberSaveable { mutableStateOf(false) }
     var showBirthSheet by rememberSaveable { mutableStateOf(false) }
@@ -63,71 +80,171 @@ fun MineScreen(
         }
     }
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("我的资料", modifier = Modifier.weight(1f), style = MaterialTheme.typography.headlineSmall)
-            Text(
-                "设置",
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.clickable(onClick = onOpenSettings).padding(4.dp),
-            )
-        }
-        if (state.unsetHint) {
-            QkEmptyHint("未设身高，体脂估算会不准确——请先完善资料", modifier = Modifier.padding(top = 4.dp))
-        }
-        QkCard(modifier = Modifier.padding(top = 16.dp)) {
-            // 头像行（旧库「头像」入口 :408-410）
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = QkSpacing.Page),
+    ) {
+        // 资料卡：点头像换图；昵称在档案卡内编辑（原型这里是只读展示 + 弹窗编辑）
+        QkCard(modifier = Modifier.padding(top = QkSpacing.Md)) {
             Row(
                 modifier = Modifier.fillMaxWidth().clickable { showAvatarSheet = true },
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text("头像", modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
-                QkAvatar(path = state.avatarPath.ifBlank { null }, size = 48.dp)
+                QkAvatar(path = state.avatarPath.ifBlank { null }, size = 54.dp)
+                Column(modifier = Modifier.weight(1f).padding(start = 12.dp)) {
+                    Text(
+                        state.nickname.ifBlank { "轻刻用户" },
+                        style = MaterialTheme.typography.titleMedium,
+                        color = QkColor.Fg,
+                    )
+                    Text(
+                        "完善资料，获得更贴合的健康参考",
+                        modifier = Modifier.padding(top = 3.dp),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = QkColor.Muted,
+                    )
+                }
+                QkIcon(QkIcons.ChevronRight, size = 20.dp)
             }
+        }
+
+        if (state.unsetHint) {
+            QkEmptyHint("未设身高，体脂估算会不准确——请先完善资料", modifier = Modifier.padding(top = QkSpacing.Sm))
+        }
+
+        QkSectionHead(title = "我的健康档案", modifier = Modifier.padding(top = QkSpacing.Lg))
+        QkCard {
+            // 性别：胶囊行（原型 row-end 只读展示，这里保留即时切换）
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    "性别",
+                    modifier = Modifier.weight(1f),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = QkColor.Fg,
+                )
+                QkChip("男", state.male) { onIntent(MineIntent.MaleChanged(true)) }
+                QkChip("女", !state.male) { onIntent(MineIntent.MaleChanged(false)) }
+            }
+            QkDivider(modifier = Modifier.padding(vertical = 4.dp))
+            // 测量用户：切换/添加/删除（旧库 Members 入口）
+            QkListRow(
+                title = "测量用户",
+                subtitle = "切换当前测量的成员",
+                icon = QkIcons.Account,
+                glyphSize = 32.dp,
+                onClick = onOpenMembers,
+                trailing = { QkIcon(QkIcons.ChevronRight, size = 18.dp) },
+            )
+            // 出生年月：滚轮编辑（旧库 BirthSheet）
+            QkListRow(
+                title = "出生年月",
+                subtitle = "用于年龄相关指标估算",
+                icon = QkIcons.Period,
+                glyphSize = 32.dp,
+                onClick = { showBirthSheet = true },
+                trailing = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            birthText(state),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = QkColor.Muted,
+                        )
+                        QkIcon(QkIcons.ChevronRight, size = 18.dp)
+                    }
+                },
+            )
+            // 身高：滚轮编辑（旧库 HeightSheet）
+            QkListRow(
+                title = "身高",
+                subtitle = "体脂与 BMI 估算依赖身高",
+                icon = QkIcons.Height,
+                glyphSize = 32.dp,
+                onClick = { showHeightSheet = true },
+                trailing = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            state.heightCm.takeIf { it.isNotBlank() }?.let { "$it 厘米" } ?: "未设置",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = QkColor.Muted,
+                        )
+                        QkIcon(QkIcons.ChevronRight, size = 18.dp)
+                    }
+                },
+            )
+            QkDivider(modifier = Modifier.padding(vertical = 6.dp))
             QkTextField(
                 value = state.nickname,
                 onValueChange = { onIntent(MineIntent.NicknameChanged(it)) },
                 label = "昵称（≤20 字，可空）",
-                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                modifier = Modifier.padding(top = 6.dp),
             )
-            Row(modifier = Modifier.fillMaxWidth().padding(top = 12.dp)) {
-                QkChip("男", state.male) { onIntent(MineIntent.MaleChanged(true)) }
-                QkChip("女", !state.male) { onIntent(MineIntent.MaleChanged(false)) }
+            if (state.summary.isNotBlank()) {
+                Text(
+                    state.summary,
+                    modifier = Modifier.padding(top = 8.dp),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = QkColor.Muted,
+                )
             }
-            // 测量用户：切换/添加/删除（旧库 Members 入口）
-            PickerRow(
-                label = "测量用户",
-                value = state.nickname.ifBlank { "我" },
-                onClick = onOpenMembers,
+            state.error?.let {
+                Text(
+                    it,
+                    modifier = Modifier.padding(top = 6.dp),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = QkColor.Danger,
+                )
+            }
+            if (state.saved) {
+                Text(
+                    "已保存",
+                    modifier = Modifier.padding(top = 6.dp),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = QkColor.Primary,
+                )
+            }
+            QkButton(
+                text = if (state.saving) "保存中…" else "保存",
+                enabled = !state.saving && !state.loading,
+                modifier = Modifier.fillMaxWidth().padding(top = QkSpacing.Md),
+                onClick = { onIntent(MineIntent.Save) },
             )
-            // 出生年月：滚轮编辑（旧库 BirthSheet）
-            PickerRow(
-                label = "出生年月",
-                value = birthText(state),
-                onClick = { showBirthSheet = true },
+        }
+
+        // 入口卡（原型 mine 页第三张卡）
+        QkSectionHead(title = "更多", modifier = Modifier.padding(top = QkSpacing.Lg))
+        QkCard {
+            QkListRow(
+                title = "历史记录",
+                subtitle = "查看全部测量数据",
+                icon = QkIcons.History,
+                glyphSize = 32.dp,
+                onClick = onOpenHistory,
+                trailing = { QkIcon(QkIcons.ChevronRight, size = 18.dp) },
             )
-            // 身高：滚轮编辑（旧库 HeightSheet）
-            PickerRow(
-                label = "身高",
-                value = state.heightCm.takeIf { it.isNotBlank() }?.let { "$it 厘米" } ?: "未设置",
-                onClick = { showHeightSheet = true },
+            QkListRow(
+                title = "设备管理",
+                subtitle = "连接与管理体脂秤",
+                icon = QkIcons.Device,
+                glyphSize = 32.dp,
+                onClick = onOpenDevice,
+                trailing = { QkIcon(QkIcons.ChevronRight, size = 18.dp) },
+            )
+            QkListRow(
+                title = "设置",
+                subtitle = "隐私、安全与应用信息",
+                icon = QkIcons.Setting,
+                glyphSize = 32.dp,
+                showDivider = false,
+                onClick = onOpenSettings,
+                trailing = { QkIcon(QkIcons.ChevronRight, size = 18.dp) },
             )
         }
-        if (state.summary.isNotBlank()) {
-            Text(state.summary, modifier = Modifier.padding(top = 12.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-        state.error?.let {
-            Text(it, modifier = Modifier.padding(top = 8.dp), color = MaterialTheme.colorScheme.error)
-        }
-        if (state.saved) {
-            Text("已保存", modifier = Modifier.padding(top = 8.dp), color = MaterialTheme.colorScheme.primary)
-        }
-        QkButton(
-            text = if (state.saving) "保存中…" else "保存",
-            enabled = !state.saving && !state.loading,
-            modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
-            onClick = { onIntent(MineIntent.Save) },
-        )
+        Spacer(modifier = Modifier.height(28.dp))
     }
 
     // 修改头像：拍照 / 相册（旧库面板两分支）
@@ -237,18 +354,6 @@ private fun birthText(state: MineUiState): String {
     }
 }
 
-@Composable
-private fun PickerRow(label: String, value: String, onClick: () -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick).padding(top = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(label, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
-        Text(value, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Text(" ›", color = MaterialTheme.colorScheme.onSurfaceVariant)
-    }
-}
-
 @Preview(showBackground = true)
 @Composable
 private fun MineScreenPreview() {
@@ -272,10 +377,6 @@ private fun MineScreenPreview() {
 @Composable
 private fun MineScreenUnsetPreview() {
     QkTheme {
-        MineScreen(
-            state = MineUiState(loading = false, summary = "男 | --岁 | --cm", unsetHint = true),
-            onIntent = {},
-            onOpenSettings = {},
-        )
+        MineScreen(state = MineUiState(loading = false, summary = "男 | --岁 | --cm", unsetHint = true), onIntent = {}, onOpenSettings = {})
     }
 }

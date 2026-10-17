@@ -1,6 +1,7 @@
 package com.xcwk.scalehub.ui.components
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -17,6 +19,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,8 +32,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -50,7 +59,7 @@ import com.xcwk.scalehub.ui.theme.QkSpacing
 enum class QkGlyphTone { Green, Blue, Purple, Orange, Gray }
 
 /** 胶囊色调。 */
-enum class QkPillTone { Green, Amber, Blue, Gray }
+enum class QkPillTone { Green, Amber, Blue, Gray, Red }
 
 private fun QkGlyphTone.bg(): Color = when (this) {
     QkGlyphTone.Green -> QkColor.Mint
@@ -72,7 +81,7 @@ private fun QkGlyphTone.fg(): Color = when (this) {
 @Composable
 fun QkCard(
     modifier: Modifier = Modifier,
-    padding: Int = 15,
+    padding: Dp = QkSpacing.CardPad,
     onClick: (() -> Unit)? = null,
     content: @Composable () -> Unit,
 ) {
@@ -83,7 +92,7 @@ fun QkCard(
         .background(QkColor.Card)
         .border(1.dp, QkColor.CardBorder, shape)
     val body = if (onClick != null) base.clickable(onClick = onClick) else base
-    Column(modifier = body.padding(padding.dp)) { content() }
+    Column(modifier = body.padding(padding)) { content() }
 }
 
 /** 区块标题 + 右侧动作（原型 .section-head）。 */
@@ -116,6 +125,7 @@ fun QkPill(text: String, tone: QkPillTone = QkPillTone.Green, modifier: Modifier
         QkPillTone.Amber -> QkColor.AccentSoft to QkColor.AmberInk
         QkPillTone.Blue -> QkColor.BlueSoft to QkColor.Blue
         QkPillTone.Gray -> QkColor.Secondary to QkColor.Muted
+        QkPillTone.Red -> QkColor.DangerSoft to QkColor.Danger
     }
     Box(
         modifier = modifier
@@ -143,6 +153,104 @@ fun QkGlyph(text: String, tone: QkGlyphTone = QkGlyphTone.Green, size: Dp = 38.d
             fontSize = if (size > 44.dp) 20.sp else 16.sp,
             style = MaterialTheme.typography.titleSmall,
         )
+    }
+}
+
+/** 圆形图标泡：38dp 正圆 + 浅底 + 线性图标（设计稿里「今日饮食」「喝水」「跳绳」的图标样式）。 */
+@Composable
+fun QkIconBubble(
+    icon: ImageVector,
+    tone: QkGlyphTone = QkGlyphTone.Green,
+    size: Dp = 38.dp,
+    modifier: Modifier = Modifier,
+    contentDescription: String? = null,
+) {
+    Box(
+        modifier = modifier
+            .size(size)
+            .clip(CircleShape)
+            .background(tone.bg()),
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(
+            icon,
+            contentDescription = contentDescription,
+            tint = tone.fg(),
+            modifier = Modifier.size(size * 0.52f),
+        )
+    }
+}
+
+/** 图标按钮里的线性图标（页签、返回、通知等通用小图标）。 */
+@Composable
+fun QkIcon(
+    icon: ImageVector,
+    modifier: Modifier = Modifier,
+    tint: Color = QkColor.IconInk,
+    size: Dp = 22.dp,
+    contentDescription: String? = null,
+) {
+    Icon(icon, contentDescription = contentDescription, tint = tint, modifier = modifier.size(size))
+}
+
+/** 小胶囊按钮（设计稿里「记录饮食 / 蛋白质 / 蔬菜 / 更多」这类浅底图标胶囊）。 */
+@Composable
+fun QkActionChip(
+    text: String,
+    icon: ImageVector? = null,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+) {
+    Row(
+        modifier = modifier
+            .clip(RoundedCornerShape(20.dp))
+            .background(QkColor.MintSoft)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 10.dp, vertical = 7.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(5.dp),
+    ) {
+        if (icon != null) {
+            Icon(icon, contentDescription = null, tint = QkColor.Primary, modifier = Modifier.size(14.dp))
+        }
+        Text(text, style = MaterialTheme.typography.labelSmall, color = QkColor.Primary, maxLines = 1)
+    }
+}
+
+/** 双列小卡（无进度条版）：标题 + 主值 + 说明（设计稿「跳绳 / 腰围 / 习惯」）。 */
+@Composable
+fun QkMiniCard(
+    title: String,
+    value: String,
+    modifier: Modifier = Modifier,
+    caption: String? = null,
+    icon: ImageVector? = null,
+    iconTone: QkGlyphTone = QkGlyphTone.Green,
+    valueStyle: androidx.compose.ui.text.TextStyle? = null,
+    onClick: (() -> Unit)? = null,
+) {
+    QkCard(modifier = modifier, onClick = onClick) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            if (icon != null) {
+                QkIconBubble(icon, iconTone, 32.dp)
+                Box(modifier = Modifier.width(9.dp))
+            }
+            Text(title, style = MaterialTheme.typography.titleSmall, color = QkColor.Fg, modifier = Modifier.weight(1f))
+        }
+        Text(
+            value,
+            modifier = Modifier.padding(top = 8.dp),
+            style = valueStyle ?: MaterialTheme.typography.headlineSmall,
+            color = QkColor.Fg,
+        )
+        if (caption != null) {
+            Text(
+                caption,
+                modifier = Modifier.padding(top = 3.dp),
+                style = MaterialTheme.typography.bodySmall,
+                color = QkColor.Muted,
+            )
+        }
     }
 }
 
@@ -268,6 +376,7 @@ fun QkListRow(
     modifier: Modifier = Modifier,
     subtitle: String? = null,
     glyph: String? = null,
+    icon: ImageVector? = null,
     tone: QkGlyphTone = QkGlyphTone.Green,
     glyphSize: Dp = 38.dp,
     trailing: @Composable (() -> Unit)? = null,
@@ -283,7 +392,10 @@ fun QkListRow(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(11.dp),
         ) {
-            if (glyph != null) QkGlyph(glyph, tone, glyphSize)
+            when {
+                icon != null -> QkIconBubble(icon, tone, glyphSize)
+                glyph != null -> QkGlyph(glyph, tone, glyphSize)
+            }
             Column(modifier = Modifier.weight(1f)) {
                 Text(title, style = MaterialTheme.typography.titleSmall, color = QkColor.Fg)
                 if (subtitle != null) {
@@ -334,6 +446,57 @@ fun QkSegmented(
                     label,
                     style = MaterialTheme.typography.bodySmall,
                     color = if (active) QkColor.Primary else QkColor.SegmentInactive,
+                )
+            }
+        }
+    }
+}
+
+/**
+ * 身体成分四段条（设计稿「偏瘦 / 标准 / 偏重 / 肥胖」）。
+ *
+ * 四段实色 + 4dp 间隙，命中段中心有一个白点指示当前所处区间；标签在条下均分。
+ * 注意标签口径用「偏重」而非「偏胖」——与设计稿一致，[active] 传业务值，
+ * 由 [labels] 的顺序对齐，映射在调用侧完成。
+ */
+@Composable
+fun QkBodyBar(
+    labels: List<String>,
+    active: String?,
+    modifier: Modifier = Modifier,
+) {
+    val colors = listOf(QkColor.BmiThin, QkColor.BmiNormal, QkColor.BmiOver, QkColor.BmiObese)
+    Column(modifier = modifier.fillMaxWidth()) {
+        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            labels.forEachIndexed { index, label ->
+                val hit = label == active
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(9.dp)
+                        .clip(RoundedCornerShape(5.dp))
+                        .background(colors.getOrElse(index) { QkColor.Muted }),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    if (hit) {
+                        Box(
+                            modifier = Modifier
+                                .size(4.dp)
+                                .clip(CircleShape)
+                                .background(Color.White),
+                        )
+                    }
+                }
+            }
+        }
+        Row(modifier = Modifier.fillMaxWidth().padding(top = 7.dp)) {
+            labels.forEach { label ->
+                Text(
+                    label,
+                    modifier = Modifier.weight(1f),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = if (label == active) QkColor.Primary else QkColor.Muted,
+                    textAlign = TextAlign.Center,
                 )
             }
         }
@@ -464,4 +627,193 @@ fun QkVSpace(height: Dp) {
 @Composable
 fun QkHSpace(width: Dp) {
     Box(modifier = Modifier.width(width))
+}
+
+// ---- 页面级组件（原型各页反复出现的版式原语，DEC-026 批次新增） ----
+
+/**
+ * 详情页页标题（原型 .page-title：21px / 800）。
+ *
+ * 只给压栈的二级页用（历史/报告/设置等——它们进 NavState 栈，壳层品牌栏让位）；
+ * 四个页签页由壳层 QkTopBar 承担标题，页面内不再重造。
+ */
+@Composable
+fun QkPageTitle(title: String, modifier: Modifier = Modifier) {
+    Text(
+        title,
+        modifier = modifier,
+        style = MaterialTheme.typography.headlineSmall,
+        color = QkColor.Fg,
+    )
+}
+
+/** 压栈页的返回圆钮（原型 .icon-btn 口径：34dp 白底细边圆）。 */
+@Composable
+fun QkBackButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .size(34.dp)
+            .clip(CircleShape)
+            .background(QkColor.Card)
+            .border(1.dp, QkColor.Border, CircleShape)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        QkIcon(QkIcons.Back, size = 20.dp, contentDescription = "返回")
+    }
+}
+
+/**
+ * 报告页评分环（原型 .score-ring）：84dp 圆环，底环 + 按分数比例的绿色弧。
+ *
+ * 原型只把顶段染成主绿（border-top-color），这里改为按 score/100 画弧——
+ * 环要表达「分」的多少，固定一段彩色弧在 60 分和 90 分上长得一样，失去了图形意义。
+ */
+@Composable
+fun QkScoreRing(score: Int, color: Color = QkColor.Primary, modifier: Modifier = Modifier) {
+    Box(modifier = modifier.size(84.dp), contentAlignment = Alignment.Center) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val stroke = 7.dp.toPx()
+            val radius = (size.minDimension - stroke) / 2f
+            val center = Offset(size.width / 2f, size.height / 2f)
+            drawCircle(
+                color = QkColor.ScoreTrack,
+                radius = radius,
+                center = center,
+                style = Stroke(width = stroke),
+            )
+            drawArc(
+                color = color,
+                startAngle = -90f,
+                sweepAngle = 360f * (score.coerceIn(0, 100) / 100f),
+                useCenter = false,
+                topLeft = Offset(center.x - radius, center.y - radius),
+                size = Size(radius * 2, radius * 2),
+                style = Stroke(width = stroke, cap = StrokeCap.Round),
+            )
+        }
+        Row(verticalAlignment = Alignment.Bottom) {
+            Text(
+                "$score",
+                style = MaterialTheme.typography.headlineSmall,
+                color = color,
+            )
+            Text(
+                "分",
+                style = MaterialTheme.typography.labelSmall,
+                color = color,
+                modifier = Modifier.padding(bottom = 4.dp, start = 1.dp),
+            )
+        }
+    }
+}
+
+/**
+ * 设备页蓝牙环 hero（原型 .device-hero / .bluetooth-ring）：
+ * 150dp 外圈 1px 描边 + 两圈内嵌浅环（12dp / 25dp 处）+ 58dp 主绿圆心白图标。
+ * 版式完全按原型实测值，环不带动画——原型即静态，扫描态由下方状态文案表达。
+ */
+@Composable
+fun QkDeviceHero(
+    status: String,
+    sub: String,
+    modifier: Modifier = Modifier,
+    centerIcon: ImageVector = QkIcons.Bluetooth,
+    centerTint: Color = Color.White,
+    ringColor: Color = QkColor.Primary,
+) {
+    Column(modifier = modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+        Box(modifier = Modifier.size(150.dp), contentAlignment = Alignment.Center) {
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                val edge = 1.dp.toPx()
+                // 外描边
+                drawCircle(
+                    color = QkColor.RingEdge,
+                    radius = (size.minDimension - edge) / 2f,
+                    style = Stroke(width = edge),
+                )
+                // 两圈内嵌浅环：CSS inset shadow 12px 与 25px 两档的 Compose 等价物
+                val band1 = 12.dp.toPx()
+                val band2 = 13.dp.toPx()
+                drawCircle(
+                    color = QkColor.RingIn1,
+                    radius = size.minDimension / 2f - band1 / 2f,
+                    style = Stroke(width = band1),
+                )
+                drawCircle(
+                    color = QkColor.RingIn2,
+                    radius = size.minDimension / 2f - band1 - band2 / 2f,
+                    style = Stroke(width = band2),
+                )
+                // 圆心主绿圆（58dp）
+                drawCircle(
+                    color = ringColor,
+                    radius = 29.dp.toPx(),
+                )
+            }
+            Icon(
+                centerIcon,
+                contentDescription = null,
+                tint = centerTint,
+                modifier = Modifier.size(28.dp),
+            )
+        }
+        Text(
+            status,
+            modifier = Modifier.padding(top = 18.dp),
+            style = MaterialTheme.typography.titleSmall,
+            color = QkColor.Fg,
+        )
+        Text(
+            sub,
+            modifier = Modifier.padding(top = 7.dp),
+            style = MaterialTheme.typography.bodySmall,
+            color = QkColor.Muted,
+        )
+    }
+}
+
+/**
+ * 历史页月标头（原型 .history-date）：浅灰底圆角条，承一个字符串（月份或当日标题）。
+ * 分组汇总信息（共减重/减脂）由调用方拼进 [text]，本组件不掺数据口径。
+ */
+@Composable
+fun QkDateChip(text: String, modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(10.dp))
+            .background(QkColor.ChipBg)
+            .padding(horizontal = 11.dp, vertical = 9.dp),
+    ) {
+        Text(text, style = MaterialTheme.typography.bodySmall, color = QkColor.ChipInk)
+    }
+}
+
+/** 报告页风险行（原型 .risk）：状态点 + 名称 + 右侧档位胶囊。 */
+@Composable
+fun QkRiskRow(
+    name: String,
+    levelText: String,
+    tone: QkPillTone = QkPillTone.Green,
+    dotColor: Color = QkColor.Primary,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier.fillMaxWidth().padding(vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(
+            modifier = Modifier
+                .size(8.dp)
+                .clip(CircleShape)
+                .background(dotColor),
+        )
+        Text(
+            name,
+            modifier = Modifier.padding(start = 8.dp).weight(1f),
+            style = MaterialTheme.typography.bodyMedium,
+            color = QkColor.Fg,
+        )
+        QkPill(levelText, tone)
+    }
 }

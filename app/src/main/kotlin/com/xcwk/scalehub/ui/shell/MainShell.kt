@@ -35,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -62,6 +63,8 @@ import com.xcwk.scalehub.ui.components.QkCard
 import com.xcwk.scalehub.ui.components.QkEmptyHint
 import com.xcwk.scalehub.ui.components.QkGlyph
 import com.xcwk.scalehub.ui.components.QkGlyphTone
+import com.xcwk.scalehub.ui.components.QkIconBubble
+import com.xcwk.scalehub.ui.components.QkIcons
 import com.xcwk.scalehub.ui.components.QkIconButton
 import com.xcwk.scalehub.ui.theme.QkColor
 import com.xcwk.scalehub.ui.theme.QkTheme
@@ -110,10 +113,7 @@ fun MainShell() {
             // 详情页自带返回头（← 标题），壳层品牌栏在其上会形成双标题；
             // 副标题也只描述四个页签，压栈后即失真。故栈内有层时让位。
             if (!nav.canPop) {
-                QkTopBar(
-                    subtitle = subtitleFor(nav.tab),
-                    trailing = SimpleDateFormat("M月d日", Locale.CHINA).format(Date()),
-                )
+                QkTopBar(subtitle = subtitleFor(nav.tab))
             }
         },
         bottomBar = {
@@ -150,6 +150,7 @@ fun MainShell() {
                         onOpenRecord = { type, preset -> go(NavEvent.OpenRecord(type, preset)) },
                         onOpenFeature = { name -> go(NavEvent.Push(NavOverlay.Feature(name))) },
                         onOpenMine = { go(NavEvent.SelectTab(MainTab.MINE)) },
+                        onOpenQuick = { showQuick = true },
                     )
                     MainTab.TREND -> TrendRoute(
                         onOpenHistory = { go(NavEvent.Push(NavOverlay.History)) },
@@ -158,6 +159,8 @@ fun MainShell() {
                     MainTab.MINE -> MineRoute(
                         onOpenSettings = { go(NavEvent.Push(NavOverlay.Settings)) },
                         onOpenMembers = { go(NavEvent.Push(NavOverlay.Members)) },
+                        onOpenHistory = { go(NavEvent.Push(NavOverlay.History)) },
+                        onOpenDevice = { go(NavEvent.SelectTab(MainTab.DEVICE)) },
                     )
                 }
                 // 覆盖页按栈序叠放：下层保持组合态，返回即回到刚才页面（需求口径）
@@ -218,7 +221,7 @@ fun MainShell() {
                         Row(horizontalArrangement = Arrangement.spacedBy(9.dp)) {
                             row.forEach { (type, title) ->
                                 QuickTile(
-                                    glyph = quickGlyph(type),
+                                    icon = quickIcon(type),
                                     label = quickLabel(title),
                                     tone = quickTone(type),
                                     modifier = Modifier.weight(1f),
@@ -280,10 +283,10 @@ private fun QuickAiRow(modifier: Modifier = Modifier, onClick: () -> Unit) {
     }
 }
 
-/** 记录项磁贴（原型 .quick）。 */
+/** 记录项磁贴（原型 .quick）：圆形浅底图标 + 名词。 */
 @Composable
 private fun QuickTile(
-    glyph: String,
+    icon: ImageVector,
     label: String,
     tone: QkGlyphTone,
     modifier: Modifier = Modifier,
@@ -297,7 +300,7 @@ private fun QuickTile(
             .padding(vertical = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        QkGlyph(glyph, tone)
+        QkIconBubble(icon, tone, 36.dp)
         Text(
             label,
             style = MaterialTheme.typography.bodySmall,
@@ -307,16 +310,16 @@ private fun QuickTile(
     }
 }
 
-private fun quickGlyph(type: String): String = when (type) {
-    "weight" -> "秤"
-    "diet" -> "餐"
-    "exercise" -> "动"
-    "water" -> "水"
-    "waist" -> "围"
-    "glucose" -> "糖"
-    "blood_pressure" -> "压"
-    "habit" -> "习"
-    else -> "记"
+private fun quickIcon(type: String): ImageVector = when (type) {
+    "weight" -> QkIcons.Weight
+    "diet" -> QkIcons.Meal
+    "exercise" -> QkIcons.Exercise
+    "water" -> QkIcons.Water
+    "waist" -> QkIcons.Waist
+    "glucose" -> QkIcons.Glucose
+    "blood_pressure" -> QkIcons.BloodPressure
+    "habit" -> QkIcons.Habit
+    else -> QkIcons.More
 }
 
 private fun quickTone(type: String): QkGlyphTone = when (type) {
@@ -431,7 +434,7 @@ private fun SheetRow(title: String, enabled: Boolean, hint: String? = null, onCl
 
 /** 顶栏副标题随页签变化（原型 pageTitles 口径）。 */
 private fun subtitleFor(tab: MainTab): String = when (tab) {
-    MainTab.HOME -> "关注身体，也关注此刻的自己"
+    MainTab.HOME -> "关注身体，记录更好的自己"
     MainTab.TREND -> "用趋势理解身体变化"
     MainTab.DEVICE -> "管理你的健康设备"
     MainTab.MINE -> "你的健康档案"
