@@ -1,6 +1,6 @@
 # 项目状态
 
-> 由 generate-status.py 自动生成。最后更新: 2026-10-17T09:40:59Z
+> 由 generate-status.py 自动生成。最后更新: 2026-10-17T12:41:28Z
 > 新 AI 启动时: `cat STATUS.md && bash scripts/session/ses-context-load.sh`
 
 ---
@@ -12,8 +12,8 @@
 | 名称 | 轻刻健康 Android（qk-health-v2） |
 | 版本 | 0.1.0 |
 | 文档语言 | zh-CN |
-| Git 分支 | fix/nav-and-cloud-push |
-| 最后提交 | 29a7c62 chore: merge prototype gap fixes (DEC-026 group K) |
+| Git 分支 | master |
+| 最后提交 | f46dccb Merge pull request #1 from zerophix/fix/nav-and-cloud-push |
 | 文档校验 | 运行: `bash scripts/governance/gov-validate.sh` |
 
 ## AI 交接
@@ -22,44 +22,44 @@
 
 | 字段 | 值 |
 |------|-----|
-| 来自 | ai |
+| 来自 | opencode |
 | 时间 | 2026-10-17 |
-| 关键文件 | application/src/main/kotlin/com/xcwk/scalehub/application/sync/SyncTrigger.kt,app/src/main/kotlin/com/xcwk/scalehub/App. |
+| 关键文件 | .ai/tasks.json,docs/ai/inbox/ |
 
 **上下文：**
 
-> 完成: DEC-026 组 K 原型缺口补齐（趋势两卡/我的概览卡/报告 pill，7821b2c→29a7c62）；全项目架构-功能审计，定位 P0 断链=SyncService.push() 生产零调用（只下拉不上传）；本批修复：写用例（测量/健康记录/档案）落库后经 SyncTrigger fire-and-forget 点火 push，容器接线 AppContainer.applicationScope+syncTrigger
+> 完成: CI 首次真正跑通并全绿。定位并修复 KSP 插件解析失败：runner 侧阿里云三个镜像全部 502，而 Gradle 解析遇 5xx 直接终止、不回退后续仓库，排首位的镜像令解析在第一个源即失败；settings.gradle.kts 两个 repositories 块改为按 CI 环境变量分流（CI 只用官方源、本地保留阿里云优先）。KSP 由 2.3.2 校正到公开可取的 2.3.9。PR #1 合并入 master，master 推送触发 run 39027280045，build-and-guard / docs-validate / lifecycle-audit 三 job 全绿。DEC-031（含根因更正）与 DEC-032 落盘并入索引，DevNotes 与 README 反思同步，DEC-027 方案评分表整形。本地切回 master、已合并分支 fix/nav-and-cloud-push 本地与远端均删除。 | 决策: 关键取舍三处。其一，最初把 CI 失败判为「KSP 2.3.2 在公开仓库不存在」，钉到 2.3.9 后 CI 报同一个错，该假设被否证；真因是仓库可用性与 Gradle 的失败语义（遇 5xx 终止而非回退），证据是 runner 侧逐源探针（阿里云 502 / Maven Central 200）与 --info 日志里的 HTTP 502 三连重试。其二，修法选「按 CI 环境变量分流」而不是「官方源排前面」或「删镜像」：后两者会推翻文件里已记录的国内网络取舍（google() 直连超时会拖垮构建），为救 CI 牺牲本地体验属拆东墙补西墙。其三，保留 2.3.9 而非回退 2.3.2：2.3.9 已被 runner 探针证实可从 Maven Central 取到（HTTP 200），2.3.2 的可获取性始终依赖本机缓存。
 
 **下一步：**
 
-> 云函数后端 ai-chat 与同步接口的联调状态需人工确认；app 层仍无 androidTest（Compose/导航回归零仪器测试）；通知体系与备份规则（allowBackup 无 dataExtractionRules）为下一批候选
+> 为本次 KSP/Room 版本变更补设备级验证：在模拟器跑 MigrationTest 与一次 Room 读写冒烟，并把结论登记进 DEC-032 的 Assumptions
 
 ## 最近动态
 
 最近 5 次提交：
 
 ```
-29a7c62 chore: merge prototype gap fixes (DEC-026 group K)
-7821b2c feat(ui): close prototype gaps in trend, mine, report
-2fc4afd chore: merge quick panel verify and bell closure
-79707a1 feat(shell): empty-state toast for bell, verify quick panel
-0b8fcee chore: merge report page feedback fix
+f46dccb Merge pull request #1 from zerophix/fix/nav-and-cloud-push
+4443e4b fix(ci): skip aliyun mirrors on runners
+e23a5a7 chore(ci): probe plugin repositories from the runner
+3def32d fix(build): pin ksp to a published version
+7053571 docs(readme): record pre-push reflection gate treadmill
 ```
 
 ## 工程指标
 
 | 指标 | 数量 |
 |------|------|
-| 决策日志 (DEC) | 29 |
+| 决策日志 (DEC) | 32 |
 | 设计笔记 (NOTE) | 7 |
 | 开发指南 (GC) | 4 |
 | 技术参考 (REF) | 1 |
 
 最近决策：
 
-- [DEC-029](docs/ai/decisions/DEC-029.md): DEC-029: 本地存储三处收口（凭据不入备份 · 键表单一事实源 · 迁移测试接执行）
-- [DEC-028](docs/ai/decisions/DEC-028.md): DEC-028: 硬编码治理收口
-- [DEC-027](docs/ai/decisions/DEC-027.md): DEC-027: 云同步上传断链修复（P0）与导航口径对齐
+- [DEC-032](docs/ai/decisions/DEC-032.md): DEC-032: CI 环境跳过阿里云镜像（Gradle 遇 5xx 不回退后续仓库）
+- [DEC-031](docs/ai/decisions/DEC-031.md): DEC-031: KSP 钉到公开仓库存在的 2.3.9（修复 CI 插件解析失败）
+- [DEC-030](docs/ai/decisions/DEC-030.md): DEC-030: 构建层启用 core library desugaring（取代 @RequiresApi 与 min
 
 最近笔记：
 
@@ -79,5 +79,5 @@
 
 > 上次 AI session 的经验教训。新 AI 启动时必读。
 
-审计结论必须用 grep -E（macOS BSD grep 的 \| 在 BRE 下静默返空，差点误报'恢复入口不存在'）；'已注入容器但无人调用'是真实架构断链形态，审计要覆盖调用方而非仅定义
+关键取舍三处。其一，最初把 CI 失败判为「KSP 2.3.2 在公开仓库不存在」，钉到 2.3.9 后 CI 报同一个错，该假设被否证；真因是仓库可用性与 Gradle 的失败语义（遇 5xx 终止而非回退），证据是 runner 侧逐源探针（阿里云 502 / Maven Central 200）与 --info 日志里的 HTTP 502 三连重试。其二，修法选「按 CI 环境变量分流」而不是「官方源排前面」或「删镜像」：后两者会推翻文件里已记录的国内网络取舍（google() 直连超时会拖垮构建），为救 CI 牺牲本地体验属拆东墙补西墙。其三，保留 2.3.9 而非回退 2.3.2：2.3.9 已被 runner 探针证实可从 Maven Central 取到（HTTP 200），2.3.2 的可获取性始终依赖本机缓存。
 
