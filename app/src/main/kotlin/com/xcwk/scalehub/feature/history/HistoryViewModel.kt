@@ -8,6 +8,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.xcwk.scalehub.App
 import com.xcwk.scalehub.application.DataRefreshBus
 import com.xcwk.scalehub.application.query.HistoryQuery
+import com.xcwk.scalehub.application.query.TrendSegment
 import com.xcwk.scalehub.application.service.DeleteMeasurementService
 import com.xcwk.scalehub.domain.types.DomainException
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -52,6 +53,14 @@ class HistoryViewModel(
                     if (m.month == intent.month) m.copy(expanded = !m.expanded) else m
                 })
             }
+            is HistoryIntent.PickDay -> {
+                _state.update { it.copy(selectedDay = intent.day) }
+                reload()
+            }
+            HistoryIntent.ClearDay -> {
+                _state.update { it.copy(selectedDay = null, dayRows = emptyList(), dayHeader = null) }
+                reload()
+            }
             is HistoryIntent.AskDelete -> _state.update { it.copy(confirmDeleteTime = intent.time) }
             HistoryIntent.CancelDelete -> _state.update { it.copy(confirmDeleteTime = null) }
             HistoryIntent.ConfirmDelete -> confirmDelete()
@@ -79,6 +88,22 @@ class HistoryViewModel(
     }
 
     private suspend fun refresh() {
+        // 按日视图（M4）：选定日期即平铺当日行，忽略时段与月分组
+        val day = _state.value.selectedDay
+        if (day != null) {
+            val dayRows = historyQuery.rows(TrendSegment.ALL_DAY)
+                .filter { dayOf(it.record.time) == day }
+                .map { row -> rowUi(row) }
+            _state.update {
+                it.copy(
+                    loading = false,
+                    dayRows = dayRows,
+                    dayHeader = "$day · 共 ${dayRows.size} 条",
+                    emptyText = if (dayRows.isEmpty()) "$day 没有测量记录" else null,
+                )
+            }
+            return
+        }
         val segment = _state.value.segment
         val rows = historyQuery.rows(segment)
         val monthly = historyQuery.monthly(segment)
@@ -90,15 +115,7 @@ class HistoryViewModel(
                 titleText = monthTitle(summary.yearMonth, summary),
                 expanded = expandedMap[summary.yearMonth] ?: false,
                 rows = rows.filter { monthOf(it.record.time) == summary.yearMonth }
-                    .map { row ->
-                        HistoryRowUi(
-                            time = row.record.time,
-                            timeText = fmt("MM-dd HH:mm").format(Instant.ofEpochMilli(row.record.time)),
-                            weightText = one(row.record.weight),
-                            fatText = if (row.record.fat >= 0) "${one(row.record.fat)}%" else "--",
-                            deltaText = row.previous?.let { p -> signed(row.record.weight - p.weight) },
-                        )
-                    },
+                    .map { row -> rowUi(row) },
             )
         }
         _state.update {
@@ -119,6 +136,17 @@ class HistoryViewModel(
         } ?: "减脂--"
         return "${y}年${m}月: $weightText  $fatPart"
     }
+
+    private fun rowUi(row: com.xcwk.scalehub.application.query.HistoryRow): HistoryRowUi =
+        HistoryRowUi(
+            time = row.record.time,
+            timeText = fmt("MM-dd HH:mm").format(Instant.ofEpochMilli(row.record.time)),
+            weightText = one(row.record.weight),
+            fatText = if (row.record.fat >= 0) "${one(row.record.fat)}%" else "--",
+            deltaText = row.previous?.let { p -> signed(row.record.weight - p.weight) },
+        )
+
+    private fun dayOf(time: Long): String = fmt("yyyy-MM-dd").format(Instant.ofEpochMilli(time))
 
     private fun monthOf(time: Long): String {
         val d = Instant.ofEpochMilli(time).atZone(zone).toLocalDate()

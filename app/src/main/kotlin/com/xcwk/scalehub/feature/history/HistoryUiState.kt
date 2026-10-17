@@ -28,6 +28,10 @@ data class HistoryUiState(
     val confirmDeleteTime: Long? = null,
     val deleting: Boolean = false,
     val error: String? = null,
+    /** 按日筛选（M4）："yyyy-MM-dd"；null=按月视图。 */
+    val selectedDay: String? = null,
+    val dayRows: List<HistoryRowUi> = emptyList(),
+    val dayHeader: String? = null,
 )
 
 sealed interface HistoryIntent {
@@ -36,4 +40,27 @@ sealed interface HistoryIntent {
     data class AskDelete(val time: Long) : HistoryIntent
     data object CancelDelete : HistoryIntent
     data object ConfirmDelete : HistoryIntent
+    data class PickDay(val day: String) : HistoryIntent
+    data object ClearDay : HistoryIntent
 }
+
+/**
+ * 导出文本（M4，需求：历史记录可导出）——纯展示格式化，零业务。
+ * 按日视图导出当日；按月视图导出全部月份与行（含收起的）。
+ */
+fun buildExportText(state: HistoryUiState): String = buildString {
+    appendLine("轻刻健康 · 测量记录导出")
+    if (state.selectedDay != null) {
+        appendLine(state.dayHeader ?: state.selectedDay)
+        state.dayRows.forEach { appendLine(rowLine(it)) }
+    } else {
+        state.months.forEach { month ->
+            appendLine(month.titleText)
+            month.rows.forEach { appendLine(rowLine(it)) }
+        }
+    }
+}.trimEnd()
+
+private fun rowLine(row: HistoryRowUi): String =
+    "  ${row.timeText}  ${row.weightText} kg  体脂 ${row.fatText}" +
+        (row.deltaText?.let { "  较上条 $it kg" } ?: "")

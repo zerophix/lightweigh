@@ -99,4 +99,47 @@ class HistoryViewModelTest {
         assertThat(repo.data).hasSize(1)
         assertThat(vm.state.value.months[0].rows).hasSize(1)
     }
+
+    @Test
+    fun `按日筛选_选中平铺当日行_清除回月视图`() {
+        val vm = vm(FakeRepo(listOf(rec(ts(10, 1, 8), 75.0), rec(ts(10, 15, 8), 72.0), rec(ts(10, 15, 20), 71.5))))
+        vm.onIntent(HistoryIntent.PickDay("2026-10-15"))
+        var s = vm.state.value
+        assertThat(s.selectedDay).isEqualTo("2026-10-15")
+        assertThat(s.dayRows).hasSize(2)                      // 当日两条
+        assertThat(s.dayHeader).isEqualTo("2026-10-15 · 共 2 条")
+        assertThat(s.emptyText).isNull()
+
+        vm.onIntent(HistoryIntent.ClearDay)
+        s = vm.state.value
+        assertThat(s.selectedDay).isNull()
+        assertThat(s.dayRows).isEmpty()
+        assertThat(s.months).hasSize(1)                       // 月视图恢复
+    }
+
+    @Test
+    fun `按日筛选_空日给出日期级提示`() {
+        val vm = vm(FakeRepo(listOf(rec(ts(10, 1, 8), 75.0))))
+        vm.onIntent(HistoryIntent.PickDay("2026-10-15"))
+        val s = vm.state.value
+        assertThat(s.dayRows).isEmpty()
+        assertThat(s.emptyText).isEqualTo("2026-10-15 没有测量记录")
+    }
+
+    @Test
+    fun `导出文本_月视图含标题与行_按日只导当日`() {
+        val vm = vm(FakeRepo(listOf(rec(ts(10, 1, 8), 75.0, 20.0), rec(ts(10, 15, 8), 72.0, 19.0))))
+        val monthText = buildExportText(vm.state.value)
+        assertThat(monthText).contains("轻刻健康 · 测量记录导出")
+        assertThat(monthText).contains("2026年10月: 共减重3.0公斤")
+        assertThat(monthText).contains("72.0 kg")
+        assertThat(monthText).contains("体脂 19.0%")
+        assertThat(monthText).contains("较上条 -3.0 kg")
+
+        vm.onIntent(HistoryIntent.PickDay("2026-10-15"))
+        val dayText = buildExportText(vm.state.value)
+        assertThat(dayText).contains("2026-10-15 · 共 1 条")
+        assertThat(dayText).contains("72.0 kg")
+        assertThat(dayText).doesNotContain("75.0")            // 非当日不导出
+    }
 }
