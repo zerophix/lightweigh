@@ -16,16 +16,20 @@ const val MINE_ROUTE_NAME = "mine"
 fun MineRoute(vm: MineViewModel = viewModel(factory = MineViewModel.Factory)) {
     // 设置为我的页二级页（宿主导航态，例外域同 MainShell 声明）
     var showSettings by rememberSaveable { mutableStateOf(false) }
-    if (showSettings) {
-        com.xcwk.scalehub.feature.settings.SettingsRoute(onBack = { showSettings = false })
-    } else {
-        val state by vm.state.collectAsStateWithLifecycle()
-        val app = androidx.compose.ui.platform.LocalContext.current.applicationContext as com.xcwk.scalehub.App
-        MineScreen(
-            state = state,
-            onIntent = vm::onIntent,
-            onOpenSettings = { showSettings = true },
-            newCameraTarget = app.container.newCameraTarget,
-        )
+    var showMembers by rememberSaveable { mutableStateOf(false) }
+    when {
+        showSettings -> com.xcwk.scalehub.feature.settings.SettingsRoute(onBack = { showSettings = false })
+        showMembers -> com.xcwk.scalehub.feature.member.MembersRoute(onBack = { showMembers = false })
+        else -> {
+            val state by vm.state.collectAsStateWithLifecycle()
+            val app = androidx.compose.ui.platform.LocalContext.current.applicationContext as com.xcwk.scalehub.App
+            MineScreen(
+                state = state,
+                onIntent = vm::onIntent,
+                onOpenSettings = { showSettings = true },
+                newCameraTarget = app.container.newCameraTarget,
+                onOpenMembers = { showMembers = true },
+            )
+        }
     }
 }

@@ -46,6 +46,7 @@ fun MineScreen(
     onIntent: (MineIntent) -> Unit,
     onOpenSettings: () -> Unit = {},
     newCameraTarget: () -> String? = { null },
+    onOpenMembers: () -> Unit = {},
 ) {
     var showAvatarSheet by rememberSaveable { mutableStateOf(false) }
     var showBirthSheet by rememberSaveable { mutableStateOf(false) }
@@ -92,6 +93,12 @@ fun MineScreen(
                 QkChip("男", state.male) { onIntent(MineIntent.MaleChanged(true)) }
                 QkChip("女", !state.male) { onIntent(MineIntent.MaleChanged(false)) }
             }
+            // 测量用户：切换/添加/删除（旧库 Members 入口）
+            PickerRow(
+                label = "测量用户",
+                value = state.nickname.ifBlank { "我" },
+                onClick = onOpenMembers,
+            )
             // 出生年月：滚轮编辑（旧库 BirthSheet）
             PickerRow(
                 label = "出生年月",

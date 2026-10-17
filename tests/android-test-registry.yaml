@@ -163,5 +163,9 @@ commands:
   path: domain/src/test/kotlin/com/xcwk/scalehub/domain/model/MemberOpsTest.kt
   status: stable
   type: gradle-test
+- description: 成员管理行为（切换/添加满8/删除留一, 多成员刀B）
+  path: app/src/test/kotlin/com/xcwk/scalehub/feature/member/MembersViewModelTest.kt
+  status: stable
+  type: gradle-test
 configs: []
 orphans: []

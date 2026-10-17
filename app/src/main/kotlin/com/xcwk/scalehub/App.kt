@@ -87,6 +87,26 @@ class AppContainer(context: Context) {
         { s -> avatarStore.saveFromUri(android.net.Uri.parse(s), memberRepository.activeId()) }
     val newCameraTarget: () -> String? = { avatarStore.newCameraTarget() }
 
+    /** 成员操作口（MemberStore 藏在容器后；切换/增删经信号总线广播刷新）。 */
+    val memberList: () -> List<com.xcwk.scalehub.domain.model.Member> = { memberRepository.members() }
+    val activeMemberId: () -> String = { memberRepository.activeId() }
+    val switchMember: (String) -> Unit = { id ->
+        memberRepository.switch(id)
+        dataRefreshBus.notifyChanged()
+    }
+    val addMember: (String) -> Boolean = { name ->
+        memberRepository.add(name) != null
+    }
+    val removeMember: (String) -> Boolean = { id ->
+        val ok = memberRepository.remove(id)
+        if (ok) {
+            removeMemberLocalData(id)
+            dataRefreshBus.notifyChanged()
+        }
+        ok
+    }
+    val memberAvatarPath: (String) -> String = { id -> avatarStore.path(id) ?: "" }
+
     /** 当前成员槽位读取口（MemberStore 藏在容器后，feature 层不直调 infra）。 */
     val activeMemberSlot: () -> Int = { memberRepository.activeSlot() }
 
