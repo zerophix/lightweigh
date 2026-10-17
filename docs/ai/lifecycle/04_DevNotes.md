@@ -274,6 +274,7 @@
 |------|------|---------|
 | v54 | 2026-10-17 | DEC-024 组 C：MeasureSession 抽 isSettling + confirmSave 补 closed 守卫，补 3 项路径测试（93 项 application 单测） |
 | v53 | 2026-10-17 | DEC-024 导航状态收口：NavState 单一栈 + BackHandler，Trend/Mine 局部导航并入（77 项 app 单测） |
+| v53 | 2026-10-17 | T-005 关闭：v1→v5 真机全链迁移测试（模拟器实跑通过）+ CI androidTest 编译门启用 |
 | v52 | 2026-10-17 | 首页全家桶·H2：旧库 HomeScreen 全量重建 + feature 占位页族（253 测试） |
 | v51 | 2026-10-17 | 首页全家桶·H1：GoalStore 目标存储 + HomeGoalQuery 今日汇总 + 目标云推送（253 测试） |
 | v50 | 2026-10-17 | 多成员·刀B：成员页四件套 + 我的页入口 + 切换/增删信号广播（247 测试） |

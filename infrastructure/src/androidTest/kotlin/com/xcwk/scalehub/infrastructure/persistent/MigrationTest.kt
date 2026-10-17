@@ -10,7 +10,7 @@ import org.junit.runner.RunWith
 
 /**
  * G3 真实迁移测试（DEC-020 门禁，对抗评审终审阻断项）——
- * 在真实 SQLite 上执行 v1 → v2 → v3 全链：
+ * 在真实 SQLite 上执行 v1 → v5 全链（含 v4 设备表与 v5 多成员列）：
  *  - 每步以 MigrationTestHelper 对导出 schema 做运行时结构校验
  *  - v1 历史测量行在两步迁移后完整保留
  *  - v2 新增快照列对旧行为 NULL（未记录语义）
@@ -26,7 +26,7 @@ class MigrationTest {
     )
 
     @Test
-    fun v1到v3全链迁移_结构校验与数据保留() {
+    fun v1到v5全链迁移_结构校验与数据保留() {
         // ---- v1 建库并写入历史行（v1 列集：无快照三列）----
         helper.createDatabase(TEST_DB, 1).apply {
             execSQL(
@@ -78,6 +78,58 @@ class MigrationTest {
             db.query("SELECT COUNT(*) FROM health_logs").use { c ->
                 assertTrue(c.moveToFirst())
                 assertEquals(2, c.getInt(0))
+            }
+        }
+
+        // ---- v3 → v4：建 devices 表，schema 校验 + 测量与日志仍完整 ----
+        helper.runMigrationsAndValidate(TEST_DB, 4, true, AppDatabase.MIGRATION_3_4).use { db ->
+            db.query("SELECT COUNT(*) FROM measurements").use { c ->
+                assertTrue(c.moveToFirst())
+                assertEquals(1, c.getInt(0))
+            }
+            db.execSQL(
+                "INSERT INTO devices (mac, name, boundAt, active, protocolId, algorithmId) " +
+                    "VALUES ('AA:BB:CC:DD:EE:FF', '卧室秤', '2026-10-01', 1, 'okok-1', 'okok-bia-1')"
+            )
+            db.query("SELECT name, active FROM devices").use { c ->
+                assertTrue(c.moveToFirst())
+                assertEquals("卧室秤", c.getString(0))
+                assertEquals(1, c.getInt(1))
+            }
+        }
+
+        // ---- v4 → v5：两表补 member_id（多成员维），存量数据与默认归属校验 ----
+        helper.runMigrationsAndValidate(TEST_DB, 5, true, AppDatabase.MIGRATION_4_5).use { db ->
+            // v1 时代的测量行历经四步迁移后仍完整，且默认归属成员 1
+            db.query("SELECT weightKg, fat, memberId FROM measurements").use { c ->
+                assertTrue(c.moveToFirst())
+                assertEquals(70.0, c.getDouble(0), 1e-9)
+                assertEquals(18.4, c.getDouble(1), 1e-9)
+                assertEquals("升级前存量测量应默认归属成员 1", "1", c.getString(2))
+            }
+            // v3 时代写入的健康日志行同样保留并默认归属成员 1
+            db.query("SELECT COUNT(*), SUM(value) FROM health_logs WHERE type = 'water'").use { c ->
+                assertTrue(c.moveToFirst())
+                assertEquals(1, c.getInt(0))
+                assertEquals(250.0, c.getDouble(1), 1e-9)
+            }
+            db.query("SELECT memberId FROM health_logs WHERE type = 'water'").use { c ->
+                assertTrue(c.moveToFirst())
+                assertEquals("1", c.getString(0))
+            }
+            // 新表结构支持显式成员写入（多成员上线后的写路径）
+            db.execSQL(
+                "INSERT INTO measurements (measuredAt, weightKg, impedanceOhm, fat, mac, algorithmId, male, ageYears, heightCm, memberId) " +
+                    "VALUES (1710000000000, 66.0, 400.0, -1.0, 'CC:DD', 'builtin-1', 1, 30, 175, '2')"
+            )
+            db.query("SELECT memberId FROM measurements WHERE measuredAt = 1710000000000").use { c ->
+                assertTrue(c.moveToFirst())
+                assertEquals("2", c.getString(0))
+            }
+            // devices 表跨迁移仍在
+            db.query("SELECT COUNT(*) FROM devices").use { c ->
+                assertTrue(c.moveToFirst())
+                assertEquals(1, c.getInt(0))
             }
         }
     }
