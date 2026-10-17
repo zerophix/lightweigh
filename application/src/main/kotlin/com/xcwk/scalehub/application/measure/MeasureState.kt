@@ -43,4 +43,6 @@ data class MeasureState(
     val showCountdown: Boolean = false,
     val showRetry: Boolean = false,
     val outcome: MeasureOutcome? = null,
+    /** 本机无绑定设备（WAIT 相专属出口：渲染「去绑定设备」直达设备页）。 */
+    val needBind: Boolean = false,
 )

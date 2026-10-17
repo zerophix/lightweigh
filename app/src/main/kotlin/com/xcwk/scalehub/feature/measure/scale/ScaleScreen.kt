@@ -55,6 +55,7 @@ private val LinkRed = QkColor.Danger
 fun ScaleRoute(
     onBack: () -> Unit,
     onOpenReport: (Long) -> Unit = {},
+    onGoBind: () -> Unit = {},
     vm: ScaleViewModel = viewModel(factory = ScaleViewModel.Factory),
 ) {
     val state by vm.state.collectAsStateWithLifecycle()
@@ -88,6 +89,7 @@ fun ScaleRoute(
         onEnableBluetooth = {
             enableBtLauncher.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
         },
+        onGoBind = onGoBind,
     )
 }
 
@@ -119,6 +121,7 @@ fun ScaleContent(
     onOpenReport: (Long) -> Unit = {},
     onRequestPermission: () -> Unit = {},
     onEnableBluetooth: () -> Unit = {},
+    onGoBind: () -> Unit = {},
 ) {
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -159,6 +162,14 @@ fun ScaleContent(
                             text = "重新连接",
                             modifier = Modifier.padding(top = 16.dp),
                             onClick = { onIntent(ScaleIntent.Retry) },
+                        )
+                    }
+                    if (state.needBind) {
+                        // 无绑定设备的等待态给出明确出口，直达设备页绑定
+                        QkButton(
+                            text = "去绑定设备",
+                            modifier = Modifier.padding(top = 16.dp),
+                            onClick = onGoBind,
                         )
                     }
                 }
@@ -230,10 +241,12 @@ fun ScaleContent(
                             )
                         }
                         MeasureOutcomeKind.NOT_BOUND -> {
+                            // 未绑定态给明确的下一步：直达设备页绑定（壳层接线切页签并清覆盖栈），
+                            // 不再让按钮文案承载操作说明
                             QkButton(
-                                text = "去设备页绑定（返回后切换设备页签）",
+                                text = "去绑定设备",
                                 modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
-                                onClick = onBack,
+                                onClick = onGoBind,
                             )
                         }
                     }

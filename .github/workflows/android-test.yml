@@ -1,0 +1,47 @@
+# 连接态（真机/模拟器）Android 测试 —— 补上 ci.yml 缺失的「执行」环节。
+#
+# 缺口（DEC-029 组 B）：ci.yml 的 build-and-guard 跑 ./gradlew build（assemble + 单测 + lint）
+# 外加 assembleAndroidTest —— 只【编译】androidTest 源集，从不【执行】。于是
+# infrastructure 的 MigrationTest（v1→v5 全链 schema 运行时校验 + 数据保留）虽已落地
+# 且曾在模拟器实跑通过，却不在任何门禁上，回归无人拦。
+#
+# 刻意不挂 push/pull_request：模拟器 job 的时长与稳定性风险高，先手动跑通确认，
+# 再考虑纳入门禁。跑顺之后把下面的 schedule 取消注释即得定期兜底。
+name: android-test
+
+on:
+  workflow_dispatch:
+  # schedule:
+  #   - cron: '0 18 * * 1'   # 每周一 02:00 (UTC+8) 兜底；先手动验证通过再启用
+
+jobs:
+  connected-android-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle (cache)
+        uses: gradle/actions/setup-gradle@v4
+
+      # GitHub 托管 runner 上的 KVM 加速（android-emulator-runner 官方推荐做法）
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      # api-level 30 覆盖 minSdk 24 之上的主流量级；Room 迁移测试不需要 Google APIs
+      - name: Run connected androidTest
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          target: default
+          arch: x86_64
+          disable-animations: true
+          script: ./gradlew :infrastructure:connectedDebugAndroidTest --stacktrace

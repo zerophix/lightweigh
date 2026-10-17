@@ -215,6 +215,8 @@ class MeasureSessionTest {
         assertThat(s.title).isEqualTo("无法连接")
         assertThat(s.desc).isEqualTo("请先绑定体脂秤")
         assertThat(s.link).isEqualTo("未连接")
+        // 无绑定设备时给出「去绑定设备」出口（UI 据此渲染直达设备页的按钮）
+        assertThat(s.needBind).isTrue()
         assertThat(ble.scans).isEqualTo(0)
     }
 
@@ -224,6 +226,8 @@ class MeasureSessionTest {
         val session = harness(backgroundScope, FakeDevices(mutableListOf(ScaleDevice("秤", "AA:BB:CC:DD:EE:FF", "2026-10-16", true))), ble)
         session.start()
         assertThat(session.state.value.title).isEqualTo("请打开蓝牙")
+        // 蓝牙未开是另一种等待态，不提供绑定出口
+        assertThat(session.state.value.needBind).isFalse()
         assertThat(ble.scans).isEqualTo(0)
     }
 

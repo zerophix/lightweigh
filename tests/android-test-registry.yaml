@@ -51,7 +51,7 @@ commands:
   path: app/src/test/kotlin/com/xcwk/scalehub/feature/trend/TrendViewModelTest.kt
   status: stable
   type: gradle-test
-- description: G3 迁移链真机测试（v1→v3 schema校验+数据保留, DEC-020）
+- description: G3 迁移链真机测试（v1→v5 schema 运行时校验+数据保留；需模拟器，由 android-test.yml 手动/定时执行，不在 ci.yml 门禁, DEC-020/DEC-029）
   path: infrastructure/src/androidTest/kotlin/com/xcwk/scalehub/infrastructure/persistent/MigrationTest.kt
   status: stable
   type: gradle-test
@@ -177,6 +177,14 @@ commands:
   type: gradle-test
 - description: 导航状态转移表（页签/记录表单/覆盖页栈 + 1000 次随机事件不变量, DEC-024）
   path: app/src/test/kotlin/com/xcwk/scalehub/ui/shell/NavStateTest.kt
+  status: stable
+  type: gradle-test
+- description: 云推送触发器行为（fire-and-forget/异常自吞/连续按序, P0 断链修复）
+  path: application/src/test/kotlin/com/xcwk/scalehub/application/sync/SyncTriggerTest.kt
+  status: stable
+  type: gradle-test
+- description: 档案键登记守卫（KEY 常量集 == ALL_KEYS, DEC-029）
+  path: infrastructure/src/test/kotlin/com/xcwk/scalehub/infrastructure/profile/ProfileStoreKeyTest.kt
   status: stable
   type: gradle-test
 configs: []

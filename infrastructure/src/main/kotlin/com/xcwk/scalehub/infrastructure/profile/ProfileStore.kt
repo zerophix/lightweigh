@@ -44,11 +44,14 @@ class ProfileStore(
             .apply()
     }
 
-    /** 删除某成员的全部档案键（成员移除联动）。 */
+    /**
+     * 删除某成员的全部档案键（成员移除联动）。
+     * 遍历 [ALL_KEYS] 单一事实源，不再就地枚举：新增档案字段只需在 companion 登记一次，
+     * 漏登记由 ProfileStoreKeyTest 反射断言拦截（原实现就地列 6 个键，加键即留孤儿数据）。
+     */
     fun clearMember(id: String) {
         val editor = prefs.edit()
-        listOf(KEY_MALE, KEY_BIRTH_YEAR, KEY_BIRTH_MONTH, KEY_BIRTH_DAY, KEY_HEIGHT_CM, KEY_NICKNAME)
-            .forEach { editor.remove("profile_${id}_$it") }
+        ALL_KEYS.forEach { editor.remove("profile_${id}_$it") }
         editor.apply()
     }
 
@@ -73,5 +76,15 @@ class ProfileStore(
         const val KEY_BIRTH_DAY = "birthDay"
         const val KEY_HEIGHT_CM = "heightCm"
         const val KEY_NICKNAME = "nickname"
+
+        /**
+         * 档案键全集（单一事实源）：clearMember 遍历此表；读写各经对应常量。
+         * 新增档案字段只需在此登记一次 —— ProfileStoreKeyTest 反射断言
+         * 「KEY_ 常量集 == ALL_KEYS」，漏登记即测试失败（原实现由 clearMember 就地列键，
+         * 加键而忘登记只会静默留孤儿数据，无任何信号）。
+         */
+        internal val ALL_KEYS = listOf(
+            KEY_MALE, KEY_BIRTH_YEAR, KEY_BIRTH_MONTH, KEY_BIRTH_DAY, KEY_HEIGHT_CM, KEY_NICKNAME,
+        )
     }
 }

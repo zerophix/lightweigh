@@ -50,6 +50,29 @@ class RecordHealthLogServiceTest {
     }
 
     @Test
+    fun `落库后点火云推送`() = runTest {
+        val fired = mutableListOf<Unit>()
+        val trigger = com.xcwk.scalehub.application.sync.SyncTrigger(this) { fired += Unit }
+        val svc = RecordHealthLogService(repo, null, trigger)
+        svc.execute(RecordHealthLogCommand("water", 250.0))
+        runCurrent()
+        assertThat(fired).hasSize(1)
+    }
+
+    @Test
+    fun `保存被拒时不点火云推送`() = runTest {
+        val fired = mutableListOf<Unit>()
+        val trigger = com.xcwk.scalehub.application.sync.SyncTrigger(this) { fired += Unit }
+        val svc = RecordHealthLogService(repo, null, trigger)
+        // 构造守卫抛错（习惯缺名称）→ save 未执行 → 不得触发推送
+        assertThrows(DomainException::class.java) {
+            runBlocking { svc.execute(RecordHealthLogCommand("habit", 1.0, label = "")) }
+        }
+        runCurrent()
+        assertThat(fired).isEmpty()
+    }
+
+    @Test
     fun `正常记录盖当下时间戳并落库`() = runTest {
         val before = System.currentTimeMillis()
         val log = service.execute(RecordHealthLogCommand("water", 250.0))

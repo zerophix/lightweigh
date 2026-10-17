@@ -49,7 +49,7 @@ import com.xcwk.scalehub.feature.ai.AiRoute
 import com.xcwk.scalehub.feature.auth.AuthGateViewModel
 import com.xcwk.scalehub.feature.auth.AuthScreen
 import com.xcwk.scalehub.feature.device.DeviceRoute
-import com.xcwk.scalehub.feature.featurepage.FeatureRoute
+import com.xcwk.scalehub.feature.features.FeatureRoute
 import com.xcwk.scalehub.feature.history.HistoryRoute
 import com.xcwk.scalehub.feature.measure.MeasureScreen
 import com.xcwk.scalehub.feature.measure.scale.ScaleRoute
@@ -148,7 +148,9 @@ fun MainShell() {
                     MainTab.HOME -> MeasureScreen(
                         onOpenScale = { go(NavEvent.Push(NavOverlay.Scale)) },
                         onOpenReport = { time -> go(NavEvent.Push(NavOverlay.Report(time))) },
-                        onOpenHistory = { go(NavEvent.SelectTab(MainTab.TREND)) },
+                        // 旧库 QingkeApp.kt:339 首页历史入口 nav.navigate("history")——
+                        // 直达历史页而非趋势页（对齐旧库与「我的」页入口口径）
+                        onOpenHistory = { go(NavEvent.Push(NavOverlay.History)) },
                         onAskAi = { q ->
                             container.aiPrefillText = q
                             go(NavEvent.Push(NavOverlay.Ai))
@@ -183,6 +185,8 @@ fun MainShell() {
                                 go(NavEvent.ReplaceTop(NavOverlay.Report(time)))
                             },
                             onPushReport = { time -> go(NavEvent.Push(NavOverlay.Report(time))) },
+                            // 称重未绑定态「去绑定设备」：切设备页签（SelectTab 同时清覆盖栈）
+                            onGoDevice = { go(NavEvent.SelectTab(MainTab.DEVICE)) },
                         )
                     }
                 }
@@ -351,10 +355,11 @@ private fun OverlayHost(
     onAskAi: () -> Unit,
     onReplaceWithReport: (Long) -> Unit,
     onPushReport: (Long) -> Unit,
+    onGoDevice: () -> Unit,
 ) {
     when (overlay) {
         NavOverlay.Ai -> AiRoute(onBack = onBack)
-        NavOverlay.Scale -> ScaleRoute(onBack = onBack, onOpenReport = onReplaceWithReport)
+        NavOverlay.Scale -> ScaleRoute(onBack = onBack, onOpenReport = onReplaceWithReport, onGoBind = onGoDevice)
         is NavOverlay.Report -> ReportRoute(time = overlay.time, onBack = onBack, onAskAi = onAskAi)
         is NavOverlay.Feature -> FeatureRoute(name = overlay.name, onBack = onBack)
         NavOverlay.History -> HistoryRoute(onBack = onBack, onOpenReport = onPushReport)

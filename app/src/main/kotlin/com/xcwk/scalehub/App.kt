@@ -14,8 +14,12 @@ import com.xcwk.scalehub.application.query.TrendQuery
 import com.xcwk.scalehub.application.service.RecordHealthLogService
 import com.xcwk.scalehub.application.service.UpdateProfileService
 import com.xcwk.scalehub.application.sync.SyncService
+import com.xcwk.scalehub.application.sync.SyncTrigger
 import com.xcwk.scalehub.application.service.DeleteMeasurementService
 import com.xcwk.scalehub.application.service.RecordMeasurementService
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import com.xcwk.scalehub.domain.repository.HealthLogRepository
 import com.xcwk.scalehub.domain.repository.MeasurementRepository
 import com.xcwk.scalehub.infrastructure.ai.CloudFunctionAi
@@ -41,6 +45,9 @@ class AppContainer(context: Context) {
 
     /** 数据变更信号（DEC-021 支柱2 实体；写用例发、查询 VM 收）。 */
     val dataRefreshBus = DataRefreshBus()
+
+    /** application 级后台作用域：云推送点火后在此执行（进程内存活，不随 VM 销毁）。 */
+    val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     /** 会话与认证（M2b）：同源实现双端口（会话读写 + 认证动作）。 */
     val sessionStore: SessionStore by lazy { SessionStore(context) }
@@ -71,13 +78,13 @@ class AppContainer(context: Context) {
     val setTargetWeight: (Float) -> Unit = { kg -> goalStore.targetWeight = kg }
 
     val recordMeasurementService: RecordMeasurementService by lazy {
-        RecordMeasurementService(measurementRepository, profileStore, dataRefreshBus)
+        RecordMeasurementService(measurementRepository, profileStore, dataRefreshBus, syncTrigger)
     }
     val measurementQuery: MeasurementQuery by lazy { MeasurementQuery(measurementRepository) }
     val healthLogQuery: HealthLogQuery by lazy { HealthLogQuery(healthLogRepository) }
     val trendQuery: TrendQuery by lazy { TrendQuery(measurementRepository) }
     val recordHealthLogService: RecordHealthLogService by lazy {
-        RecordHealthLogService(healthLogRepository, dataRefreshBus)
+        RecordHealthLogService(healthLogRepository, dataRefreshBus, syncTrigger)
     }
     val profileQuery: ProfileQuery by lazy { ProfileQuery(profileStore) }
 
@@ -88,7 +95,9 @@ class AppContainer(context: Context) {
         )
     }
     val reportQuery: ReportQuery by lazy { ReportQuery(measurementRepository) }
-    val updateProfileService: UpdateProfileService by lazy { UpdateProfileService(profileStore) }
+    val updateProfileService: UpdateProfileService by lazy {
+        UpdateProfileService(profileStore, syncTrigger)
+    }
     val deleteMeasurementService: DeleteMeasurementService by lazy {
         DeleteMeasurementService(measurementRepository, dataRefreshBus)
     }
@@ -149,6 +158,12 @@ class AppContainer(context: Context) {
             measurementRepository, healthLogRepository, profileStore, profileStore,
         )
     }
+
+    /**
+     * 云推送触发器（P0 断链修复）：写用例落库后 fire()，后台执行 push。
+     * 定义在 syncService 之后但按需懒构造——服务侧 lazy 引用不会成环。
+     */
+    val syncTrigger: SyncTrigger by lazy { SyncTrigger(applicationScope) { syncService.push() } }
 
     val authService: AuthService by lazy { AuthService(sessionStore, syncService) }
 

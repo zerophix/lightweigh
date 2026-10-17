@@ -1,4 +1,4 @@
-package com.xcwk.scalehub.feature.featurepage
+package com.xcwk.scalehub.feature.features
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row

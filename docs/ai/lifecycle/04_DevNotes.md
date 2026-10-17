@@ -68,6 +68,22 @@
 - 防止复发：Kotlin/KSP 主版本升级时必须同步核对 Room 等注解处理器是否支持对应 KSP 引擎；
   "DAO 的 suspend 方法返回 Unit" 记为该缺陷的触发点特征。
 
+### 问题 5：同一条 lint 错误在两个会话之间来回反弹（`@RequiresApi` 是反修复）
+
+- 现象：全量构建在 `:app:lintDebug` 阶段失败，`Lint found 1 error`，指向
+  `HistoryRoute.kt:19`：`Call requires API level 26 (current min is 24): HistoryScreen`。
+- 根因：`HistoryScreen` 内部用了 `java.time`（平台自 API 26 起才提供），而工程 `minSdk = 24`，
+  且当时未启用 core library desugaring。真正的修复本是在构建层开脱糖，让 `java.time` 在
+  API 24 上可用。若改在文件上打 `@RequiresApi(Build.VERSION_CODES.O)`，则把「调用方须 ≥26」
+  这条约束向上传染，lint 不再报函数体、转而报所有调用点 —— 错误从内部挪到了 `HistoryRoute`，
+  构建依旧红点，属于把问题搬家而不是修掉。
+- 解决：在 `:app` 与 `:infrastructure` 开启 core library desugaring（`desugar_jdk_libs 2.1.5`），
+  `HistoryScreen.kt` 保持与 HEAD 逐字节一致（不加任何注解）。全量 `./gradlew build` 通过。
+- 反复点：实施期间该注解被另一会话于 16:31 重新写入，构建再次变红，移除后恢复。同一条错误
+  在两个会话之间反弹，说明「该修哪一层」没有达成共识，单方面删改无法收敛。
+- 防止复发：平台新增 API 优先在构建层解决（脱糖），不要用 `@RequiresApi` 把约束推给调用方；
+  判别依据是「这次改动有没有让报错换位置，而不是换个数」。
+
 ## 3. 待完成/已知问题
 
 - [ ] M2 SyncGateway 云同步与登录（含 CloudBase 防腐层）
@@ -91,6 +107,31 @@
   只能由一次真实构建暴露。因此 `./gradlew build` 跑通应作为迭代收口的硬动作，而非可选项。
 
 ## 5. 变更记录
+
+- 2026-10-17（DEC-032）：CI 插件解析真因定位与修复——runner 访问阿里云三个镜像全部 502，而 Gradle 解析遇 5xx 直接终止、不回退后续仓库，排首位的镜像令插件解析在第一个仓库即失败；settings.gradle.kts 两个 repositories 块改为按 `CI` 环境变量分流，CI 只用官方源、本地保留阿里云优先。同批更正 DEC-031 的根因判断（版本非主因），并撤掉临时探针步骤。
+- 2026-10-17（DEC-031）：构建链依赖可获取性修复——catalog 的 KSP 由公开仓库不存在的 2.3.2 钉到 2.3.9；本地在把 2.3.9 缓存一并移走、停掉 daemon 的前提下全量 build + assembleAndroidTest 通过（254 任务，247 真实执行）。该版本的可解析性以 PR #1 的 CI 复跑结果为最终判定。
+- 2026-10-17（DEC-030）：构建层启用 core library desugaring，java.time 在 minSdk 24 可用；撤回 HistoryScreen 上的 @RequiresApi 注解，该注解在两会话间反弹两次，本批落盘「平台新增 API 只用脱糖、不把注解推给调用方」的共识。
+- 2026-10-17（DEC-027）：云同步上传断链修复——SyncService.push() 实装且注入容器但生产零调用，新增 SyncTrigger 点火并接入三个写用例，本地写成功后 fire-and-forget 上云。
+- 2026-10-17（DEC-026 组 L）：导航两处修正与称重未绑定出口打通——首页历史入口直达历史覆盖页、称重未绑定态经 needBind 标志在 WAIT 相渲染「去绑定设备」，FeatureScreen 包名归位 features。
+- 2026-10-17（DEC-028）：网络配置集中化（BackendConfig 收敛 TCB 域名，网关/会话/云函数三处引用改指）与首页页面级间距 token 化（MeasureScreen 映射 QkSpacing）。
+- 2026-10-17（DEC-029）：本地存储三处收口落地——备份规则排除会话凭据、档案键收敛为 ALL_KEYS 单一事实源并加反射守卫、迁移测试补上执行工作流；附带修好 DEC-028 未入索引导致的校验失败。
+
+- 2026-10-17（DEC-029）：本地存储三处收口，各封一个面。A（P0 安全）凭据不入备份：
+  `SessionStore` 把 access/refresh 明文放在 `scalehub_session`，而 `allowBackup` 为真且原先
+  没有任何备份规则 → 新增 `backup_rules.xml`（API 30 及以下）与 `data_extraction_rules.xml`
+  （API 31+），cloud-backup 与 device-transfer 两条通道分别排除 `scalehub_session.xml`，
+  测量与健康记录作为用户数据保留备份。B（P1 静默缺陷）键表单一事实源：
+  `ProfileStore.clearMember` 原实现在方法体内就地枚举键名，与 companion 的 `KEY_*` 常量构成
+  两份各自维护的副本，加字段漏登记即静默留孤儿键 → companion 增 `internal ALL_KEYS`，
+  `clearMember` 遍历之，新增 `ProfileStoreKeyTest` 反射断言两者相等（正向通过 + 负向探针失败，
+  两轮验证）。C（P1 验证缺口）迁移测试接执行：`ci.yml` 只跑 `assembleAndroidTest`（只编译不执行），
+  `MigrationTest` 覆盖 v1 到 v5 却不在任何门禁上 → 新增 `.github/workflows/android-test.yml`
+  （workflow_dispatch 手动触发，刻意不挂 push 与 pull_request）执行
+  `:infrastructure:connectedDebugAndroidTest`，注册表描述同步订正。附带修正：`DEC-028` 未登记进
+  决策索引，致 `gov-validate.sh` 的 pytest 项失败，重建索引后恢复为 64 passed。
+- 2026-10-17（DEC-029 附带，环境事故）：仓库 `.git/config` 于 17:09 被写入 `bare = true`，
+  所有工作树命令失效（`git status` 报 must be run in a work tree）。本轮以 `GIT_WORK_TREE=.`
+  前缀绕过完成全部校验，未改动该共享配置，待会诊是否属并行会话的刻意隔离手段。
 
 - 2026-10-17（DEC-025）：视觉体系换轨。以交互原型为唯一视觉事实源，三层收口：令牌
   （`QkTheme.kt` 整体替换，主绿 `#2D8B56`→`#159B72`，卡片 17dp、按钮 12dp、图标块 13dp，
@@ -300,9 +341,14 @@
 
 | 版本 | 日期 | 变更摘要 |
 |------|------|---------|
+| v65 | 2026-10-17 | DEC-029 本地存储三处收口（凭据不入备份 / 档案键表单一事实源 / 迁移测试接执行）+ 反修复注解回弹与 git core.bare 事故记录 |
+| v64 | 2026-10-17 | DEC-028 硬编码治理（任务 A/B 落地）：A 网络配置集中化——新建 BackendConfig 收敛 TCB 域名与网络参数，CloudBaseGateway/SessionStore/CloudFunctionAi 改为引用，域名 2 处重复收敛为 1 处（服务去云绑定）；B 保守语义间距 token 化——MeasureScreen 10 处页面级间距映射到 QkSpacing（8dp→Sm、12dp→Md），图标/圆角/行内微间距保留裸 dp；任务 C 文案抽取评估暂缓（动态值占位符风险高、无多语言需求、不可测试验证） |
 | v59 | 2026-10-17 | DEC-026 组 H 修订（用户反馈「体测报告做得不好」）：头部卡恒在（无评分记录也有日期+大数字体重+增减，修复缺测量身份）、删重复的 BMI 独立卡（体型折进 BMI 行副标题）、身高/实际年龄移出关键指标表改「分析依据」脚注、指标图标映射补全（肥胖度/代谢/年龄等，新增 QkIcons.Age）；模拟器复验 + 295 项全绿 |
 | v60 | 2026-10-17 | DEC-026 组 J 收口：设置页与加号快捷面板截图核对通过（快捷面板 8 项为真实记录类型集，原型演示的「睡眠」在产品范围外未做）；顶栏通知铃 `onBell` 空实现闭环——无通知后端时给 Toast「暂无新通知」诚实空态（MainShell）；README 补「坐标先 dump 再 tap / 瞬时 UI 用窗口 dump 证据」反思；295 项全绿 |
 | v61 | 2026-10-17 | DEC-026 组 K 补缺（对照原型逐页审计后修复）：趋势页补「数据解读」卡（TrendQuery.trendReadingOf 按首末差判方向，单点不硬读趋势→「记录还太少」）与「趋势对比」卡（comparison 取前一等长窗均值，ALL 范围无上周期给 "--"）；我的页补「健康数据概览」三格卡（原型 profile metric-grid，复用 HomeGoalQuery 与首页同源，MineViewModel 增 refreshBus 订阅）；报告页标题改原型文案「身体报告」+ 评分卡补「较上次 ±N 分」pill（ReportQuery 对 prev 复跑 analysis 取上期评分）；新增单测 12 例，307 项全绿；模拟器复验三页（pill 分支待阻抗数据） |
+| v62 | 2026-10-17 | 全项目架构-功能审计后的导航修正（遗留会话在途批次，取证后采纳）：称重未绑定态按钮从「返回」改为直达设备页绑定（ScaleScreen 增 onGoBind，壳层 SelectTab 清覆盖栈落设备页）；首页历史入口从切趋势页改为直达历史覆盖页（对齐旧库 QingkeApp.kt:339 与「我的」页口径） |
+| v63 | 2026-10-17 | 组 L 代码落地：v62 所记两处导航修正提交入库并二次修正分支——首页历史入口直达历史覆盖页；称重「无绑定设备」走 WAIT 相而非 NOT_BOUND 结果态（首版按钮改对了文案却因分支不对而不显示），MeasureState 增 needBind 标志 + WAIT 相据标志渲染「去绑定设备」+ 单测两态断言；DEC-026 补执行记录；worktree 隔离验证 + 模拟器实拍复验（历史按钮/称重按钮/跳转落点三证） |
+| v63 | 2026-10-17 | **P0 断链修复：云同步只下拉不上传**。审计发现 SyncService.push() 实装并注入容器但生产零调用（仅测试调）——新测量/记录/档案变更永不上云，「恢复账号」只拉旧快照。修复：新增 SyncTrigger（fire-and-forget + runCatching 吞异常，写用例不等网络），三个写用例（RecordMeasurement/RecordHealthLog/UpdateProfile）落库成功后点火；AppContainer 增 applicationScope 与 syncTrigger（游客在 push 首行天然 no-op）；恢复账号降级为兜底路径。新增单测 8 例（SyncTrigger 4 + 三服务各 1~2），315 项全绿；GOV-ATEST-005 抓出未注册新测试已补登记 |
 | v58 | 2026-10-17 | DEC-026 逐页按原型重建（F/G 批）：QkIcons 图标表 + extended 依赖；新增 QkPageTitle/QkBackButton/QkScoreRing/QkDeviceHero/QkDateChip/QkRiskRow 六个页面级原语；首页六区块重排（8 个原型外模块编入卡片语法）；趋势/设备/我的/历史/报告/设置六页按原型重建（设备页补 .device-hero 蓝牙环，报告页评分环按分画弧）；我的页接历史/设备两个导航回调（295 项全绿，gov-validate 0 违规） |
 | v57 | 2026-10-17 | DEC-025 视觉体系换轨：令牌整体替换（主绿 #159B72 / 17dp 卡片 / 字重阶梯）+ 组件库按原型原语重建（QkButton 三态、QkTextField 标签外置）+ 壳层品牌顶栏与抬高式底栏 + 21 处按钮与 10 处输入框迁移（295 项全绿） |
 | v56 | 2026-10-17 | DEC-024 组 D/E 收口：SessionPhase sealed 相位 + 纯 reduce 替换 MeasureSession 的 13 个并列字段（可变字段 22→5），相位矩阵 21 项，可变字段阈值守卫入 gov-custom-checks（295 项全绿） |

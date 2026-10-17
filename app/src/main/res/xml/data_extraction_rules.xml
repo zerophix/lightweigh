@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  API 31+ 的数据提取规则（android:dataExtractionRules）。
+  云备份（cloud-backup）与设备间迁移（device-transfer）是两套独立规则，必须分别声明，
+  只写一边会留下另一条泄露出路。此处两个通道都排除会话凭据（明文 token）。
+  测量/健康记录等业务数据仍随备份留存（用户数据，不排除）。
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="sharedpref" path="scalehub_session.xml" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="sharedpref" path="scalehub_session.xml" />
+    </device-transfer>
+</data-extraction-rules>

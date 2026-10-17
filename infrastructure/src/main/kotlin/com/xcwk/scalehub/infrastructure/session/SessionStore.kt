@@ -6,6 +6,7 @@ import com.xcwk.scalehub.application.auth.AuthPort
 import com.xcwk.scalehub.application.auth.SignInResult
 import com.xcwk.scalehub.application.auth.SmsCodeResult
 import com.xcwk.scalehub.application.sync.CloudSessionPort
+import com.xcwk.scalehub.infrastructure.config.BackendConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
@@ -55,7 +56,7 @@ class SessionStore(context: Context) : CloudSessionPort, AuthPort {
         val phone = international(rawDigits)
             ?: return@withContext SmsCodeResult(false, "请输入正确的手机号", "", false)
         val result = request(
-            "POST", "$BASE/auth/v1/verification", null,
+            "POST", "${BackendConfig.BASE}/auth/v1/verification", null,
             JSONObject().put("phone_number", phone).put("target", "ANY").toString(),
         ) ?: return@withContext SmsCodeResult(false, "当前网络不可用，请联网后再获取验证码", "", false)
         if (result.first !in 200..299) {
@@ -80,7 +81,7 @@ class SessionStore(context: Context) : CloudSessionPort, AuthPort {
         if (verificationId.isEmpty()) return@withContext SignInResult(false, "请先获取验证码")
         if (!code.matches(Regex("\\d{6}"))) return@withContext SignInResult(false, "请输入 6 位验证码")
         val verified = request(
-            "POST", "$BASE/auth/v1/verification/verify", null,
+            "POST", "${BackendConfig.BASE}/auth/v1/verification/verify", null,
             JSONObject().put("verification_id", verificationId).put("verification_code", code).toString(),
         ) ?: return@withContext SignInResult(false, "当前网络不可用，请联网后再登录")
         if (verified.first !in 200..299) {
@@ -90,10 +91,10 @@ class SessionStore(context: Context) : CloudSessionPort, AuthPort {
         if (vToken.isEmpty()) return@withContext SignInResult(false, "验证码不正确")
         // 已注册走 signin，新号走 signup（旧库 finishSignIn:123-133）
         val session = if (registered) {
-            request("POST", "$BASE/auth/v1/signin", null,
+            request("POST", "${BackendConfig.BASE}/auth/v1/signin", null,
                 JSONObject().put("verification_token", vToken).toString())
         } else {
-            request("POST", "$BASE/auth/v1/signup", null,
+            request("POST", "${BackendConfig.BASE}/auth/v1/signup", null,
                 JSONObject().put("phone_number", phone).put("verification_token", vToken).toString())
         } ?: return@withContext SignInResult(false, "当前网络不可用，请联网后再登录")
         if (session.first !in 200..299) {
@@ -109,7 +110,7 @@ class SessionStore(context: Context) : CloudSessionPort, AuthPort {
     override suspend fun sendDeleteCode(): String? = withContext(Dispatchers.IO) {
         val token = accessToken() ?: return@withContext "登录已失效，请重新登录"
         val result = request(
-            "POST", "$BASE/auth/v1/user/reauthenticate", token,
+            "POST", "${BackendConfig.BASE}/auth/v1/user/reauthenticate", token,
             JSONObject().put("verify_opt", "phone_code").toString(),
         ) ?: return@withContext "当前网络不可用，请联网后再试"
         if (result.first !in 200..299) {
@@ -120,7 +121,7 @@ class SessionStore(context: Context) : CloudSessionPort, AuthPort {
 
     override suspend fun deleteCurrentUser(verifyCode: String): String? = withContext(Dispatchers.IO) {
         val token = accessToken() ?: return@withContext "登录已失效，请重新登录"
-        val result = request("DELETE", "$BASE/auth/v1/user/me?verify_code=$verifyCode", token, null)
+        val result = request("DELETE", "${BackendConfig.BASE}/auth/v1/user/me?verify_code=$verifyCode", token, null)
             ?: return@withContext "当前网络不可用，请联网后再试"
         if (result.first !in 200..299) {
             return@withContext authMessage(result.second, "验证码不正确或注销失败，账号还在，请重试")
@@ -132,7 +133,7 @@ class SessionStore(context: Context) : CloudSessionPort, AuthPort {
 
     private fun refreshSession(refresh: String): String? {
         val result = request(
-            "POST", "$BASE/auth/v1/token?grant_type=refresh_token", null,
+            "POST", "${BackendConfig.BASE}/auth/v1/token?grant_type=refresh_token", null,
             JSONObject().put("refresh_token", refresh).toString(),
         ) ?: return null
         if (result.first !in 200..299) return null
@@ -158,8 +159,8 @@ class SessionStore(context: Context) : CloudSessionPort, AuthPort {
         runCatching {
             val conn = URL(url).openConnection() as HttpURLConnection
             conn.requestMethod = method
-            conn.connectTimeout = 15_000
-            conn.readTimeout = 30_000
+            conn.connectTimeout = BackendConfig.CONNECT_TIMEOUT_MS.toInt()
+            conn.readTimeout = BackendConfig.READ_TIMEOUT_MS.toInt()
             conn.setRequestProperty("Content-Type", "application/json")
             if (token != null) conn.setRequestProperty("Authorization", "Bearer $token")
             if (body != null) {
@@ -174,7 +175,6 @@ class SessionStore(context: Context) : CloudSessionPort, AuthPort {
         }.getOrNull()
 
     companion object {
-        internal const val BASE = "https://bodyfat-d0gj8wdw1bfe9b421.api.tcloudbasegateway.com"
         private const val KEY_ACCESS = "access"
         private const val KEY_REFRESH = "refresh"
         private const val KEY_EXPIRES = "expires"

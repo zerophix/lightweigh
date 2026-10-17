@@ -157,7 +157,7 @@ fun MeasureScreen(
         state.lastRecord?.let {
             Text(
                 it,
-                modifier = Modifier.padding(top = 8.dp),
+                modifier = Modifier.padding(top = QkSpacing.Sm),
                 style = MaterialTheme.typography.bodySmall,
                 color = QkColor.Primary,
             )
@@ -305,7 +305,7 @@ private fun WeightCard(
                 )
             }
         }
-        Box(modifier = Modifier.padding(top = 12.dp)) {
+        Box(modifier = Modifier.padding(top = QkSpacing.Md)) {
             QkBodyBar(
                 labels = listOf("偏瘦", "标准", "偏重", "肥胖"),
                 active = home.bmiSegment?.let { if (it == "偏胖") "偏重" else it },
@@ -319,7 +319,7 @@ private fun WeightCard(
                 color = QkColor.Primary,
             )
         }
-        Row(modifier = Modifier.padding(top = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(modifier = Modifier.padding(top = QkSpacing.Md), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             QkButton(
                 text = "查看报告",
                 style = QkButtonStyle.Secondary,
@@ -374,7 +374,7 @@ private fun AiAskRow(onAskAi: (String) -> Unit) {
         QkIcon(QkIcons.Ai, tint = QkColor.Primary, size = 18.dp)
         Text(
             "问问轻刻 AI：减脂期能吃西瓜吗？",
-            modifier = Modifier.weight(1f).padding(start = 8.dp),
+            modifier = Modifier.weight(1f).padding(start = QkSpacing.Sm),
             style = MaterialTheme.typography.bodySmall,
             color = QkColor.Muted,
             maxLines = 1,
@@ -431,7 +431,7 @@ private fun TodayDietCard(
                 onOpenRecord("exercise", "")
             }
         }
-        Row(modifier = Modifier.padding(top = 12.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        Row(modifier = Modifier.padding(top = QkSpacing.Md), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             QkActionChip("记录饮食", QkIcons.Meal) { onOpenRecord("diet", "") }
             QkActionChip("记录运动", QkIcons.Exercise) { onOpenRecord("exercise", "") }
             QkActionChip("记录饮水", QkIcons.Water) { onOpenRecord("water", "") }
@@ -484,7 +484,7 @@ private fun GoalCard(home: HomeGoalState, modifier: Modifier = Modifier, onSetTa
                 gap < 0 -> String.format(Locale.US, "增重 %.1f kg", -gap)
                 else -> "已达成"
             },
-            modifier = Modifier.padding(top = 8.dp),
+            modifier = Modifier.padding(top = QkSpacing.Sm),
             style = MaterialTheme.typography.titleLarge,
             color = QkColor.Fg,
         )
@@ -570,13 +570,13 @@ private fun WaterCard(home: HomeGoalState, modifier: Modifier = Modifier, onReco
             QkIconBubble(QkIcons.Water, QkGlyphTone.Blue, 30.dp)
             Text(
                 "喝水",
-                modifier = Modifier.padding(start = 8.dp).weight(1f),
+                modifier = Modifier.padding(start = QkSpacing.Sm).weight(1f),
                 style = MaterialTheme.typography.titleSmall,
                 color = QkColor.Fg,
             )
             Text("${home.waterPercent}%", style = MaterialTheme.typography.labelSmall, color = QkColor.Muted)
         }
-        Row(modifier = Modifier.padding(top = 8.dp), verticalAlignment = Alignment.Bottom) {
+        Row(modifier = Modifier.padding(top = QkSpacing.Sm), verticalAlignment = Alignment.Bottom) {
             Text("${home.waterTodayMl}", style = MaterialTheme.typography.headlineSmall, color = QkColor.Fg)
             Text(" ml", modifier = Modifier.padding(bottom = 3.dp), style = MaterialTheme.typography.bodySmall, color = QkColor.Muted)
         }
@@ -618,7 +618,7 @@ private fun HabitCard(home: HomeGoalState, modifier: Modifier = Modifier, onReco
         }
         Text(
             "小习惯，大改变",
-            modifier = Modifier.padding(top = 8.dp),
+            modifier = Modifier.padding(top = QkSpacing.Sm),
             style = MaterialTheme.typography.labelSmall,
             color = QkColor.Muted,
         )
@@ -701,7 +701,7 @@ private fun TintCard(
         }
         Text(
             value,
-            modifier = Modifier.padding(top = 8.dp),
+            modifier = Modifier.padding(top = QkSpacing.Sm),
             style = MaterialTheme.typography.headlineSmall,
             color = ink,
         )

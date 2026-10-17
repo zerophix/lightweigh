@@ -3,6 +3,7 @@
 build/
 local.properties
 .idea/
+.workbuddy-ai/
 .DS_Store
 *.iml
 captures/

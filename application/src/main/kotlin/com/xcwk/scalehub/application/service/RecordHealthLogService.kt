@@ -2,6 +2,7 @@ package com.xcwk.scalehub.application.service
 
 import com.xcwk.scalehub.application.DataRefreshBus
 import com.xcwk.scalehub.application.command.RecordHealthLogCommand
+import com.xcwk.scalehub.application.sync.SyncTrigger
 import com.xcwk.scalehub.domain.model.HealthLog
 import com.xcwk.scalehub.domain.model.HealthLogType
 import com.xcwk.scalehub.domain.repository.HealthLogRepository
@@ -14,10 +15,12 @@ import com.xcwk.scalehub.domain.repository.HealthLogRepository
  *  - 其余类型：主值必须为正（构造守卫），副值缺失即 0.0
  *  - weight 不在此路径（旧库写测量表，由测量用例承担）
  * 时间戳在此盖章（存储层不各自盖章，同 RecordMeasurementService）。
+ *  - 落库后点火云推送（P0 断链修复：新记录写在本机即上云，失败不阻塞用例）
  */
 class RecordHealthLogService(
     private val repository: HealthLogRepository,
     private val refreshBus: DataRefreshBus? = null,
+    private val syncTrigger: SyncTrigger? = null,
 ) {
 
     suspend fun execute(cmd: RecordHealthLogCommand): HealthLog {
@@ -29,6 +32,7 @@ class RecordHealthLogService(
         )
         repository.save(log)
         refreshBus?.notifyChanged()
+        syncTrigger?.fire()
         return log
     }
 }

@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -32,6 +33,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.journeyapps.barcodescanner.ScanContract
+import com.journeyapps.barcodescanner.ScanIntentResult
+import com.journeyapps.barcodescanner.ScanOptions
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.xcwk.scalehub.BleGate
@@ -73,8 +77,8 @@ fun DeviceScreen(vm: DeviceViewModel = viewModel(factory = DeviceViewModel.Facto
         ActivityResultContracts.StartActivityForResult(),
     ) { vm.onIntent(DeviceIntent.Refresh) }
     // 扫码绑定（旧库 BindActivity btnQr → ScanContract）
-    val qrLauncher = rememberLauncherForActivityResult(
-        com.journeyapps.barcodescanner.ScanContract(),
+    val qrLauncher = rememberLauncherForActivityResult<ScanOptions, ScanIntentResult>(
+      ScanContract() as ActivityResultContract<ScanOptions, ScanIntentResult>,
     ) { result ->
         val contents = result.contents
         if (contents != null) {
@@ -105,8 +109,8 @@ fun DeviceScreen(vm: DeviceViewModel = viewModel(factory = DeviceViewModel.Facto
         },
         onScanQr = {
             qrLauncher.launch(
-                com.journeyapps.barcodescanner.ScanOptions()
-                    .setDesiredBarcodeFormats(com.journeyapps.barcodescanner.ScanOptions.QR_CODE)
+                ScanOptions()
+                    .setDesiredBarcodeFormats(ScanOptions.QR_CODE)
                     .setPrompt("将体脂秤二维码放入框内")
                     .setBeepEnabled(false),
             )

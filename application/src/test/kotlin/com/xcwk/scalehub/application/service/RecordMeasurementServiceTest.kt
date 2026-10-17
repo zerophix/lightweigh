@@ -104,4 +104,14 @@ class RecordMeasurementServiceTest {
         assertThat(r.fat).isWithin(0.05).of(18.1)
         assertThat(r.algorithm).isEqualTo("garbage")
     }
+
+    @Test
+    fun `落库后点火云推送`() = runTest {
+        val fired = mutableListOf<Unit>()
+        val trigger = com.xcwk.scalehub.application.sync.SyncTrigger(this) { fired += Unit }
+        val svc = RecordMeasurementService(repo, profile, null, trigger)
+        svc.execute(RecordMeasurementCommand(70.0, 500.0, "AA:BB", "builtin-1"))
+        runCurrent()
+        assertThat(fired).hasSize(1)
+    }
 }
