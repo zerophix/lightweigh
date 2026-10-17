@@ -110,6 +110,7 @@
 
 - 2026-10-17（DEC-030）：构建层启用 core library desugaring，java.time 在 minSdk 24 可用；撤回 HistoryScreen 上的 @RequiresApi 注解，该注解在两会话间反弹两次，本批落盘「平台新增 API 只用脱糖、不把注解推给调用方」的共识。
 - 2026-10-17（DEC-027）：云同步上传断链修复——SyncService.push() 实装且注入容器但生产零调用，新增 SyncTrigger 点火并接入三个写用例，本地写成功后 fire-and-forget 上云。
+- 2026-10-17（DEC-026 组 L）：导航两处修正与称重未绑定出口打通——首页历史入口直达历史覆盖页、称重未绑定态经 needBind 标志在 WAIT 相渲染「去绑定设备」，FeatureScreen 包名归位 features。
 
 - 2026-10-17（DEC-029）：本地存储三处收口，各封一个面。A（P0 安全）凭据不入备份：
   `SessionStore` 把 access/refresh 明文放在 `scalehub_session`，而 `allowBackup` 为真且原先

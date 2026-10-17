@@ -99,7 +99,7 @@ class MeasureSession(
         }
         if (devices.devices().isEmpty()) {
             showWait("无法连接", "请先绑定体脂秤")
-            _state.update { it.copy(link = "未连接") }
+            _state.update { it.copy(link = "未连接", needBind = true) }
             return
         }
         binding = null
@@ -699,7 +699,7 @@ class MeasureSession(
         _state.update {
             it.copy(
                 phase = MeasurePhase.WAIT, title = title, weightText = it.weightText,
-                showRetry = false, outcome = null,
+                showRetry = false, outcome = null, needBind = false,
             )
         }
         if (!desc.isNullOrEmpty()) _state.update { it.copy(desc = desc) }
@@ -709,7 +709,7 @@ class MeasureSession(
 
     private fun showWaitKeepLink(title: String, desc: String?) {
         _state.update {
-            it.copy(phase = MeasurePhase.WAIT, title = title, showRetry = false, outcome = null)
+            it.copy(phase = MeasurePhase.WAIT, title = title, showRetry = false, outcome = null, needBind = false)
         }
         if (!desc.isNullOrEmpty()) _state.update { it.copy(desc = desc) }
         _state.update { it.copy(showCountdown = false) }
