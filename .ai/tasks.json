@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-10-17T13:14:28Z",
+  "updated_at": "2026-10-17T13:51:02Z",
   "next_action": "确认 DEC-033 的构建缓存假设 A2：看下一轮 CI 日志里 Report build cache state 的条目数与任务是否出现 FROM-CACHE，据此判定构建缓存能否跨轮存活",
   "next_action_why": "本轮已用本机实证（清产物后第二轮 :domain:compileKotlin FROM-CACHE），但 CI 侧能否持久化取决于 setup-gradle 是否覆盖 .gradle-user，属未验证假设，故列为下一步观察项",
   "next_action_confirmed": false,
@@ -98,6 +98,17 @@
       "dec": "",
       "created_at": "2026-10-17T13:14:28Z",
       "updated_at": "2026-10-17T13:14:28Z",
+      "notes": ""
+    },
+    {
+      "id": "T-009",
+      "description": "消除每轮约 100 秒的 Gradle 发行包重下：distributionBase=PROJECT 让 gradle/dists 落在仓库内且被 gitignore，CI 全新检出必然重下 gradle-9.4.1-all.zip",
+      "why": "--why",
+      "status": "pending",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-17T13:51:02Z",
+      "updated_at": "2026-10-17T13:51:02Z",
       "notes": ""
     }
   ]
