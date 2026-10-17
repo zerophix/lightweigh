@@ -17,6 +17,8 @@ on:
 jobs:
   connected-android-test:
     runs-on: ubuntu-latest
+    # 模拟器 job 有卡住的风险，给个上限，免得挂满 6 小时烧掉分钟数（DEC-033）
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
 
