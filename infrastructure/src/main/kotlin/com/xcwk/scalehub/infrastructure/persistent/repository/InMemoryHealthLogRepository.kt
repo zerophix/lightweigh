@@ -15,4 +15,7 @@ class InMemoryHealthLogRepository : HealthLogRepository {
 
     override suspend fun recent(limit: Int): List<HealthLog> =
         rows.sortedByDescending { it.time }.take(limit)
+
+    override suspend fun between(fromInc: Long, toExc: Long): List<HealthLog> =
+        rows.filter { it.time >= fromInc && it.time < toExc }.sortedBy { it.time }
 }

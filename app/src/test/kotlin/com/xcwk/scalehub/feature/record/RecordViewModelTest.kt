@@ -46,6 +46,7 @@ class RecordViewModelTest {
             saved += log
         }
         override suspend fun recent(limit: Int) = saved.sortedByDescending { it.time }.take(limit)
+        override suspend fun between(fromInc: Long, toExc: Long): List<HealthLog> = emptyList()
     }
 
     private class FakeMeasureRepo : MeasurementRepository {

@@ -12,4 +12,7 @@ interface HealthLogRepository {
     suspend fun save(log: HealthLog)
     /** 最新在前。 */
     suspend fun recent(limit: Int): List<HealthLog>
+
+    /** 区间读 [fromInc, toExc)，按时间升序（首页今日汇总用）。 */
+    suspend fun between(fromInc: Long, toExc: Long): List<HealthLog>
 }

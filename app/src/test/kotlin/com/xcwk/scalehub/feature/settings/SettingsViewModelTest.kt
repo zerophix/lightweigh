@@ -114,6 +114,7 @@ class SettingsViewModelTest {
     private class FakeLogs : HealthLogRepository {
         override suspend fun save(log: HealthLog) = Unit
         override suspend fun recent(limit: Int): List<HealthLog> = emptyList()
+        override suspend fun between(fromInc: Long, toExc: Long): List<HealthLog> = emptyList()
     }
 
     private class FakeProfileReader : MemberProfileReader {
@@ -137,7 +138,7 @@ class SettingsViewModelTest {
         val bus: DataRefreshBus = DataRefreshBus(),
     ) {
         val sync = SyncService(
-            session, FakeCloud(), auth, FakeDevices(),
+            session, FakeCloud(), auth, FakeDevices(), null,
             FakeMeasurements(), FakeLogs(), FakeProfileReader(), FakeProfileWriter(),
         )
         val vm = SettingsViewModel(AuthService(auth, sync), sync, auth, bus)
