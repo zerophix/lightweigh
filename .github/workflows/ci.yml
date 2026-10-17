@@ -6,11 +6,13 @@ on:
     branches: [main, master]
   pull_request:
 
-# 同一分支的新推送作废上一轮未跑完的 run：避免多轮并行各烧十来分钟
-# （私有仓库 Actions 分钟数计量，见 DEC-033）
+# 特性分支上的新推送作废上一轮未跑完的 run：避免多轮并行各烧十来分钟
+# （私有仓库 Actions 分钟数计量，见 DEC-033）。
+# 但 master/main 例外：权威分支的每一轮都必须跑到结论，否则「刚推一个文档提交」
+# 就会把上一次代码构建的结论悄悄抹掉（且表面一切正常）。
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref != 'refs/heads/master' && github.ref != 'refs/heads/main' }}
 
 jobs:
   build-and-guard:
