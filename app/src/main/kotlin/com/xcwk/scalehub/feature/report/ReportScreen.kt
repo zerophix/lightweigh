@@ -34,7 +34,7 @@ import com.xcwk.scalehub.ui.theme.QkTheme
 @Composable
 fun ReportScreen(
     state: ReportUiState,
-    onIntent: (ReportIntent) -> Unit = {},
+    onAskAi: () -> Unit = {},
     onBack: () -> Unit = {},
 ) {
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
@@ -130,10 +130,10 @@ fun ReportScreen(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             OutlinedButton(
-                onClick = { onIntent(ReportIntent.AiExplain) },
-                enabled = false,
+                onClick = onAskAi,
+                enabled = state.aiEnabled,
                 modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-            ) { Text("AI 解读（需手机号登录与联网，M2 接入）") }
+            ) { Text(if (state.aiEnabled) "AI 解读" else "AI 解读（需手机号登录）") }
         }
     }
 }

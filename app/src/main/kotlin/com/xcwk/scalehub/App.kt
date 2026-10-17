@@ -73,6 +73,9 @@ class AppContainer(context: Context) {
         DeleteMeasurementService(measurementRepository, dataRefreshBus)
     }
 
+    /** 正式账号读取口（SessionStore 藏在容器后，feature 层不直调 infra）。 */
+    val isFormalAccount: () -> Boolean = { sessionStore.isFormalAccount() }
+
     /** 已绑定秤仓储（M3c）。 */
     val deviceRepository: RoomDeviceRepository by lazy {
         RoomDeviceRepository(AppDatabase.get(context).deviceDao())

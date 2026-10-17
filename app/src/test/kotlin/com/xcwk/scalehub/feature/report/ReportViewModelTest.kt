@@ -16,6 +16,26 @@ import java.time.ZoneId
 /** report ViewModel 行为（格式化口径 + 未找到态）。 */
 class ReportViewModelTest {
 
+    @Test
+    fun `AI解读按钮仅正式账号可用`() {
+        val rows = listOf(
+            com.xcwk.scalehub.domain.model.MeasureRecord(
+                1000L, 65.5, 500.0, 18.4, "AA", "okok-bia-1", true, 30, 175,
+            ),
+        )
+        val formal = ReportViewModel(
+            ReportQuery(FakeRepo(rows.toList())), 1000L, ZoneId.of("Asia/Shanghai"),
+            isFormalAccount = { true },
+        )
+        assertThat(formal.state.value.aiEnabled).isTrue()
+        val guest = ReportViewModel(
+            ReportQuery(FakeRepo(rows.toList())), 1000L, ZoneId.of("Asia/Shanghai"),
+            isFormalAccount = { false },
+        )
+        assertThat(guest.state.value.aiEnabled).isFalse()
+    }
+
+
     companion object {
         @BeforeClass
         @JvmStatic

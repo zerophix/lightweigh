@@ -51,6 +51,7 @@ private val LinkRed = Color(0xFFDC4C4C)
 @Composable
 fun ScaleRoute(
     onBack: () -> Unit,
+    onOpenReport: (Long) -> Unit = {},
     vm: ScaleViewModel = viewModel(factory = ScaleViewModel.Factory),
 ) {
     val state by vm.state.collectAsStateWithLifecycle()
@@ -76,6 +77,7 @@ fun ScaleRoute(
         bluetoothEnabled = btEnabled,
         onIntent = vm::onIntent,
         onBack = onBack,
+        onOpenReport = onOpenReport,
         onRequestPermission = {
             activity?.let { BleGate.request(it, 100) }
                 ?: permissionLauncher.launch(BleGate.required())
@@ -111,6 +113,7 @@ fun ScaleContent(
     bluetoothEnabled: Boolean,
     onIntent: (ScaleIntent) -> Unit,
     onBack: () -> Unit = {},
+    onOpenReport: (Long) -> Unit = {},
     onRequestPermission: () -> Unit = {},
     onEnableBluetooth: () -> Unit = {},
 ) {
@@ -171,7 +174,15 @@ fun ScaleContent(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     when (outcome.kind) {
-                        MeasureOutcomeKind.SAVED -> Button(onClick = onBack, modifier = Modifier.fillMaxWidth().padding(top = 24.dp)) { Text("完成") }
+                        MeasureOutcomeKind.SAVED -> {
+                            val time = outcome.recordTime
+                            if (time != null) {
+                                Button(onClick = { onOpenReport(time) }, modifier = Modifier.fillMaxWidth().padding(top = 24.dp)) { Text("查看报告") }
+                                OutlinedButton(onClick = onBack, modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) { Text("完成") }
+                            } else {
+                                Button(onClick = onBack, modifier = Modifier.fillMaxWidth().padding(top = 24.dp)) { Text("完成") }
+                            }
+                        }
                         MeasureOutcomeKind.CONFIRM_WEIGHT, MeasureOutcomeKind.NO_COMPOSITION -> {
                             Button(onClick = { onIntent(ScaleIntent.ConfirmSave) }, modifier = Modifier.fillMaxWidth().padding(top = 24.dp)) {
                                 Text(if (outcome.kind == MeasureOutcomeKind.NO_COMPOSITION) "保存当前数据" else "确认保存")

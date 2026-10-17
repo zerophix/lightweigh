@@ -2,6 +2,7 @@ package com.xcwk.scalehub.ui.shell
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -74,6 +75,8 @@ fun MainShell() {
     // AI 问答是宿主级覆盖页（与记录表单同层：打开即回到刚才页面）
     var showAi by rememberSaveable { mutableStateOf(false) }
     var showScale by rememberSaveable { mutableStateOf(false) }
+    // 报告覆盖页（测量保存后查看报告入口，M4）：-1=未打开
+    var reportTime by rememberSaveable { mutableStateOf(-1L) }
     // 记录表单是宿主级覆盖页（任何页签打开，导航即关闭）——例外域同 Route 层声明
     var recordType by rememberSaveable { mutableStateOf("") }
     Scaffold(
@@ -106,12 +109,37 @@ fun MainShell() {
                     type = recordType,
                     onDone = { recordType = "" },
                 )
-                showAi -> com.xcwk.scalehub.feature.ai.AiRoute(onBack = { showAi = false })
-                showScale -> com.xcwk.scalehub.feature.measure.scale.ScaleRoute(onBack = { showScale = false })
                 tab == MainTab.HOME -> MeasureScreen(onOpenScale = { showScale = true })
-                tab == MainTab.TREND -> TrendRoute()
+                tab == MainTab.TREND -> TrendRoute(onAskAi = { showAi = true })
                 tab == MainTab.DEVICE -> com.xcwk.scalehub.feature.device.DeviceRoute()
-                else -> MineRoute()   // 设置页待设置切片；档案编辑已接入
+                else -> MineRoute()   // 设置页已接入；档案编辑已接入
+            }
+            // 宿主级覆盖页叠放而非替换：下层页面保持组合态，返回即回到刚才页面（需求口径）
+            val overlayOpen = recordType.isEmpty()
+            if (overlayOpen && showAi) {
+                androidx.compose.material3.Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+                    com.xcwk.scalehub.feature.ai.AiRoute(onBack = { showAi = false })
+                }
+            }
+            if (overlayOpen && !showAi && showScale) {
+                androidx.compose.material3.Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+                    com.xcwk.scalehub.feature.measure.scale.ScaleRoute(
+                        onBack = { showScale = false },
+                        onOpenReport = { time ->
+                            showScale = false
+                            reportTime = time
+                        },
+                    )
+                }
+            }
+            if (overlayOpen && !showAi && !showScale && reportTime >= 0L) {
+                androidx.compose.material3.Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+                    com.xcwk.scalehub.feature.report.ReportRoute(
+                        time = reportTime,
+                        onBack = { reportTime = -1L },
+                        onAskAi = { showAi = true },
+                    )
+                }
             }
         }
     }

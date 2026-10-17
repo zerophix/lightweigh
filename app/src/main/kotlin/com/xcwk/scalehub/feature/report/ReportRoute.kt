@@ -14,8 +14,9 @@ fun reportRouteOf(time: Long): String = "report/$time"
 fun ReportRoute(
     time: Long,
     onBack: () -> Unit,
+    onAskAi: () -> Unit = {},
     vm: ReportViewModel = viewModel(factory = ReportViewModel.Factory(time)),
 ) {
     val state by vm.state.collectAsStateWithLifecycle()
-    ReportScreen(state = state, onIntent = vm::onIntent, onBack = onBack)
+    ReportScreen(state = state, onAskAi = onAskAi, onBack = onBack)
 }

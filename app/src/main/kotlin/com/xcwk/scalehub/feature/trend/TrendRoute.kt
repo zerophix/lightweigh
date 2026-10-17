@@ -17,13 +17,14 @@ const val TREND_ROUTE_PATTERN = "trend/{range}/{segment}"
 
 /** 装配挂载点：接 ViewModel 与无状态 Screen（导航壳接入的唯一入口）。 */
 @Composable
-fun TrendRoute(vm: TrendViewModel = viewModel(factory = TrendViewModel.Factory)) {
+fun TrendRoute(onAskAi: () -> Unit = {}, vm: TrendViewModel = viewModel(factory = TrendViewModel.Factory)) {
     // 宿主级二级导航态（趋势→历史→报告），归 Route 层持有——同 MainShell 例外域声明
     var showHistory by rememberSaveable { mutableStateOf(false) }
     var reportTime by rememberSaveable { mutableStateOf(-1L) }
     when {
         reportTime >= 0L -> com.xcwk.scalehub.feature.report.ReportRoute(
             time = reportTime,
+            onAskAi = onAskAi,
             onBack = { reportTime = -1L },
         )
         showHistory -> com.xcwk.scalehub.feature.history.HistoryRoute(
