@@ -112,6 +112,7 @@
 - 2026-10-17（DEC-027）：云同步上传断链修复——SyncService.push() 实装且注入容器但生产零调用，新增 SyncTrigger 点火并接入三个写用例，本地写成功后 fire-and-forget 上云。
 - 2026-10-17（DEC-026 组 L）：导航两处修正与称重未绑定出口打通——首页历史入口直达历史覆盖页、称重未绑定态经 needBind 标志在 WAIT 相渲染「去绑定设备」，FeatureScreen 包名归位 features。
 - 2026-10-17（DEC-028）：网络配置集中化（BackendConfig 收敛 TCB 域名，网关/会话/云函数三处引用改指）与首页页面级间距 token 化（MeasureScreen 映射 QkSpacing）。
+- 2026-10-17（DEC-029）：本地存储三处收口落地——备份规则排除会话凭据、档案键收敛为 ALL_KEYS 单一事实源并加反射守卫、迁移测试补上执行工作流；附带修好 DEC-028 未入索引导致的校验失败。
 
 - 2026-10-17（DEC-029）：本地存储三处收口，各封一个面。A（P0 安全）凭据不入备份：
   `SessionStore` 把 access/refresh 明文放在 `scalehub_session`，而 `allowBackup` 为真且原先

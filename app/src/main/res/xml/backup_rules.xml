@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  API 30 及以下的自动备份排除范围（android:fullBackupContent）。
+  会话凭据（scalehub_session 内的 access/refresh token，明文）不允许离开设备：
+  云备份与设备迁移都会读到这份 SP 文件，故在源头排除。
+  sharedpref 域的 path 需带 .xml 后缀。
+-->
+<full-backup-content>
+    <exclude domain="sharedpref" path="scalehub_session.xml" />
+</full-backup-content>
