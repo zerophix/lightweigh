@@ -15,6 +15,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.xcwk.scalehub.ui.components.QkCard
+import com.xcwk.scalehub.ui.components.QkEmptyHint
+import com.xcwk.scalehub.ui.theme.QkSpacing
 
 /** feature.measure — 首屏（四件套之 Screen，DEC-021）：只渲染状态、转发事件。 */
 @Composable
@@ -52,25 +55,33 @@ fun MeasureScreen(
             Text(it, modifier = Modifier.padding(top = 8.dp), color = androidx.compose.material3.MaterialTheme.colorScheme.error)
         }
 
-        if (state.recent.isNotEmpty()) {
-            HorizontalDivider(modifier = Modifier.padding(top = 16.dp))
-            Text("最近测量", style = androidx.compose.material3.MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 12.dp))
-            state.recent.forEach { item ->
-                Text(item, modifier = Modifier.fillMaxWidth().padding(top = 8.dp))
+        // 最近测量（卡片化：DEC-021 视觉轮）
+        QkCard(modifier = Modifier.fillMaxWidth().padding(top = 16.dp)) {
+            Text("最近测量", style = androidx.compose.material3.MaterialTheme.typography.titleMedium)
+            if (state.recent.isEmpty()) {
+                QkEmptyHint("还没有测量记录")
+            } else {
+                state.recent.forEachIndexed { index, item ->
+                    if (index > 0) HorizontalDivider(modifier = Modifier.padding(vertical = QkSpacing.Sm))
+                    Text(item, modifier = Modifier.fillMaxWidth())
+                }
             }
         }
+
+        // 健康记录（卡片化：DEC-021 视觉轮）
         if (state.recentLogs.isNotEmpty()) {
-            Text(
-                "健康记录",
-                style = androidx.compose.material3.MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(top = 20.dp),
-            )
-            state.recentLogs.forEach { log ->
+            QkCard(modifier = Modifier.fillMaxWidth().padding(top = 16.dp)) {
                 Text(
-                    "${log.timeText}  ${log.typeLabel} · ${log.valueText}",
-                    style = androidx.compose.material3.MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(top = 8.dp),
+                    "健康记录",
+                    style = androidx.compose.material3.MaterialTheme.typography.titleMedium,
                 )
+                state.recentLogs.forEachIndexed { index, log ->
+                    if (index > 0) HorizontalDivider(modifier = Modifier.padding(vertical = QkSpacing.Sm))
+                    Text(
+                        "${log.timeText}  ${log.typeLabel} · ${log.valueText}",
+                        style = androidx.compose.material3.MaterialTheme.typography.bodyMedium,
+                    )
+                }
             }
         }
 

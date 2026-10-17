@@ -15,6 +15,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.xcwk.scalehub.application.query.TrendRange
 import com.xcwk.scalehub.application.query.TrendSegment
+import com.xcwk.scalehub.ui.components.QkAreaChart
+import com.xcwk.scalehub.ui.components.QkCard
 import com.xcwk.scalehub.ui.components.QkChip
 import com.xcwk.scalehub.ui.components.QkEmptyHint
 import com.xcwk.scalehub.ui.components.QkSectionTitle
@@ -57,7 +59,7 @@ fun TrendScreen(
 
 @Composable
 private fun Block(title: String, block: TrendBlockUi, modifier: Modifier = Modifier) {
-    Column(modifier = modifier.fillMaxWidth()) {
+    QkCard(modifier = modifier.fillMaxWidth()) {
         QkSectionTitle(title, block.caption)
         if (block.emptyText != null) {
             QkEmptyHint(block.emptyText)
@@ -67,12 +69,10 @@ private fun Block(title: String, block: TrendBlockUi, modifier: Modifier = Modif
                 low = block.lowValue ?: "--", lowCaption = "(${block.lowDay})最低",
                 change = block.changeValue ?: "--",
             )
-            // TODO M4 视觉轮：面积图 Canvas（旧库 AreaTrendChart 等价物）
-            Text(
-                block.points.joinToString("  ") { "%.1f".format(it.value) },
-                modifier = Modifier.padding(top = 4.dp),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            // 面积趋势图（DEC-021 视觉轮：旧库 AreaTrendChart 等价物）
+            QkAreaChart(
+                points = block.points,
+                modifier = Modifier.padding(top = 16.dp).fillMaxWidth(),
             )
         }
     }
