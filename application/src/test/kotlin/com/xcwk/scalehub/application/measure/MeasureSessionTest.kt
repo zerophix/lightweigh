@@ -416,4 +416,72 @@ class MeasureSessionTest {
         ble.scanListener?.onScanFailed("没有蓝牙权限")
         assertThat(session.state.value.notice).isEqualTo("没有蓝牙权限")
     }
+
+    /**
+     * 会话结束后迟到的确认不得写库。
+     * stop() 只取消定时器、不清 awaitingConfirm，而 finishSave 本身不看 closed——
+     * 这条路径编译器不拦，只能靠守卫与测试钉住（DEC-024 P2 步骤 1）。
+     */
+    @Test
+    fun `stop 之后迟到的确认不再写库`() = runTest {
+        val ble = FakeBle()
+        val repo = FakeRepo()
+        val profile = FakeProfile()
+        val devices = FakeDevices(mutableListOf(ScaleDevice("秤", "AA:BB:CC:DD:EE:FF", "2026-10-16", true)))
+        val session = MeasureSession(
+            ble, devices, RecordMeasurementService(repo, profile, null), profile,
+            { 600 }, backgroundScope, { false },
+        )
+        session.start(); runCurrent()
+        ble.emitFound("AA:BB:CC:DD:EE:FF", byteArrayOf(0x01))
+        ble.emitConnectSuccess()
+        ble.indicateSuccess()
+        ble.emit(result2A9C, c0Frame(6550, 0x01))   // 65.5 vs 60.0 → 进入待确认
+        runCurrent()
+        assertThat(session.state.value.outcome?.kind).isEqualTo(MeasureOutcomeKind.CONFIRM_WEIGHT)
+
+        session.stop()          // 会话结束（页面关闭）
+        session.confirmSave()   // 迟到的确认
+        runCurrent()
+        assertThat(repo.saved).isEmpty()
+    }
+
+    @Test
+    fun `reconnect 清空上次结果并重新扫描`() = runTest {
+        val ble = FakeBle()
+        val repo = FakeRepo()
+        val profile = FakeProfile()
+        val devices = FakeDevices(mutableListOf(ScaleDevice("秤", "AA:BB:CC:DD:EE:FF", "2026-10-16", true)))
+        val session = MeasureSession(
+            ble, devices, RecordMeasurementService(repo, profile, null), profile, { 0 }, backgroundScope, { false },
+        )
+        session.start(); runCurrent()
+        ble.emitFound("AA:BB:CC:DD:EE:FF", byteArrayOf(0x01))
+        ble.emitConnectSuccess()
+        ble.indicateSuccess()
+        ble.emit(result2A9C, fourFrame(6550, 5000, 0x00))
+        runCurrent()
+        assertThat(session.state.value.outcome?.kind).isEqualTo(MeasureOutcomeKind.SAVED)
+        assertThat(ble.scans).isEqualTo(1)
+
+        session.reconnect()
+        runCurrent()
+        assertThat(ble.scans).isEqualTo(2)
+        assertThat(session.state.value.outcome).isNull()
+        assertThat(session.state.value.phase).isEqualTo(MeasurePhase.WAIT)
+    }
+
+    @Test
+    fun `retry 在已连接未就绪时重新发起连接`() = runTest {
+        val ble = FakeBle()
+        val devices = FakeDevices(mutableListOf(ScaleDevice("秤", "AA:BB:CC:DD:EE:FF", "2026-10-16", true)))
+        val session = harness(backgroundScope, devices, ble)
+        session.start(); runCurrent()
+        ble.emitFound("AA:BB:CC:DD:EE:FF", byteArrayOf(0x01))
+        assertThat(ble.connectCalls).isEqualTo(1)
+        ble.emitConnectSuccess()   // 已连接但订阅未就绪（linkReady=false）
+
+        session.retry()
+        assertThat(ble.connectCalls).isEqualTo(2)
+    }
 }

@@ -2,34 +2,33 @@ package com.xcwk.scalehub.feature.mine
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.xcwk.scalehub.App
 
 /** 路由契约（同 TrendRoute 口径，导航壳启用后映射类型安全 Route）。 */
 const val MINE_ROUTE_NAME = "mine"
 
-/** 装配挂载点：我的资料页唯一入口。 */
+/**
+ * 装配挂载点：我的资料页唯一入口。
+ *
+ * P1 起二级页（设置 / 成员管理）上提到 NavState 覆盖页栈：本层不再持有
+ * showSettings / showMembers 两个局部导航布尔，返回键由壳层统一处理。
+ */
 @Composable
-fun MineRoute(vm: MineViewModel = viewModel(factory = MineViewModel.Factory)) {
-    // 设置为我的页二级页（宿主导航态，例外域同 MainShell 声明）
-    var showSettings by rememberSaveable { mutableStateOf(false) }
-    var showMembers by rememberSaveable { mutableStateOf(false) }
-    when {
-        showSettings -> com.xcwk.scalehub.feature.settings.SettingsRoute(onBack = { showSettings = false })
-        showMembers -> com.xcwk.scalehub.feature.member.MembersRoute(onBack = { showMembers = false })
-        else -> {
-            val state by vm.state.collectAsStateWithLifecycle()
-            val app = androidx.compose.ui.platform.LocalContext.current.applicationContext as com.xcwk.scalehub.App
-            MineScreen(
-                state = state,
-                onIntent = vm::onIntent,
-                onOpenSettings = { showSettings = true },
-                newCameraTarget = app.container.newCameraTarget,
-                onOpenMembers = { showMembers = true },
-            )
-        }
-    }
+fun MineRoute(
+    onOpenSettings: () -> Unit = {},
+    onOpenMembers: () -> Unit = {},
+    vm: MineViewModel = viewModel(factory = MineViewModel.Factory),
+) {
+    val state by vm.state.collectAsStateWithLifecycle()
+    val app = LocalContext.current.applicationContext as App
+    MineScreen(
+        state = state,
+        onIntent = vm::onIntent,
+        onOpenSettings = onOpenSettings,
+        newCameraTarget = app.container.newCameraTarget,
+        onOpenMembers = onOpenMembers,
+    )
 }

@@ -111,7 +111,7 @@ class MeasureSession(
 
     /** 重新测量（旧库 btnDone 未保存分支 :101-107 → reconnect :246-261）。 */
     fun reconnect() {
-        cancelSettle()
+        cancelZero()
         saved = false
         seenWeight = false
         pendingImpedance = 0.0
@@ -125,8 +125,15 @@ class MeasureSession(
         start()
     }
 
-    /** 确认保存（旧库 btnReport awaitingConfirm 分支 :108-114 与保存当前数据 :1006）。 */
+    /**
+     * 确认保存（旧库 btnReport awaitingConfirm 分支 :108-114 与保存当前数据 :1006）。
+     *
+     * closed 守卫：stop() 只取消定时器、不清 awaitingConfirm，会话结束后迟到的确认
+     * 仍会走到 finishSave 写库。这类非法转移编译器不会拦，靠本守卫与
+     * 「stop 之后迟到的确认不再写库」测试钉住。
+     */
     fun confirmSave() {
+        if (closed) return
         if (awaitingConfirm) {
             scope.launch { finishSave(heldWeightOnly) }
         }
@@ -135,7 +142,7 @@ class MeasureSession(
     /** 再次提示退出（旧库 leave :215-231，返回行为由 trigger 层接管）。 */
     fun stop() {
         closed = true
-        cancelSettle()
+        cancelZero()
         cancelCountdown()
         cancelRetry()
         cancelZero()
@@ -245,7 +252,7 @@ class MeasureSession(
             suppressDisconnect = false
             _state.update { it.copy(notice = reason) }
             if (closed || sealed) return
-            if (linkReady && (seenWeight || steppingOff)) {
+            if (isSettling()) {
                 holdStepOff()
                 return
             }
@@ -270,7 +277,7 @@ class MeasureSession(
             }
             if (closed) return
             if (sealed) return
-            if (linkReady && (seenWeight || steppingOff)) {
+            if (isSettling()) {
                 holdStepOff()
                 return
             }
@@ -298,7 +305,7 @@ class MeasureSession(
 
         override fun onIndicateFailure(reason: String) {
             _state.update { it.copy(notice = reason) }
-            if (linkReady && (seenWeight || steppingOff)) {
+            if (isSettling()) {
                 holdStepOff()
                 return
             }
@@ -529,6 +536,13 @@ class MeasureSession(
         }
     }
 
+    /**
+     * 已连上且已经见到体重（或正在下秤）——此时链路抖动属正常，不弹重连提示。
+     * 该判断原先在 onConnectFail / onDisConnected / onIndicateFailure 三处各写一遍，
+     * 收敛为单一来源：策略要改只改这里。
+     */
+    private fun isSettling(): Boolean = linkReady && (seenWeight || steppingOff)
+
     /** 踩上再拿起时秤常会闪断。回到请光脚站上秤，保持已连接，后台把链路接回来（:831-848）。 */
     private fun holdStepOff() {
         if (closed || sealed) return
@@ -572,7 +586,7 @@ class MeasureSession(
     private fun showReconnectPrompt() {
         cancelTips()
         cancelRetry()
-        cancelSettle()
+        cancelZero()
         _state.update {
             it.copy(
                 link = "已断开", title = "连接已断开", desc = "请重新连接体脂秤",
@@ -757,7 +771,6 @@ class MeasureSession(
 
     // ---- 定时器清理 ----
 
-    private fun cancelSettle() { zeroJob?.cancel(); zeroJob = null }
     private fun cancelCountdown() { countdownJob?.cancel(); countdownJob = null }
     private fun cancelRetry() {
         retryJob?.cancel(); retryJob = null

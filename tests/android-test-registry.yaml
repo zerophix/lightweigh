@@ -171,5 +171,9 @@ commands:
   path: application/src/test/kotlin/com/xcwk/scalehub/application/query/HomeGoalQueryTest.kt
   status: stable
   type: gradle-test
+- description: 导航状态转移表（页签/记录表单/覆盖页栈 + 1000 次随机事件不变量, DEC-024）
+  path: app/src/test/kotlin/com/xcwk/scalehub/ui/shell/NavStateTest.kt
+  status: stable
+  type: gradle-test
 configs: []
 orphans: []
