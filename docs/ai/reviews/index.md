@@ -24,7 +24,7 @@ type: index
 | 日期 | 主题 | 报告 | 发现数 | Critical | 修复率 |
 |------|------|------|--------|----------|--------|
 | 2026-10-20 | ai-dev-readiness | [grokbot__20261020_211733](20261020_ai-dev-readiness/grokbot__20261020_211733.md) | 11 项（High 3 / Medium 5 / Low 3） | 0 | 0/11，新发现待处理（P0：F-001 收口未提交改动） |
-| 2026-10-20 | ddd-architecture | [opencode__20261020_143000](20261020_ddd-architecture/opencode__20261020_143000.md) | 10 项（F-010 已撤回，有效 9） | 1 Critical **已修** | 9 项中 6 项已修（F-001~006）、2 项评估后不采纳（F-008/009，理由见 DEC-034 组 E）、余 F-007 值对象 |
+| 2026-10-20 | ddd-architecture | [opencode__20261020_143000](20261020_ddd-architecture/opencode__20261020_143000.md) | 10 项（F-010 已撤回，有效 9） | 1 Critical **已修** | **9 项全部关闭**：6 项已修（F-001~006）、3 项评估后不采纳（F-007/008/009，理由见 DEC-034 组 E/F） |
 | 2026-07-10 | template-review | [claude__20260710_082000](20260710_template-review/claude__20260710_082000.md) | 22 项 | 2 Critical 已修复 | 86%（19/22，剩余 F-009 Medium 待定制） |
 | 2026-07-11 | project-status | [openenode__20260711_233112](20260711_project-status/openenode__20260711_233112.md) | 8 项 | 0 | 新发现待处理 |
 
@@ -34,10 +34,10 @@ type: index
 |------|-----|
 | 总评审次数 | 4 |
 | 总发现数 | 51（11 + 10 + 22 + 8），其中 ddd-architecture 的 F-010 经三轮核验撤回，有效发现 50 |
-| 已修复 | 25（template-review 19 + ddd-architecture 6：F-001~F-006）；另有 2 项评估后不采纳（F-008/F-009，理由入 DEC-034 组 E）、2 项撤回（F-010 及其口径更正） |
-| 新发现待处理 | **12**（ai-dev-readiness 11 项：High 3、Medium 5、Low 3；ddd-architecture 仅剩 F-007 值对象） |
-| 整体修复率 | **50.0%**（25/50，按有效发现计） |
-| 最新进展 | 2026-10-20 DEC-034：A/B/C/D/E/G 六组完成，**ddd-architecture 9 项有效发现已关闭 8 项**（6 修 + 2 评估关闭），余 F-007 一组 P2 |
+| 已修复 | 25（template-review 19 + ddd-architecture 6：F-001~F-006）；另有 3 项评估后不采纳（F-007/008/009，理由入 DEC-034 组 E/F）、1 项撤回（F-010） |
+| 新发现待处理 | **11**（全部来自 ai-dev-readiness：High 3、Medium 5、Low 3） |
+| 整体修复率 | **50.0%**（25/50，按有效发现计）；ddd-architecture 一项评审已 100% 关闭 |
+| 最新进展 | 2026-10-20 DEC-034 **七组全部完成**：A/B/C/D 修复落地、E/F 评估后不采纳（附证据）、G 报告修正；ddd-architecture 9 项有效发现全关闭，余 ai-dev-readiness 11 项待处理 |
 
 > **口径说明**：该报告初版统计为 `critical: 2`，但 F-002 已于二轮核验降级为 Medium
 > （`SyncTrigger` 属 P0 产品决策的显式实现），三轮核验同步更正为 1 项 Critical。
