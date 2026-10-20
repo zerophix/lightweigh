@@ -44,6 +44,8 @@ class SyncService(
     private val healthLogs: HealthLogRepository,
     private val profileReader: MemberProfileReader,
     private val profileWriter: MemberProfileWriter,
+    /** 拉回的数据归属哪个成员（云端按 owner 隔离拉取，落库时必须写回同一归属，组 D）。 */
+    private val memberId: () -> String,
 ) {
     private val mutex = Mutex()
 
@@ -244,6 +246,7 @@ class SyncService(
                         (row.fields["age_years"] as? Number)?.toInt(),
                         (row.fields["height_cm"] as? Number)?.toInt(),
                     ),
+                    memberId(),
                 )
             }   // 坏行跳过（守卫 fail-fast 即过滤器）
         }
@@ -264,6 +267,7 @@ class SyncService(
                         row.fields["label"]?.toString() ?: "",
                         row.fields["note"]?.toString() ?: "",
                     ),
+                    memberId(),
                 )
             }
         }

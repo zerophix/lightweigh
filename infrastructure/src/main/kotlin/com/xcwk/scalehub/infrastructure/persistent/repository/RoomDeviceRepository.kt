@@ -1,6 +1,5 @@
 package com.xcwk.scalehub.infrastructure.persistent.repository
 
-import com.xcwk.scalehub.domain.algorithm.OkokBia
 import com.xcwk.scalehub.domain.model.ScaleDevice
 import com.xcwk.scalehub.domain.repository.DeviceRepository
 import com.xcwk.scalehub.infrastructure.persistent.dao.DeviceDao
@@ -33,7 +32,8 @@ class RoomDeviceRepository(private val dao: DeviceDao) : DeviceRepository {
         if (normalized.isEmpty()) return null
         val protocol = protocolId.ifEmpty { ScaleDevice.PROTOCOL_OKOK_1 }
         val displayName = name.ifBlank { "智能体脂秤" }
-        val algorithm = if (OkokBia.uses(protocol)) OkokBia.ID else ScaleDevice.ALGORITHM_BUILTIN_1
+        // 协议→默认算法的映射是领域规则，仓储只负责存（DEC-034 任务组 B / F-004）
+        val algorithm = ScaleDevice.algorithmFor(protocol, ScaleDevice.ALGORITHM_BUILTIN_1)
         val existing = rows().firstOrNull { it.mac == normalized }
         val boundAt = if (existing == null || existing.boundAt.isEmpty()) today() else existing.boundAt
         val updated = ScaleDevicePo(normalized, displayName, boundAt, true, protocol, algorithm)

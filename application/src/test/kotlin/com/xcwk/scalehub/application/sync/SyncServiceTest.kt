@@ -79,7 +79,7 @@ class SyncServiceTest {
 
     private class FakeMeasureRepo(rows: List<MeasureRecord> = emptyList()) : MeasurementRepository {
         val saved = rows.toMutableList()
-        override suspend fun save(record: MeasureRecord) { saved += record }
+        override suspend fun save(record: MeasureRecord, memberId: String) { saved += record }
         override suspend fun recent(limit: Int) = saved.sortedByDescending { it.time }.take(limit)
         override suspend fun between(fromInc: Long, toExc: Long) =
             saved.filter { it.time >= fromInc && it.time < toExc }.sortedBy { it.time }
@@ -88,7 +88,7 @@ class SyncServiceTest {
 
     private class FakeLogRepo(rows: List<HealthLog> = emptyList()) : HealthLogRepository {
         val saved = rows.toMutableList()
-        override suspend fun save(log: HealthLog) { saved += log }
+        override suspend fun save(log: HealthLog, memberId: String) { saved += log }
         override suspend fun recent(limit: Int) = saved.sortedByDescending { it.time }.take(limit)
         override suspend fun between(fromInc: Long, toExc: Long) =
             saved.filter { it.time >= fromInc && it.time < toExc }.sortedBy { it.time }
@@ -118,7 +118,7 @@ class SyncServiceTest {
         devices: FakeDevices = FakeDevices(),
         measures: FakeMeasureRepo = FakeMeasureRepo(), logs: FakeLogRepo = FakeLogRepo(),
         profile: FakeProfile = FakeProfile(),
-    ) = SyncService(session, cloud, auth, devices, null, measures, logs, profile, profile)
+    ) = SyncService(session, cloud, auth, devices, null, measures, logs, profile, profile, memberId = { "1" })
 
     // ---- 游客门 ----
 

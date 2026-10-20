@@ -1,5 +1,6 @@
 package com.xcwk.scalehub.feature.device
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -8,6 +9,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.xcwk.scalehub.App
 import com.xcwk.scalehub.application.ble.BlePort
 import com.xcwk.scalehub.application.ble.BleScanListener
+import com.xcwk.scalehub.domain.model.ScaleDevice
 import com.xcwk.scalehub.domain.protocol.Protocols
 import com.xcwk.scalehub.domain.repository.DeviceRepository
 import kotlinx.coroutines.Job
@@ -40,6 +42,7 @@ class DeviceViewModel(
     fun onIntent(intent: DeviceIntent) {
         when (intent) {
             DeviceIntent.ToggleScan -> if (_state.value.scanning) stopScan() else startScan()
+            DeviceIntent.Pause -> stopScan()
             is DeviceIntent.Bind -> bind(intent.found)
             is DeviceIntent.QrBind -> bindQr(intent.name, intent.mac)
             is DeviceIntent.Unbind -> {
@@ -85,7 +88,17 @@ class DeviceViewModel(
 
                 override fun onDeviceFound(name: String, mac: String, rssi: Int, scanRecord: ByteArray?) {
                     if (scanRecord == null) return
-                    val match = Protocols.match(scanRecord) ?: return
+                    val match = Protocols.match(scanRecord)
+                    if (match == null) {
+                        // 未被任何协议认出的广播——排障关键证据（v2 与旧库一致的静默丢弃，仅加日志）
+                        Log.d(
+                            "BLE_SCAN",
+                            "unmatched device: name=$name mac=$mac hex=" +
+                                scanRecord.joinToString("") { "%02X".format(it) },
+                        )
+                        return
+                    }
+                    Log.d("BLE_SCAN", "matched: name=$name mac=$mac protocol=${match.protocolId}")
                     val current = _state.value.found.filter { it.mac != mac }
                     _state.update {
                         it.copy(
@@ -115,7 +128,7 @@ class DeviceViewModel(
     private fun bindQr(name: String, mac: String) {
         stopScan()
         val existed = devices.contains(mac)
-        devices.bind(name.ifBlank { "智能体脂秤" }, mac, com.xcwk.scalehub.domain.model.ScaleDevice.PROTOCOL_OKOK_1)
+        devices.bind(name.ifBlank { "智能体脂秤" }, mac, ScaleDevice.PROTOCOL_OKOK_1)
         refresh()
         _state.update { it.copy(message = (if (existed) "已切换到 " else "已绑定 ") + (devices.device(mac)?.name ?: mac)) }
     }

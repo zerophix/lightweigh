@@ -7,9 +7,12 @@ import com.xcwk.scalehub.domain.model.HealthLog
  * 语义承诺：save 返回 = 本地已持久化；云端同步是独立端口职责（离线优先，同测量）。
  * 唯一性约定 (time, type) —— 对应云表 UNIQUE(owner, logged_at, type)。
  * 实现方：InMemoryHealthLogRepository(当前) / RoomHealthLogRepository(组 C 接入)。
+ *
+ * 成员隔离显式出现在 save 签名上（DEC-034 组 D / F-005，同 MeasurementRepository）：
+ * 云表唯一键含 owner，归属不是可省略的细节。
  */
 interface HealthLogRepository {
-    suspend fun save(log: HealthLog)
+    suspend fun save(log: HealthLog, memberId: String)
     /** 最新在前。 */
     suspend fun recent(limit: Int): List<HealthLog>
 

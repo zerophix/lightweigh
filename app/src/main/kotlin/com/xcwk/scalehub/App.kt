@@ -2,8 +2,8 @@ package com.xcwk.scalehub
 
 import android.content.Context
 import android.app.Application
+import com.xcwk.scalehub.application.DataChange
 import com.xcwk.scalehub.application.DataRefreshBus
-import com.xcwk.scalehub.application.ai.AiPort
 import com.xcwk.scalehub.application.ai.AiService
 import com.xcwk.scalehub.application.auth.AuthService
 import com.xcwk.scalehub.application.query.HealthLogQuery
@@ -13,7 +13,10 @@ import com.xcwk.scalehub.application.query.ReportQuery
 import com.xcwk.scalehub.application.query.TrendQuery
 import com.xcwk.scalehub.application.service.RecordHealthLogService
 import com.xcwk.scalehub.application.service.UpdateProfileService
+import com.xcwk.scalehub.application.sync.DeleteAccountService
+import com.xcwk.scalehub.application.sync.RestoreAccountService
 import com.xcwk.scalehub.application.sync.SyncService
+import com.xcwk.scalehub.application.sync.SyncOnLocalWrites
 import com.xcwk.scalehub.application.sync.SyncTrigger
 import com.xcwk.scalehub.application.service.DeleteMeasurementService
 import com.xcwk.scalehub.application.service.RecordMeasurementService
@@ -78,13 +81,13 @@ class AppContainer(context: Context) {
     val setTargetWeight: (Float) -> Unit = { kg -> goalStore.targetWeight = kg }
 
     val recordMeasurementService: RecordMeasurementService by lazy {
-        RecordMeasurementService(measurementRepository, profileStore, dataRefreshBus, syncTrigger)
+        RecordMeasurementService(measurementRepository, profileStore, dataRefreshBus, memberId = activeMemberId)
     }
     val measurementQuery: MeasurementQuery by lazy { MeasurementQuery(measurementRepository) }
     val healthLogQuery: HealthLogQuery by lazy { HealthLogQuery(healthLogRepository) }
     val trendQuery: TrendQuery by lazy { TrendQuery(measurementRepository) }
     val recordHealthLogService: RecordHealthLogService by lazy {
-        RecordHealthLogService(healthLogRepository, dataRefreshBus, syncTrigger)
+        RecordHealthLogService(healthLogRepository, dataRefreshBus, memberId = activeMemberId)
     }
     val profileQuery: ProfileQuery by lazy { ProfileQuery(profileStore) }
 
@@ -96,10 +99,18 @@ class AppContainer(context: Context) {
     }
     val reportQuery: ReportQuery by lazy { ReportQuery(measurementRepository) }
     val updateProfileService: UpdateProfileService by lazy {
-        UpdateProfileService(profileStore, syncTrigger)
+        UpdateProfileService(profileStore, dataRefreshBus)
     }
     val deleteMeasurementService: DeleteMeasurementService by lazy {
         DeleteMeasurementService(measurementRepository, dataRefreshBus)
+    }
+
+    /** 账号恢复 / 注销用例（表现层不发数据变更信号，广播在此层收口）。 */
+    val restoreAccountService: RestoreAccountService by lazy {
+        RestoreAccountService(syncService, dataRefreshBus)
+    }
+    val deleteAccountService: DeleteAccountService by lazy {
+        DeleteAccountService(syncService, dataRefreshBus)
     }
 
     /** 头像存取口（AvatarStore 藏在容器后，feature 层只见函数类型）。 */
@@ -116,7 +127,7 @@ class AppContainer(context: Context) {
     val activeMemberId: () -> String = { memberRepository.activeId() }
     val switchMember: (String) -> Unit = { id ->
         memberRepository.switch(id)
-        dataRefreshBus.notifyChanged()
+        dataRefreshBus.notifyChanged(DataChange.MemberScopeChanged)
     }
     val addMember: (String) -> Boolean = { name ->
         memberRepository.add(name) != null
@@ -125,7 +136,7 @@ class AppContainer(context: Context) {
         val ok = memberRepository.remove(id)
         if (ok) {
             removeMemberLocalData(id)
-            dataRefreshBus.notifyChanged()
+            dataRefreshBus.notifyChanged(DataChange.MemberScopeChanged)
         }
         ok
     }
@@ -156,14 +167,24 @@ class AppContainer(context: Context) {
         SyncService(
             sessionStore, cloudGateway, sessionStore, deviceRepository, goalStore,
             measurementRepository, healthLogRepository, profileStore, profileStore,
+            memberId = activeMemberId,
         )
     }
 
     /**
-     * 云推送触发器（P0 断链修复）：写用例落库后 fire()，后台执行 push。
-     * 定义在 syncService 之后但按需懒构造——服务侧 lazy 引用不会成环。
+     * 云推送触发器：本地写入事件点火（DEC-034 组 A，替代 F-002 的「写用例注入 SyncTrigger」）。
+     *
+     * 用例现在只发 DataChange，既不知道 UI 也不知道云；换同步策略（批量/定时/仅 Wi-Fi）
+     * 只改 [SyncOnLocalWrites] 一处订阅，不必动任何用例。
+     *
+     * 订阅在容器构造期即启动（不能藏在 lazy 里：lazy 要等首次访问才初始化，
+     * 而用例不再持有它的引用，第一个写入事件可能在订阅建立前就发出去了）。
      */
     val syncTrigger: SyncTrigger by lazy { SyncTrigger(applicationScope) { syncService.push() } }
+
+    init {
+        SyncOnLocalWrites(dataRefreshBus, applicationScope, syncTrigger).start()
+    }
 
     val authService: AuthService by lazy { AuthService(sessionStore, syncService) }
 

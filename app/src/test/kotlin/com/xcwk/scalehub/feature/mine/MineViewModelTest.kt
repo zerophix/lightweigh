@@ -154,7 +154,7 @@ class MineViewModelTest {
     private class FakeMeasureRepo(rows: List<com.xcwk.scalehub.domain.model.MeasureRecord>) :
         com.xcwk.scalehub.domain.repository.MeasurementRepository {
         private val data = rows.toMutableList()
-        override suspend fun save(record: com.xcwk.scalehub.domain.model.MeasureRecord) { data += record }
+        override suspend fun save(record: com.xcwk.scalehub.domain.model.MeasureRecord, memberId: String) { data += record }
         override suspend fun recent(limit: Int) = data.sortedByDescending { it.time }.take(limit)
         override suspend fun between(fromInc: Long, toExc: Long) =
             data.filter { it.time >= fromInc && it.time < toExc }.sortedBy { it.time }
@@ -162,7 +162,7 @@ class MineViewModelTest {
     }
 
     private class FakeLogRepo : com.xcwk.scalehub.domain.repository.HealthLogRepository {
-        override suspend fun save(log: com.xcwk.scalehub.domain.model.HealthLog) = Unit
+        override suspend fun save(log: com.xcwk.scalehub.domain.model.HealthLog, memberId: String) = Unit
         override suspend fun recent(limit: Int) = emptyList<com.xcwk.scalehub.domain.model.HealthLog>()
         override suspend fun between(fromInc: Long, toExc: Long) =
             emptyList<com.xcwk.scalehub.domain.model.HealthLog>()

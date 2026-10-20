@@ -16,7 +16,7 @@ class DeleteMeasurementServiceTest {
             MeasureRecord(1000L, 70.0, 0.0, -1.0, "", "builtin-1"),
             MeasureRecord(2000L, 71.0, 0.0, -1.0, "", "builtin-1"),
         )
-        override suspend fun save(record: MeasureRecord) { rows += record }
+        override suspend fun save(record: MeasureRecord, memberId: String) { rows += record }
         override suspend fun recent(limit: Int) = rows.sortedByDescending { it.time }.take(limit)
         override suspend fun between(fromInc: Long, toExc: Long) =
             rows.filter { it.time >= fromInc && it.time < toExc }
@@ -24,16 +24,17 @@ class DeleteMeasurementServiceTest {
     }
 
     @Test
-    fun `删除后发刷新信号`() = runTest {
+    fun `删除后发测量变更事件`() = runTest {
         val repo = FakeRepo()
         val bus = com.xcwk.scalehub.application.DataRefreshBus()
         val svc = DeleteMeasurementService(repo, bus)
-        val got = mutableListOf<Unit>()
+        val got = mutableListOf<com.xcwk.scalehub.application.DataChange>()
         val job = launch { bus.changed.collect { got += it } }
         runCurrent()
         svc.execute(1000L)
         runCurrent()
-        assertThat(got).hasSize(1)
+        // 增删同类型：订阅方关心「测量数据变了」，不必区分方向
+        assertThat(got).containsExactly(com.xcwk.scalehub.application.DataChange.Measurements)
         job.cancel()
     }
 

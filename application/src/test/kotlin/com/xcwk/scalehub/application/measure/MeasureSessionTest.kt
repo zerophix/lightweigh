@@ -7,9 +7,10 @@ import com.xcwk.scalehub.application.ble.BlePort
 import com.xcwk.scalehub.application.ble.BleScanListener
 import com.xcwk.scalehub.application.ble.BleWriteListener
 import com.xcwk.scalehub.application.service.RecordMeasurementService
-import com.xcwk.scalehub.domain.algorithm.OkokBia
 import com.xcwk.scalehub.domain.model.MeasureRecord
 import com.xcwk.scalehub.domain.model.ScaleDevice
+import com.xcwk.scalehub.domain.protocol.ConnectionMode
+import com.xcwk.scalehub.domain.protocol.chipsea.ChipseaCloudProtocol
 import com.xcwk.scalehub.domain.repository.DeviceRepository
 import com.xcwk.scalehub.domain.repository.MeasurementRepository
 import com.xcwk.scalehub.domain.repository.MemberProfileReader
@@ -33,6 +34,7 @@ class MeasureSessionTest {
         var connecting = false
         var connectedMac: String? = null
         var lastConnectMac: String? = null
+        var lastConnectMode: com.xcwk.scalehub.domain.protocol.ConnectionMode? = null
         var connectCalls = 0
         var subscribed: List<UUID> = emptyList()
         var required: UUID? = null
@@ -45,8 +47,13 @@ class MeasureSessionTest {
         override fun isBluetoothEnabled() = enabled
         override fun scan(listener: BleScanListener) { scans++; scanListener = listener }
         override fun stopScan() { scanListener = null }
-        override fun connect(mac: String, listener: BleConnectListener) {
-            connectCalls++; lastConnectMac = mac; connecting = true; connectListener = listener
+        override fun connect(
+            mac: String,
+            listener: BleConnectListener,
+            mode: com.xcwk.scalehub.domain.protocol.ConnectionMode,
+        ) {
+            connectCalls++; lastConnectMac = mac; lastConnectMode = mode
+            connecting = true; connectListener = listener
         }
 
         override fun isConnected() = connectedMac != null
@@ -93,7 +100,7 @@ class MeasureSessionTest {
         override fun device(mac: String) = list.firstOrNull { it.mac.equals(mac, ignoreCase = true) }
         override fun bind(name: String, mac: String, protocolId: String): ScaleDevice? {
             if (mac.isEmpty()) return null
-            val algorithm = if (OkokBia.uses(protocolId)) OkokBia.ID else ScaleDevice.ALGORITHM_BUILTIN_1
+            val algorithm = ScaleDevice.algorithmFor(protocolId, ScaleDevice.ALGORITHM_BUILTIN_1)
             val existing = device(mac)
             val boundAt = if (existing == null || existing.boundAt.isEmpty()) "2026-10-16" else existing.boundAt
             val updated = ScaleDevice(name, mac, boundAt, true, protocolId, algorithm)
@@ -117,7 +124,7 @@ class MeasureSessionTest {
 
     private class FakeRepo : MeasurementRepository {
         val saved = mutableListOf<MeasureRecord>()
-        override suspend fun save(record: MeasureRecord) { saved += record }
+        override suspend fun save(record: MeasureRecord, memberId: String) { saved += record }
         override suspend fun recent(limit: Int) = saved.reversed().take(limit)
         override suspend fun between(fromInc: Long, toExc: Long) = saved.filter { it.time in fromInc until toExc }
         override suspend fun delete(time: Long) { saved.removeAll { it.time == time } }
@@ -152,7 +159,7 @@ class MeasureSessionTest {
         val repo = FakeRepo()
         val profile = FakeProfile()
         val session = MeasureSession(
-            ble, devices, RecordMeasurementService(repo, profile, null), profile,
+            ble, devices, RecordMeasurementService(repo, profile, null, memberId = { "1" }), profile,
             { lastRaw }, scope, { skipPrompt },
         )
         return session
@@ -255,6 +262,45 @@ class MeasureSessionTest {
         assertThat(session.state.value.phase).isEqualTo(MeasurePhase.LIVE)
     }
 
+    /**
+     * 芯海秤是随机可解析地址——连接必须走 SCANNED_DEVICE（用扫描保留的设备实例）。
+     * 若退化成 PUBLIC_ADDRESS，实现层会用 getRemoteDevice(mac) 重建，地址类型判错，
+     * 芯海秤永远连不上（上游 BLEManager.kt:188 注释点名的坑）。
+     */
+    @Test
+    fun `chipsea scale connects in scanned device mode`() = runTest {
+        val ble = FakeBle()
+        val mac = "AA:BB:CC:DD:EE:FF"
+        val devices = FakeDevices(
+            mutableListOf(ScaleDevice("芯海秤", mac, "2026-10-16", true, ChipseaCloudProtocol.ID, "builtin-1")),
+        )
+        val session = harness(backgroundScope, devices, ble)
+        session.start()
+        runCurrent()
+
+        ble.emitFound(mac, byteArrayOf(0x01, 0x02))
+
+        assertThat(ble.connectCalls).isEqualTo(1)
+        assertThat(ble.lastConnectMac).isEqualTo(mac)
+        assertThat(ble.lastConnectMode).isEqualTo(ConnectionMode.SCANNED_DEVICE)
+    }
+
+    /** OKOK 秤是公有地址，仍按地址直连（对照：不能因芯海修复把所有秤都改成扫描实例连接）。 */
+    @Test
+    fun `okok scale connects in public address mode`() = runTest {
+        val ble = FakeBle()
+        val mac = "AA:BB:CC:DD:EE:FF"
+        val devices = FakeDevices(mutableListOf(ScaleDevice("OKOK 秤", mac, "2026-10-16", true)))
+        val session = harness(backgroundScope, devices, ble)
+        session.start()
+        runCurrent()
+
+        ble.emitFound(mac, byteArrayOf(0x01, 0x02))
+
+        assertThat(ble.connectCalls).isEqualTo(1)
+        assertThat(ble.lastConnectMode).isEqualTo(ConnectionMode.PUBLIC_ADDRESS)
+    }
+
     @Test
     fun `locked result frame seals and saves with impedance`() = runTest {
         val ble = FakeBle()
@@ -262,7 +308,7 @@ class MeasureSessionTest {
         val profile = FakeProfile()
         val devices = FakeDevices(mutableListOf(ScaleDevice("秤", "AA:BB:CC:DD:EE:FF", "2026-10-16", true)))
         val session = MeasureSession(
-            ble, devices, RecordMeasurementService(repo, profile, null), profile, { 0 }, backgroundScope, { false },
+            ble, devices, RecordMeasurementService(repo, profile, null, memberId = { "1" }), profile, { 0 }, backgroundScope, { false },
         )
         session.start(); runCurrent()
         ble.emitFound("AA:BB:CC:DD:EE:FF", byteArrayOf(0x01))
@@ -290,7 +336,7 @@ class MeasureSessionTest {
         val profile = FakeProfile()
         val devices = FakeDevices(mutableListOf(ScaleDevice("秤", "AA:BB:CC:DD:EE:FF", "2026-10-16", true)))
         val session = MeasureSession(
-            ble, devices, RecordMeasurementService(repo, profile, null), profile, { 0 }, backgroundScope, { false },
+            ble, devices, RecordMeasurementService(repo, profile, null, memberId = { "1" }), profile, { 0 }, backgroundScope, { false },
         )
         session.start(); runCurrent()
         ble.emitFound("AA:BB:CC:DD:EE:FF", byteArrayOf(0x01))
@@ -310,7 +356,7 @@ class MeasureSessionTest {
         val profile = FakeProfile()
         val devices = FakeDevices(mutableListOf(ScaleDevice("秤", "AA:BB:CC:DD:EE:FF", "2026-10-16", true)))
         val session = MeasureSession(
-            ble, devices, RecordMeasurementService(repo, profile, null), profile, { 600 }, backgroundScope, { false },
+            ble, devices, RecordMeasurementService(repo, profile, null, memberId = { "1" }), profile, { 600 }, backgroundScope, { false },
         )
         session.start(); runCurrent()
         ble.emitFound("AA:BB:CC:DD:EE:FF", byteArrayOf(0x01))
@@ -338,7 +384,7 @@ class MeasureSessionTest {
         val profile = FakeProfile()
         val devices = FakeDevices(mutableListOf(ScaleDevice("秤", "AA:BB:CC:DD:EE:FF", "2026-10-16", true)))
         val session = MeasureSession(
-            ble, devices, RecordMeasurementService(repo, profile, null), profile, { 0 }, backgroundScope, { false },
+            ble, devices, RecordMeasurementService(repo, profile, null, memberId = { "1" }), profile, { 0 }, backgroundScope, { false },
         )
         session.start(); runCurrent()
         ble.emitFound("AA:BB:CC:DD:EE:FF", byteArrayOf(0x01))
@@ -399,7 +445,7 @@ class MeasureSessionTest {
         val profile = FakeProfile()
         val devices = FakeDevices(mutableListOf(ScaleDevice("广播秤", "66:55:44:33:22:11", "2026-10-16", true, "okok-broadcast-1", "builtin-1")))
         val session = MeasureSession(
-            ble, devices, RecordMeasurementService(repo, profile, null), profile, { 0 }, backgroundScope, { false },
+            ble, devices, RecordMeasurementService(repo, profile, null, memberId = { "1" }), profile, { 0 }, backgroundScope, { false },
         )
         session.start(); runCurrent()
 
@@ -433,7 +479,7 @@ class MeasureSessionTest {
         val profile = FakeProfile()
         val devices = FakeDevices(mutableListOf(ScaleDevice("秤", "AA:BB:CC:DD:EE:FF", "2026-10-16", true)))
         val session = MeasureSession(
-            ble, devices, RecordMeasurementService(repo, profile, null), profile,
+            ble, devices, RecordMeasurementService(repo, profile, null, memberId = { "1" }), profile,
             { 600 }, backgroundScope, { false },
         )
         session.start(); runCurrent()
@@ -457,7 +503,7 @@ class MeasureSessionTest {
         val profile = FakeProfile()
         val devices = FakeDevices(mutableListOf(ScaleDevice("秤", "AA:BB:CC:DD:EE:FF", "2026-10-16", true)))
         val session = MeasureSession(
-            ble, devices, RecordMeasurementService(repo, profile, null), profile, { 0 }, backgroundScope, { false },
+            ble, devices, RecordMeasurementService(repo, profile, null, memberId = { "1" }), profile, { 0 }, backgroundScope, { false },
         )
         session.start(); runCurrent()
         ble.emitFound("AA:BB:CC:DD:EE:FF", byteArrayOf(0x01))
@@ -582,7 +628,7 @@ class MeasureSessionTest {
         val profile = FakeProfile()
         val devices = FakeDevices(mutableListOf(ScaleDevice("秤", "AA:BB:CC:DD:EE:FF", "2026-10-16", true)))
         val session = MeasureSession(
-            ble, devices, RecordMeasurementService(repo, profile, null), profile, { 0 }, backgroundScope, { false },
+            ble, devices, RecordMeasurementService(repo, profile, null, memberId = { "1" }), profile, { 0 }, backgroundScope, { false },
         )
         session.start(); runCurrent()
         ble.emitFound("AA:BB:CC:DD:EE:FF", byteArrayOf(0x01))
@@ -614,7 +660,7 @@ class MeasureSessionTest {
         val profile = FakeProfile()
         val devices = FakeDevices(mutableListOf(ScaleDevice("秤", "AA:BB:CC:DD:EE:FF", "2026-10-16", true)))
         val session = MeasureSession(
-            ble, devices, RecordMeasurementService(repo, profile, null), profile, { 0 }, backgroundScope, { false },
+            ble, devices, RecordMeasurementService(repo, profile, null, memberId = { "1" }), profile, { 0 }, backgroundScope, { false },
         )
         session.start(); runCurrent()
         ble.emitFound("AA:BB:CC:DD:EE:FF", byteArrayOf(0x01))
@@ -646,7 +692,7 @@ class MeasureSessionTest {
         val profile = FakeProfile()
         val devices = FakeDevices(mutableListOf(ScaleDevice("秤", "AA:BB:CC:DD:EE:FF", "2026-10-16", true)))
         val session = MeasureSession(
-            ble, devices, RecordMeasurementService(repo, profile, null), profile, { 0 }, backgroundScope, { false },
+            ble, devices, RecordMeasurementService(repo, profile, null, memberId = { "1" }), profile, { 0 }, backgroundScope, { false },
         )
         session.start(); runCurrent()
         ble.emitFound("AA:BB:CC:DD:EE:FF", byteArrayOf(0x01))

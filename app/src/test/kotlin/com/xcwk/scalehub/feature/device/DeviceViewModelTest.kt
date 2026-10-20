@@ -49,7 +49,11 @@ class DeviceViewModelTest {
             listener?.onScanStop()   // 与 AndroidBleLink 契约一致：停止即回调 onScanStop
             listener = null
         }
-        override fun connect(mac: String, listener: com.xcwk.scalehub.application.ble.BleConnectListener) = Unit
+        override fun connect(
+            mac: String,
+            listener: com.xcwk.scalehub.application.ble.BleConnectListener,
+            mode: com.xcwk.scalehub.domain.protocol.ConnectionMode,
+        ) = Unit
         override fun isConnected() = false
         override fun isConnecting() = false
         override fun disconnect() = Unit

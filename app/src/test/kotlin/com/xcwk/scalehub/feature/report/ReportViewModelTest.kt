@@ -51,7 +51,7 @@ class ReportViewModelTest {
     }
 
     private class FakeRepo(private val rows: List<MeasureRecord>) : MeasurementRepository {
-        override suspend fun save(record: MeasureRecord) = throw UnsupportedOperationException()
+        override suspend fun save(record: MeasureRecord, memberId: String) = throw UnsupportedOperationException()
         override suspend fun recent(limit: Int) = rows.sortedByDescending { it.time }.take(limit)
         override suspend fun between(fromInc: Long, toExc: Long) =
             rows.filter { it.time >= fromInc && it.time < toExc }.sortedBy { it.time }

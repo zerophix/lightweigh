@@ -817,3 +817,32 @@ fun QkRiskRow(
         QkPill(levelText, tone)
     }
 }
+
+/**
+ * 门槛卡片：标题 + 说明 + 单个行动按钮，用于权限未授予 / 蓝牙未开启这类阻断态给出出口。
+ * DeviceScreen 与 ScaleScreen 曾各有一份私有 GateCard（参数名 body/desc、配色
+ * QkColor.Muted/MaterialTheme.colorScheme 各不相同），统一后强制走设计 token。
+ */
+@Composable
+fun QkGateCard(
+    title: String,
+    body: String,
+    action: String,
+    onAction: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    QkCard(modifier = modifier) {
+        Text(title, style = MaterialTheme.typography.titleSmall, color = QkColor.Fg)
+        Text(
+            body,
+            modifier = Modifier.padding(top = 6.dp),
+            style = MaterialTheme.typography.bodySmall,
+            color = QkColor.Muted,
+        )
+        QkButton(
+            text = action,
+            modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
+            onClick = onAction,
+        )
+    }
+}

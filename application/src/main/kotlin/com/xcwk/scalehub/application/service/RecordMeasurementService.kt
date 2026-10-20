@@ -1,13 +1,13 @@
 package com.xcwk.scalehub.application.service
 
+import com.xcwk.scalehub.application.DataChange
 import com.xcwk.scalehub.application.DataRefreshBus
 import com.xcwk.scalehub.application.command.RecordMeasurementCommand
-import com.xcwk.scalehub.application.sync.SyncTrigger
-import com.xcwk.scalehub.domain.algorithm.Algorithms
-import com.xcwk.scalehub.domain.algorithm.BuiltinComposition
 import com.xcwk.scalehub.domain.model.MeasureRecord
 import com.xcwk.scalehub.domain.repository.MeasurementRepository
 import com.xcwk.scalehub.domain.repository.MemberProfileReader
+import com.xcwk.scalehub.domain.types.Clock
+import com.xcwk.scalehub.domain.types.SystemClock
 
 /**
  * application service — 记录测量用例。
@@ -15,37 +15,31 @@ import com.xcwk.scalehub.domain.repository.MemberProfileReader
  * 语义与旧库 MeasureActivity.finishSave 逐位一致（真机验证过的行为）：
  *  - 无阻抗（<=0）体脂记 -1（"未计算"哨兵，对应 data-schema 的 fat=-1）
  *  - 未知算法编号回落 builtin-1
- *  - 时间戳在此盖章（存储不再各自盖章）
- *  - 落库后点火云推送（P0 断链修复：新测量写在本机即上云，失败不阻塞用例）
+ *  - 时间戳由聚合根工厂盖章（存储不再各自盖章）
+ *
+ * 体脂计算编排与时间盖章都收在 [MeasureRecord.create] 里（DEC-034 组 C）——
+ * 本用例只负责「取档案 + 落库 + 广播」，新增创建路径（导入历史、云端恢复）
+ * 复用同一入口即不会漏规则。
+ *
+ * 落库后只发一条 [DataChange.Measurements]，不直接触发云推送——刷新与同步都由
+ * 容器挂在事件流上的订阅负责（DEC-034 任务组 A）。
  */
 class RecordMeasurementService(
     private val repository: MeasurementRepository,
     private val profile: MemberProfileReader,
     private val refreshBus: DataRefreshBus? = null,
-    private val syncTrigger: SyncTrigger? = null,
+    private val clock: Clock = SystemClock,
+    /** 当前成员归属——落库必须回答「这条记录是谁的」（DEC-034 组 D / F-005）。 */
+    private val memberId: () -> String,
 ) {
 
     suspend fun execute(cmd: RecordMeasurementCommand): MeasureRecord {
-        val fat = if (cmd.impedanceOhm <= 0) {
-            // 手动录入可直录体脂（旧库 saveManualWeight extra 口径）；缺省 -1 哨兵，
-            // 越界仍由 MeasureRecord 构造守卫 fail-fast
-            cmd.manualFat ?: -1.0
-        } else {
-            val algorithm = Algorithms.of(cmd.algorithmId) ?: BuiltinComposition.INSTANCE
-            algorithm.fatPercent(
-                profile.male(), profile.ageYears(), profile.heightCm(),
-                cmd.weightKg, cmd.impedanceOhm,
-            )
-        }
-        // 计算输入随记录持久化（R2-Q5）：历史体脂永远可解释，不受档案后续变更影响
-        val record = MeasureRecord(
-            System.currentTimeMillis(), cmd.weightKg, cmd.impedanceOhm,
-            fat, cmd.mac, cmd.algorithmId,
-            profile.male(), profile.ageYears(), profile.heightCm(),
+        val record = MeasureRecord.create(
+            cmd.weightKg, cmd.impedanceOhm, cmd.manualFat, cmd.mac, cmd.algorithmId,
+            profile.male(), profile.ageYears(), profile.heightCm(), clock,
         )
-        repository.save(record)
-        refreshBus?.notifyChanged()
-        syncTrigger?.fire()
+        repository.save(record, memberId())
+        refreshBus?.notifyChanged(DataChange.Measurements)
         return record
     }
 }

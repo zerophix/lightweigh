@@ -9,6 +9,15 @@ import java.util.UUID;
 public interface ScaleProtocol {
     String id();
 
+    /**
+     * 该协议设备的打开方式（上游 BodyFatScale ScaleProtocol.kt:13 移植）。
+     * 芯海秤覆写为 {@link ConnectionMode#SCANNED_DEVICE}——其随机地址若用
+     * getRemoteDevice(mac) 重建会被当成公有地址，导致永远连不上。
+     */
+    default ConnectionMode connectionMode() {
+        return ConnectionMode.PUBLIC_ADDRESS;
+    }
+
     /** 认不出这帧广播时返回 null。 */
     ScanMatch match(byte[] scanRecord);
 

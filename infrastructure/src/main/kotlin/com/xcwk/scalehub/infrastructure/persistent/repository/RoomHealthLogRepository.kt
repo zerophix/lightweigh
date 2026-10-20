@@ -14,9 +14,11 @@ class RoomHealthLogRepository(
     private val memberId: () -> String,
 ) : HealthLogRepository {
 
-    /** 落库以当前成员盖章（多成员维在仓储层）。 */
-    override suspend fun save(log: HealthLog) = dao.upsert(log.toPo().copy(memberId = memberId()))
+    /** 落库归属由调用方给出（DEC-034 组 D / F-005，同测量仓储）。 */
+    override suspend fun save(log: HealthLog, memberId: String) =
+        dao.upsert(log.toPo().copy(memberId = memberId))
 
+    /** 读取仍按当前成员过滤。 */
     override suspend fun recent(limit: Int): List<HealthLog> =
         dao.recent(limit, memberId()).map { it.toDomain() }
 

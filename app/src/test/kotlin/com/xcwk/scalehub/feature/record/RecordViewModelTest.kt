@@ -42,7 +42,7 @@ class RecordViewModelTest {
 
     private class FakeLogRepo : HealthLogRepository {
         val saved = mutableListOf<HealthLog>()
-        override suspend fun save(log: HealthLog) {
+        override suspend fun save(log: HealthLog, memberId: String) {
             saved += log
         }
         override suspend fun recent(limit: Int) = saved.sortedByDescending { it.time }.take(limit)
@@ -51,7 +51,7 @@ class RecordViewModelTest {
 
     private class FakeMeasureRepo : MeasurementRepository {
         val saved = mutableListOf<MeasureRecord>()
-        override suspend fun save(record: MeasureRecord) {
+        override suspend fun save(record: MeasureRecord, memberId: String) {
             saved += record
         }
         override suspend fun recent(limit: Int) = saved.sortedByDescending { it.time }.take(limit)
@@ -76,8 +76,8 @@ class RecordViewModelTest {
     private val vm = { type: String ->
         RecordViewModel(
             type,
-            RecordHealthLogService(logRepo),
-            RecordMeasurementService(measureRepo, FakeProfile()),
+            RecordHealthLogService(logRepo, memberId = { "1" }),
+            RecordMeasurementService(measureRepo, FakeProfile(), memberId = { "1" }),
         )
     }
 

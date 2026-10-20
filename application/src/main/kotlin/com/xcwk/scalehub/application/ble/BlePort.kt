@@ -1,5 +1,6 @@
 package com.xcwk.scalehub.application.ble
 
+import com.xcwk.scalehub.domain.protocol.ConnectionMode
 import java.util.UUID
 
 /**
@@ -41,7 +42,18 @@ interface BlePort {
     fun isBluetoothEnabled(): Boolean
     fun scan(listener: BleScanListener)
     fun stopScan()
-    fun connect(mac: String, listener: BleConnectListener)
+
+    /**
+     * 打开设备（上游 BLEManager.connect(context, mac, listener, mode) 移植）。
+     * SCANNED_DEVICE 用于芯海等随机地址秤：实现层必须用扫描结果保留的
+     * BluetoothDevice 实例连接，否则地址类型判错导致永远连不上。
+     */
+    fun connect(
+        mac: String,
+        listener: BleConnectListener,
+        mode: ConnectionMode = ConnectionMode.PUBLIC_ADDRESS,
+    )
+
     fun isConnected(): Boolean
     fun isConnecting(): Boolean
     fun disconnect()

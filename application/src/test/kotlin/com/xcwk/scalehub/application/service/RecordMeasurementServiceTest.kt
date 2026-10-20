@@ -18,7 +18,7 @@ class RecordMeasurementServiceTest {
 
     private class FakeRepo : MeasurementRepository {
         val saved = mutableListOf<MeasureRecord>()
-        override suspend fun save(record: MeasureRecord) { saved += record }
+        override suspend fun save(record: MeasureRecord, memberId: String) { saved += record }
         override suspend fun recent(limit: Int) = saved.sortedByDescending { it.time }.take(limit)
         override suspend fun between(fromInc: Long, toExc: Long) =
             saved.filter { it.time >= fromInc && it.time < toExc }.sortedBy { it.time }
@@ -37,18 +37,18 @@ class RecordMeasurementServiceTest {
         override fun nickname() = ""
     }
     private val profile = MutableProfileFake()
-    private val service = RecordMeasurementService(repo, profile)
+    private val service = RecordMeasurementService(repo, profile, memberId = { "1" })
 
     @Test
     fun `保存后发刷新信号`() = runTest {
         val bus = com.xcwk.scalehub.application.DataRefreshBus()
-        val svc = RecordMeasurementService(repo, profile, bus)
-        val got = mutableListOf<Unit>()
+        val svc = RecordMeasurementService(repo, profile, bus, memberId = { "1" })
+        val got = mutableListOf<com.xcwk.scalehub.application.DataChange>()
         val job = launch { bus.changed.collect { got += it } }
         runCurrent()
         svc.execute(RecordMeasurementCommand(70.0, 0.0, "", "builtin-1"))
         runCurrent()
-        assertThat(got).hasSize(1)
+        assertThat(got).containsExactly(com.xcwk.scalehub.application.DataChange.Measurements)
         job.cancel()
     }
 
@@ -106,12 +106,18 @@ class RecordMeasurementServiceTest {
     }
 
     @Test
-    fun `落库后点火云推送`() = runTest {
-        val fired = mutableListOf<Unit>()
-        val trigger = com.xcwk.scalehub.application.sync.SyncTrigger(this) { fired += Unit }
-        val svc = RecordMeasurementService(repo, profile, null, trigger)
+    fun `落库发的事件属于本地写入_点火交由订阅侧`() = runTest {
+        // 点火不再由用例直接触发（DEC-034 组 A）：用例只发事件，
+        // SyncOnLocalWrites 订阅 LOCAL_WRITES 后点火，另见 SyncOnLocalWritesTest
+        val bus = com.xcwk.scalehub.application.DataRefreshBus()
+        val svc = RecordMeasurementService(repo, profile, bus, memberId = { "1" })
+        val got = mutableListOf<com.xcwk.scalehub.application.DataChange>()
+        val job = launch { bus.changed.collect { got += it } }
+        runCurrent()
         svc.execute(RecordMeasurementCommand(70.0, 500.0, "AA:BB", "builtin-1"))
         runCurrent()
-        assertThat(fired).hasSize(1)
+        assertThat(got).containsExactly(com.xcwk.scalehub.application.DataChange.Measurements)
+        assertThat(got.all { it in com.xcwk.scalehub.application.DataChange.LOCAL_WRITES }).isTrue()
+        job.cancel()
     }
 }

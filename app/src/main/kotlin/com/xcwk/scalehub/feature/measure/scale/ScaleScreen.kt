@@ -1,14 +1,10 @@
 package com.xcwk.scalehub.feature.measure.scale
 
-import android.app.Activity
 import android.bluetooth.BluetoothAdapter
-import android.content.Context
-import android.content.ContextWrapper
 import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,9 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -27,19 +21,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.xcwk.scalehub.application.measure.MeasureOutcome
 import com.xcwk.scalehub.application.measure.MeasureOutcomeKind
 import com.xcwk.scalehub.application.measure.MeasurePhase
 import com.xcwk.scalehub.application.measure.MeasureState
-import com.xcwk.scalehub.BleGate
+import com.xcwk.scalehub.ui.components.BlePermissionGate
 import com.xcwk.scalehub.ui.components.QkButton
 import com.xcwk.scalehub.ui.components.QkButtonStyle
-import com.xcwk.scalehub.ui.components.QkCard
+import com.xcwk.scalehub.ui.components.QkGateCard
+import com.xcwk.scalehub.ui.components.rememberBtEnabled
 import com.xcwk.scalehub.ui.theme.QkColor
 import com.xcwk.scalehub.ui.theme.QkTheme
 
@@ -59,56 +53,34 @@ fun ScaleRoute(
     vm: ScaleViewModel = viewModel(factory = ScaleViewModel.Factory),
 ) {
     val state by vm.state.collectAsStateWithLifecycle()
-    val context = LocalContext.current
-    val activity = context.findActivity()
-    val permissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions(),
-    ) { if (it.values.all { granted -> granted }) vm.start() }
+    // 权限门与蓝牙开关态均由共享组件提供（ui/components/BleSupport.kt）
+    val btEnabled = rememberBtEnabled()
+
     val enableBtLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult(),
     ) { vm.start() }
 
-    val granted = activity?.let { BleGate.granted(it) } ?: false
-    val btEnabled = rememberBtEnabled()
+    // 授权成功即启动会话（旧库 onRequestPermissionsResult → startSession）
+    BlePermissionGate(onGranted = { vm.start() }) { granted, requestPermission ->
+        // 门槛全过才启动（旧库 startSession 同款：权限 + 蓝牙开关都满足）
+        LaunchedEffect(granted, btEnabled) {
+            if (granted && btEnabled) vm.start()
+        }
 
-    LaunchedEffect(granted, btEnabled) {
-        if (granted && btEnabled) vm.start()
+        ScaleContent(
+            state = state,
+            permissionGranted = granted,
+            bluetoothEnabled = btEnabled,
+            onIntent = vm::onIntent,
+            onBack = onBack,
+            onOpenReport = onOpenReport,
+            onRequestPermission = requestPermission,
+            onEnableBluetooth = {
+                enableBtLauncher.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
+            },
+            onGoBind = onGoBind,
+        )
     }
-
-    ScaleContent(
-        state = state,
-        permissionGranted = granted,
-        bluetoothEnabled = btEnabled,
-        onIntent = vm::onIntent,
-        onBack = onBack,
-        onOpenReport = onOpenReport,
-        onRequestPermission = {
-            activity?.let { BleGate.request(it, 100) }
-                ?: permissionLauncher.launch(BleGate.required())
-        },
-        onEnableBluetooth = {
-            enableBtLauncher.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
-        },
-        onGoBind = onGoBind,
-    )
-}
-
-@Composable
-private fun rememberBtEnabled(): Boolean {
-    val context = LocalContext.current
-    return androidx.compose.runtime.remember {
-        val manager = context.getSystemService(Context.BLUETOOTH_SERVICE) as? android.bluetooth.BluetoothManager
-        manager?.adapter?.isEnabled == true
-    }
-}
-
-private fun Context.findActivity(): Activity? {
-    var current: Context? = this
-    while (current is ContextWrapper) {
-        if (current is Activity) return current
-        current = current.baseContext
-    }
-    return null
 }
 
 @Composable
@@ -130,17 +102,19 @@ fun ScaleContent(
         }
 
         when {
-            !permissionGranted -> GateCard(
+            !permissionGranted -> QkGateCard(
                 title = "需要蓝牙权限",
-                desc = "允许附近的设备权限后才能连接体脂秤。",
+                body = "允许附近的设备权限后才能连接体脂秤。",
                 action = "授权蓝牙权限",
                 onAction = onRequestPermission,
+                modifier = Modifier.padding(top = 24.dp),
             )
-            !bluetoothEnabled -> GateCard(
+            !bluetoothEnabled -> QkGateCard(
                 title = "请打开蓝牙",
-                desc = "打开手机蓝牙后才能连接体脂秤。",
+                body = "打开手机蓝牙后才能连接体脂秤。",
                 action = "打开蓝牙",
                 onAction = onEnableBluetooth,
+                modifier = Modifier.padding(top = 24.dp),
             )
             state.outcome == null -> {
                 // WAIT / LIVE 相
@@ -257,19 +231,6 @@ fun ScaleContent(
 }
 
 @Composable
-private fun GateCard(title: String, desc: String, action: String, onAction: () -> Unit) {
-    QkCard(modifier = Modifier.padding(top = 24.dp)) {
-        Text(title, style = MaterialTheme.typography.titleSmall)
-        Text(desc, modifier = Modifier.padding(top = 6.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        QkButton(
-            text = action,
-            modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
-            onClick = onAction,
-        )
-    }
-}
-
-@Composable
 private fun LinkChip(label: String) {
     val color = when (label) {
         "已连接" -> LinkGreen
@@ -308,7 +269,7 @@ private fun ScaleOutcomePreview() {
             state = MeasureState(
                 phase = MeasurePhase.DONE,
                 link = "已连接",
-                outcome = com.xcwk.scalehub.application.measure.MeasureOutcome(
+                outcome = MeasureOutcome(
                     kind = MeasureOutcomeKind.CONFIRM_WEIGHT,
                     title = "请确认这次体重",
                     extra = "和最近一次相差 5.5 公斤。确认后才写入。",

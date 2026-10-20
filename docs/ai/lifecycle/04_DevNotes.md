@@ -343,6 +343,7 @@
 
 | 版本 | 日期 | 变更摘要 |
 |------|------|---------|
+| v66 | 2026-10-20 | DEC-034 DDD 架构合规性修正（评审 10 项发现，A/B/C/D/G 五组落地）：A 事件类型化——DataChange sealed 替代 Unit 信号、四个 ViewModel 精确订阅、写用例剥离 SyncTrigger 改由 SyncOnLocalWrites 订阅点火、SettingsViewModel 发布动作下沉 RestoreAccountService/DeleteAccountService（评审原案「下沉 domain」经评估否决，理由入 DEC）；B 语义耦合下沉——ScaleDevice.algorithmFor 收敛三处重复的协议→算法映射，infrastructure 不再 import domain.algorithm；C 聚合根工厂——MeasureRecord/HealthLog/MemberProfile 各补 create 入口（体脂编排/习惯归一/昵称归一）+ Clock 抽象（写用例 currentTimeMillis 清零）；D 仓储契约——save 显式携带 memberId、聚合删除从未持有有效值的 memberId 死字段；G 评审报告自身修正（统计口径 2→1 Critical、F-010 撤回、F-006 数字更正）；新增 gov-code-check.py 五条源码规则（守卫负例自证 + 死 import/逐字重复/相似度/两处语义耦合），413 项全绿 |
 | v65 | 2026-10-17 | DEC-029 本地存储三处收口（凭据不入备份 / 档案键表单一事实源 / 迁移测试接执行）+ 反修复注解回弹与 git core.bare 事故记录 |
 | v64 | 2026-10-17 | DEC-028 硬编码治理（任务 A/B 落地）：A 网络配置集中化——新建 BackendConfig 收敛 TCB 域名与网络参数，CloudBaseGateway/SessionStore/CloudFunctionAi 改为引用，域名 2 处重复收敛为 1 处（服务去云绑定）；B 保守语义间距 token 化——MeasureScreen 10 处页面级间距映射到 QkSpacing（8dp→Sm、12dp→Md），图标/圆角/行内微间距保留裸 dp；任务 C 文案抽取评估暂缓（动态值占位符风险高、无多语言需求、不可测试验证） |
 | v59 | 2026-10-17 | DEC-026 组 H 修订（用户反馈「体测报告做得不好」）：头部卡恒在（无评分记录也有日期+大数字体重+增减，修复缺测量身份）、删重复的 BMI 独立卡（体型折进 BMI 行副标题）、身高/实际年龄移出关键指标表改「分析依据」脚注、指标图标映射补全（肥胖度/代谢/年龄等，新增 QkIcons.Age）；模拟器复验 + 295 项全绿 |

@@ -2,6 +2,7 @@ package com.xcwk.scalehub.domain.model
 
 import com.google.common.truth.Truth.assertThat
 import com.xcwk.scalehub.domain.types.DomainException
+import com.xcwk.scalehub.domain.types.FixedClock
 import org.junit.Test
 
 /**
@@ -77,5 +78,32 @@ class HealthLogTest {
         }
         assertThat(HealthLogType.fromWire("weight")).isNull()
         assertThat(HealthLogType.fromWire("walk")).isNull()
+    }
+
+    // ---- create 工厂（DEC-034 组 C：归一化与时间盖章收敛到聚合）----
+
+    @Test
+    fun `create 习惯类主值归一为一_旧库口径`() {
+        // 旧库 RecordScreen 保存分支恒存 1.0（Pages.kt:539 add("habit", 1.0, ...)）
+        val log = HealthLog.create("habit", 5.0, 0.0, "早睡", "", FixedClock(1_700_000_000_000))
+        assertThat(log.value).isEqualTo(1.0)
+        assertThat(log.label).isEqualTo("早睡")
+    }
+
+    @Test
+    fun `create 非习惯类保留主值`() {
+        val log = HealthLog.create("water", 250.0, 0.0, "", "", FixedClock(1_700_000_000_000))
+        assertThat(log.value).isEqualTo(250.0)
+    }
+
+    @Test
+    fun `create 的时间戳来自时钟`() {
+        val clock = FixedClock(1_700_000_000_000)
+        val a = HealthLog.create("water", 250.0, 0.0, "", "", clock)
+        clock.advance(1_000)
+        val b = HealthLog.create("water", 250.0, 0.0, "", "", clock)
+
+        assertThat(a.time).isEqualTo(1_700_000_000_000)
+        assertThat(b.time).isEqualTo(1_700_000_001_000)
     }
 }

@@ -7,6 +7,7 @@ import com.xcwk.scalehub.domain.model.MemberProfile
 import com.xcwk.scalehub.domain.repository.MemberProfileReader
 import com.xcwk.scalehub.domain.repository.MemberProfileWriter
 import com.xcwk.scalehub.domain.types.DomainException
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
@@ -51,13 +52,18 @@ class UpdateProfileServiceTest {
     }
 
     @Test
-    fun `落库后点火云推送`() = runTest {
-        val fired = mutableListOf<Unit>()
-        val trigger = com.xcwk.scalehub.application.sync.SyncTrigger(this) { fired += Unit }
-        val svc = UpdateProfileService(writer, trigger)
+    fun `落库后发档案变更事件`() = runTest {
+        // 档案是体成分计算的输入，变更后报告页与我的页需重算（DEC-034 组 A 新增行为）
+        val bus = com.xcwk.scalehub.application.DataRefreshBus()
+        val svc = UpdateProfileService(writer, bus)
+        val got = mutableListOf<com.xcwk.scalehub.application.DataChange>()
+        val job = launch { bus.changed.collect { got += it } }
+        runCurrent()
         svc.execute(UpdateProfileCommand(true, 1996, 5, 20, 175, "小明"))
         runCurrent()
-        assertThat(fired).hasSize(1)
+        assertThat(got).containsExactly(com.xcwk.scalehub.application.DataChange.Profile)
+        assertThat(got.all { it in com.xcwk.scalehub.application.DataChange.LOCAL_WRITES }).isTrue()
+        job.cancel()
     }
 
     @Test

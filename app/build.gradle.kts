@@ -28,6 +28,10 @@ android {
     kotlinOptions { jvmTarget = "17" }
     buildFeatures { compose = true }
     packaging { resources.excludes += "/META-INF/{AL2.0,LGPL2.1}" }
+    testOptions {
+        // 蓝牙排障日志直接用 android.util.Log；纯 JVM 单测未 mock，返回默认值而非抛异常
+        unitTests.isReturnDefaultValues = true
+    }
 }
 
 dependencies {

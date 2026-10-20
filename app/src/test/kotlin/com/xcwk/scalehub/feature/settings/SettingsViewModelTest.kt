@@ -2,6 +2,8 @@ package com.xcwk.scalehub.feature.settings
 
 import com.google.common.truth.Truth.assertThat
 import com.xcwk.scalehub.application.DataRefreshBus
+import com.xcwk.scalehub.application.sync.DeleteAccountService
+import com.xcwk.scalehub.application.sync.RestoreAccountService
 import com.xcwk.scalehub.application.auth.AuthPort
 import com.xcwk.scalehub.application.auth.AuthService
 import com.xcwk.scalehub.application.auth.SignInResult
@@ -105,14 +107,14 @@ class SettingsViewModelTest {
     }
 
     private class FakeMeasurements : MeasurementRepository {
-        override suspend fun save(record: MeasureRecord) = Unit
+        override suspend fun save(record: MeasureRecord, memberId: String) = Unit
         override suspend fun recent(limit: Int): List<MeasureRecord> = emptyList()
         override suspend fun between(fromInc: Long, toExc: Long): List<MeasureRecord> = emptyList()
         override suspend fun delete(time: Long) = Unit
     }
 
     private class FakeLogs : HealthLogRepository {
-        override suspend fun save(log: HealthLog) = Unit
+        override suspend fun save(log: HealthLog, memberId: String) = Unit
         override suspend fun recent(limit: Int): List<HealthLog> = emptyList()
         override suspend fun between(fromInc: Long, toExc: Long): List<HealthLog> = emptyList()
     }
@@ -140,8 +142,15 @@ class SettingsViewModelTest {
         val sync = SyncService(
             session, FakeCloud(), auth, FakeDevices(), null,
             FakeMeasurements(), FakeLogs(), FakeProfileReader(), FakeProfileWriter(),
+            memberId = { "1" },
         )
-        val vm = SettingsViewModel(AuthService(auth, sync), sync, auth, bus)
+        // 恢复/注销的广播由应用层服务发出，本层只调 execute（DEC-034 组 A）
+        val vm = SettingsViewModel(
+            AuthService(auth, sync),
+            RestoreAccountService(sync, bus),
+            DeleteAccountService(sync, bus),
+            auth,
+        )
     }
 
     @Test

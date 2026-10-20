@@ -1,9 +1,6 @@
 package com.xcwk.scalehub.feature.device
 
-import android.app.Activity
 import android.bluetooth.BluetoothAdapter
-import android.content.Context
-import android.content.ContextWrapper
 import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContract
@@ -23,25 +20,28 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanIntentResult
 import com.journeyapps.barcodescanner.ScanOptions
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.xcwk.scalehub.BleGate
+import com.xcwk.scalehub.ui.components.BlePermissionGate
 import com.xcwk.scalehub.ui.components.QkButton
 import com.xcwk.scalehub.ui.components.QkButtonStyle
 import com.xcwk.scalehub.ui.components.QkCard
+import com.xcwk.scalehub.ui.components.QkGateCard
 import com.xcwk.scalehub.ui.components.QkDeviceHero
 import com.xcwk.scalehub.ui.components.QkGlyphTone
 import com.xcwk.scalehub.ui.components.QkIcons
@@ -49,6 +49,7 @@ import com.xcwk.scalehub.ui.components.QkListRow
 import com.xcwk.scalehub.ui.components.QkPill
 import com.xcwk.scalehub.ui.components.QkPillTone
 import com.xcwk.scalehub.ui.components.QkSectionHead
+import com.xcwk.scalehub.ui.components.rememberBtEnabled
 import com.xcwk.scalehub.ui.theme.QkColor
 import com.xcwk.scalehub.ui.theme.QkSpacing
 import com.xcwk.scalehub.ui.theme.QkTheme
@@ -65,17 +66,27 @@ import com.xcwk.scalehub.ui.theme.QkTheme
 @Composable
 fun DeviceScreen(vm: DeviceViewModel = viewModel(factory = DeviceViewModel.Factory)) {
     val state by vm.state.collectAsStateWithLifecycle()
-    val context = LocalContext.current
-    val activity = context.findActivity()
-    val permissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions(),
-    ) {
-        // 授权结果后回到扫描准备（旧库 onRequestPermissionsResult → prepareScan）
-        if (it.values.all { granted -> granted }) vm.onIntent(DeviceIntent.Refresh)
+    // 蓝牙开关态 + 权限门均由共享组件提供（ui/components/BleSupport.kt）
+    val btEnabled = rememberBtEnabled()
+    val lifecycleOwner = LocalLifecycleOwner.current
+    var showHelp by remember { mutableStateOf(false) }
+
+    // 生命周期 ON_PAUSE 停扫（旧库 BindActivity.onPause → stopScan）
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_PAUSE) vm.onIntent(DeviceIntent.Pause)
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
+
     val enableBtLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult(),
-    ) { vm.onIntent(DeviceIntent.Refresh) }
+    ) {
+        // 开蓝牙返回后重查开关并自动继续（旧库 onActivityResult → startScan）
+        if (btEnabled) vm.onIntent(DeviceIntent.ToggleScan) else vm.onIntent(DeviceIntent.Refresh)
+    }
+
     // 扫码绑定（旧库 BindActivity btnQr → ScanContract）
     val qrLauncher = rememberLauncherForActivityResult<ScanOptions, ScanIntentResult>(
       ScanContract() as ActivityResultContract<ScanOptions, ScanIntentResult>,
@@ -91,32 +102,29 @@ fun DeviceScreen(vm: DeviceViewModel = viewModel(factory = DeviceViewModel.Facto
         }
     }
 
-    val granted = activity?.let { BleGate.granted(it) } ?: false
-    val btEnabled = rememberBtEnabled()
-    var showHelp by remember { mutableStateOf(false) }
-
-    DeviceContent(
-        state = state,
-        permissionGranted = granted,
-        bluetoothEnabled = btEnabled,
-        onIntent = vm::onIntent,
-        onRequestPermission = {
-            activity?.let { BleGate.request(it, REQUEST_PERMISSION) }
-                ?: permissionLauncher.launch(BleGate.required())
-        },
-        onEnableBluetooth = {
-            enableBtLauncher.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
-        },
-        onScanQr = {
-            qrLauncher.launch(
-                ScanOptions()
-                    .setDesiredBarcodeFormats(ScanOptions.QR_CODE)
-                    .setPrompt("将体脂秤二维码放入框内")
-                    .setBeepEnabled(false),
-            )
-        },
-        onHelp = { showHelp = true },
-    )
+    // 授权成功即自动开扫（旧库 onRequestPermissionsResult → prepareScan）
+    BlePermissionGate(onGranted = { vm.onIntent(DeviceIntent.ToggleScan) }) { granted, requestPermission ->
+        DeviceContent(
+            state = state,
+            permissionGranted = granted,
+            bluetoothEnabled = btEnabled,
+            onIntent = vm::onIntent,
+            onRequestPermission = requestPermission,
+            onEnableBluetooth = {
+                enableBtLauncher.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
+            },
+            onScanQr = {
+                qrLauncher.launch(
+                    ScanOptions()
+                        .setDesiredBarcodeFormats(ScanOptions.QR_CODE)
+                        .setPrompt("将体脂秤二维码放入框内")
+                        .setBeepEnabled(false)
+                        .setOrientationLocked(true),
+                )
+            },
+            onHelp = { showHelp = true },
+        )
+    }
 
     if (showHelp) {
         AlertDialog(
@@ -134,26 +142,6 @@ fun DeviceScreen(vm: DeviceViewModel = viewModel(factory = DeviceViewModel.Facto
             confirmButton = { TextButton(onClick = { showHelp = false }) { Text("知道了") } },
         )
     }
-}
-
-private const val REQUEST_PERMISSION = 100
-
-@Composable
-private fun rememberBtEnabled(): Boolean {
-    val context = LocalContext.current
-    return androidx.compose.runtime.remember {
-        val manager = context.getSystemService(Context.BLUETOOTH_SERVICE) as? android.bluetooth.BluetoothManager
-        manager?.adapter?.isEnabled == true
-    }
-}
-
-private fun Context.findActivity(): Activity? {
-    var current: Context? = this
-    while (current is ContextWrapper) {
-        if (current is Activity) return current
-        current = current.baseContext
-    }
-    return null
 }
 
 @Composable
@@ -259,7 +247,7 @@ fun DeviceContent(
 
         // 权限 / 蓝牙开关门（原型没有这两态，但 Android 端必须显式处理）
         if (!permissionGranted) {
-            GateCard(
+            QkGateCard(
                 title = "需要蓝牙权限",
                 body = "允许「附近的设备」权限后才能搜索和连接体脂秤。",
                 action = "授权蓝牙权限",
@@ -267,7 +255,7 @@ fun DeviceContent(
                 modifier = Modifier.padding(top = QkSpacing.CardGap),
             )
         } else if (!bluetoothEnabled) {
-            GateCard(
+            QkGateCard(
                 title = "请打开蓝牙",
                 body = "打开手机蓝牙后才能搜索体脂秤。",
                 action = "打开蓝牙",
@@ -364,31 +352,6 @@ private fun heroText(
         (state.bound.first { it.active }.name + " 已连接") to state.bound.first { it.active }.mac
     state.scanning -> "正在搜索体脂秤" to "轻踩秤面唤醒设备，等待广播出现"
     else -> "连接蓝牙体脂秤" to "请打开体脂秤并靠近手机"
-}
-
-/** 权限/蓝牙门卡片：标题 + 说明 + 主按钮（原型无此态，沿用本应用既有口径）。 */
-@Composable
-private fun GateCard(
-    title: String,
-    body: String,
-    action: String,
-    onAction: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    QkCard(modifier = modifier) {
-        Text(title, style = MaterialTheme.typography.titleSmall, color = QkColor.Fg)
-        Text(
-            body,
-            modifier = Modifier.padding(top = 6.dp),
-            style = MaterialTheme.typography.bodySmall,
-            color = QkColor.Muted,
-        )
-        QkButton(
-            text = action,
-            modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
-            onClick = onAction,
-        )
-    }
 }
 
 @Preview(showBackground = true)

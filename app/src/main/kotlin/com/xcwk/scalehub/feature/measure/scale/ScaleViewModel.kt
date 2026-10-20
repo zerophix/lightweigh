@@ -11,7 +11,6 @@ import com.xcwk.scalehub.application.measure.MeasureSession
 import com.xcwk.scalehub.application.measure.MeasureState
 import com.xcwk.scalehub.application.service.RecordMeasurementService
 import com.xcwk.scalehub.domain.repository.DeviceRepository
-import com.xcwk.scalehub.domain.repository.MeasurementRepository
 import com.xcwk.scalehub.domain.repository.MemberProfileReader
 import kotlin.math.roundToInt
 import kotlinx.coroutines.flow.StateFlow
