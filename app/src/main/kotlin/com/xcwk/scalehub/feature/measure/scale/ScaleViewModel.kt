@@ -64,7 +64,8 @@ class ScaleViewModel(
                     recordService = app.container.recordMeasurementService,
                     profile = app.container.profileStore,
                     lastWeightTenths = {
-                        app.container.measurementRepository.recent(1).firstOrNull()
+                        // 经查询服务读，不直捅仓储（与其他读路径同口径，DEC-034 组 E）
+                        app.container.measurementQuery.recent(1).firstOrNull()
                             ?.let { record -> (record.weight * 10.0).roundToInt() } ?: 0
                     },
                     skipWeightOnlyPrompt = app.container.skipWeightOnlyPrompt,
