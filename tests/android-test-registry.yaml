@@ -183,6 +183,10 @@ commands:
   path: application/src/test/kotlin/com/xcwk/scalehub/application/sync/SyncTriggerTest.kt
   status: stable
   type: gradle-test
+- description: 云推送点火订阅侧行为（本地写入点火/云端侧不回推/不补发历史/取消后停火, DEC-034 组 A）
+  path: application/src/test/kotlin/com/xcwk/scalehub/application/sync/SyncOnLocalWritesTest.kt
+  status: stable
+  type: gradle-test
 - description: 档案键登记守卫（KEY 常量集 == ALL_KEYS, DEC-029）
   path: infrastructure/src/test/kotlin/com/xcwk/scalehub/infrastructure/profile/ProfileStoreKeyTest.kt
   status: stable
