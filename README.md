@@ -89,6 +89,7 @@ M1 骨架已落地：四模块分层 + 单元测试方法全绿。整体构建�
 - 教训：算法必须与设备电极模式严格匹配——早期实现对 8 电极秤套用四电极公式，数值能产出但口径错配，这类静默偏差比崩溃更危险；现已按模式拆分系数并用黄金向量锁定。
 - 坑：本地存储带隐式容量上限等于静默丢数据；v2 用 Room 取代旧存储后该问题从结构上消除，但容量与保留语义必须写进契约。
 - 教训：**协议识别不能"按名单选"而要"按能力选"**——`preferAdvertisedProtocol` 原逻辑只对 `okok-broadcast-1`/`chipsea-cloud-1` 才回填广播协议，导致 GATT 设备被误降级为纯广播，表现为"显示已连接却只读广播、无阻抗/体脂"。正确逻辑：识别到的协议若 `requiredCharacteristic() == null`（纯广播），必须保留原设备绑定的 GATT 协议；仅当识别到的协议**有**必选特征时才回填。这类"按能力门控"的修复比枚举协议 ID 更稳健，新协议接入无需改此处。
+- 教训：**端口契约测试要"一套用例跑两遍"**——`BlePort` 接口有 FakeBle（单测）与 AndroidBleLink（真机）两套实现，只测 FakeBle 会漏掉真机特有的时序、权限、PHY 协商等问题。T-001 建立契约测试 `BlePortContractTest`，FakeBle 全绿后，同一套用例在模拟器跑 AndroidBleLink（T-017），才能保证语义一致性。单侧测试≠契约验收。
 - 教训：增量同步的水位线必须「先推后记」——`upsert` 失败时若仍更新 `pushedWatermark`，失败的行会被永久跳过（下次 `between(watermark+1, MAX)` 查不到它们）。正确顺序是：`upsert` 返回 `true` 才更新水位线；`between` 是 inclusive on from，必须用 `watermark + 1` 排除已推的行。幂等性由 PostgREST `on_conflict=merge-duplicates` 兜底，本地水位线只是优化闸门。
 - 教训：`SharedFlow` 无活跃订阅者时发射即丢弃——`SyncOnLocalWrites.start()` 启动的 `collect` 协程在 `runTest` 中不会立即执行，若在订阅者就绪前 `notifyChanged`，事件会被静默丢弃。测试中必须先 `advanceUntilIdle()` 等订阅者挂载，再发事件。
 - 教训：ArchUnit 检测 `private val` 生成的 getter——Kotlin 的 `private val x: Foo` 会生成 `private final Foo getX()`，ArchUnit 的 `methods` 包含私有方法。检查「公开属性是否暴露 infra 类型」时必须过滤 `!modifiers.contains(PRIVATE)`，否则会误报私有实现细节。
