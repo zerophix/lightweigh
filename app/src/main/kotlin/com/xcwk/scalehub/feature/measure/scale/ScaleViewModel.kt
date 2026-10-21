@@ -7,26 +7,57 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.xcwk.scalehub.App
 import com.xcwk.scalehub.application.ble.BlePort
+import com.xcwk.scalehub.application.debug.DebugLog
 import com.xcwk.scalehub.application.measure.MeasureSession
 import com.xcwk.scalehub.application.measure.MeasureState
 import com.xcwk.scalehub.application.service.RecordMeasurementService
 import com.xcwk.scalehub.domain.repository.DeviceRepository
 import com.xcwk.scalehub.domain.repository.MemberProfileReader
 import kotlin.math.roundToInt
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
-/** scale — 四件套之 ViewModel：宿主 MeasureSession 的薄壳（UI 事件转发 + 会话生命周期）。 */
+/**
+ * scale — 四件套之 ViewModel：宿主 MeasureSession 的薄壳（UI 事件转发 + 会话生命周期）。
+ *
+ * 会话生命周期（DEC-042）：ScaleViewModel 是 Activity 级的（自定义导航壳未按
+ * destination 提供 ViewModelStoreOwner），overlay 弹出不触发 onCleared。为此：
+ *  - 屏幕离开时调 [stop] 显式终结会话（ScaleRoute 的 DisposableEffect）；
+ *  - [start] 检测到会话已是终态时重建新会话（Close 是终态不可复活），
+ *    重进测量页才能重新开始，而不是拿着死会话空转。
+ */
 class ScaleViewModel(
-    ble: BlePort,
-    devices: DeviceRepository,
-    recordService: RecordMeasurementService,
-    profile: MemberProfileReader,
-    lastWeightTenths: suspend () -> Int,
-    skipWeightOnlyPrompt: () -> Boolean,
-    memberSlot: () -> Int = { 1 },
+    private val ble: BlePort,
+    private val devices: DeviceRepository,
+    private val recordService: RecordMeasurementService,
+    private val profile: MemberProfileReader,
+    private val lastWeightTenths: suspend () -> Int,
+    private val skipWeightOnlyPrompt: () -> Boolean,
+    private val memberSlot: () -> Int = { 1 },
 ) : ViewModel() {
 
-    private val session = MeasureSession(
+    private var session = newSession()
+    private var collectJob: kotlinx.coroutines.Job? = null
+
+    /** 当前会话的状态流（重建会话时随 [session] 切换）。 */
+    private val _state = MutableStateFlow(MeasureState())
+    val state: StateFlow<MeasureState> = _state.asStateFlow()
+
+    init {
+        // 把当前会话的状态转发出去；会话重建时旧 collect 先取消再挂新的
+        collectSessionState()
+    }
+
+    private fun collectSessionState() {
+        collectJob?.cancel()
+        collectJob = viewModelScope.launch {
+            session.state.collect { _state.value = it }
+        }
+    }
+
+    private fun newSession() = MeasureSession(
         ble = ble,
         devices = devices,
         recordService = recordService,
@@ -37,16 +68,26 @@ class ScaleViewModel(
         memberSlot = memberSlot,
     )
 
-    val state: StateFlow<MeasureState> get() = session.state
+    fun start() {
+        if (session.closed) {
+            DebugLog.add("session", "vm: session was closed, recreating for new measurement")
+            session = newSession()
+            collectSessionState()
+        }
+        session.start()
+    }
 
-    fun start() = session.start()
+    /** 屏幕离开时终结会话（DEC-042）：停扫描/断连接/取消全部定时器。 */
+    fun stop() {
+        if (!session.closed) session.stop()
+    }
 
     fun onIntent(intent: ScaleIntent) {
         when (intent) {
             ScaleIntent.ConfirmSave -> session.confirmSave()
             ScaleIntent.Retry -> session.retry()
             ScaleIntent.Reconnect -> session.reconnect()
-            ScaleIntent.Stop -> session.stop()
+            ScaleIntent.Stop -> stop()
         }
     }
 

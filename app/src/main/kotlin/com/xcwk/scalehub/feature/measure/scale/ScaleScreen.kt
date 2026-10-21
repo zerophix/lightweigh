@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -55,6 +56,13 @@ fun ScaleRoute(
     val state by vm.state.collectAsStateWithLifecycle()
     // 权限门与蓝牙开关态均由共享组件提供（ui/components/BleSupport.kt）
     val btEnabled = rememberBtEnabled()
+
+    // 会话生命周期锚定 overlay（DEC-042）：ScaleViewModel 是 Activity 级的，
+    // overlay 弹出不会触发 onCleared；不在这里显式 stop，扫描/连接/倒计时
+    // 会话会脱离 UI 在后台继续跑，且残留状态污染下次进入。
+    DisposableEffect(Unit) {
+        onDispose { vm.stop() }
+    }
 
     val enableBtLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult(),

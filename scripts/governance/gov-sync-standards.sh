@@ -133,7 +133,7 @@ for TARGET in $TARGETS; do
     architecture)
       SOURCE="docs/ai/lifecycle/02_Architecture.md"
       if [ ! -f "$ROOT/$SOURCE" ]; then
-        echo "   源文件不存在: $SOURCE，跳过"
+        echo "   源文件不存在: ${SOURCE}，跳过"
         continue
       fi
       if $DRY_RUN; then
@@ -147,7 +147,7 @@ for TARGET in $TARGETS; do
     guides)
       SOURCE="docs/ai/lifecycle/01_PRD.md"
       if [ ! -f "$ROOT/$SOURCE" ]; then
-        echo "   源文件不存在: $SOURCE，跳过"
+        echo "   源文件不存在: ${SOURCE}，跳过"
         continue
       fi
       if $DRY_RUN; then

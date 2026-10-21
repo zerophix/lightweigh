@@ -83,7 +83,8 @@ class MeasureSession(
     private var zeroJob: Job? = null
     private var tipsJob: Job? = null
 
-    private val closed: Boolean get() = phase is SessionPhase.Closed
+    /** 会话是否已终结（Close 是终态不可复活——重建会话须 new MeasureSession，DEC-042）。 */
+    val closed: Boolean get() = phase is SessionPhase.Closed
     private val mac: String? get() = binding?.mac
 
     /**
@@ -168,25 +169,29 @@ class MeasureSession(
 
     // ---- 扫描与识别（:304-394）----
 
-    /** 扫描门守卫的去重日志标记——onDeviceFound 每秒可来上百条，各只报一次（真机定位用）。 */
-    private var scanGateLogged = false
-    private var scanUnboundLogged = false
+    /**
+     * 扫描排障状态（DEC-042 收拢：三个并列可变字段合一，满足可变状态上限）。
+     * 去重日志标记——onDeviceFound 每秒可来上百条，各只报一次（真机定位用）；
+     * 证据计数与看门狗：N 秒无绑定命中即落一行定论，不让「等死」只表现为无限流水。
+     */
+    private data class ScanDebug(
+        val gateLogged: Boolean = false,
+        val unboundLogged: Boolean = false,
+        val adCount: Int = 0,
+    )
 
-    /** 扫描证据计数与看门狗：N 秒无绑定命中即落一行定论，不让「等死」只表现为无限流水。 */
-    private var scanAdCount = 0
+    private var scanDebug = ScanDebug()
     private var scanVerdictJob: Job? = null
 
     private fun watchForScale() {
-        scanGateLogged = false
-        scanUnboundLogged = false
-        scanAdCount = 0
+        scanDebug = ScanDebug()
         scanVerdictJob?.cancel()
         scanVerdictJob = scope.launch {
             delay(SCAN_VERDICT_MS)
             if (closed || phase.picked) return@launch
             DebugLog.add(
                 "session",
-                "scan verdict ${SCAN_VERDICT_MS / 1000}s: $scanAdCount ads, bound match=0 " +
+                "scan verdict ${SCAN_VERDICT_MS / 1000}s: ${scanDebug.adCount} ads, bound match=0 " +
                     "— 秤未广播或未绑定（查占线/bonded/是否已唤醒）",
             )
         }
@@ -203,12 +208,12 @@ class MeasureSession(
 
             override fun onDeviceFound(name: String, deviceMac: String, rssi: Int, scanRecord: ByteArray?) {
                 if (closed) return
-                scanAdCount++
+                scanDebug = scanDebug.copy(adCount = scanDebug.adCount + 1)
                 if (ble.isConnected()) {
                     // 守卫1（静默路径）：链路已连着时扫描结果全部作废——不打日志会表现为
                     // 「扫描流水不断却永远不 connect」，与秤无广播完全同相，必须留证据
-                    if (!scanGateLogged) {
-                        scanGateLogged = true
+                    if (!scanDebug.gateLogged) {
+                        scanDebug = scanDebug.copy(gateLogged = true)
                         DebugLog.add("session", "scan gate: found $deviceMac but link already connected, all found ignored")
                     }
                     return
@@ -218,8 +223,8 @@ class MeasureSession(
                     // 守卫2（静默路径）：秤广播被协议识别却无绑定设备拥有它 = 绑定缺失/换秤未绑；
                     // 协议无标记则属正常（手机耳机广告）。只在「识别到秤但绑不上」时报一次
                     val recognized = if (scanRecord != null) Protocols.match(scanRecord) else null
-                    if (recognized != null && !scanUnboundLogged) {
-                        scanUnboundLogged = true
+                    if (recognized != null && !scanDebug.unboundLogged) {
+                        scanDebug = scanDebug.copy(unboundLogged = true)
                         DebugLog.add(
                             "session",
                             "scan gate: scale ad recognized (${recognized.protocolId}) but not bound mac=$deviceMac — 请先绑定该秤",
@@ -415,8 +420,9 @@ class MeasureSession(
     private fun writeTimeThenUser() {
         val proto = protocol ?: return
         val timeChar = proto.timeCharacteristic() ?: return
-        DebugLog.add("session", "TX session: writeTime")
-        ble.write(timeChar, proto.timePacket(), object : BleWriteListener {
+        val timePkt = proto.timePacket()
+        DebugLog.add("session", "TX session: writeTime len=${timePkt.size} hex=${timePkt.toHex()}")
+        ble.write(timeChar, timePkt, object : BleWriteListener {
             override fun onWriteSuccess() {
                 DebugLog.add("session", "TX session: writeTime ok -> sendUser")
                 sendUser()
@@ -433,7 +439,7 @@ class MeasureSession(
         val proto = protocol ?: return
         val data = proto.userPacket(memberSlot(), profile.male(), profile.ageYears(), profile.heightCm(), lastWeightRaw.coerceAtLeast(0))
         val userChar = proto.userCharacteristic() ?: return
-        DebugLog.add("session", "TX session: sendUser len=${data.size}")
+        DebugLog.add("session", "TX session: sendUser len=${data.size} hex=${data.toHex()}")
         ble.write(userChar, data, object : BleWriteListener {
             override fun onWriteSuccess() {
                 DebugLog.add("session", "TX session: sendUser ok -> readBattery")
@@ -900,3 +906,7 @@ class MeasureSession(
         )
     }
 }
+
+/** ByteArray 转十六进制（本地排障用，避免跨模块依赖 infrastructure 的 internal toHex）。 */
+private fun ByteArray?.toHex(): String =
+    this?.joinToString(separator = "") { "%02X".format(it) } ?: "null"
