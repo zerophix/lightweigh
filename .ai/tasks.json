@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updated_at": "2026-10-21T10:59:21Z",
-  "next_action": "开始 T-043 (P0-2 习惯管理页)：HabitRepository/HabitViewModel/HabitScreen + Room表 + 定时提醒",
-  "next_action_why": "P0-2 是核心缺失功能，用户首页仅有记录入口无管理页",
-  "next_action_confirmed": true,
+  "updated_at": "2026-10-21T12:52:19Z",
+  "next_action": "T-045: P0-5 新手引导3步补全（资料表单/单位选择器/真实绑定流）",
+  "next_action_why": "P0-5 是下一个 P0 缺失功能，T-043 习惯管理页已完成, T-044 密码登录已由 ai-session-b 完成",
+  "next_action_confirmed": false,
   "known_risks": [
     "G1 阻断: 工具链WIP(3文件)仍未提交, 测试均为 HEAD+WIP 口径",
     "T-003 未启用: 本 session 已发生归因事故(e0d6bcf 扫入13文件), 详见 DevNotes v22",
@@ -136,11 +136,11 @@
       "id": "T-043",
       "description": "P0-2: 习惯管理页（HabitViewModel+HabitPort+Room表+定时提醒+编辑器）",
       "why": "",
-      "status": "done",
+      "status": "completed",
       "assigned_to": "ai",
       "dec": "",
       "created_at": "2026-10-21T10:27:54Z",
-      "updated_at": "2026-10-21T10:56:17Z",
+      "updated_at": "2026-10-21T12:52:19Z",
       "notes": "领取：习惯管理页完整化（HabitViewModel+HabitPort+Room表+WorkManager定时提醒+编辑器）"
     },
     {

@@ -1,6 +1,6 @@
 # 项目状态
 
-> 由 generate-status.py 自动生成。最后更新: 2026-10-20T14:07:37Z
+> 由 generate-status.py 自动生成。最后更新: 2026-10-21T12:52:26Z
 > 新 AI 启动时: `cat STATUS.md && bash scripts/session/ses-context-load.sh`
 
 ---
@@ -12,8 +12,8 @@
 | 名称 | 轻刻健康 Android（qk-health-v2） |
 | 版本 | 0.1.0 |
 | 文档语言 | zh-CN |
-| Git 分支 | refactor/dec-034-architecture-fixes |
-| 最后提交 | 98d61b7 Merge branch 'chore/ci-cancel-fix': branch-aware CI cancellation (DEC-033) |
+| Git 分支 | master |
+| 最后提交 | 03d5374 chore: merge pre-push fix |
 | 文档校验 | 运行: `bash scripts/governance/gov-validate.sh` |
 
 ## AI 交接
@@ -39,27 +39,27 @@
 最近 5 次提交：
 
 ```
-98d61b7 Merge branch 'chore/ci-cancel-fix': branch-aware CI cancellation (DEC-033)
-abde43b ci(governance): never cancel an in-flight master build
-5586a2b Merge branch 'chore/ci-cost-governance': CI cost governance (DEC-033)
-bbc26f3 ci(governance): cut metered CI minutes via scope-gated builds
-53cb429 fix(governance): sign relay notes with the detected agent
+03d5374 chore: merge pre-push fix
+37fc5e6 chore: fix pre-push audit - remove lock file, fix task status
+6156b22 feat(auth): merge email/weChat login and feature screens
+5dd9510 feat(auth): add email/weChat login, fix habit compile, add screens
+29aaf97 Merge T-028 report analysis
 ```
 
 ## 工程指标
 
 | 指标 | 数量 |
 |------|------|
-| 决策日志 (DEC) | 34 |
+| 决策日志 (DEC) | 43 |
 | 设计笔记 (NOTE) | 7 |
 | 开发指南 (GC) | 4 |
 | 技术参考 (REF) | 1 |
 
 最近决策：
 
-- [DEC-034](docs/ai/decisions/DEC-034.md): DEC-034: DDD 架构合规性修正——领域事件总线、语义耦合下沉与仓储契约诚实化
-- [DEC-033](docs/ai/decisions/DEC-033.md): DEC-033: CI 成本治理——并发去重、文档变更跳过重型构建、构建缓存与超时上限
-- [DEC-032](docs/ai/decisions/DEC-032.md): DEC-032: CI 环境跳过阿里云镜像（Gradle 遇 5xx 不回退后续仓库）
+- [DEC-043](docs/ai/decisions/DEC-043.md): DEC-043: 对齐参考项目 13 项缺失功能
+- [DEC-042](docs/ai/decisions/DEC-042.md): DEC-042: 测量会话生命周期锚定 overlay
+- [DEC-041](docs/ai/decisions/DEC-041.md): DEC-041: 统一错误模型与跨模块元数据可见性修复
 
 最近笔记：
 
