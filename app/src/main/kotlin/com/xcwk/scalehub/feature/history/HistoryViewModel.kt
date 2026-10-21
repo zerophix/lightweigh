@@ -171,7 +171,7 @@ class HistoryViewModel(
             initializer {
                 val app = this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as App
                 HistoryViewModel(
-                    com.xcwk.scalehub.application.query.HistoryQuery(app.container.measurementRepository, zone),
+                    com.xcwk.scalehub.application.query.HistoryQuery(app.container.measurementQueryPort, zone),
                     app.container.deleteMeasurementService,
                     zone,
                     app.container.dataRefreshBus,

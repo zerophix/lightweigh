@@ -10,7 +10,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertThrows
 import org.junit.Test
 
-/** 健康记录仓储往返与脏行 fail-fast（DEC-022 组 C）。 */
+/** 健康记录仓储往返与脏行 fail-fast（DEC-022 组 C）；读路径经 RoomHealthLogQuery（T-016 读写分离）。 */
 class RoomHealthLogRepositoryTest {
 
     private class CapturingDao : HealthLogDao {
@@ -37,7 +37,7 @@ class RoomHealthLogRepositoryTest {
         assertThat(dao.saved[0].memberId).isEqualTo("1")
         assertThat(dao.saved[0].type).isEqualTo("diet")
 
-        val back = repo.recent(10).single()
+        val back = RoomHealthLogQuery(dao, { "1" }).recent(10).single()
         assertThat(back).isEqualTo(log)
     }
 
@@ -47,7 +47,7 @@ class RoomHealthLogRepositoryTest {
         val repo = RoomHealthLogRepository(dao, { "1" })
         dao.toReturn = listOf(HealthLogPo(1700000000000L, "walk", 1.0, 0.0, "", "", "1"))
         assertThrows(DomainException::class.java) {
-            runBlocking { repo.recent(1) }
+            runBlocking { RoomHealthLogQuery(dao, { "1" }).recent(1) }
         }
     }
 }

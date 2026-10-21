@@ -371,6 +371,7 @@
 
 | 版本 | 日期 | 变更摘要 |
 |------|------|---------|
+| v70 | 2026-10-21 | DEC-037 T-016 仓储读写分离：domain 仓储纯化（Measurement=save/delete、HealthLog=save），查询端口 MeasurementQueryPort/HealthLogQueryPort 定义在 application（先例 SyncStatePort/BlePort 五端口同模式），infrastructure 新增 RoomMeasurementQuery/RoomHealthLogQuery 实现、InMemory 双实现写口+端口；读模型类 MeasurementQuery/HealthLogQuery（HealthLogItem）恢复原名只换构造参数，MeasureViewModel 零改动。中途方案（domain 塞回 QuerySupport + 4 层委托链）经先例对照整体回退；修复 SyncService 测试 9 处写口/查询端口分实例问题（save 写入 push 读不到，编译不拦）；362 测试+ArchUnit 14 条全绿 |
 | v69 | 2026-10-21 | DEC-035 组合根只暴露端口：先实证 ArchUnit 盲区——javap 显示 ScaleViewModel 字节码调用 getBleLink:()AndroidBleLink（另有 getDeviceRepository/getProfileStore），但 ArchUnit 统计的 106 个直接依赖里 infrastructure 包一个都没有，它不追踪方法体内的调用返回类型，据此否决评审的方案 B（返回类型规则会静默放行）；改用方案 A：AppContainer 四个具体类型属性改私有 XxxImpl，对外只给 blePort/deviceRepository/profileReader+profileWriter/authPort+cloudSessionPort，表现层 6 处取值点改端口；复验 infra 引用 3→0，413 项全绿 |
 | v68 | 2026-10-20 | DEC-034 组 F 评估后不采纳并收官（七组全部完成）：F-007 值对象的三条论据中两条已被 A/C/D 组顺带解决（Clock 收口时间语义、聚合与 String 混用会编译失败），第三条「参数顺序错」在 save(record, memberId) 上无相邻同类参数可换，memberId 传递链仅三段；ddd-architecture 9 项有效发现全关闭（6 修 + 3 评估关闭），余 ai-dev-readiness 11 项 |
 | v67 | 2026-10-20 | DEC-034 组 E 评估后部分不采纳：F-008 的「查询服务直访 DAO」被 ArchUnit 禁止（application 不依赖 infrastructure），15 处 between/recent 调用中 14 处本就在查询层或 SyncService，仅修 ScaleViewModel 一处绕过 MeasurementQuery 直捅仓储；F-009 的「Member 贫血」诊断不成立（nextId/nextSlot/normalizeNickname 与 MAX=8 均在实体内，MemberStore.add 只做编排）；两条软约束均记录不采纳理由入 DEC-034 与评审报告 |

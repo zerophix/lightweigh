@@ -3,6 +3,7 @@ package com.xcwk.scalehub.application.service
 import com.google.common.truth.Truth.assertThat
 import com.xcwk.scalehub.application.command.RecordMeasurementCommand
 import com.xcwk.scalehub.domain.model.MeasureRecord
+import com.xcwk.scalehub.application.query.MeasurementQueryPort
 import com.xcwk.scalehub.domain.repository.MeasurementRepository
 import com.xcwk.scalehub.domain.repository.MemberProfileReader
 import com.xcwk.scalehub.domain.types.DomainException
@@ -16,7 +17,7 @@ import org.junit.Test
 /** 用例测试 — 内联 Fake 端口，纯 JVM 秒级（旧库此逻辑在 Activity 里不可测）。 */
 class RecordMeasurementServiceTest {
 
-    private class FakeRepo : MeasurementRepository {
+    private class FakeRepo : MeasurementRepository, MeasurementQueryPort {
         val saved = mutableListOf<MeasureRecord>()
         override suspend fun save(record: MeasureRecord, memberId: String) { saved += record }
         override suspend fun recent(limit: Int) = saved.sortedByDescending { it.time }.take(limit)

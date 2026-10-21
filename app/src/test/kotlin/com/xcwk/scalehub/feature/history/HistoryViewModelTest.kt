@@ -5,6 +5,7 @@ import com.xcwk.scalehub.application.query.HistoryQuery
 import com.xcwk.scalehub.application.query.TrendSegment
 import com.xcwk.scalehub.application.service.DeleteMeasurementService
 import com.xcwk.scalehub.domain.model.MeasureRecord
+import com.xcwk.scalehub.application.query.MeasurementQueryPort
 import com.xcwk.scalehub.domain.repository.MeasurementRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -38,7 +39,7 @@ class HistoryViewModelTest {
         }
     }
 
-    private class FakeRepo(rows: List<MeasureRecord>) : MeasurementRepository {
+    private class FakeRepo(rows: List<MeasureRecord>) : MeasurementRepository, MeasurementQueryPort {
         val data = rows.toMutableList()
         override suspend fun save(record: MeasureRecord, memberId: String) { data += record }
         override suspend fun recent(limit: Int) = data.sortedByDescending { it.time }.take(limit)

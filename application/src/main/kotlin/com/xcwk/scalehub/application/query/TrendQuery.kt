@@ -1,7 +1,6 @@
 package com.xcwk.scalehub.application.query
 
 import com.xcwk.scalehub.domain.model.MeasureRecord
-import com.xcwk.scalehub.domain.repository.MeasurementRepository
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -82,7 +81,7 @@ data class MonthSummary(
 )
 
 class TrendQuery(
-    private val repository: MeasurementRepository,
+    private val query: MeasurementQueryPort,
     private val zone: ZoneId = ZoneId.systemDefault(),
     private val now: () -> Long = System::currentTimeMillis,
 ) {
@@ -93,7 +92,7 @@ class TrendQuery(
         segment: TrendSegment,
         kind: TrendSeriesKind,
     ): List<TrendPoint> {
-        val records = repository.between(rangeStart(range), Long.MAX_VALUE)
+        val records = query.between(rangeStart(range), Long.MAX_VALUE)
             .filter { inSegment(it.time, segment) }
         return records.groupBy { localDate(it.time) }.values.mapNotNull { day ->
             val chosen = when (kind) {

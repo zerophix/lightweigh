@@ -2,6 +2,7 @@ package com.xcwk.scalehub.application.query
 
 import com.google.common.truth.Truth.assertThat
 import com.xcwk.scalehub.domain.model.MeasureRecord
+import com.xcwk.scalehub.application.query.MeasurementQueryPort
 import com.xcwk.scalehub.domain.repository.MeasurementRepository
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -24,7 +25,7 @@ class HistoryQueryTest {
             MeasureRecord(t, weight, 500.0, fat, "AA:BB", "builtin-1")
     }
 
-    private class FakeRepo(private val rows: List<MeasureRecord>) : MeasurementRepository {
+    private class FakeRepo(private val rows: List<MeasureRecord>) : MeasurementRepository, MeasurementQueryPort {
         val deleted = mutableListOf<Long>()
         override suspend fun save(record: MeasureRecord, memberId: String) = throw UnsupportedOperationException()
         override suspend fun recent(limit: Int) = rows.sortedByDescending { it.time }.take(limit)

@@ -9,7 +9,9 @@ import com.xcwk.scalehub.application.auth.AuthPort
 import com.xcwk.scalehub.application.auth.AuthService
 import com.xcwk.scalehub.application.ble.BlePort
 import com.xcwk.scalehub.application.query.HealthLogQuery
+import com.xcwk.scalehub.application.query.HealthLogQueryPort
 import com.xcwk.scalehub.application.query.MeasurementQuery
+import com.xcwk.scalehub.application.query.MeasurementQueryPort
 import com.xcwk.scalehub.application.query.ProfileQuery
 import com.xcwk.scalehub.application.query.ReportQuery
 import com.xcwk.scalehub.application.query.TrendQuery
@@ -35,7 +37,9 @@ import com.xcwk.scalehub.infrastructure.ai.CloudFunctionAi
 import com.xcwk.scalehub.infrastructure.ble.AndroidBleLink
 import com.xcwk.scalehub.infrastructure.cloud.CloudBaseGateway
 import com.xcwk.scalehub.infrastructure.persistent.AppDatabase
+import com.xcwk.scalehub.infrastructure.persistent.repository.RoomHealthLogQuery
 import com.xcwk.scalehub.infrastructure.persistent.repository.RoomHealthLogRepository
+import com.xcwk.scalehub.infrastructure.persistent.repository.RoomMeasurementQuery
 import com.xcwk.scalehub.infrastructure.persistent.repository.RoomMeasurementRepository
 import com.xcwk.scalehub.infrastructure.profile.ProfileStore
 import com.xcwk.scalehub.infrastructure.persistent.repository.RoomDeviceRepository
@@ -103,9 +107,17 @@ class AppContainer(context: Context) {
     val recordMeasurementService: RecordMeasurementService by lazy {
         RecordMeasurementService(measurementRepository, profileStoreImpl, dataRefreshBus, memberId = activeMemberId)
     }
-    val measurementQuery: MeasurementQuery by lazy { MeasurementQuery(measurementRepository) }
-    val healthLogQuery: HealthLogQuery by lazy { HealthLogQuery(healthLogRepository) }
-    val trendQuery: TrendQuery by lazy { TrendQuery(measurementRepository) }
+    /** 查询端口（T-016 读写分离）：Room DAO 直读，与仓储写口分离。 */
+    val measurementQueryPort: MeasurementQueryPort by lazy {
+        RoomMeasurementQuery(database.measurementDao(), activeMemberId)
+    }
+    val healthLogQueryPort: HealthLogQueryPort by lazy {
+        RoomHealthLogQuery(database.healthLogDao(), activeMemberId)
+    }
+    /** 读模型壳（UI 消费）：测量/健康记录最新列表。 */
+    val measurementQuery: MeasurementQuery by lazy { MeasurementQuery(measurementQueryPort) }
+    val healthLogQuery: HealthLogQuery by lazy { HealthLogQuery(healthLogQueryPort) }
+    val trendQuery: TrendQuery by lazy { TrendQuery(measurementQueryPort) }
     val recordHealthLogService: RecordHealthLogService by lazy {
         RecordHealthLogService(healthLogRepository, dataRefreshBus, memberId = activeMemberId)
     }
@@ -114,10 +126,10 @@ class AppContainer(context: Context) {
     /** 首页目标进度查询（移植补齐 H1）。 */
     val homeGoalQuery: com.xcwk.scalehub.application.query.HomeGoalQuery by lazy {
         com.xcwk.scalehub.application.query.HomeGoalQuery(
-            measurementRepository, healthLogRepository, goalStore, profileStoreImpl,
+            measurementQueryPort, healthLogQueryPort, goalStore, profileStoreImpl,
         )
     }
-    val reportQuery: ReportQuery by lazy { ReportQuery(measurementRepository) }
+    val reportQuery: ReportQuery by lazy { ReportQuery(measurementQueryPort) }
     val updateProfileService: UpdateProfileService by lazy {
         UpdateProfileService(profileStoreImpl, dataRefreshBus)
     }
@@ -188,7 +200,8 @@ class AppContainer(context: Context) {
     val syncService: SyncService by lazy {
         SyncService(
             sessionStoreImpl, cloudGateway, sessionStoreImpl, deviceRepositoryImpl, goalStore,
-            measurementRepository, healthLogRepository, profileStoreImpl, profileStoreImpl,
+            measurementRepository, healthLogRepository, measurementQueryPort, healthLogQueryPort,
+            profileStoreImpl, profileStoreImpl,
             memberId = activeMemberId,
         )
     }

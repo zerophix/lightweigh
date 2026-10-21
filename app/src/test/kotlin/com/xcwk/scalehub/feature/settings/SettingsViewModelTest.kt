@@ -15,7 +15,9 @@ import com.xcwk.scalehub.application.sync.SyncService
 import com.xcwk.scalehub.domain.model.HealthLog
 import com.xcwk.scalehub.domain.model.MeasureRecord
 import com.xcwk.scalehub.domain.model.MemberProfile
+import com.xcwk.scalehub.application.query.HealthLogQueryPort
 import com.xcwk.scalehub.domain.repository.HealthLogRepository
+import com.xcwk.scalehub.application.query.MeasurementQueryPort
 import com.xcwk.scalehub.domain.repository.MeasurementRepository
 import com.xcwk.scalehub.domain.repository.MemberProfileReader
 import com.xcwk.scalehub.domain.repository.MemberProfileWriter
@@ -106,14 +108,14 @@ class SettingsViewModelTest {
         override suspend fun delete(table: String, filter: String) = true
     }
 
-    private class FakeMeasurements : MeasurementRepository {
+    private class FakeMeasurements : MeasurementRepository, MeasurementQueryPort {
         override suspend fun save(record: MeasureRecord, memberId: String) = Unit
         override suspend fun recent(limit: Int): List<MeasureRecord> = emptyList()
         override suspend fun between(fromInc: Long, toExc: Long): List<MeasureRecord> = emptyList()
         override suspend fun delete(time: Long) = Unit
     }
 
-    private class FakeLogs : HealthLogRepository {
+    private class FakeLogs : HealthLogRepository, HealthLogQueryPort {
         override suspend fun save(log: HealthLog, memberId: String) = Unit
         override suspend fun recent(limit: Int): List<HealthLog> = emptyList()
         override suspend fun between(fromInc: Long, toExc: Long): List<HealthLog> = emptyList()
@@ -139,9 +141,12 @@ class SettingsViewModelTest {
         val session: FakeSession = FakeSession(auth),
         val bus: DataRefreshBus = DataRefreshBus(),
     ) {
+        val syncMeasures = FakeMeasurements()
+        val syncLogs = FakeLogs()
         val sync = SyncService(
             session, FakeCloud(), auth, FakeDevices(), null,
-            FakeMeasurements(), FakeLogs(), FakeProfileReader(), FakeProfileWriter(),
+            syncMeasures, syncLogs, syncMeasures, syncLogs,
+            FakeProfileReader(), FakeProfileWriter(),
             memberId = { "1" },
         )
         // 恢复/注销的广播由应用层服务发出，本层只调 execute（DEC-034 组 A）

@@ -8,7 +8,9 @@ import com.xcwk.scalehub.application.service.RecordMeasurementService
 import com.xcwk.scalehub.domain.model.HealthLog
 import com.xcwk.scalehub.domain.model.MeasureRecord
 import com.xcwk.scalehub.domain.model.MemberProfile
+import com.xcwk.scalehub.application.query.HealthLogQueryPort
 import com.xcwk.scalehub.domain.repository.HealthLogRepository
+import com.xcwk.scalehub.application.query.MeasurementQueryPort
 import com.xcwk.scalehub.domain.repository.MeasurementRepository
 import com.xcwk.scalehub.domain.repository.MemberProfileReader
 import com.xcwk.scalehub.domain.repository.MemberProfileWriter
@@ -40,7 +42,7 @@ class RecordViewModelTest {
         }
     }
 
-    private class FakeLogRepo : HealthLogRepository {
+    private class FakeLogRepo : HealthLogRepository, HealthLogQueryPort {
         val saved = mutableListOf<HealthLog>()
         override suspend fun save(log: HealthLog, memberId: String) {
             saved += log
@@ -49,7 +51,7 @@ class RecordViewModelTest {
         override suspend fun between(fromInc: Long, toExc: Long): List<HealthLog> = emptyList()
     }
 
-    private class FakeMeasureRepo : MeasurementRepository {
+    private class FakeMeasureRepo : MeasurementRepository, MeasurementQueryPort {
         val saved = mutableListOf<MeasureRecord>()
         override suspend fun save(record: MeasureRecord, memberId: String) {
             saved += record

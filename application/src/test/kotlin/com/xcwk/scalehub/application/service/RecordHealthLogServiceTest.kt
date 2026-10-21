@@ -3,6 +3,7 @@ package com.xcwk.scalehub.application.service
 import com.google.common.truth.Truth.assertThat
 import com.xcwk.scalehub.application.command.RecordHealthLogCommand
 import com.xcwk.scalehub.domain.model.HealthLog
+import com.xcwk.scalehub.application.query.HealthLogQueryPort
 import com.xcwk.scalehub.domain.repository.HealthLogRepository
 import com.xcwk.scalehub.domain.types.DomainException
 import kotlinx.coroutines.runBlocking
@@ -19,7 +20,7 @@ import java.util.concurrent.CopyOnWriteArrayList
  */
 class RecordHealthLogServiceTest {
 
-    private class FakeRepo : HealthLogRepository {
+    private class FakeRepo : HealthLogRepository, HealthLogQueryPort {
         val saved = CopyOnWriteArrayList<HealthLog>()
         override suspend fun save(log: HealthLog, memberId: String) {
             saved.removeAll { it.time == log.time && it.type == log.type }

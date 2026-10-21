@@ -1,7 +1,6 @@
 package com.xcwk.scalehub.application.query
 
 import com.xcwk.scalehub.domain.model.HealthLog
-import com.xcwk.scalehub.domain.repository.HealthLogRepository
 import java.time.Instant
 import java.time.ZoneId
 import java.util.Locale
@@ -20,12 +19,12 @@ data class HealthLogItem(
 )
 
 class HealthLogQuery(
-    private val repository: HealthLogRepository,
+    private val port: HealthLogQueryPort,
     private val zone: ZoneId = ZoneId.systemDefault(),
 ) {
 
     suspend fun recent(limit: Int = 5): List<HealthLogItem> =
-        repository.recent(limit).map { it.toItem() }
+        port.recent(limit).map { it.toItem() }
 
     private fun HealthLog.toItem(): HealthLogItem = HealthLogItem(
         time = time,

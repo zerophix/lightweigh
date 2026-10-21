@@ -4,7 +4,9 @@ import com.google.common.truth.Truth.assertThat
 import com.xcwk.scalehub.domain.model.HealthLog
 import com.xcwk.scalehub.domain.model.MeasureRecord
 import com.xcwk.scalehub.domain.repository.GoalRepository
+import com.xcwk.scalehub.application.query.HealthLogQueryPort
 import com.xcwk.scalehub.domain.repository.HealthLogRepository
+import com.xcwk.scalehub.application.query.MeasurementQueryPort
 import com.xcwk.scalehub.domain.repository.MeasurementRepository
 import com.xcwk.scalehub.domain.repository.MemberProfileReader
 import kotlinx.coroutines.test.runTest
@@ -23,7 +25,7 @@ class HomeGoalQueryTest {
     private fun daysAgo(n: Int, h: Int = 8): Long =
         LocalDate.now(zone).minusDays(n.toLong()).atTime(h, 0).atZone(zone).toInstant().toEpochMilli()
 
-    private class FakeMeasureRepo(rows: List<MeasureRecord>) : MeasurementRepository {
+    private class FakeMeasureRepo(rows: List<MeasureRecord>) : MeasurementRepository, MeasurementQueryPort {
         val data = rows.toMutableList()
         override suspend fun save(record: MeasureRecord, memberId: String) { data += record }
         override suspend fun recent(limit: Int) = data.sortedByDescending { it.time }.take(limit)
@@ -32,7 +34,7 @@ class HomeGoalQueryTest {
         override suspend fun delete(time: Long) { data.removeAll { it.time == time } }
     }
 
-    private class FakeLogRepo(rows: List<HealthLog>) : HealthLogRepository {
+    private class FakeLogRepo(rows: List<HealthLog>) : HealthLogRepository, HealthLogQueryPort {
         val data = rows.toMutableList()
         override suspend fun save(log: HealthLog, memberId: String) { data += log }
         override suspend fun recent(limit: Int) = data.sortedByDescending { it.time }.take(limit)

@@ -1,8 +1,8 @@
 package com.xcwk.scalehub.application.query
 
+import com.xcwk.scalehub.application.query.MeasurementQueryPort
+import com.xcwk.scalehub.application.query.HealthLogQueryPort
 import com.xcwk.scalehub.domain.repository.GoalRepository
-import com.xcwk.scalehub.domain.repository.HealthLogRepository
-import com.xcwk.scalehub.domain.repository.MeasurementRepository
 import com.xcwk.scalehub.domain.repository.MemberProfileReader
 import java.time.ZoneId
 import java.util.Locale
@@ -42,8 +42,8 @@ data class HomeGoalState(
  * 近7天变化 = 区间内首末体重差（旧库 weekChange 口径）。
  */
 class HomeGoalQuery(
-    private val measurements: MeasurementRepository,
-    private val healthLogs: HealthLogRepository,
+    private val measurements: MeasurementQueryPort,
+    private val healthLogs: HealthLogQueryPort,
     private val goals: GoalRepository,
     private val profile: MemberProfileReader,
     private val zone: ZoneId = ZoneId.systemDefault(),
