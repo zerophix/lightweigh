@@ -199,5 +199,9 @@ commands:
   path: application/src/test/kotlin/com/xcwk/scalehub/application/sync/FullChainSyncTest.kt
   status: stable
   type: gradle-test
+- description: BlePort 契约测试（FakeBle 语义验收，T-001 跨端口一致性）
+  path: application/src/test/kotlin/com/xcwk/scalehub/application/ble/BlePortContractTest.kt
+  status: stable
+  type: gradle-test
 configs: []
 orphans: []
