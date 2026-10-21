@@ -14,3 +14,4 @@ __pycache__/
 # Session/multi-AI files
 .ai/task-lock.json
 .cache/
+.ai/task-lock.json

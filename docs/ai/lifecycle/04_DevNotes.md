@@ -450,3 +450,4 @@
 | v3 | 2026-10-14 | DEC-003 协议文件统一更名 AGENTS.md |
 | v2 | 2026-10-13 | DEC-002 模版自一致性修复 |
 | v1 | 2026-07-10 | 初始开发笔记 |
+| v76 | 2026-10-21 | DEC-043-D 习惯管理页落地：HabitViewModel/HabitUiState/HabitRoute + HabitQuery/HabitRepository/RoomHabitRepository 读写分离 + HabitDao（Flow+HabitPo）+ AppDatabase v7 habits 表 + RecordHabitService + WorkManagerHabitReminderScheduler + 9 项 ViewModel 测试 + 迁移静态对拍补齐 |
