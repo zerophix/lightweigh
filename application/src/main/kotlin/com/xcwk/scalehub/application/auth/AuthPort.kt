@@ -44,4 +44,13 @@ interface AuthPort {
 
     /** 向当前登录手机号发注销验证码；null=已发送（旧库 Session.sendDeleteCode :233-246）。 */
     suspend fun sendDeleteCode(): String?
+
+    /** 密码登录（T-044/DEC-043-G）。 */
+    suspend fun signInWithPassword(phone: String, password: String): SignInResult
+
+    /** 邮箱登录。 */
+    suspend fun signInWithEmail(email: String, password: String): SignInResult
+
+    /** 微信登录（需要微信 SDK 授权后换取 token）。 */
+    suspend fun signInWithWeChat(): SignInResult
 }

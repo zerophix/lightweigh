@@ -1,6 +1,7 @@
 package com.xcwk.scalehub.domain.repository
 
 import com.xcwk.scalehub.domain.model.MemberProfile
+import com.xcwk.scalehub.domain.model.UserUnitPreferences
 
 /**
  * 成员档案写入端口（M4 我的切片）。
@@ -9,4 +10,7 @@ import com.xcwk.scalehub.domain.model.MemberProfile
  */
 interface MemberProfileWriter {
     suspend fun save(profile: MemberProfile)
+
+    /** 持久化单位偏好（仅本地，云同步走独立端口）。 */
+    suspend fun saveUnitPreferences(prefs: UserUnitPreferences)
 }

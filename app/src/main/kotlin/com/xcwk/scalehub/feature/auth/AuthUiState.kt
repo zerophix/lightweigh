@@ -9,6 +9,10 @@ data class AuthUiState(
     val agreed: Boolean = false,
     val phone: String = "",
     val code: String = "",
+    val password: String = "",
+    val email: String = "",
+    /** 登录方式：code=验证码 / password=密码（T-044/DEC-043-G）。 */
+    val loginMode: LoginMode = LoginMode.CODE,
     val verificationId: String = "",
     val isUser: Boolean = false,
     /** 发送后倒计时秒数（0=可再发）。 */
@@ -19,10 +23,15 @@ data class AuthUiState(
     val legalDoc: LegalDoc = LegalDoc.NONE,
 )
 
+enum class LoginMode { CODE, PASSWORD, EMAIL, WECHAT }
+
 sealed interface AuthIntent {
     data class AgreedChanged(val agreed: Boolean) : AuthIntent
     data class PhoneChanged(val value: String) : AuthIntent
     data class CodeChanged(val value: String) : AuthIntent
+    data class PasswordChanged(val value: String) : AuthIntent
+    data class EmailChanged(val value: String) : AuthIntent
+    data class LoginModeChanged(val mode: LoginMode) : AuthIntent
     data object SendCode : AuthIntent
     data object SignIn : AuthIntent
     data object EnterGuest : AuthIntent

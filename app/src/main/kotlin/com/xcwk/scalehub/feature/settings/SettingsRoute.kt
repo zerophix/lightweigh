@@ -12,8 +12,12 @@ const val SETTINGS_ROUTE_NAME = "settings"
 @Composable
 fun SettingsRoute(
     onBack: () -> Unit,
+    onOpenUnitSettings: () -> Unit = {},
+    onOpenPrivacySettings: () -> Unit = {},
+    onOpenSyncStatus: () -> Unit = {},
+    onOpenSetPassword: () -> Unit = {},
     vm: SettingsViewModel = viewModel(factory = SettingsViewModel.Factory),
 ) {
     val state by vm.state.collectAsState()
-    SettingsScreen(state = state, onIntent = vm::onIntent, onBack = onBack)
+    SettingsScreen(state = state, onIntent = vm::onIntent, onBack = onBack, onOpenUnitSettings = onOpenUnitSettings, onOpenPrivacySettings = onOpenPrivacySettings, onOpenSyncStatus = onOpenSyncStatus, onOpenSetPassword = onOpenSetPassword)
 }

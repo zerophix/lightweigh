@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+#
+# Git pre-commit hook — 精简版（只留必要治理）
+# 检查: 分支约束 + 会话归属 + 编译 + 测试
+# 跳过: git commit --no-verify
+
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+GIT_DIR=$(git rev-parse --git-dir 2>/dev/null || echo ".git")
+BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
+
+# =============================================================
+# 1. 分支约束: master 只允许 merge
+# =============================================================
+if [ "$BRANCH" = "master" ]; then
+  if [ ! -f "$GIT_DIR/MERGE_HEAD" ]; then
+    echo "❌ 禁止在 master 上直接提交（请用分支 + merge）"
+    exit 1
+  fi
+fi
+
+# =============================================================
+# 2. 会话归属: 防止跨会话误提交
+# =============================================================
+SESSION_FILE="$ROOT/.ai/current-session.json"
+CLAIM_FILE="$ROOT/.ai/staged-claims.json"
+
+if [ -f "$SESSION_FILE" ] && [ -f "$CLAIM_FILE" ]; then
+  CURRENT_SESSION=$(python3 -c "
+import json
+try:
+    with open('$SESSION_FILE') as f: print(json.load(f).get('session_id',''))
+except: print('')
+" 2>/dev/null)
+  if [ -n "$CURRENT_SESSION" ]; then
+    UNCLAIMED=$(git diff --cached --name-only --diff-filter=ACMR | while read -r f; do
+      [ -z "$f" ] && continue
+      CLAIMED=$(python3 -c "
+import json
+try:
+    with open('$CLAIM_FILE') as f:
+        d = json.load(f)
+    print(d.get('$f',''))
+except: print('')
+" 2>/dev/null)
+      if [ "$CLAIMED" != "$CURRENT_SESSION" ]; then
+        echo "$f"
+      fi
+    done)
+    if [ -n "$UNCLAIMED" ]; then
+      echo "❌ 以下文件未声明归属给当前会话:"
+      echo "$UNCLAIMED" | head -5
+      echo "   声明: bash scripts/session/ses-claim-staged.sh"
+      exit 1
+    fi
+  fi
+fi
+
+# =============================================================
+# 3. 编译检查（只在有源码变更时）
+# =============================================================
+SRC_CHANGED=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.(kt|java)$' | head -1)
+if [ -n "$SRC_CHANGED" ]; then
+  echo "  检测到源码变更，运行编译检查..."
+  if ! ./gradlew :domain:compileKotlin :application:compileKotlin :infrastructure:compileDebugKotlin :app:compileDebugKotlin -q 2>/dev/null; then
+    echo "❌ 编译失败，请修复后再提交"
+    exit 1
+  fi
+  echo "  ✓ 编译通过"
+fi
+
+echo "✓ pre-commit 检查通过"
+exit 0

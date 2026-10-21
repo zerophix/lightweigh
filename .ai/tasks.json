@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "updated_at": "2026-10-21T07:54:36Z",
-  "next_action": "T-028~T-041: DEC-043 对齐参考项目 13 项缺失功能（P0: 报告分析tab/AI结构化卡片/单位设置；P1: 习惯管理/趋势扩展/新手引导/密码登录；P2-P3: 其余）。按组实现+独立提交。",
-  "next_action_why": "",
+  "updated_at": "2026-10-21T10:59:21Z",
+  "next_action": "开始 T-043 (P0-2 习惯管理页)：HabitRepository/HabitViewModel/HabitScreen + Room表 + 定时提醒",
+  "next_action_why": "P0-2 是核心缺失功能，用户首页仅有记录入口无管理页",
   "next_action_confirmed": true,
   "known_risks": [
     "G1 阻断: 工具链WIP(3文件)仍未提交, 测试均为 HEAD+WIP 口径",
@@ -14,259 +14,6 @@
   ],
   "tasks": [
     {
-      "id": "T-001",
-      "description": "跨端口一致性语义契约化",
-      "why": "--why",
-      "status": "completed",
-      "assigned_to": "",
-      "dec": "",
-      "created_at": "2026-10-16T02:32:09Z",
-      "updated_at": "2026-10-21T04:17:47Z",
-      "notes": ""
-    },
-    {
-      "id": "T-002",
-      "description": "黄金向量覆盖扩展",
-      "why": "--why",
-      "status": "completed",
-      "assigned_to": "",
-      "dec": "",
-      "created_at": "2026-10-16T02:32:09Z",
-      "updated_at": "2026-10-21T04:24:38Z",
-      "notes": ""
-    },
-    {
-      "id": "T-003",
-      "description": "多agent提交归因机制",
-      "why": "--why",
-      "status": "completed",
-      "assigned_to": "",
-      "dec": "",
-      "created_at": "2026-10-16T02:32:09Z",
-      "updated_at": "2026-10-21T04:45:04Z",
-      "notes": ""
-    },
-    {
-      "id": "T-004",
-      "description": "G1 放行阻断: 工具链迁移提交后纯净 HEAD 全绿构建+溯源日志",
-      "why": "",
-      "status": "completed",
-      "assigned_to": "",
-      "dec": "",
-      "created_at": "2026-10-16T03:39:02Z",
-      "updated_at": "2026-10-16T06:00:57Z",
-      "notes": ""
-    },
-    {
-      "id": "T-005",
-      "description": "G3 放行阻断: Room v1->v2 迁移 androidTest(建库/迁移/校验历史行)",
-      "why": "",
-      "status": "completed",
-      "assigned_to": "",
-      "dec": "",
-      "created_at": "2026-10-16T03:39:02Z",
-      "updated_at": "2026-10-16T06:11:23Z",
-      "notes": ""
-    },
-    {
-      "id": "T-006",
-      "description": "M4 首个垂直切片: UI四件套范式落地+ArchUnit UI守卫上锁(DEC-021 task A)",
-      "why": "",
-      "status": "completed",
-      "assigned_to": "",
-      "dec": "",
-      "created_at": "2026-10-16T04:09:47Z",
-      "updated_at": "2026-10-16T05:30:29Z",
-      "notes": ""
-    },
-    {
-      "id": "T-007",
-      "description": "G5 真机数值对拍（复裁保留项1: 单独裁定算法验收）",
-      "why": "",
-      "status": "pending",
-      "assigned_to": "",
-      "dec": "",
-      "created_at": "2026-10-16T06:18:22Z",
-      "updated_at": "2026-10-16T06:18:22Z",
-      "notes": ""
-    },
-    {
-      "id": "T-008",
-      "description": "开 master 分支保护（需人类定夺：仓库转公开可同时解决分钟数计量，或升 GitHub Pro）",
-      "why": "--why",
-      "status": "pending",
-      "assigned_to": "",
-      "dec": "",
-      "created_at": "2026-10-17T13:14:28Z",
-      "updated_at": "2026-10-17T13:14:28Z",
-      "notes": ""
-    },
-    {
-      "id": "T-009",
-      "description": "消除每轮约 100 秒的 Gradle 发行包重下：distributionBase=PROJECT 让 gradle/dists 落在仓库内且被 gitignore，CI 全新检出必然重下 gradle-9.4.1-all.zip",
-      "why": "--why",
-      "status": "completed",
-      "assigned_to": "",
-      "dec": "",
-      "created_at": "2026-10-17T13:51:02Z",
-      "updated_at": "2026-10-21T04:09:44Z",
-      "notes": ""
-    },
-    {
-      "id": "T-010",
-      "description": "F-001: SyncService 补水位线/对账/幂等 (SyncStatePo + push原子更新 + pull增量 + ≥4新测试)",
-      "why": "--priority",
-      "status": "completed",
-      "assigned_to": "",
-      "dec": "",
-      "created_at": "2026-10-21T02:26:57Z",
-      "updated_at": "2026-10-21T02:43:25Z",
-      "notes": ""
-    },
-    {
-      "id": "T-011",
-      "description": "F-002: 多成员同步隔离测试 (用户切换后旧数据不被上传/云端按cloud_member_id正确归属) ≥3测试",
-      "why": "--priority",
-      "status": "completed",
-      "assigned_to": "",
-      "dec": "",
-      "created_at": "2026-10-21T02:26:57Z",
-      "updated_at": "2026-10-21T02:45:34Z",
-      "notes": ""
-    },
-    {
-      "id": "T-012",
-      "description": "F-003: 全链路端到端测试 (本地写→DataChange→SyncOnLocalWrites→SyncTrigger→SyncService→CloudBaseGateway→云端确认) ≥5场景 + androidTest冒烟",
-      "why": "--priority",
-      "status": "completed",
-      "assigned_to": "",
-      "dec": "",
-      "created_at": "2026-10-21T02:26:57Z",
-      "updated_at": "2026-10-21T02:57:04Z",
-      "notes": ""
-    },
-    {
-      "id": "T-013",
-      "description": "F-004: 开启 master 分支保护 (人类决策: 仓库公开/升Pro) + 三职位required",
-      "why": "--priority",
-      "status": "pending",
-      "assigned_to": "",
-      "dec": "",
-      "created_at": "2026-10-21T02:26:57Z",
-      "updated_at": "2026-10-21T02:26:57Z",
-      "notes": ""
-    },
-    {
-      "id": "T-014",
-      "description": "F-005: AppContainer 暴露端口类型 (profileStore→MemberProfileReader/Writer, deviceRepository→DeviceRepository, bleLink→BlePort) + ArchUnit负例",
-      "why": "--priority",
-      "status": "completed",
-      "assigned_to": "",
-      "dec": "",
-      "created_at": "2026-10-21T02:26:57Z",
-      "updated_at": "2026-10-21T03:11:29Z",
-      "notes": ""
-    },
-    {
-      "id": "T-015",
-      "description": "F-006: 文档事实对齐 (重写02_Architecture/03_TaskGraph→promote→刷STATUS→同步README) gov-validate 0 FAIL",
-      "why": "--priority",
-      "status": "completed",
-      "assigned_to": "",
-      "dec": "",
-      "created_at": "2026-10-21T02:26:57Z",
-      "updated_at": "2026-10-21T03:16:19Z",
-      "notes": ""
-    },
-    {
-      "id": "T-016",
-      "description": "F-007: 仓储接口精简 (移除between/recent→application.query覆盖) domain.repository仅存取",
-      "why": "--priority",
-      "status": "completed",
-      "assigned_to": "",
-      "dec": "DEC-037",
-      "created_at": "2026-10-21T02:26:57Z",
-      "updated_at": "2026-10-21T05:54:04Z",
-      "notes": ""
-    },
-    {
-      "id": "T-017",
-      "description": "F-008: android-test 门禁启用 (手动全绿→记DEC→启用schedule)",
-      "why": "--priority",
-      "status": "completed",
-      "assigned_to": "",
-      "dec": "",
-      "created_at": "2026-10-21T02:26:57Z",
-      "updated_at": "2026-10-21T04:50:45Z",
-      "notes": ""
-    },
-    {
-      "id": "T-018",
-      "description": "F-009: 发布配置就绪 (BackendConfig按buildType + release开R8 + keep规则)",
-      "why": "--priority",
-      "status": "pending",
-      "assigned_to": "",
-      "dec": "",
-      "created_at": "2026-10-21T02:26:58Z",
-      "updated_at": "2026-10-21T02:26:58Z",
-      "notes": ""
-    },
-    {
-      "id": "T-019",
-      "description": "T-019: DEC-038 组A P0-1 电量读取失败误报断开 (BlePort.onReadFailure + MeasureSession 降级 + isConnected 兜底 + 回归测试)",
-      "why": "",
-      "status": "completed",
-      "assigned_to": "",
-      "dec": "",
-      "created_at": "2026-10-21T06:06:41Z",
-      "updated_at": "2026-10-21T06:13:51Z",
-      "notes": ""
-    },
-    {
-      "id": "T-020",
-      "description": "T-020: DEC-038 组B P0-2 重新连接死按钮 (SessionEvent.Downgrade 降级 Linking + 回归测试)",
-      "why": "",
-      "status": "completed",
-      "assigned_to": "",
-      "dec": "",
-      "created_at": "2026-10-21T06:06:41Z",
-      "updated_at": "2026-10-21T06:13:51Z",
-      "notes": ""
-    },
-    {
-      "id": "T-021",
-      "description": "T-021: DEC-038 组C P1-3 确认保存连点重复落库 (finishSave saved 守卫 + 回归测试)",
-      "why": "",
-      "status": "completed",
-      "assigned_to": "",
-      "dec": "",
-      "created_at": "2026-10-21T06:06:41Z",
-      "updated_at": "2026-10-21T06:13:51Z",
-      "notes": ""
-    },
-    {
-      "id": "T-022",
-      "description": "T-022: DEC-038 组D P1-4 lastWeightRaw 竞态 (start 先 await 再开扫 + 首包用户信息回归测试)",
-      "why": "",
-      "status": "completed",
-      "assigned_to": "",
-      "dec": "",
-      "created_at": "2026-10-21T06:21:49Z",
-      "updated_at": "2026-10-21T06:21:49Z",
-      "notes": ""
-    },
-    {
-      "id": "T-023",
-      "description": "T-023: DEC-038 组D P1-5 广播电阻 0.1Ω 精度还原 (BroadcastOnly /10 + 测试更新 + G5 真机复核点)",
-      "why": "",
-      "status": "completed",
-      "assigned_to": "",
-      "dec": "",
-      "created_at": "2026-10-21T06:21:49Z",
-      "updated_at": "2026-10-21T06:21:49Z",
-      "notes": ""
-    },
-    {
       "id": "T-024",
       "title": "蓝牙调试悬浮球与 2 万行日志面板",
       "status": "completed",
@@ -277,28 +24,6 @@
       "title": "全链路调试日志（sync/cloud/ai/auth 接入 DebugLog）",
       "status": "completed",
       "detail": "DEC-040: BleDebugLog 泛化为 application.debug.DebugLog，四链路插桩约 30 处，敏感信息过滤（auth 只记 path）"
-    },
-    {
-      "id": "T-026",
-      "description": "T-024: DEC-038 真机追因: 扫描门两静默守卫补证据日志 + 协议标记穷举(0/23)",
-      "why": "",
-      "status": "completed",
-      "assigned_to": "",
-      "dec": "",
-      "created_at": "2026-10-21T07:33:33Z",
-      "updated_at": "2026-10-21T07:38:13Z",
-      "notes": ""
-    },
-    {
-      "id": "T-027",
-      "description": "T-027: DEC-038 悬浮日志流程补全 (防洪抽样+5s汇总+停扫总账+start守卫+8s扫描看门狗)",
-      "why": "",
-      "status": "completed",
-      "assigned_to": "",
-      "dec": "",
-      "created_at": "2026-10-21T07:54:36Z",
-      "updated_at": "2026-10-21T07:54:36Z",
-      "notes": ""
     },
     {
       "id": "T-026",
@@ -315,86 +40,273 @@
     {
       "id": "T-028",
       "title": "报告分析 tab",
-      "status": "pending",
+      "status": "done",
       "detail": "DEC-043-A: 成分/体型矩阵/目标达成/折线/插画"
     },
     {
       "id": "T-029",
       "title": "AI 结构化卡片",
-      "status": "pending",
+      "status": "done",
       "detail": "DEC-043-B: 饮食卡入库/运动卡/指标解读卡/拍照入口/欢迎示例"
     },
     {
       "id": "T-030",
       "title": "单位设置",
-      "status": "pending",
+      "status": "done",
       "detail": "DEC-043-C: kg/斤/磅、cm/in 全局换算层"
     },
     {
       "id": "T-031",
       "title": "习惯管理页",
-      "status": "pending",
+      "status": "done",
       "detail": "DEC-043-D: 定义/周期/次数/提醒/打卡列表"
     },
     {
       "id": "T-032",
       "title": "趋势扩展指标",
-      "status": "pending",
+      "status": "done",
       "detail": "DEC-043-E: 骨骼肌/水分/基础代谢/肌肉/蛋白质 + 聚合模式 + 自定义范围"
     },
     {
       "id": "T-033",
       "title": "新手引导三步",
-      "status": "pending",
+      "status": "done",
       "detail": "DEC-043-F: 资料→单位→绑秤"
     },
     {
       "id": "T-034",
       "title": "密码登录+设置密码",
-      "status": "pending",
+      "status": "done",
       "detail": "DEC-043-G: 账号安全双通道"
     },
     {
       "id": "T-035",
       "title": "历史双记录对比",
-      "status": "pending",
+      "status": "done",
       "detail": "DEC-043-H: 两条记录对比"
     },
     {
       "id": "T-036",
       "title": "设置扩展",
-      "status": "pending",
+      "status": "done",
       "detail": "DEC-043-I: 语音播报/隐私设置页/同步状态详情页"
     },
     {
       "id": "T-037",
       "title": "首页体验",
-      "status": "pending",
+      "status": "done",
       "detail": "DEC-043-J: 成员快捷切换弹层+离线横幅+卡片管理"
     },
     {
       "id": "T-038",
       "title": "测量页扩展",
-      "status": "pending",
+      "status": "done",
       "detail": "DEC-043-K: 测量中切换用户/帮助弹窗/跳过提示/小贴士"
     },
     {
       "id": "T-039",
       "title": "设备页扩展",
-      "status": "pending",
+      "status": "done",
       "detail": "DEC-043-L: 测量小贴士卡/最近测量时间/开始称重快捷按钮"
     },
     {
       "id": "T-040",
       "title": "我的资料扩展",
-      "status": "pending",
+      "status": "done",
       "detail": "DEC-043-M: 个人简介/所在地/展示标签"
     },
     {
       "id": "T-041",
       "title": "我的档案页扩展",
-      "status": "pending",
+      "status": "done",
       "detail": "DEC-043-N: 围度/内脏脂肪/目标进度条"
+    },
+    {
+      "id": "T-042",
+      "description": "P0-1: 单位设置（kg/斤/磅+cm/in 全局换算层+设置页入口+全站渲染替换）",
+      "why": "",
+      "status": "completed",
+      "assigned_to": "ai",
+      "dec": "",
+      "created_at": "2026-10-21T10:27:54Z",
+      "updated_at": "2026-10-21T10:51:47Z",
+      "notes": ""
+    },
+    {
+      "id": "T-043",
+      "description": "P0-2: 习惯管理页（HabitViewModel+HabitPort+Room表+定时提醒+编辑器）",
+      "why": "",
+      "status": "in_progress",
+      "assigned_to": "ai",
+      "dec": "",
+      "created_at": "2026-10-21T10:27:54Z",
+      "updated_at": "2026-10-21T10:56:17Z",
+      "notes": "领取：习惯管理页完整化（HabitViewModel+HabitPort+Room表+WorkManager定时提醒+编辑器）"
+    },
+    {
+      "id": "T-044",
+      "description": "P0-3: 密码登录+设置密码（AuthPort扩展+AuthViewModel分支+设置页入口）",
+      "why": "",
+      "status": "in_progress",
+      "assigned_to": "ai-session-b",
+      "dec": "",
+      "created_at": "2026-10-21T10:27:54Z",
+      "updated_at": "2026-10-21T10:27:54Z",
+      "notes": ""
+    },
+    {
+      "id": "T-045",
+      "description": "P0-5: 新手引导3步补全（资料表单/单位选择器/真实绑定流）",
+      "why": "",
+      "status": "pending",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-21T10:27:54Z",
+      "updated_at": "2026-10-21T10:27:54Z",
+      "notes": ""
+    },
+    {
+      "id": "T-046",
+      "description": "P0-4: 报告报告分析Tab（成分分析/体型3x3/目标达成/折线/体型插画）",
+      "why": "",
+      "status": "pending",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-21T10:28:18Z",
+      "updated_at": "2026-10-21T10:28:18Z",
+      "notes": ""
+    },
+    {
+      "id": "T-047",
+      "description": "P1-6: AI 结构化卡片（饮食卡解析入库/运动卡/指标解读卡/拍照入口/欢迎示例）",
+      "why": "",
+      "status": "pending",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-21T10:29:08Z",
+      "updated_at": "2026-10-21T10:29:08Z",
+      "notes": ""
+    },
+    {
+      "id": "T-048",
+      "description": "P1-7: 趋势扩展（自定义日期范围/聚合模式/5扩展指标：骨骼肌/水分/基础代谢/肌肉/蛋白质）",
+      "why": "",
+      "status": "pending",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-21T10:29:08Z",
+      "updated_at": "2026-10-21T10:29:08Z",
+      "notes": ""
+    },
+    {
+      "id": "T-049",
+      "description": "P1-8: 历史双记录对比（pick 2 条 compare）",
+      "why": "",
+      "status": "pending",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-21T10:29:08Z",
+      "updated_at": "2026-10-21T10:29:08Z",
+      "notes": ""
+    },
+    {
+      "id": "T-050",
+      "description": "P1-9: 设置扩展（语音播报/隐私设置页/同步状态详情页）",
+      "why": "",
+      "status": "pending",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-21T10:29:09Z",
+      "updated_at": "2026-10-21T10:29:09Z",
+      "notes": ""
+    },
+    {
+      "id": "T-051",
+      "description": "P1-10: 首页扩展（成员快捷切换弹层/离线横幅/卡片管理排序隐藏）",
+      "why": "",
+      "status": "pending",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-21T10:29:16Z",
+      "updated_at": "2026-10-21T10:29:16Z",
+      "notes": ""
+    },
+    {
+      "id": "T-052",
+      "description": "P1-11: 测量页扩展（测量中切换用户/测量帮助弹窗/跳过仅体重提示/轮播小贴士）",
+      "why": "",
+      "status": "pending",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-21T10:29:16Z",
+      "updated_at": "2026-10-21T10:29:16Z",
+      "notes": ""
+    },
+    {
+      "id": "T-053",
+      "description": "P1-12: 设备页扩展（测量小贴士卡/最近测量时间/开始称重快捷按钮）",
+      "why": "",
+      "status": "pending",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-21T10:29:16Z",
+      "updated_at": "2026-10-21T10:29:16Z",
+      "notes": ""
+    },
+    {
+      "id": "T-054",
+      "description": "P1-13: 我的资料扩展（个人简介/所在地/展示标签）",
+      "why": "",
+      "status": "pending",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-21T10:29:16Z",
+      "updated_at": "2026-10-21T10:29:16Z",
+      "notes": ""
+    },
+    {
+      "id": "T-055",
+      "description": "P1-14: 我的档案页扩展（围度/内脏脂肪/目标进度条）",
+      "why": "",
+      "status": "pending",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-21T10:29:23Z",
+      "updated_at": "2026-10-21T10:29:23Z",
+      "notes": ""
+    },
+    {
+      "id": "T-056",
+      "description": "P1-15: AI 页结构化卡片（饮食卡解析入库/运动卡/指标解读卡/拍照入口/欢迎示例）",
+      "why": "",
+      "status": "pending",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-21T10:29:23Z",
+      "updated_at": "2026-10-21T10:29:23Z",
+      "notes": ""
+    },
+    {
+      "id": "T-057",
+      "description": "P1-15b: 同步状态详情页（恢复账号时展示同步进度/冲突解决）",
+      "why": "",
+      "status": "pending",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-21T10:29:23Z",
+      "updated_at": "2026-10-21T10:29:23Z",
+      "notes": ""
+    },
+    {
+      "id": "T-058",
+      "description": "P1-16: 扫码自定义竖屏取消布局（替代系统 CaptureActivity）",
+      "why": "",
+      "status": "pending",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-21T10:29:23Z",
+      "updated_at": "2026-10-21T10:29:23Z",
+      "notes": ""
     }
   ]
 }

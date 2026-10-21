@@ -22,6 +22,7 @@ fun MineRoute(
     onOpenMembers: () -> Unit = {},
     onOpenHistory: () -> Unit = {},
     onOpenDevice: () -> Unit = {},
+    onOpenHabit: () -> Unit = {},
     vm: MineViewModel = viewModel(factory = MineViewModel.Factory),
 ) {
     val state by vm.state.collectAsStateWithLifecycle()
@@ -34,5 +35,6 @@ fun MineRoute(
         onOpenMembers = onOpenMembers,
         onOpenHistory = onOpenHistory,
         onOpenDevice = onOpenDevice,
+        onOpenHabit = onOpenHabit,
     )
 }

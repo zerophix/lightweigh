@@ -41,6 +41,12 @@ import com.xcwk.scalehub.infrastructure.persistent.repository.RoomHealthLogQuery
 import com.xcwk.scalehub.infrastructure.persistent.repository.RoomHealthLogRepository
 import com.xcwk.scalehub.infrastructure.persistent.repository.RoomMeasurementQuery
 import com.xcwk.scalehub.infrastructure.persistent.repository.RoomMeasurementRepository
+import com.xcwk.scalehub.infrastructure.persistent.dao.HabitDao
+import com.xcwk.scalehub.infrastructure.persistent.repository.RoomHabitRepository
+import com.xcwk.scalehub.infrastructure.habit.WorkManagerHabitReminderScheduler
+import com.xcwk.scalehub.application.habit.HabitReminderScheduler
+import com.xcwk.scalehub.application.query.HabitQuery
+import com.xcwk.scalehub.application.service.RecordHabitService
 import com.xcwk.scalehub.infrastructure.profile.ProfileStore
 import com.xcwk.scalehub.infrastructure.persistent.repository.RoomDeviceRepository
 import com.xcwk.scalehub.infrastructure.session.SessionStore
@@ -51,6 +57,12 @@ import com.xcwk.scalehub.infrastructure.session.SessionStore
  */
 class App : Application() {
     val container: AppContainer by lazy { AppContainer(this) }
+
+    override fun onCreate() {
+        super.onCreate()
+        // T-018：BackendConfig.BASE 按 buildType 注入（release/debug 各自的 BuildConfig）
+        com.xcwk.scalehub.infrastructure.config.BackendConfig.BASE = BuildConfig.BACKEND_BASE
+    }
 }
 
 /** 手写轻量 DI 容器（规模化后可平移 Hilt，装配点不变）。 */
@@ -122,6 +134,26 @@ class AppContainer(context: Context) {
         RecordHealthLogService(healthLogRepository, dataRefreshBus, memberId = activeMemberId)
     }
     val profileQuery: ProfileQuery by lazy { ProfileQuery(profileStoreImpl) }
+
+    /** 习惯仓储与查询（P0-2 习惯管理页）。 */
+    private val habitDao: HabitDao by lazy { database.habitDao() }
+    private val habitRepository: RoomHabitRepository by lazy {
+        RoomHabitRepository(habitDao, activeMemberId)
+    }
+    val habitRepositoryPort: com.xcwk.scalehub.domain.repository.HabitRepository get() = habitRepository
+    val habitQuery: HabitQuery by lazy { HabitQuery(habitRepository) }
+
+    /** 习惯写入用例（新建/编辑/删除/打卡）。 */
+    val recordHabitService: RecordHabitService by lazy {
+        RecordHabitService(
+            habitRepository, dataRefreshBus, habitReminderScheduler, memberId = activeMemberId,
+        )
+    }
+
+    /** 习惯提醒调度（WorkManager）。 */
+    val habitReminderScheduler: HabitReminderScheduler by lazy {
+        WorkManagerHabitReminderScheduler(context)
+    }
 
     /** 首页目标进度查询（移植补齐 H1）。 */
     val homeGoalQuery: com.xcwk.scalehub.application.query.HomeGoalQuery by lazy {

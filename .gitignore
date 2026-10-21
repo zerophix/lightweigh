@@ -10,3 +10,7 @@ captures/
 .cxx/
 gradle/dists/
 __pycache__/
+
+# Session/multi-AI files
+.ai/task-lock.json
+.cache/

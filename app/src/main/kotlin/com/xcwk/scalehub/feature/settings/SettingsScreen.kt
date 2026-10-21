@@ -50,6 +50,10 @@ fun SettingsScreen(
     state: SettingsUiState,
     onIntent: (SettingsIntent) -> Unit,
     onBack: () -> Unit = {},
+    onOpenUnitSettings: () -> Unit = {},
+    onOpenPrivacySettings: () -> Unit = {},
+    onOpenSyncStatus: () -> Unit = {},
+    onOpenSetPassword: () -> Unit = {},
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
     // 关于/清单/缓存（旧库 SettingsPages about/collect/share/清缓存 四分支）
@@ -154,6 +158,40 @@ fun SettingsScreen(
 
         QkSectionHead(title = "其他", modifier = Modifier.padding(top = QkSpacing.Lg))
         QkCard(modifier = Modifier.padding(top = 2.dp)) {
+            QkListRow(
+                title = "单位设置",
+                subtitle = "重量 kg/斤/磅、长度 cm/in",
+                icon = QkIcons.More,
+                glyphSize = 32.dp,
+                onClick = onOpenUnitSettings,
+                trailing = { QkIcon(QkIcons.ChevronRight, size = 18.dp) },
+            )
+            QkListRow(
+                title = "隐私设置",
+                subtitle = "数据收集与共享说明",
+                icon = QkIcons.Privacy,
+                glyphSize = 32.dp,
+                onClick = onOpenPrivacySettings,
+                trailing = { QkIcon(QkIcons.ChevronRight, size = 18.dp) },
+            )
+            QkListRow(
+                title = "同步状态",
+                subtitle = "查看云同步状态",
+                icon = QkIcons.Restore,
+                glyphSize = 32.dp,
+                onClick = onOpenSyncStatus,
+                trailing = { QkIcon(QkIcons.ChevronRight, size = 18.dp) },
+            )
+            if (state.formal) {
+                QkListRow(
+                    title = "设置登录密码",
+                    subtitle = "为账号设置密码登录",
+                    icon = QkIcons.About,
+                    glyphSize = 32.dp,
+                    onClick = onOpenSetPassword,
+                    trailing = { QkIcon(QkIcons.ChevronRight, size = 18.dp) },
+                )
+            }
             QkListRow(
                 title = "清除缓存",
                 subtitle = "只清临时缓存，测量与档案保留",

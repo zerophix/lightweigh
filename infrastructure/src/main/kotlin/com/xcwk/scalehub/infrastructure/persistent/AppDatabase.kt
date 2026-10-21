@@ -8,24 +8,34 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.xcwk.scalehub.infrastructure.persistent.dao.DeviceDao
 import com.xcwk.scalehub.infrastructure.persistent.dao.HealthLogDao
+import com.xcwk.scalehub.infrastructure.persistent.dao.HabitDao
 import com.xcwk.scalehub.infrastructure.persistent.dao.MeasurementDao
 import com.xcwk.scalehub.infrastructure.persistent.dao.SyncStateDao
+import com.xcwk.scalehub.infrastructure.persistent.po.HabitPo
 import com.xcwk.scalehub.infrastructure.persistent.po.HealthLogPo
 import com.xcwk.scalehub.infrastructure.persistent.po.ScaleDevicePo
 import com.xcwk.scalehub.infrastructure.persistent.po.MeasurementPo
 import com.xcwk.scalehub.infrastructure.persistent.po.SyncStatePo
 
+
 /**
  * Room 数据库入口。schema 纪律：改实体必须 version+1 + 写 Migration + 导出 schema 快照入库。
  */
 @Database(
-    entities = [MeasurementPo::class, HealthLogPo::class, ScaleDevicePo::class, SyncStatePo::class],
-    version = 6,
+    entities = [
+        MeasurementPo::class,
+        HealthLogPo::class,
+        ScaleDevicePo::class,
+        SyncStatePo::class,
+        HabitPo::class,
+    ],
+    version = 7,
     exportSchema = true,
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun measurementDao(): MeasurementDao
     abstract fun healthLogDao(): HealthLogDao
+    abstract fun habitDao(): HabitDao
     abstract fun deviceDao(): DeviceDao
     abstract fun syncStateDao(): SyncStateDao
 
@@ -110,6 +120,23 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /** v6 → v7：建 habits 表（P0-2 习惯管理页）。 */
+        const val CREATE_HABITS_TABLE =
+            "CREATE TABLE IF NOT EXISTS `habits` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, " +
+                "`period` TEXT NOT NULL, `targetCount` INTEGER NOT NULL, " +
+                "`doneCount` INTEGER NOT NULL, `reminderEnabled` INTEGER NOT NULL, " +
+                "`reminderHour` INTEGER NOT NULL, `reminderMinute` INTEGER NOT NULL, " +
+                "`active` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL, " +
+                "`memberId` TEXT NOT NULL, " +
+                "PRIMARY KEY(`id`))"
+
+        val MIGRATION_6_7 = object : Migration(6, 7) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(CREATE_HABITS_TABLE)
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_habits_memberId` ON `habits` (`memberId`)")
+            }
+        }
+
         @Volatile
         private var instance: AppDatabase? = null
 
@@ -117,7 +144,9 @@ abstract class AppDatabase : RoomDatabase() {
             instance ?: synchronized(this) {
                 instance ?: Room.databaseBuilder(
                     context.applicationContext, AppDatabase::class.java, "scalehub.db",
-                ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
+                ).addMigrations(
+                    MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7,
+                )
                     // devices 沿旧库 SP 同步直读语义（表容量个位数）；其余仓储保持 suspend
                     .allowMainThreadQueries()
                     .build().also { instance = it }

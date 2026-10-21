@@ -65,11 +65,13 @@ class RecordViewModelTest {
     private class FakeProfile : MemberProfileReader, MemberProfileWriter {
         override fun male() = true
         override fun ageYears() = 30
+        override fun unitPreferences() = com.xcwk.scalehub.domain.model.UserUnitPreferences()
         override fun heightCm() = 175
         override fun birthYear() = 1996
         override fun birthMonth() = 5
         override fun birthDay() = 20
         override fun nickname() = ""
+        override suspend fun saveUnitPreferences(prefs: com.xcwk.scalehub.domain.model.UserUnitPreferences) {}
         override suspend fun save(profile: MemberProfile) = throw UnsupportedOperationException()
     }
 

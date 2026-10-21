@@ -41,7 +41,7 @@ class SessionStore(context: Context) : CloudSessionPort, AuthPort {
     override fun signOut() {
         DebugLog.add("auth", "signOut")
         prefs.edit()
-            .remove(KEY_ACCESS).remove(KEY_REFRESH).remove(KEY_EXPIRES).remove(KEY_PHONE)
+            .remove(KEY_ACCESS).remove(KEY_REFRESH).remove(KEY_EXPIRES).remove(KEY_PHONE).remove(KEY_EMAIL)
             .putBoolean(KEY_FORMAL, false)
             .apply()
     }
@@ -127,6 +127,68 @@ class SessionStore(context: Context) : CloudSessionPort, AuthPort {
         DebugLog.add("auth", "signin: ok (registered=$registered)")
         SignInResult(true, "登录成功")
     }
+
+    /** 密码登录（T-044/DEC-043-G）：TCB auth/v1/signin with password grant。 */
+    override suspend fun signInWithPassword(phone: String, password: String): SignInResult =
+        withContext(Dispatchers.IO) {
+            val normalized = international(phone)
+                ?: return@withContext SignInResult(false, "请输入正确的手机号")
+            if (password.length < 6) return@withContext SignInResult(false, "密码至少 6 位")
+            val result = request(
+                "POST", "${BackendConfig.BASE}/auth/v1/signin", null,
+                JSONObject()
+                    .put("phone_number", normalized)
+                    .put("password", password)
+                    .toString(),
+            ) ?: run {
+                DebugLog.add("auth", "passwordLogin: network FAILED")
+                return@withContext SignInResult(false, "当前网络不可用，请联网后再登录")
+            }
+            if (result.first !in 200..299) {
+                DebugLog.add("auth", "passwordLogin: rejected http=${result.first}")
+                return@withContext SignInResult(false, authMessage(result.second, "手机号或密码不正确"))
+            }
+            if (storeSession(result.second) == null) {
+                DebugLog.add("auth", "passwordLogin: storeSession FAILED")
+                return@withContext SignInResult(false, "登录失败，请稍后重试")
+            }
+            prefs.edit().putBoolean(KEY_FORMAL, true).putString(KEY_PHONE, phone).apply()
+            DebugLog.add("auth", "passwordLogin: ok")
+            SignInResult(true, "登录成功")
+        }
+
+    /** 邮箱登录：TCB auth/v1/signin with email grant。 */
+    override suspend fun signInWithEmail(email: String, password: String): SignInResult =
+        withContext(Dispatchers.IO) {
+            if (!email.contains("@") || !email.contains(".")) {
+                return@withContext SignInResult(false, "请输入正确的邮箱地址")
+            }
+            if (password.length < 6) return@withContext SignInResult(false, "密码至少 6 位")
+            val result = request(
+                "POST", "${BackendConfig.BASE}/auth/v1/signin", null,
+                JSONObject()
+                    .put("email", email)
+                    .put("password", password)
+                    .toString(),
+            ) ?: run {
+                DebugLog.add("auth", "emailLogin: network FAILED")
+                return@withContext SignInResult(false, "当前网络不可用，请联网后再登录")
+            }
+            if (result.first !in 200..299) {
+                DebugLog.add("auth", "emailLogin: rejected http=${result.first}")
+                return@withContext SignInResult(false, authMessage(result.second, "邮箱或密码不正确"))
+            }
+            if (storeSession(result.second) == null) {
+                DebugLog.add("auth", "emailLogin: storeSession FAILED")
+                return@withContext SignInResult(false, "登录失败，请稍后重试")
+            }
+            prefs.edit().putBoolean(KEY_FORMAL, true).putString(KEY_PHONE, "").putString(KEY_EMAIL, email).apply()
+            DebugLog.add("auth", "emailLogin: ok")
+            SignInResult(true, "登录成功")
+        }
+
+    /** 微信登录：需微信 SDK 授权码，后端换取 token。当前后端未接入，返回提示。 */
+    override suspend fun signInWithWeChat(): SignInResult = SignInResult(false, "微信登录即将上线")
 
     override suspend fun sendDeleteCode(): String? = withContext(Dispatchers.IO) {
         val token = accessToken() ?: return@withContext "登录已失效，请重新登录"
@@ -214,6 +276,7 @@ class SessionStore(context: Context) : CloudSessionPort, AuthPort {
         private const val KEY_REFRESH = "refresh"
         private const val KEY_EXPIRES = "expires"
         private const val KEY_PHONE = "phone"
+        private const val KEY_EMAIL = "email"
         private const val KEY_FORMAL = "formalAccount"
         private const val KEY_ENTERED = "entered"
 

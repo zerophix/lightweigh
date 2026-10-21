@@ -68,6 +68,9 @@ class SyncServiceTest {
     private class FakeAuth(var error: String? = null) : com.xcwk.scalehub.application.auth.AuthPort {
         override suspend fun deleteCurrentUser(verifyCode: String): String? = error
         override suspend fun sendSmsCode(rawDigits: String) = throw UnsupportedOperationException()
+        override suspend fun signInWithPassword(phone: String, password: String) = throw UnsupportedOperationException()
+        override suspend fun signInWithEmail(email: String, password: String) = throw UnsupportedOperationException()
+        override suspend fun signInWithWeChat() = throw UnsupportedOperationException()
         override suspend fun signInWithCode(
             rawDigits: String, verificationId: String, registered: Boolean, code: String,
         ) = throw UnsupportedOperationException()
@@ -107,12 +110,14 @@ class SyncServiceTest {
         var written: MemberProfile? = null
         override fun male() = male
         override fun ageYears() = 30
+        override fun unitPreferences() = com.xcwk.scalehub.domain.model.UserUnitPreferences()
         override fun heightCm() = height
         override fun birthYear() = year
         override fun birthMonth() = month
         override fun birthDay() = day
         override fun nickname() = nick
         override suspend fun save(profile: MemberProfile) { written = profile }
+        override suspend fun saveUnitPreferences(prefs: com.xcwk.scalehub.domain.model.UserUnitPreferences) {}
     }
 
     private fun service(

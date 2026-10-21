@@ -25,6 +25,7 @@ class UpdateProfileServiceTest {
         override suspend fun save(profile: MemberProfile) {
             saved = profile
         }
+        override suspend fun saveUnitPreferences(prefs: com.xcwk.scalehub.domain.model.UserUnitPreferences) {}
     }
 
     private class FakeReader(
@@ -37,6 +38,7 @@ class UpdateProfileServiceTest {
         override fun birthYear(): Int = year
         override fun birthMonth(): Int = if (year > 0) 5 else 0
         override fun birthDay(): Int = if (year > 0) 20 else 0
+        override fun unitPreferences(): com.xcwk.scalehub.domain.model.UserUnitPreferences = com.xcwk.scalehub.domain.model.UserUnitPreferences()
         override fun nickname(): String = ""
     }
 

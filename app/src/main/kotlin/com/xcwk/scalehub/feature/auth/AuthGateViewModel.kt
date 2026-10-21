@@ -36,6 +36,9 @@ class AuthGateViewModel(
             is AuthIntent.AgreedChanged -> _state.update { it.copy(agreed = intent.agreed, message = null) }
             is AuthIntent.PhoneChanged -> _state.update { it.copy(phone = intent.value, message = null) }
             is AuthIntent.CodeChanged -> _state.update { it.copy(code = intent.value, message = null) }
+            is AuthIntent.PasswordChanged -> _state.update { it.copy(password = intent.value, message = null) }
+            is AuthIntent.EmailChanged -> _state.update { it.copy(email = intent.value, message = null) }
+            is AuthIntent.LoginModeChanged -> _state.update { it.copy(loginMode = intent.mode, message = null) }
             is AuthIntent.OpenLegal -> _state.update { it.copy(legalDoc = intent.doc) }
             AuthIntent.CloseLegal -> _state.update { it.copy(legalDoc = LegalDoc.NONE) }
             AuthIntent.SendCode -> sendCode()
@@ -82,10 +85,60 @@ class AuthGateViewModel(
 
     private fun signIn() {
         if (!requireAgreed()) return
+        val s = _state.value
+        when (s.loginMode) {
+            LoginMode.PASSWORD -> { signInWithPassword(); return }
+            LoginMode.EMAIL -> { signInWithEmail(); return }
+            LoginMode.WECHAT -> { signInWithWeChat(); return }
+            LoginMode.CODE -> {} // fall through to SMS code
+        }
+        viewModelScope.launch {
+            _state.update { it.copy(signingIn = true, message = null) }
+            val result = authService.signIn(s.phone, s.verificationId, s.isUser, s.code)
+            _state.update {
+                it.copy(
+                    signingIn = false,
+                    message = if (result.ok) null else result.message,
+                    entered = result.ok || it.entered,
+                )
+            }
+        }
+    }
+
+    private fun signInWithPassword() {
         viewModelScope.launch {
             _state.update { it.copy(signingIn = true, message = null) }
             val s = _state.value
-            val result = authService.signIn(s.phone, s.verificationId, s.isUser, s.code)
+            val result = authService.signInWithPassword(s.phone, s.password)
+            _state.update {
+                it.copy(
+                    signingIn = false,
+                    message = if (result.ok) null else result.message,
+                    entered = result.ok || it.entered,
+                )
+            }
+        }
+    }
+
+    private fun signInWithEmail() {
+        viewModelScope.launch {
+            _state.update { it.copy(signingIn = true, message = null) }
+            val s = _state.value
+            val result = authService.signInWithEmail(s.email, s.password)
+            _state.update {
+                it.copy(
+                    signingIn = false,
+                    message = if (result.ok) null else result.message,
+                    entered = result.ok || it.entered,
+                )
+            }
+        }
+    }
+
+    private fun signInWithWeChat() {
+        viewModelScope.launch {
+            _state.update { it.copy(signingIn = true, message = null) }
+            val result = authService.signInWithWeChat()
             _state.update {
                 it.copy(
                     signingIn = false,

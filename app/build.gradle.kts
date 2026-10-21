@@ -17,7 +17,18 @@ android {
         versionName = "0.1.0"
     }
     buildTypes {
-        release { isMinifyEnabled = false }
+        release {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
+            buildConfigField("String", "BACKEND_BASE", "\"https://bodyfat-d0gj8wdw1bfe9b421.api.tcloudbasegateway.com\"")
+        }
+        debug {
+            buildConfigField("String", "BACKEND_BASE", "\"https://bodyfat-d0gj8wdw1bfe9b421.api.tcloudbasegateway.com\"")
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
