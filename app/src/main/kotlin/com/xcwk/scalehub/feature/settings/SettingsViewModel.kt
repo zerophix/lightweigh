@@ -104,7 +104,7 @@ class SettingsViewModel(
                     app.container.authService,
                     app.container.restoreAccountService,
                     app.container.deleteAccountService,
-                    app.container.sessionStore,
+                    app.container.authPort,
                 )
             }
         }

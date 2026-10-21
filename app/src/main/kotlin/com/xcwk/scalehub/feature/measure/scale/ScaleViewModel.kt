@@ -59,10 +59,10 @@ class ScaleViewModel(
             initializer {
                 val app = this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as App
                 ScaleViewModel(
-                    ble = app.container.bleLink,
+                    ble = app.container.blePort,
                     devices = app.container.deviceRepository,
                     recordService = app.container.recordMeasurementService,
-                    profile = app.container.profileStore,
+                    profile = app.container.profileReader,
                     lastWeightTenths = {
                         // 经查询服务读，不直捅仓储（与其他读路径同口径，DEC-034 组 E）
                         app.container.measurementQuery.recent(1).firstOrNull()

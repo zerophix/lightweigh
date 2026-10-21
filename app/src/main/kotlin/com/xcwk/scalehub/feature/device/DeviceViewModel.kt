@@ -151,7 +151,7 @@ class DeviceViewModel(
         val Factory = viewModelFactory {
             initializer {
                 val app = this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as App
-                DeviceViewModel(app.container.bleLink, app.container.deviceRepository)
+                DeviceViewModel(app.container.blePort, app.container.deviceRepository)
             }
         }
     }
