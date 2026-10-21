@@ -14,6 +14,7 @@ HOOKS=(
   "pre-commit:auto-flow + docs 校验"
   "commit-msg:Conventional Commits 格式"
   "pre-push:分支命名规范"
+  "prepare-commit-msg:自动注入 Session-Id"
 )
 
 if [ ! -d "$HOOK_DIR" ]; then

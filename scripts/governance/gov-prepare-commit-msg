@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# scripts/governance/gov-prepare-commit-msg
+# Git prepare-commit-msg hook — 自动注入 Session-Id 到提交信息 footer
+#
+# 安装: cp scripts/governance/gov-prepare-commit-msg .git/hooks/prepare-commit-msg && chmod +x
+
+COMMIT_MSG_FILE="$1"
+COMMIT_SOURCE="$2"
+SHA1="$3"
+
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+SESSION_FILE="$ROOT/.ai/current-session.json"
+
+# 读取当前会话 ID
+SESSION_ID=""
+if [ -f "$SESSION_FILE" ]; then
+  SESSION_ID=$(python3 -c "
+import json
+with open('$SESSION_FILE') as f:
+    d = json.load(f)
+print(d.get('session_id', ''))
+" 2>/dev/null)
+fi
+
+# 如果没有会话 ID 或是 merge/amend，不注入
+if [ -z "$SESSION_ID" ] || [ "$COMMIT_SOURCE" = "merge" ] || [ "$COMMIT_SOURCE" = "commit" ]; then
+  exit 0
+fi
+
+# 检查是否已有 Session-Id
+if grep -q "^Session-Id:" "$COMMIT_MSG_FILE"; then
+  exit 0
+fi
+
+# 注入 Session-Id 到 footer
+echo "" >> "$COMMIT_MSG_FILE"
+echo "Session-Id: $SESSION_ID" >> "$COMMIT_MSG_FILE"
+
+exit 0
