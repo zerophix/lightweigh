@@ -716,4 +716,101 @@ class MeasureSessionTest {
         assertThat(repo.saved).hasSize(1)
         assertThat(session.state.value.outcome?.weight).isEqualTo(sealedWeight)
     }
+
+    /**
+     * DEC-038 组A：可选特征（电量）读失败不得弹断开提示。
+     * 旧路径 read() 失败复用 onIndicateFailure → linkReady → 700ms 假「连接已断开」。
+     */
+    @Test
+    fun `读失败只提示notice不弹断开`() = runTest {
+        val ble = FakeBle()
+        val devices = FakeDevices(mutableListOf(ScaleDevice("秤", "AA:BB:CC:DD:EE:FF", "2026-10-16", true)))
+        val session = harness(backgroundScope, devices, ble)
+        session.start(); runCurrent()
+        ble.emitFound("AA:BB:CC:DD:EE:FF", byteArrayOf(0x01))
+        ble.emitConnectSuccess()
+        ble.indicateSuccess()
+        assertThat(session.state.value.link).isEqualTo("已连接")
+
+        ble.indicate?.onReadFailure("没有特征 00002a19")
+        advanceTimeBy(MeasureSession.DISCONNECT_PROMPT_DELAY_MS * 2 + 1)
+        runCurrent()
+
+        val s = session.state.value
+        assertThat(s.notice).isEqualTo("没有特征 00002a19")
+        assertThat(s.title).isNotEqualTo("连接已断开")
+        assertThat(s.showRetry).isFalse()
+        assertThat(s.link).isEqualTo("已连接")
+    }
+
+    /** DEC-038 组A兜底：链路存活时的订阅失败误报同样不弹断开（isConnected 守卫）。 */
+    @Test
+    fun `链路存活时订阅失败误报不弹断开`() = runTest {
+        val ble = FakeBle()
+        val devices = FakeDevices(mutableListOf(ScaleDevice("秤", "AA:BB:CC:DD:EE:FF", "2026-10-16", true)))
+        val session = harness(backgroundScope, devices, ble)
+        session.start(); runCurrent()
+        ble.emitFound("AA:BB:CC:DD:EE:FF", byteArrayOf(0x01))
+        ble.emitConnectSuccess()
+        ble.indicateSuccess()   // FakeBle 保持 connectedMac 非空 → isConnected()==true
+
+        ble.indicate?.onIndicateFailure("CCCD 写失败")
+        advanceTimeBy(MeasureSession.DISCONNECT_PROMPT_DELAY_MS * 2 + 1)
+        runCurrent()
+
+        assertThat(session.state.value.title).isNotEqualTo("连接已断开")
+        assertThat(session.state.value.showRetry).isFalse()
+    }
+
+    /**
+     * DEC-038 组B：断连提示弹出后「重新连接」必须真正重连。
+     * 旧路径 phase 停在 Linked，retryConnect 被 linkReady 守卫拦成死按钮。
+     */
+    @Test
+    fun `断连提示后重试真正发起重连`() = runTest {
+        val ble = FakeBle()
+        val devices = FakeDevices(mutableListOf(ScaleDevice("秤", "AA:BB:CC:DD:EE:FF", "2026-10-16", true)))
+        val session = harness(backgroundScope, devices, ble)
+        session.start(); runCurrent()
+        ble.emitFound("AA:BB:CC:DD:EE:FF", byteArrayOf(0x01))
+        ble.emitConnectSuccess()
+        ble.indicateSuccess()
+        assertThat(ble.connectCalls).isEqualTo(1)
+
+        ble.emitDisconnected()   // 已连接未上秤时断连
+        advanceTimeBy(MeasureSession.DISCONNECT_PROMPT_DELAY_MS + 1)
+        runCurrent()
+        assertThat(session.state.value.showRetry).isTrue()
+
+        session.retry()
+        runCurrent()
+        assertThat(ble.connectCalls).isEqualTo(2)   // 死按钮修复判据
+    }
+
+    /** DEC-038 组C：确认保存连点只落库一次（sealed.saved 守卫）。 */
+    @Test
+    fun `确认保存连点只落库一次`() = runTest {
+        val ble = FakeBle()
+        val repo = FakeRepo()
+        val profile = FakeProfile()
+        val devices = FakeDevices(mutableListOf(ScaleDevice("秤", "AA:BB:CC:DD:EE:FF", "2026-10-16", true)))
+        val session = MeasureSession(
+            ble, devices, RecordMeasurementService(repo, profile, null, memberId = { "1" }), profile,
+            { 600 }, backgroundScope, { false },
+        )
+        session.start(); runCurrent()
+        ble.emitFound("AA:BB:CC:DD:EE:FF", byteArrayOf(0x01))
+        ble.emitConnectSuccess()
+        ble.indicateSuccess()
+        ble.emit(result2A9C, c0Frame(6550, 0x01))   // 65.5 vs 60.0 → 待确认
+        runCurrent()
+        assertThat(session.state.value.outcome?.kind).isEqualTo(MeasureOutcomeKind.CONFIRM_WEIGHT)
+
+        session.confirmSave()
+        session.confirmSave()   // 连点第二次
+        runCurrent()
+
+        assertThat(repo.saved).hasSize(1)
+        assertThat(session.state.value.outcome?.kind).isEqualTo(MeasureOutcomeKind.SAVED)
+    }
 }

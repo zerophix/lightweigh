@@ -152,6 +152,9 @@ internal sealed interface SessionEvent {
     /** 清掉「吞一次断连」标记。 */
     data object ClearSuppress : SessionEvent
 
+    /** 断连提示弹出：链路已死但相位仍在 Linked，降级为 Linking 让重试可放行（DEC-038 组B）。 */
+    data object Downgrade : SessionEvent
+
     /** 会话结束。 */
     data object Close : SessionEvent
 }
@@ -246,6 +249,11 @@ internal fun SessionPhase.reduce(event: SessionEvent): SessionPhase = when (even
 
     SessionEvent.ClearSuppress -> when (this) {
         is SessionPhase.Linking -> copy(suppressNextDisconnect = false)
+        else -> this
+    }
+
+    SessionEvent.Downgrade -> when (this) {
+        is SessionPhase.Linked -> SessionPhase.Linking(picked = true)
         else -> this
     }
 
