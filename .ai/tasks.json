@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-10-20T14:07:36Z",
+  "updated_at": "2026-10-21T03:16:19Z",
   "next_action": "review 本分支 refactor/dec-034-architecture-fixes 后决定是否合入 master。",
   "next_action_why": "这批改动横跨蓝牙连接与五组架构修正、共 80 余文件，是工作区与 master 的全部分叉；按 AGENTS.md 接力铁律第 2 条，合入须人类确认，且 CI 的 build-and-guard 与 lifecycle-audit 需在 PR 上跑到全绿才能认账。",
   "next_action_confirmed": false,
@@ -110,6 +110,105 @@
       "dec": "",
       "created_at": "2026-10-17T13:51:02Z",
       "updated_at": "2026-10-17T13:51:02Z",
+      "notes": ""
+    },
+    {
+      "id": "T-010",
+      "description": "F-001: SyncService 补水位线/对账/幂等 (SyncStatePo + push原子更新 + pull增量 + ≥4新测试)",
+      "why": "--priority",
+      "status": "completed",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-21T02:26:57Z",
+      "updated_at": "2026-10-21T02:43:25Z",
+      "notes": ""
+    },
+    {
+      "id": "T-011",
+      "description": "F-002: 多成员同步隔离测试 (用户切换后旧数据不被上传/云端按cloud_member_id正确归属) ≥3测试",
+      "why": "--priority",
+      "status": "completed",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-21T02:26:57Z",
+      "updated_at": "2026-10-21T02:45:34Z",
+      "notes": ""
+    },
+    {
+      "id": "T-012",
+      "description": "F-003: 全链路端到端测试 (本地写→DataChange→SyncOnLocalWrites→SyncTrigger→SyncService→CloudBaseGateway→云端确认) ≥5场景 + androidTest冒烟",
+      "why": "--priority",
+      "status": "completed",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-21T02:26:57Z",
+      "updated_at": "2026-10-21T02:57:04Z",
+      "notes": ""
+    },
+    {
+      "id": "T-013",
+      "description": "F-004: 开启 master 分支保护 (人类决策: 仓库公开/升Pro) + 三职位required",
+      "why": "--priority",
+      "status": "pending",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-21T02:26:57Z",
+      "updated_at": "2026-10-21T02:26:57Z",
+      "notes": ""
+    },
+    {
+      "id": "T-014",
+      "description": "F-005: AppContainer 暴露端口类型 (profileStore→MemberProfileReader/Writer, deviceRepository→DeviceRepository, bleLink→BlePort) + ArchUnit负例",
+      "why": "--priority",
+      "status": "completed",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-21T02:26:57Z",
+      "updated_at": "2026-10-21T03:11:29Z",
+      "notes": ""
+    },
+    {
+      "id": "T-015",
+      "description": "F-006: 文档事实对齐 (重写02_Architecture/03_TaskGraph→promote→刷STATUS→同步README) gov-validate 0 FAIL",
+      "why": "--priority",
+      "status": "completed",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-21T02:26:57Z",
+      "updated_at": "2026-10-21T03:16:19Z",
+      "notes": ""
+    },
+    {
+      "id": "T-016",
+      "description": "F-007: 仓储接口精简 (移除between/recent→application.query覆盖) domain.repository仅存取",
+      "why": "--priority",
+      "status": "pending",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-21T02:26:57Z",
+      "updated_at": "2026-10-21T02:26:57Z",
+      "notes": ""
+    },
+    {
+      "id": "T-017",
+      "description": "F-008: android-test 门禁启用 (手动全绿→记DEC→启用schedule)",
+      "why": "--priority",
+      "status": "pending",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-21T02:26:57Z",
+      "updated_at": "2026-10-21T02:26:57Z",
+      "notes": ""
+    },
+    {
+      "id": "T-018",
+      "description": "F-009: 发布配置就绪 (BackendConfig按buildType + release开R8 + keep规则)",
+      "why": "--priority",
+      "status": "pending",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-21T02:26:58Z",
+      "updated_at": "2026-10-21T02:26:58Z",
       "notes": ""
     }
   ]

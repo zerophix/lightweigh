@@ -68,12 +68,12 @@ class AppContainer(context: Context) {
 
     val cloudSessionPort: CloudSessionPort get() = sessionStoreImpl
 
-    val cloudGateway: CloudBaseGateway by lazy { CloudBaseGateway(sessionStoreImpl) }
+    private val cloudGateway: CloudBaseGateway by lazy { CloudBaseGateway(sessionStoreImpl) }
 
-    val database: AppDatabase by lazy { AppDatabase.get(context) }
+    private val database: AppDatabase by lazy { AppDatabase.get(context) }
 
     /** 本机测量用户（移植补齐：多成员）。 */
-    val memberRepository: com.xcwk.scalehub.infrastructure.member.MemberStore by lazy {
+    private val memberRepository: com.xcwk.scalehub.infrastructure.member.MemberStore by lazy {
         com.xcwk.scalehub.infrastructure.member.MemberStore(context)
     }
 
@@ -93,7 +93,7 @@ class AppContainer(context: Context) {
     val profileWriter: MemberProfileWriter get() = profileStoreImpl
 
     /** 目标存储（移植补齐：首页目标进度卡）。 */
-    val goalStore: com.xcwk.scalehub.infrastructure.profile.GoalStore by lazy {
+    private val goalStore: com.xcwk.scalehub.infrastructure.profile.GoalStore by lazy {
         com.xcwk.scalehub.infrastructure.profile.GoalStore(context, memberRepository::activeId)
     }
 

@@ -9,22 +9,25 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.xcwk.scalehub.infrastructure.persistent.dao.DeviceDao
 import com.xcwk.scalehub.infrastructure.persistent.dao.HealthLogDao
 import com.xcwk.scalehub.infrastructure.persistent.dao.MeasurementDao
+import com.xcwk.scalehub.infrastructure.persistent.dao.SyncStateDao
 import com.xcwk.scalehub.infrastructure.persistent.po.HealthLogPo
 import com.xcwk.scalehub.infrastructure.persistent.po.ScaleDevicePo
 import com.xcwk.scalehub.infrastructure.persistent.po.MeasurementPo
+import com.xcwk.scalehub.infrastructure.persistent.po.SyncStatePo
 
 /**
  * Room 数据库入口。schema 纪律：改实体必须 version+1 + 写 Migration + 导出 schema 快照入库。
  */
 @Database(
-    entities = [MeasurementPo::class, HealthLogPo::class, ScaleDevicePo::class],
-    version = 5,
+    entities = [MeasurementPo::class, HealthLogPo::class, ScaleDevicePo::class, SyncStatePo::class],
+    version = 6,
     exportSchema = true,
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun measurementDao(): MeasurementDao
     abstract fun healthLogDao(): HealthLogDao
     abstract fun deviceDao(): DeviceDao
+    abstract fun syncStateDao(): SyncStateDao
 
     companion object {
         /**
@@ -92,6 +95,21 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * v5 → v6：建 sync_state 表（M2b 水位线/对账/幂等）。
+         * 复合主键 (tableName, memberId)——每表每成员独立水位线，多成员隔离的基础。
+         */
+        const val CREATE_SYNC_STATE_TABLE =
+            "CREATE TABLE IF NOT EXISTS `sync_state` (`tableName` TEXT NOT NULL, `memberId` TEXT NOT NULL, " +
+                "`pushedWatermark` INTEGER NOT NULL, `pulledWatermark` INTEGER NOT NULL, " +
+                "`updatedAt` INTEGER NOT NULL, PRIMARY KEY(`tableName`, `memberId`))"
+
+        val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(CREATE_SYNC_STATE_TABLE)
+            }
+        }
+
         @Volatile
         private var instance: AppDatabase? = null
 
@@ -99,7 +117,7 @@ abstract class AppDatabase : RoomDatabase() {
             instance ?: synchronized(this) {
                 instance ?: Room.databaseBuilder(
                     context.applicationContext, AppDatabase::class.java, "scalehub.db",
-                ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+                ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
                     // devices 沿旧库 SP 同步直读语义（表容量个位数）；其余仓储保持 suspend
                     .allowMainThreadQueries()
                     .build().also { instance = it }

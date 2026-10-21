@@ -23,6 +23,8 @@ type: index
 
 | 日期 | 主题 | 报告 | 发现数 | Critical | 修复率 |
 |------|------|------|--------|----------|--------|
+| 2026-10-21 | process-weight | [grokbot__20261021_105035](20261021_process-weight/grokbot__20261021_105035.md) | 10 项（High 3 / Medium 4 / Low 3） | 0 | 0/10，新发现待处理（流程减负三阶段方案） |
+| 2026-10-21 | m2-prereq | [conclusion](20261021_m2-prereq-checklist/conclusion.md) | 9 项（Critical 3 / High 3 / Medium 3） | 3 | 待处理（M2 开工前置清单） |
 | 2026-10-20 | ai-dev-readiness | [grokbot__20261020_211733](20261020_ai-dev-readiness/grokbot__20261020_211733.md) | 11 项（High 3 / Medium 5 / Low 3） | 0 | 0/11，新发现待处理（P0：F-001 收口未提交改动） |
 | 2026-10-20 | ddd-architecture | [opencode__20261020_143000](20261020_ddd-architecture/opencode__20261020_143000.md) | 10 项（F-010 已撤回，有效 9） | 1 Critical **已修** | **9 项全部关闭**：6 项已修（F-001~006）、3 项评估后不采纳（F-007/008/009，理由见 DEC-034 组 E/F） |
 | 2026-07-10 | template-review | [claude__20260710_082000](20260710_template-review/claude__20260710_082000.md) | 22 项 | 2 Critical 已修复 | 86%（19/22，剩余 F-009 Medium 待定制） |
@@ -32,12 +34,12 @@ type: index
 
 | 维度 | 值 |
 |------|-----|
-| 总评审次数 | 4 |
-| 总发现数 | 51（11 + 10 + 22 + 8），其中 ddd-architecture 的 F-010 经三轮核验撤回，有效发现 50 |
+| 总评审次数 | 6 |
+| 总发现数 | 70（10 + 9 + 11 + 10 + 22 + 8），其中 ddd-architecture 的 F-010 经三轮核验撤回，有效发现 69 |
 | 已修复 | 25（template-review 19 + ddd-architecture 6：F-001~F-006）；另有 3 项评估后不采纳（F-007/008/009，理由入 DEC-034 组 E/F）、1 项撤回（F-010） |
-| 新发现待处理 | **11**（全部来自 ai-dev-readiness：High 3、Medium 5、Low 3） |
-| 整体修复率 | **50.0%**（25/50，按有效发现计）；ddd-architecture 一项评审已 100% 关闭 |
-| 最新进展 | 2026-10-20 DEC-034 **七组全部完成**：A/B/C/D 修复落地、E/F 评估后不采纳（附证据）、G 报告修正；ddd-architecture 9 项有效发现全关闭，余 ai-dev-readiness 11 项待处理 |
+| 新发现待处理 | **30**（process-weight 10 + ai-dev-readiness 11 + m2-prereq 9） |
+| 整体修复率 | **36.2%**（25/69，按有效发现计）；ddd-architecture 一项评审已 100% 关闭 |
+| 最新进展 | 2026-10-21 基于 DEC-034 收口后代码完成 M2 前置条件核验：架构地基已闭环（DataRefreshBus/OkokBia/memberId/工厂/Clock 全修），剩余硬缺口集中在同步水位线、多成员隔离测试、全链路端到端测试、分支保护、AppContainer 端口化、文档对齐 |
 
 > **口径说明**：该报告初版统计为 `critical: 2`，但 F-002 已于二轮核验降级为 Medium
 > （`SyncTrigger` 属 P0 产品决策的显式实现），三轮核验同步更正为 1 项 Critical。

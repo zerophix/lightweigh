@@ -1,7 +1,27 @@
 # 开发笔记
 
-> 本迭代（M1 收口与文档对齐）的技术笔记、问题与发现。
+> 本迭代（M2 前置硬缺口闭环）的技术笔记、问题与发现。
 > 覆盖型文档：每次迭代重写，保留本次迭代的技术细节。
+
+---
+
+## 0. 本迭代概览（DEC-036）
+
+**目标**：完成 20261021_m2-prereq-checklist 核验出的 F-001~F-006 六项硬缺口，为 M2 业务逻辑开发扫清障碍。
+
+**完成任务**：
+- T-010（F-001 Critical）：SyncService 补水位线/对账/幂等
+- T-011（F-002 Critical）：多成员同步隔离测试
+- T-012（F-003 Critical）：全链路端到端测试
+- T-014（F-005 High）：AppContainer 端口化 + ArchUnit 负例
+- T-015（F-006 High）：文档事实对齐
+
+**测试覆盖增长**：
+- `SyncServiceTest`：14 → 22 个测试（新增 8 个：水位线 6 + 多成员隔离 4，部分合并）
+- `FullChainSyncTest`：新增 7 个端到端场景
+- `ArchitectureTest`：13 → 14 条规则（新增 `appcontainer公开属性不得暴露infra具体类型`）
+
+**数据库迁移**：v5 → v6，新增 `sync_state` 表（复合主键 `(tableName, memberId)`）
 
 ---
 
@@ -17,6 +37,14 @@
   02_Architecture 生成并附来源标注。
 - **构建可用性属迭代交付物（DEC-015）**："能跑通一次 `./gradlew build`" 与代码同等重要，
   否则依赖组合失效会长期潜伏且无 diff 可查。
+- **水位线设计（DEC-036 组 A）**：`sync_state` 表复合主键 `(tableName, memberId)`，
+  每表每成员独立水位线。`pushedWatermark`/`pulledWatermark` 分开记录，
+  **先推后记**（`upsert` 返回 `true` 才更新），崩溃可重推但不丢。
+- **增量推送边界（DEC-036 组 A）**：`between(watermark + 1, MAX)`——`between` 是 inclusive on from，
+  `+1` 排除已推的行。幂等性由 PostgREST `on_conflict=merge-duplicates` 兜底，本地水位线只是优化闸门。
+- **AppContainer 端口化（DEC-036 组 D）**：所有对外暴露的 `val` 必须是端口类型
+  （`MemberProfileReader/Writer`、`DeviceRepository`、`BlePort`），具体实现只在容器内部持有。
+  ArchUnit 负例防止回退。
 
 ## 2. 遇到的问题与解决方案
 

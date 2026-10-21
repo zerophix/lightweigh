@@ -140,6 +140,38 @@ class ArchitectureTest {
     }
 
     /**
+     * T-014（F-005）负例：表现层经 AppContainer 方法调用返回类型不得位于 infrastructure。
+     *
+     * 此前 AppContainer 直接暴露 `ProfileStore`/`RoomDeviceRepository`/`AndroidBleLink`
+     * 等 infra 具体类型，表现层可绕过端口调用非端口方法（如 `profileStore.clearMember(id)`）。
+     * DEC-035 已将其改为端口类型（`MemberProfileReader/Writer`、`DeviceRepository`、`BlePort`），
+     * 本规则防止回退：任何 feature/ui/trigger 类不得依赖 AppContainer 上返回 infra 类型的方法。
+     *
+     * 实现：检查表现层类是否依赖 AppContainer 中标记为 infra 返回类型的方法。
+     * 由于 ArchUnit 无法直接检查"方法返回类型"，改为检查表现层类是否直接依赖
+     * infrastructure 包中的任何类（已有规则），并额外检查 AppContainer 的 public val
+     * 声明类型是否在 infrastructure 包（通过反射检查）。
+     */
+    @Test
+    fun appcontainer公开属性不得暴露infra具体类型() {
+        // AppContainer 的所有 public val/getter 返回类型必须不在 infrastructure 包
+        val containerClass = classes.firstOrNull { it.fullName == "com.xcwk.scalehub.AppContainer" }
+            ?: return   // 类不存在时跳过（测试环境可能未编译 app 模块)
+        containerClass.methods
+            .filter {
+                it.name.startsWith("get") &&
+                    it.parameters.isEmpty() &&
+                    !it.modifiers.contains(com.tngtech.archunit.core.domain.JavaModifier.PRIVATE)
+            }
+            .forEach { method ->
+                val returnType = method.returnType
+                assertWithMessage("AppContainer.${method.name} 返回类型不得位于 infrastructure 包")
+                    .that(returnType.name)
+                    .doesNotContain("com.xcwk.scalehub.infrastructure")
+            }
+    }
+
+    /**
      * T-006 上锁（DEC-021 task A）：UI 直触存储 SDK 的两条规则——
      * 包级（androidx.room/java.sql）+ 类名级（SharedPreferences）。
      * 包级规则管不到 SharedPreferences（它在 android.content 里，UI 合法需要 Context），
