@@ -17,7 +17,7 @@
 - T-015（F-006 High）：文档事实对齐
 
 **测试覆盖增长**：
-- `SyncServiceTest`：14 → 22 个测试（新增 8 个：水位线 6 + 多成员隔离 4，部分合并）
+- `SyncServiceTest`：14 → 22 个单元测试方法（新增 8 个：水位线 6 + 多成员隔离 4，部分合并）
 - `FullChainSyncTest`：新增 7 个端到端场景
 - `ArchitectureTest`：13 → 14 条规则（新增 `appcontainer公开属性不得暴露infra具体类型`）
 
