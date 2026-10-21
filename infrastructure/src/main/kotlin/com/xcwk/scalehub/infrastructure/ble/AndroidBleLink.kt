@@ -42,7 +42,7 @@ import java.util.concurrent.ConcurrentHashMap
  * 这纯属平台细节，故由本类自行监听 [Application.ActivityLifecycleCallbacks] 跟踪，
  * 不经 BlePort 接口外泄——application 层完全不知道 Context 存在。
  *
- * 其余增强：连接后请求 HIGH 优先级 + 设置 1M/2M PHY、扫描 BALANCED、超时 45s、BLE_DEBUG 日志。
+ * 其余增强：连接后请求 HIGH 优先级 + 设置 1M/2M PHY、扫描 LOW_LATENCY、超时 45s、BLE_DEBUG 日志。
  */
 @SuppressLint("MissingPermission")
 class AndroidBleLink(context: Context) : BlePort {
@@ -150,12 +150,14 @@ class AndroidBleLink(context: Context) : BlePort {
         scanListener = listener
         scanner = bt.bluetoothLeScanner ?: return
         listener.onScanStarted()
-        // 使用 BALANCED 模式兼容性更好；LOW_LATENCY 在部分设备上功耗高且易触发系统限流
+        // 与参考项目 BLEManager.kt:86 对齐：LOW_LATENCY 连续扫（100% 占空比）。
+        // 曾改为 BALANCED 求兼容，真机取证（DEC-038 追加）中秤的短促唤醒广播两份日志
+        // 全部错失——抓到广播优先于省电，功耗/限流问题出现时再有据降档
         val settings = ScanSettings.Builder()
-            .setScanMode(ScanSettings.SCAN_MODE_BALANCED)
+            .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
             .setReportDelay(0)
             .build()
-        blog("scan() started: mode=BALANCED")
+        blog("scan() started: mode=LOW_LATENCY")
         scanCallback = object : ScanCallback() {
             override fun onScanResult(callbackType: Int, result: ScanResult) {
                 val device = result.device
