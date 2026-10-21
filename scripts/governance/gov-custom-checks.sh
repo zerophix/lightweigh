@@ -41,7 +41,7 @@ if [ -d "$STATE_ROOT" ]; then
     jobs=$(grep -E '^[[:space:]]+private var ' "$f" 2>/dev/null | grep -c 'Job?' || true)
     state=$(( ${total:-0} - ${jobs:-0} ))
     if [ "$state" -gt "$STATE_MAX" ]; then
-      echo "  [FAIL] 可变状态字段过多（$state > $STATE_MAX）：$f"
+      echo "  [FAIL] 可变状态字段过多（$state > ${STATE_MAX}）：$f"
       echo "         把并列可变字段收进 sealed 相位 + 纯 reduce，再让守卫检查非法转移（DEC-024）"
       exit 1
     fi

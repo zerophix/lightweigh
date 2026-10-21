@@ -1,7 +1,7 @@
 {
   "version": 1,
   "updated_at": "2026-10-21T07:54:36Z",
-  "next_action": "T-026 统一错误模型已完成(DEC-041)。剩余: T-007(真机对拍+悬浮球体验, 用户测试中)、T-008/T-013(分支保护, 需人类决策)、T-018(release 发布配置)。",
+  "next_action": "T-027 会话生命周期修复已完成(DEC-042)。剩余: T-007(真机对拍, 用户测试中)、T-008/T-013(分支保护, 需人类决策)、T-018(release 发布配置)。",
   "next_action_why": "",
   "next_action_confirmed": true,
   "known_risks": [
@@ -305,6 +305,12 @@
       "title": "统一错误模型 + 元数据跨模块可见性修复",
       "status": "completed",
       "detail": "DEC-041: domain 改 Android Library 根治元数据不可见，引入 AppError/AppResult 统一错误模型，基建层与应用层全链路落地"
+    },
+    {
+      "id": "T-027",
+      "title": "测量会话生命周期修复（退出即停 + 重进重建）",
+      "status": "completed",
+      "detail": "DEC-042: ScaleRoute onDispose 调 stop；ScaleViewModel 会话可重建（closed 终态 newSession）"
     }
   ]
 }

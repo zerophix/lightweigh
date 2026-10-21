@@ -168,7 +168,7 @@ case "${1:-}" in
       ' "$INDEX_FILE" > "${INDEX_FILE}.tmp" && mv "${INDEX_FILE}.tmp" "$INDEX_FILE"
       echo "索引已更新: $INDEX_FILE"
     else
-      echo " 索引文件不存在: $INDEX_FILE（需要手动创建或运行 validate.sh）" >&2
+      echo " 索引文件不存在: ${INDEX_FILE}（需要手动创建或运行 validate.sh）" >&2
     fi
     ;;
   

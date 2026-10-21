@@ -1,6 +1,7 @@
 package com.xcwk.scalehub.ui.debug
 
 import android.widget.Toast
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -48,6 +49,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -56,6 +58,14 @@ import com.xcwk.scalehub.application.debug.DebugLog
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlin.math.roundToInt
+
+// DebugPanel 标签与过滤常量
+private typealias Tab = Int
+private const val TAB_ALL = 0
+private const val TAB_PACKET = 1
+private const val TAB_SESSION = 2
+private const val TAB_BLE = 3
+private val tabNames = listOf("全部", "抓包", "Session", "BLE")
 
 /**
  * 蓝牙调试悬浮球 + 日志面板（仅 debug 构建，随 [BuildConfig.DEBUG] 门控）。
@@ -134,7 +144,7 @@ fun DebugOverlay() {
     }
 }
 
-/** 底部小窗日志面板：轮询快照渲染，支持复制/清空/自动贴底。 */
+/** 底部小窗日志面板：轮询快照渲染，支持复制/清空/自动贴底 + 标签过滤（全部/抓包/Session/BLE）。 */
 @Composable
 private fun DebugPanel(onClose: () -> Unit, modifier: Modifier = Modifier) {
     val lines by produceState(initialValue = emptyList<String>()) {
@@ -146,6 +156,20 @@ private fun DebugPanel(onClose: () -> Unit, modifier: Modifier = Modifier) {
     val clipboard = LocalClipboardManager.current
     val context = LocalContext.current
 
+    // 标签过滤（局部 typealias/const 在 Kotlin 函数内非法，改用普通 val，DEC-042 顺手修）
+    val tabNames = listOf("全部", "抓包", "Session", "BLE")
+    var currentTab by remember { mutableStateOf(0) }
+
+    val filteredLines = remember(lines, currentTab) {
+        when (currentTab) {
+            TAB_ALL -> lines
+            TAB_PACKET -> lines.filter { it.contains("TX session:") || it.contains("RX notify:") || it.contains("RX read:") || it.contains("frame:") || it.contains("parse:") }
+            TAB_SESSION -> lines.filter { it.contains("[session]") }
+            TAB_BLE -> lines.filter { it.contains("[ble]") }
+            else -> lines
+        }
+    }
+
     Column(
         modifier
             .navigationBarsPadding()
@@ -153,16 +177,39 @@ private fun DebugPanel(onClose: () -> Unit, modifier: Modifier = Modifier) {
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                "调试日志 ${lines.size}/${DebugLog.MAX_LINES}",
+                "调试日志 ${filteredLines.size}/${DebugLog.MAX_LINES}",
                 color = Color(0xFFB7F0D9),
                 fontSize = 13.sp,
                 fontFamily = FontFamily.Monospace,
             )
             Spacer(Modifier.weight(1f))
+            // Tab bar
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                tabNames.forEachIndexed { idx, name ->
+                    val selected = currentTab == idx
+                    Text(
+                        text = name,
+                        color = if (selected) Color.White else Color(0xFFB7F0D9),
+                        fontSize = 11.sp,
+                        fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+                        fontFamily = FontFamily.Monospace,
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp, vertical = 6.dp)
+                            .background(
+                                if (selected) Color(0xFF159B72) else Color(0x33159B72),
+                                RoundedCornerShape(12.dp)
+                            )
+                            .clickable { currentTab = idx }
+                    )
+                }
+            }
             PanelAction(Icons.Outlined.ContentCopy, "复制") {
                 try {
-                    clipboard.setText(AnnotatedString(lines.joinToString("\n")))
-                    Toast.makeText(context, "已复制 ${lines.size} 行", Toast.LENGTH_SHORT).show()
+                    clipboard.setText(AnnotatedString(filteredLines.joinToString("\n")))
+                    Toast.makeText(context, "已复制 ${filteredLines.size} 行", Toast.LENGTH_SHORT).show()
                 } catch (ex: Exception) {
                     Toast.makeText(context, "复制失败: ${ex.javaClass.simpleName}", Toast.LENGTH_SHORT).show()
                 }
@@ -179,9 +226,9 @@ private fun DebugPanel(onClose: () -> Unit, modifier: Modifier = Modifier) {
                 lastVisible >= info.totalItemsCount - 2
             }.collectLatest { follow = it }
         }
-        LaunchedEffect(lines.size) {
-            if (follow && lines.isNotEmpty()) {
-                listState.scrollToItem(lines.size - 1)
+        LaunchedEffect(filteredLines.size) {
+            if (follow && filteredLines.isNotEmpty()) {
+                listState.scrollToItem(filteredLines.size - 1)
             }
         }
         LazyColumn(
@@ -191,10 +238,12 @@ private fun DebugPanel(onClose: () -> Unit, modifier: Modifier = Modifier) {
                 .padding(top = 6.dp),
             state = listState,
         ) {
-            itemsIndexed(lines) { _, line ->
+            itemsIndexed(filteredLines) { _, line ->
+                // 高亮抓包行
+                val isPacket = line.contains("TX session:") || line.contains("RX notify:") || line.contains("RX read:") || line.contains("frame:") || line.contains("parse:")
                 Text(
                     line,
-                    color = Color(0xFF9FE8C8),
+                    color = if (isPacket) Color(0xFFFFD600) else Color(0xFF9FE8C8),
                     fontSize = 10.sp,
                     fontFamily = FontFamily.Monospace,
                 )

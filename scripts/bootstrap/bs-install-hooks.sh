@@ -34,7 +34,7 @@ for ENTRY in "${HOOKS[@]}"; do
   TARGET="$HOOK_DIR/$NAME"
 
   if [ ! -f "$SOURCE" ]; then
-    echo "    未找到: $SOURCE，跳过 $NAME"
+    echo "    未找到: ${SOURCE}，跳过 $NAME"
     continue
   fi
 
