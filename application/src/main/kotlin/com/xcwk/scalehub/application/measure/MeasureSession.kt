@@ -205,9 +205,10 @@ class MeasureSession(
         val record = scanRecord ?: return device
         val recognized = Protocols.match(record) ?: return device
         if (recognized.protocolId == device.protocolId) return device
-        if (recognized.protocolId != OkokBroadcastProtocolId &&
-            recognized.protocolId != ChipseaCloudProtocol.ID
-        ) {
+        // 关键：识别到的协议若是纯广播（无 requiredCharacteristic），保留原 GATT 协议
+        // 对应参考项目 MeasureActivity.preferAdvertisedProtocol :355-367
+        val recognizedProtocol = Protocols.of(recognized.protocolId)
+        if (recognizedProtocol == null || recognizedProtocol.requiredCharacteristic() == null) {
             return device
         }
         devices.bind(device.name, device.mac, recognized.protocolId)
