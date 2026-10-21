@@ -349,7 +349,10 @@ private fun heroText(
     !permissionGranted -> "连接蓝牙体脂秤" to "请允许「附近的设备」权限后搜索"
     !bluetoothEnabled -> "请打开蓝牙" to "打开手机蓝牙后才能搜索体脂秤"
     state.bound.any { it.active } ->
-        (state.bound.first { it.active }.name + " 已连接") to state.bound.first { it.active }.mac
+        // 只是「当前使用的绑定设备」标签——此前硬编码「已连接」是 UI 谎言：
+        // 绑定页从不发起 GATT 连接（DeviceViewModel 纯扫描），该字样曾把真机排查
+        // 全程引向「已经连上了」的错误方向（DEC-038 真机追因实录）
+        (state.bound.first { it.active }.name + " 使用中") to state.bound.first { it.active }.mac
     state.scanning -> "正在搜索体脂秤" to "轻踩秤面唤醒设备，等待广播出现"
     else -> "连接蓝牙体脂秤" to "请打开体脂秤并靠近手机"
 }
