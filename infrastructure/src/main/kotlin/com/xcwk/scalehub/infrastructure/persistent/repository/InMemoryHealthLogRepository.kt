@@ -8,7 +8,11 @@ import java.util.concurrent.CopyOnWriteArrayList
 class InMemoryHealthLogRepository : HealthLogRepository {
     private val rows = CopyOnWriteArrayList<HealthLog>()
 
-    override suspend fun save(log: HealthLog) {
+    /** 各次 save 收到的归属，供测试断言接口确实把 memberId 传到了实现（组 D）。 */
+    val savedMemberIds = CopyOnWriteArrayList<String>()
+
+    override suspend fun save(log: HealthLog, memberId: String) {
+        savedMemberIds.add(memberId)
         rows.removeAll { it.time == log.time && it.type == log.type }
         rows.add(log)
     }

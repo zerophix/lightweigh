@@ -33,4 +33,21 @@ public final class Protocols {
         }
         return OkokBroadcastProtocol.INSTANCE.match(scanRecord);
     }
+
+    /** 判断广播是否属于某已绑定设备（任一注册协议认领）。供 matchBound 兜底识别。 */
+    public static boolean owns(byte[] scanRecord, String deviceAddress) {
+        if (scanRecord == null || deviceAddress == null) {
+            return false;
+        }
+        if (ChipseaCloudProtocol.INSTANCE.owns(scanRecord, deviceAddress)) {
+            return true;
+        }
+        if (OkokProtocol.INSTANCE.owns(scanRecord, deviceAddress)) {
+            return true;
+        }
+        if (OkokBroadcastProtocol.INSTANCE.owns(scanRecord, deviceAddress)) {
+            return true;
+        }
+        return false;
+    }
 }

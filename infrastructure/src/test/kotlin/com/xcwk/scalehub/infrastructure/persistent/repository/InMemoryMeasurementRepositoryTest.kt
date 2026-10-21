@@ -14,14 +14,14 @@ class InMemoryMeasurementRepositoryTest {
     @Test
     fun `recent按时间倒序且限数`() = runTest {
         val repo = InMemoryMeasurementRepository()
-        repo.save(record(1000L)); repo.save(record(3000L)); repo.save(record(2000L))
+        repo.save(record(1000L), "m1"); repo.save(record(3000L), "m1"); repo.save(record(2000L), "m1")
         assertThat(repo.recent(2).map { it.time }).containsExactly(3000L, 2000L).inOrder()
     }
 
     @Test
     fun `between返回闭开区间且按时间升序`() = runTest {
         val repo = InMemoryMeasurementRepository()
-        repo.save(record(1000L)); repo.save(record(2000L)); repo.save(record(3000L))
+        repo.save(record(1000L), "m1"); repo.save(record(2000L), "m1"); repo.save(record(3000L), "m1")
         assertThat(repo.between(1000L, 3000L).map { it.time })
             .containsExactly(1000L, 2000L).inOrder()
         assertThat(repo.between(1001L, 3000L).map { it.time }).containsExactly(2000L)
@@ -31,7 +31,7 @@ class InMemoryMeasurementRepositoryTest {
     @Test
     fun `delete只移除目标行`() = runTest {
         val repo = InMemoryMeasurementRepository()
-        repo.save(record(1000L)); repo.save(record(2000L))
+        repo.save(record(1000L), "m1"); repo.save(record(2000L), "m1")
         repo.delete(1000L)
         assertThat(repo.recent(10).map { it.time }).containsExactly(2000L)
         repo.delete(1000L)   // 幂等：重复删除无副作用
@@ -41,9 +41,21 @@ class InMemoryMeasurementRepositoryTest {
     @Test
     fun `同时间戳save幂等覆盖`() = runTest {
         val repo = InMemoryMeasurementRepository()
-        repo.save(record(1000L))
-        repo.save(record(1000L).let { MeasureRecord(it.time, 75.0, 0.0, -1.0, "", "builtin-1") })
+        repo.save(record(1000L), "m1")
+        repo.save(
+            record(1000L).let { MeasureRecord(it.time, 75.0, 0.0, -1.0, "", "builtin-1") },
+            "m1",
+        )
         assertThat(repo.recent(10)).hasSize(1)
         assertThat(repo.recent(10)[0].weight).isEqualTo(75.0)
+    }
+
+    @Test
+    fun `save的归属参数原样到达实现`() = runTest {
+        // 组 D 的核心断言：成员隔离是接口签名的一部分，不是实现的私货
+        val repo = InMemoryMeasurementRepository()
+        repo.save(record(1000L), "member-A")
+        repo.save(record(2000L), "member-B")
+        assertThat(repo.savedMemberIds).containsExactly("member-A", "member-B").inOrder()
     }
 }

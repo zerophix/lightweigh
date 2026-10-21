@@ -44,6 +44,10 @@ class SyncService(
     private val healthLogs: HealthLogRepository,
     private val profileReader: MemberProfileReader,
     private val profileWriter: MemberProfileWriter,
+    /** 拉回的数据归属哪个成员（云端按 owner 隔离拉取，落库时必须写回同一归属，组 D）。 */
+    private val memberId: () -> String,
+    /** 同步状态端口（M2b 水位线/对账/幂等）——可为 null 以兼容无水位线的旧路径 */
+    private val syncState: SyncStatePort? = null,
 ) {
     private val mutex = Mutex()
 
@@ -82,6 +86,8 @@ class SyncService(
             cloud.delete("health_logs", "owner_id=eq.$userId")
             cloud.delete("profiles", "id=eq.$userId")
         }
+        // 清除全部同步状态（水位线归零，M2b）
+        runCatching { syncState?.clearAll() }
         session.signOut()
         return SyncOutcome(true, "账号已注销")
     }
@@ -135,7 +141,10 @@ class SyncService(
     }
 
     private suspend fun syncMeasurements(userId: String) {
-        val all = measurements.between(0L, Long.MAX_VALUE)
+        val mid = memberId()
+        // 水位线闸门：只推 > pushedWatermark 的行（M2b 增量推送）
+        val watermark = syncState?.get("measurements", mid)?.first ?: 0L
+        val all = measurements.between(watermark + 1, Long.MAX_VALUE)   // from 是 inclusive，+1 排除已推
         if (all.isEmpty()) return
         val rows = all.map { r ->
             CloudRow(
@@ -153,13 +162,39 @@ class SyncService(
                 },
             )
         }
-        cloud.upsert("measurements", "owner_id,measured_at", rows)
+        val ok = cloud.upsert("measurements", "owner_id,measured_at", rows)
+        // 推送成功后更新水位线（先推后记，崩溃可重推但不丢）
+        if (ok) {
+            val maxTime = all.maxOf { it.time }
+            syncState?.updatePushed("measurements", mid, maxTime)
+        }
     }
 
     private suspend fun syncHealthLogs(userId: String) {
-        // 沿旧库全量上云（日志量小；旧库 logs() 全量 :355-372）
-        val rows = healthLogRowsForPush(userId)
-        if (rows.isNotEmpty()) cloud.upsert("health_logs", "owner_id,logged_at,type", rows)
+        val mid = memberId()
+        // 水位线闸门：只推 > pushedWatermark 的行（M2b 增量推送）
+        val watermark = syncState?.get("health_logs", mid)?.first ?: 0L
+        val allLogs = healthLogs.between(watermark + 1, Long.MAX_VALUE)   // from 是 inclusive，+1 排除已推
+        if (allLogs.isEmpty()) return
+        val rows = allLogs.map { log ->
+            CloudRow(
+                buildMap {
+                    put("owner_id", userId)
+                    put("logged_at", log.time)
+                    put("type", log.type)
+                    put("value", log.value)
+                    put("value2", log.value2)
+                    put("label", log.label)
+                    put("note", log.note)
+                },
+            )
+        }
+        val ok = cloud.upsert("health_logs", "owner_id,logged_at,type", rows)
+        // 推送成功后更新水位线
+        if (ok) {
+            val maxTime = allLogs.maxOf { it.time }
+            syncState?.updatePushed("health_logs", mid, maxTime)
+        }
     }
 
     private suspend fun healthLogRowsForPush(userId: String): List<CloudRow> =
@@ -177,23 +212,36 @@ class SyncService(
             )
         }
 
-    /** 拉取合并（旧库 restoreNow:182-260）。 */
+    /** 拉取合并（旧库 restoreNow:182-260），M2b 增量拉取。 */
     private suspend fun restoreNow(): Boolean {
         val token = session.accessToken() ?: return false
         val userId = session.subject(token) ?: return false
+        val mid = memberId()
         val profileRows = cloud.rows("profiles", "id=eq.$userId&select=*") ?: return false
         val deviceRows = cloud.rows("devices", "owner_id=eq.$userId&select=*") ?: return false
+
+        // measurements 增量拉取：只拉 > pulledWatermark 的行
+        val mWatermark = syncState?.get("measurements", mid)?.second ?: 0L
+        val mFilter = if (mWatermark > 0) "&measured_at=gt.$mWatermark" else ""
         val measurementRows = cloud.rows(
-            "measurements", "owner_id=eq.$userId&select=*&order=measured_at.desc&limit=180",
+            "measurements", "owner_id=eq.$userId&select=*&order=measured_at.desc&limit=180$mFilter",
         ) ?: return false
+
+        // health_logs 增量拉取：只拉 > pulledWatermark 的行
+        val hWatermark = syncState?.get("health_logs", mid)?.second ?: 0L
+        val hFilter = if (hWatermark > 0) "&logged_at=gt.$hWatermark" else ""
         val logRows = cloud.rows(
-            "health_logs", "owner_id=eq.$userId&select=*&order=logged_at.desc&limit=300",
+            "health_logs", "owner_id=eq.$userId&select=*&order=logged_at.desc&limit=300$hFilter",
         ) ?: return false
 
         mergeDevices(deviceRows)
-        mergeMeasurements(measurementRows)
-        mergeHealthLogs(logRows)
+        val mergedMMax = mergeMeasurements(measurementRows)
+        val mergedHMax = mergeHealthLogs(logRows)
         mergeProfile(profileRows.firstOrNull())
+
+        // 拉取成功后更新水位线（先拉后记，崩溃可重拉但不丢）
+        if (mergedMMax > 0) syncState?.updatePulled("measurements", mid, mergedMMax)
+        if (mergedHMax > 0) syncState?.updatePulled("health_logs", mid, mergedHMax)
         return true
     }
 
@@ -226,8 +274,13 @@ class SyncService(
         if (added.isNotEmpty()) devices.restoreAll(local + added)
     }
 
-    private suspend fun mergeMeasurements(rows: List<CloudRow>) {
+    /**
+     * 合并云端测量记录到本机。
+     * @return 本次合并的最大时间戳（0 = 无有效合并）
+     */
+    private suspend fun mergeMeasurements(rows: List<CloudRow>): Long {
         val existing = measurements.between(0L, Long.MAX_VALUE).map { it.time }.toSet()
+        var maxTime = 0L
         for (row in rows) {
             val time = (row.fields["measured_at"] as? Number)?.toLong() ?: continue
             if (time <= 0 || time in existing) continue    // 只补本机没有的（不删除云端多出）
@@ -244,13 +297,21 @@ class SyncService(
                         (row.fields["age_years"] as? Number)?.toInt(),
                         (row.fields["height_cm"] as? Number)?.toInt(),
                     ),
+                    memberId(),
                 )
+                if (time > maxTime) maxTime = time
             }   // 坏行跳过（守卫 fail-fast 即过滤器）
         }
+        return maxTime
     }
 
-    private suspend fun mergeHealthLogs(rows: List<CloudRow>) {
+    /**
+     * 合并云端健康日志到本机。
+     * @return 本次合并的最大时间戳（0 = 无有效合并）
+     */
+    private suspend fun mergeHealthLogs(rows: List<CloudRow>): Long {
         val existing = healthLogs.recent(Int.MAX_VALUE).map { it.time to it.type }.toSet()
+        var maxTime = 0L
         for (row in rows) {
             val time = (row.fields["logged_at"] as? Number)?.toLong() ?: continue
             val type = row.fields["type"]?.toString().orEmpty()
@@ -264,9 +325,12 @@ class SyncService(
                         row.fields["label"]?.toString() ?: "",
                         row.fields["note"]?.toString() ?: "",
                     ),
+                    memberId(),
                 )
+                if (time > maxTime) maxTime = time
             }
         }
+        return maxTime
     }
 
     /** 云端档案合并：仅当字段组通过 MemberProfile 守卫才落本地（不完整行跳过）。 */

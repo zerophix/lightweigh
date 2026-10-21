@@ -6,12 +6,14 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.xcwk.scalehub.App
+import com.xcwk.scalehub.application.DataChange
 import com.xcwk.scalehub.application.DataRefreshBus
 import com.xcwk.scalehub.application.query.HistoryQuery
 import com.xcwk.scalehub.application.query.TrendSegment
 import com.xcwk.scalehub.application.service.DeleteMeasurementService
 import com.xcwk.scalehub.domain.types.DomainException
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -37,9 +39,13 @@ class HistoryViewModel(
 
     init {
         viewModelScope.launch { refresh() }
-        refreshBus?.changed?.let { signal ->
-            viewModelScope.launch { signal.collect { refresh() } }
-        }
+        // 只关心测量数据：历史列表与月汇总都来自 MeasurementRepository
+        // （HealthQuery 内部就是 TrendQuery），健康日志/档案变更与它无关
+        refreshBus?.changed
+            ?.filter { it in HISTORY_RELEVANT }
+            ?.let { signal ->
+                viewModelScope.launch { signal.collect { refresh() } }
+            }
     }
 
     fun onIntent(intent: HistoryIntent) {
@@ -158,6 +164,9 @@ class HistoryViewModel(
     private fun signed(value: Double): String = if (value > 0) "+${one(value)}" else one(value)
 
     companion object {
+        /** 本页关心的数据变更：历史列表与月汇总都只源于测量记录。 */
+        private val HISTORY_RELEVANT = setOf(DataChange.Measurements, DataChange.MemberScopeChanged)
+
         fun Factory(zone: ZoneId = ZoneId.systemDefault()) = viewModelFactory {
             initializer {
                 val app = this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as App

@@ -1,6 +1,6 @@
 # 项目状态
 
-> 由 generate-status.py 自动生成。最后更新: 2026-10-17T12:41:28Z
+> 由 generate-status.py 自动生成。最后更新: 2026-10-20T14:07:37Z
 > 新 AI 启动时: `cat STATUS.md && bash scripts/session/ses-context-load.sh`
 
 ---
@@ -12,8 +12,8 @@
 | 名称 | 轻刻健康 Android（qk-health-v2） |
 | 版本 | 0.1.0 |
 | 文档语言 | zh-CN |
-| Git 分支 | master |
-| 最后提交 | f46dccb Merge pull request #1 from zerophix/fix/nav-and-cloud-push |
+| Git 分支 | refactor/dec-034-architecture-fixes |
+| 最后提交 | 98d61b7 Merge branch 'chore/ci-cancel-fix': branch-aware CI cancellation (DEC-033) |
 | 文档校验 | 运行: `bash scripts/governance/gov-validate.sh` |
 
 ## AI 交接
@@ -23,43 +23,43 @@
 | 字段 | 值 |
 |------|-----|
 | 来自 | opencode |
-| 时间 | 2026-10-17 |
+| 时间 | 2026-10-20 |
 | 关键文件 | .ai/tasks.json,docs/ai/inbox/ |
 
 **上下文：**
 
-> 完成: CI 首次真正跑通并全绿。定位并修复 KSP 插件解析失败：runner 侧阿里云三个镜像全部 502，而 Gradle 解析遇 5xx 直接终止、不回退后续仓库，排首位的镜像令解析在第一个源即失败；settings.gradle.kts 两个 repositories 块改为按 CI 环境变量分流（CI 只用官方源、本地保留阿里云优先）。KSP 由 2.3.2 校正到公开可取的 2.3.9。PR #1 合并入 master，master 推送触发 run 39027280045，build-and-guard / docs-validate / lifecycle-audit 三 job 全绿。DEC-031（含根因更正）与 DEC-032 落盘并入索引，DevNotes 与 README 反思同步，DEC-027 方案评分表整形。本地切回 master、已合并分支 fix/nav-and-cloud-push 本地与远端均删除。 | 决策: 关键取舍三处。其一，最初把 CI 失败判为「KSP 2.3.2 在公开仓库不存在」，钉到 2.3.9 后 CI 报同一个错，该假设被否证；真因是仓库可用性与 Gradle 的失败语义（遇 5xx 终止而非回退），证据是 runner 侧逐源探针（阿里云 502 / Maven Central 200）与 --info 日志里的 HTTP 502 三连重试。其二，修法选「按 CI 环境变量分流」而不是「官方源排前面」或「删镜像」：后两者会推翻文件里已记录的国内网络取舍（google() 直连超时会拖垮构建），为救 CI 牺牲本地体验属拆东墙补西墙。其三，保留 2.3.9 而非回退 2.3.2：2.3.9 已被 runner 探针证实可从 Maven Central 取到（HTTP 200），2.3.2 的可获取性始终依赖本机缓存。
+> 完成: DEC-034 五组修正落地：A 事件类型化（DataChange 替代 Unit 信号、四个 VM 精确订阅、写用例剥离 SyncTrigger 改由 SyncOnLocalWrites 订阅点火、SettingsViewModel 发布下沉）、B 算法映射收敛进 ScaleDevice.algorithmFor、C 三个聚合根补 create 工厂 + Clock 抽象（写用例 currentTimeMillis 清零）、D 仓储 save 显式携带 memberId 并删除聚合里的死字段、G 评审报告自身修正（统计口径与 F-010 撤回）。另完成蓝牙连接修复：芯海 SCANNED_DEVICE 路径、Manifest 旧版权限、前台 Activity 自跟踪、权限门与蓝牙状态广播化。新增 gov-code-check.py 五条源码规则。413 测试全绿，已切分支 refactor/dec-034-architecture-fixes 并提交组 A-D 代码与治理脚本。 | 决策: 评审 F-001 原案「DataRefreshBus 下沉 domain」经评估否决：会给纯模型层引入协程依赖、多一层无收益的间接、并让表现层依赖领域层的总线概念，故改为事件类型化达成同等目标。F-005 未采用评审推荐的方案 A 复合主键，选方案 B：前者牵动 Room 实体、DAO、查询与 schema v3 四处，而真正的问题只是不变量没在接口签名上。F-010 因所述目录不存在予以撤回。
 
 **下一步：**
 
-> 为本次 KSP/Room 版本变更补设备级验证：在模拟器跑 MigrationTest 与一次 Room 读写冒烟，并把结论登记进 DEC-032 的 Assumptions
+> review 本分支 refactor/dec-034-architecture-fixes 后决定是否合入 master。
 
 ## 最近动态
 
 最近 5 次提交：
 
 ```
-f46dccb Merge pull request #1 from zerophix/fix/nav-and-cloud-push
-4443e4b fix(ci): skip aliyun mirrors on runners
-e23a5a7 chore(ci): probe plugin repositories from the runner
-3def32d fix(build): pin ksp to a published version
-7053571 docs(readme): record pre-push reflection gate treadmill
+98d61b7 Merge branch 'chore/ci-cancel-fix': branch-aware CI cancellation (DEC-033)
+abde43b ci(governance): never cancel an in-flight master build
+5586a2b Merge branch 'chore/ci-cost-governance': CI cost governance (DEC-033)
+bbc26f3 ci(governance): cut metered CI minutes via scope-gated builds
+53cb429 fix(governance): sign relay notes with the detected agent
 ```
 
 ## 工程指标
 
 | 指标 | 数量 |
 |------|------|
-| 决策日志 (DEC) | 32 |
+| 决策日志 (DEC) | 34 |
 | 设计笔记 (NOTE) | 7 |
 | 开发指南 (GC) | 4 |
 | 技术参考 (REF) | 1 |
 
 最近决策：
 
+- [DEC-034](docs/ai/decisions/DEC-034.md): DEC-034: DDD 架构合规性修正——领域事件总线、语义耦合下沉与仓储契约诚实化
+- [DEC-033](docs/ai/decisions/DEC-033.md): DEC-033: CI 成本治理——并发去重、文档变更跳过重型构建、构建缓存与超时上限
 - [DEC-032](docs/ai/decisions/DEC-032.md): DEC-032: CI 环境跳过阿里云镜像（Gradle 遇 5xx 不回退后续仓库）
-- [DEC-031](docs/ai/decisions/DEC-031.md): DEC-031: KSP 钉到公开仓库存在的 2.3.9（修复 CI 插件解析失败）
-- [DEC-030](docs/ai/decisions/DEC-030.md): DEC-030: 构建层启用 core library desugaring（取代 @RequiresApi 与 min
 
 最近笔记：
 
@@ -79,5 +79,5 @@ e23a5a7 chore(ci): probe plugin repositories from the runner
 
 > 上次 AI session 的经验教训。新 AI 启动时必读。
 
-关键取舍三处。其一，最初把 CI 失败判为「KSP 2.3.2 在公开仓库不存在」，钉到 2.3.9 后 CI 报同一个错，该假设被否证；真因是仓库可用性与 Gradle 的失败语义（遇 5xx 终止而非回退），证据是 runner 侧逐源探针（阿里云 502 / Maven Central 200）与 --info 日志里的 HTTP 502 三连重试。其二，修法选「按 CI 环境变量分流」而不是「官方源排前面」或「删镜像」：后两者会推翻文件里已记录的国内网络取舍（google() 直连超时会拖垮构建），为救 CI 牺牲本地体验属拆东墙补西墙。其三，保留 2.3.9 而非回退 2.3.2：2.3.9 已被 runner 探针证实可从 Maven Central 取到（HTTP 200），2.3.2 的可获取性始终依赖本机缓存。
+评审 F-001 原案「DataRefreshBus 下沉 domain」经评估否决：会给纯模型层引入协程依赖、多一层无收益的间接、并让表现层依赖领域层的总线概念，故改为事件类型化达成同等目标。F-005 未采用评审推荐的方案 A 复合主键，选方案 B：前者牵动 Room 实体、DAO、查询与 schema v3 四处，而真正的问题只是不变量没在接口签名上。F-010 因所述目录不存在予以撤回。
 

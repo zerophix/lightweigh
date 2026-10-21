@@ -31,9 +31,10 @@ class RoomHealthLogRepositoryTest {
         val dao = CapturingDao()
         val repo = RoomHealthLogRepository(dao, { "1" })
         val log = HealthLog(1700000000000L, "diet", 1500.0, 0.0, "午餐", "米饭")
-        repo.save(log)
+        repo.save(log, "1")
         assertThat(dao.saved).hasSize(1)
         assertThat(dao.saved[0].loggedAt).isEqualTo(log.time)
+        assertThat(dao.saved[0].memberId).isEqualTo("1")
         assertThat(dao.saved[0].type).isEqualTo("diet")
 
         val back = repo.recent(10).single()

@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import com.xcwk.scalehub.application.query.TrendDirection
 import com.xcwk.scalehub.application.query.TrendRange
 import com.xcwk.scalehub.application.query.TrendSegment
+import com.xcwk.scalehub.ui.components.segmentLabel
 import com.xcwk.scalehub.ui.components.QkAreaChart
 import com.xcwk.scalehub.ui.components.QkCard
 import com.xcwk.scalehub.ui.components.QkChip
@@ -241,13 +242,6 @@ private fun rangeLabel(range: TrendRange): String = when (range) {
     TrendRange.LAST_7 -> "近7天"
     TrendRange.LAST_30 -> "近30天"
     TrendRange.ALL -> "全部"
-}
-
-private fun segmentLabel(segment: TrendSegment): String = when (segment) {
-    TrendSegment.ALL_DAY -> "全天"
-    TrendSegment.MORNING -> "上午"
-    TrendSegment.AFTERNOON -> "下午"
-    TrendSegment.EVENING -> "晚上"
 }
 
 @Preview(showBackground = true)

@@ -11,7 +11,6 @@ import com.xcwk.scalehub.application.measure.MeasureSession
 import com.xcwk.scalehub.application.measure.MeasureState
 import com.xcwk.scalehub.application.service.RecordMeasurementService
 import com.xcwk.scalehub.domain.repository.DeviceRepository
-import com.xcwk.scalehub.domain.repository.MeasurementRepository
 import com.xcwk.scalehub.domain.repository.MemberProfileReader
 import kotlin.math.roundToInt
 import kotlinx.coroutines.flow.StateFlow
@@ -60,12 +59,13 @@ class ScaleViewModel(
             initializer {
                 val app = this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as App
                 ScaleViewModel(
-                    ble = app.container.bleLink,
+                    ble = app.container.blePort,
                     devices = app.container.deviceRepository,
                     recordService = app.container.recordMeasurementService,
-                    profile = app.container.profileStore,
+                    profile = app.container.profileReader,
                     lastWeightTenths = {
-                        app.container.measurementRepository.recent(1).firstOrNull()
+                        // 经查询服务读，不直捅仓储（与其他读路径同口径，DEC-034 组 E）
+                        app.container.measurementQuery.recent(1).firstOrNull()
                             ?.let { record -> (record.weight * 10.0).roundToInt() } ?: 0
                     },
                     skipWeightOnlyPrompt = app.container.skipWeightOnlyPrompt,

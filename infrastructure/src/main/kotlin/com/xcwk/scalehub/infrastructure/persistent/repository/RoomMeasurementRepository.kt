@@ -11,10 +11,14 @@ class RoomMeasurementRepository(
     private val memberId: () -> String,
 ) : MeasurementRepository {
 
-    /** 落库以当前成员盖章（聚合默认空串不落库——多成员维在仓储层）。 */
-    override suspend fun save(record: MeasureRecord) =
-        dao.upsert(record.toPo().copy(memberId = memberId()))
+    /**
+     * 落库归属由调用方给出（DEC-034 组 D / F-005）——此前实现偷偷注入「当前成员」，
+     * 接口签名上看不出多成员隔离这条核心约束。
+     */
+    override suspend fun save(record: MeasureRecord, memberId: String) =
+        dao.upsert(record.toPo().copy(memberId = memberId))
 
+    /** 读取仍按当前成员过滤：查询是「我看到了什么」，不是「谁写了什么」。 */
     override suspend fun recent(limit: Int): List<MeasureRecord> =
         dao.recent(limit, memberId()).map { it.toDomain() }
 

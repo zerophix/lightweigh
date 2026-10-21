@@ -40,7 +40,7 @@ class HistoryViewModelTest {
 
     private class FakeRepo(rows: List<MeasureRecord>) : MeasurementRepository {
         val data = rows.toMutableList()
-        override suspend fun save(record: MeasureRecord) { data += record }
+        override suspend fun save(record: MeasureRecord, memberId: String) { data += record }
         override suspend fun recent(limit: Int) = data.sortedByDescending { it.time }.take(limit)
         override suspend fun between(fromInc: Long, toExc: Long) =
             data.filter { it.time >= fromInc && it.time < toExc }.sortedBy { it.time }

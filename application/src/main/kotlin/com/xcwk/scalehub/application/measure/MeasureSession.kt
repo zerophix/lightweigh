@@ -7,8 +7,8 @@ import com.xcwk.scalehub.application.ble.BleScanListener
 import com.xcwk.scalehub.application.ble.BleWriteListener
 import com.xcwk.scalehub.application.command.RecordMeasurementCommand
 import com.xcwk.scalehub.application.service.RecordMeasurementService
-import com.xcwk.scalehub.domain.algorithm.OkokBia
 import com.xcwk.scalehub.domain.model.ScaleDevice
+import com.xcwk.scalehub.domain.protocol.ConnectionMode
 import com.xcwk.scalehub.domain.protocol.Protocols
 import com.xcwk.scalehub.domain.protocol.ScaleEvent
 import com.xcwk.scalehub.domain.protocol.ScaleProtocol
@@ -175,7 +175,7 @@ class MeasureSession(
                         deliverBroadcast(scanRecord)
                         return
                     }
-                    ble.connect(chosen.mac, connectListener)
+                    ble.connect(chosen.mac, connectListener, proto.connectionMode())
                     return
                 }
                 val proto = protocol
@@ -194,7 +194,7 @@ class MeasureSession(
         }
         if (scanRecord != null) {
             for (device in devices.devices()) {
-                if (ChipseaCloudProtocol.INSTANCE.owns(scanRecord, device.mac)) return device
+                if (Protocols.owns(scanRecord, device.mac)) return device
             }
         }
         return null
@@ -205,9 +205,10 @@ class MeasureSession(
         val record = scanRecord ?: return device
         val recognized = Protocols.match(record) ?: return device
         if (recognized.protocolId == device.protocolId) return device
-        if (recognized.protocolId != OkokBroadcastProtocolId &&
-            recognized.protocolId != ChipseaCloudProtocol.ID
-        ) {
+        // 关键：识别到的协议若是纯广播（无 requiredCharacteristic），保留原 GATT 协议
+        // 对应参考项目 MeasureActivity.preferAdvertisedProtocol :355-367
+        val recognizedProtocol = Protocols.of(recognized.protocolId)
+        if (recognizedProtocol == null || recognizedProtocol.requiredCharacteristic() == null) {
             return device
         }
         devices.bind(device.name, device.mac, recognized.protocolId)
@@ -218,7 +219,8 @@ class MeasureSession(
         val proto = Protocols.of(device.protocolId) ?: Protocols.of(ScaleDevice.PROTOCOL_OKOK_1)
         proto?.reset()
         if (proto == null) return
-        val algorithm = if (OkokBia.uses(proto.id())) OkokBia.ID else device.algorithmId
+        // 协议自带算法时用之，否则沿用设备记录里的编号（规则收在 ScaleDevice，DEC-034 组 B）
+        val algorithm = ScaleDevice.algorithmFor(proto.id(), device.algorithmId)
         binding = DeviceBinding(device.mac, proto, algorithm)
     }
 
@@ -543,7 +545,7 @@ class MeasureSession(
         quietRetryJob = null
         if (closed || phase.sealed || !phase.linkReady || !phase.steppingOff) return
         val currentMac = mac ?: return
-        ble.connect(currentMac, connectListener)
+        ble.connect(currentMac, connectListener, protocol?.connectionMode() ?: ConnectionMode.PUBLIC_ADDRESS)
     }
 
     /** 体脂秤常在锁定帧之后立刻断开。先让结果帧落地，没有结果再提示重新连接（:813-828）。 */
@@ -591,7 +593,7 @@ class MeasureSession(
             if (!phase.picked) watchForScale()
             return
         }
-        ble.connect(currentMac, connectListener)
+        ble.connect(currentMac, connectListener, proto.connectionMode())
     }
 
     private fun beginConnectWait() {

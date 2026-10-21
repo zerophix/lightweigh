@@ -25,7 +25,7 @@ class HomeGoalQueryTest {
 
     private class FakeMeasureRepo(rows: List<MeasureRecord>) : MeasurementRepository {
         val data = rows.toMutableList()
-        override suspend fun save(record: MeasureRecord) { data += record }
+        override suspend fun save(record: MeasureRecord, memberId: String) { data += record }
         override suspend fun recent(limit: Int) = data.sortedByDescending { it.time }.take(limit)
         override suspend fun between(fromInc: Long, toExc: Long) =
             data.filter { it.time >= fromInc && it.time < toExc }.sortedBy { it.time }
@@ -34,7 +34,7 @@ class HomeGoalQueryTest {
 
     private class FakeLogRepo(rows: List<HealthLog>) : HealthLogRepository {
         val data = rows.toMutableList()
-        override suspend fun save(log: HealthLog) { data += log }
+        override suspend fun save(log: HealthLog, memberId: String) { data += log }
         override suspend fun recent(limit: Int) = data.sortedByDescending { it.time }.take(limit)
         override suspend fun between(fromInc: Long, toExc: Long) =
             data.filter { it.time >= fromInc && it.time < toExc }.sortedBy { it.time }

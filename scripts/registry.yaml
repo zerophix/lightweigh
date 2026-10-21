@@ -41,6 +41,11 @@ commands:
   path: governance/gov-custom-checks.sh
   status: stable
   type: sh
+- description: 源码质量检测（守卫负例自证 / 死 import / 跨文件重复实现 / 相似度分叉）
+  name: gov-code-check
+  path: governance/gov-code-check.py
+  status: stable
+  type: py
 - description: 清除项目文件中的 emoji 字符
   name: gov-strip-emoji
   path: governance/gov-strip-emoji.py

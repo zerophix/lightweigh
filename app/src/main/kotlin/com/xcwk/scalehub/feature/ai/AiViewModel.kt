@@ -62,7 +62,7 @@ class AiViewModel(
         val Factory = viewModelFactory {
             initializer {
                 val app = this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as App
-                AiViewModel(app.container.aiService, app.container.sessionStore, initialInput = app.container.aiPrefill())
+                AiViewModel(app.container.aiService, app.container.authPort, initialInput = app.container.aiPrefill())
             }
         }
     }

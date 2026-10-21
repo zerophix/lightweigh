@@ -49,6 +49,29 @@ data class MemberProfile(
 
     companion object {
         /**
+         * 新建档案（DEC-034 组 C / F-003）：昵称按旧库口径归一——先去空白再截断到
+         * 20 字符（ProfilePages.kt:491 的 `trim().take(20)`）。
+         *
+         * 归一收进聚合后，用例只负责编排「取命令 → 落库」；直接构造器仍可用于
+         * 读路径（Room 行映射）与测试，超长昵称在构造守卫处 fail-fast。
+         */
+        fun create(
+            male: Boolean,
+            birthYear: Int,
+            birthMonth: Int,
+            birthDay: Int,
+            heightCm: Int,
+            nickname: String,
+        ): MemberProfile = MemberProfile(
+            male = male,
+            birthYear = birthYear,
+            birthMonth = birthMonth,
+            birthDay = birthDay,
+            heightCm = heightCm,
+            nickname = nickname.trim().take(20),
+        )
+
+        /**
          * 部件直算周岁（Reader 路径用，不要求构造完整）：
          * 出生年缺失返回 0（沿旧库守卫）；月日缺失（0 或越界）退化为年差（旧库口径）。
          */

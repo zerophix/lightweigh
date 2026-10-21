@@ -1,7 +1,27 @@
 # 开发笔记
 
-> 本迭代（M1 收口与文档对齐）的技术笔记、问题与发现。
+> 本迭代（M2 前置硬缺口闭环）的技术笔记、问题与发现。
 > 覆盖型文档：每次迭代重写，保留本次迭代的技术细节。
+
+---
+
+## 0. 本迭代概览（DEC-036）
+
+**目标**：完成 20261021_m2-prereq-checklist 核验出的 F-001~F-006 六项硬缺口，为 M2 业务逻辑开发扫清障碍。
+
+**完成任务**：
+- T-010（F-001 Critical）：SyncService 补水位线/对账/幂等
+- T-011（F-002 Critical）：多成员同步隔离测试
+- T-012（F-003 Critical）：全链路端到端测试
+- T-014（F-005 High）：AppContainer 端口化 + ArchUnit 负例
+- T-015（F-006 High）：文档事实对齐
+
+**测试覆盖增长**：
+- `SyncServiceTest`：14 → 22 个单元测试方法（新增 8 个：水位线 6 + 多成员隔离 4，部分合并）
+- `FullChainSyncTest`：新增 7 个端到端场景
+- `ArchitectureTest`：13 → 14 条规则（新增 `appcontainer公开属性不得暴露infra具体类型`）
+
+**数据库迁移**：v5 → v6，新增 `sync_state` 表（复合主键 `(tableName, memberId)`）
 
 ---
 
@@ -17,6 +37,14 @@
   02_Architecture 生成并附来源标注。
 - **构建可用性属迭代交付物（DEC-015）**："能跑通一次 `./gradlew build`" 与代码同等重要，
   否则依赖组合失效会长期潜伏且无 diff 可查。
+- **水位线设计（DEC-036 组 A）**：`sync_state` 表复合主键 `(tableName, memberId)`，
+  每表每成员独立水位线。`pushedWatermark`/`pulledWatermark` 分开记录，
+  **先推后记**（`upsert` 返回 `true` 才更新），崩溃可重推但不丢。
+- **增量推送边界（DEC-036 组 A）**：`between(watermark + 1, MAX)`——`between` 是 inclusive on from，
+  `+1` 排除已推的行。幂等性由 PostgREST `on_conflict=merge-duplicates` 兜底，本地水位线只是优化闸门。
+- **AppContainer 端口化（DEC-036 组 D）**：所有对外暴露的 `val` 必须是端口类型
+  （`MemberProfileReader/Writer`、`DeviceRepository`、`BlePort`），具体实现只在容器内部持有。
+  ArchUnit 负例防止回退。
 
 ## 2. 遇到的问题与解决方案
 
@@ -343,6 +371,10 @@
 
 | 版本 | 日期 | 变更摘要 |
 |------|------|---------|
+| v69 | 2026-10-21 | DEC-035 组合根只暴露端口：先实证 ArchUnit 盲区——javap 显示 ScaleViewModel 字节码调用 getBleLink:()AndroidBleLink（另有 getDeviceRepository/getProfileStore），但 ArchUnit 统计的 106 个直接依赖里 infrastructure 包一个都没有，它不追踪方法体内的调用返回类型，据此否决评审的方案 B（返回类型规则会静默放行）；改用方案 A：AppContainer 四个具体类型属性改私有 XxxImpl，对外只给 blePort/deviceRepository/profileReader+profileWriter/authPort+cloudSessionPort，表现层 6 处取值点改端口；复验 infra 引用 3→0，413 项全绿 |
+| v68 | 2026-10-20 | DEC-034 组 F 评估后不采纳并收官（七组全部完成）：F-007 值对象的三条论据中两条已被 A/C/D 组顺带解决（Clock 收口时间语义、聚合与 String 混用会编译失败），第三条「参数顺序错」在 save(record, memberId) 上无相邻同类参数可换，memberId 传递链仅三段；ddd-architecture 9 项有效发现全关闭（6 修 + 3 评估关闭），余 ai-dev-readiness 11 项 |
+| v67 | 2026-10-20 | DEC-034 组 E 评估后部分不采纳：F-008 的「查询服务直访 DAO」被 ArchUnit 禁止（application 不依赖 infrastructure），15 处 between/recent 调用中 14 处本就在查询层或 SyncService，仅修 ScaleViewModel 一处绕过 MeasurementQuery 直捅仓储；F-009 的「Member 贫血」诊断不成立（nextId/nextSlot/normalizeNickname 与 MAX=8 均在实体内，MemberStore.add 只做编排）；两条软约束均记录不采纳理由入 DEC-034 与评审报告 |
+| v66 | 2026-10-20 | DEC-034 DDD 架构合规性修正（评审 10 项发现，A/B/C/D/G 五组落地）：A 事件类型化——DataChange sealed 替代 Unit 信号、四个 ViewModel 精确订阅、写用例剥离 SyncTrigger 改由 SyncOnLocalWrites 订阅点火、SettingsViewModel 发布动作下沉 RestoreAccountService/DeleteAccountService（评审原案「下沉 domain」经评估否决，理由入 DEC）；B 语义耦合下沉——ScaleDevice.algorithmFor 收敛三处重复的协议→算法映射，infrastructure 不再 import domain.algorithm；C 聚合根工厂——MeasureRecord/HealthLog/MemberProfile 各补 create 入口（体脂编排/习惯归一/昵称归一）+ Clock 抽象（写用例 currentTimeMillis 清零）；D 仓储契约——save 显式携带 memberId、聚合删除从未持有有效值的 memberId 死字段；G 评审报告自身修正（统计口径 2→1 Critical、F-010 撤回、F-006 数字更正）；新增 gov-code-check.py 五条源码规则（守卫负例自证 + 死 import/逐字重复/相似度/两处语义耦合），413 项全绿 |
 | v65 | 2026-10-17 | DEC-029 本地存储三处收口（凭据不入备份 / 档案键表单一事实源 / 迁移测试接执行）+ 反修复注解回弹与 git core.bare 事故记录 |
 | v64 | 2026-10-17 | DEC-028 硬编码治理（任务 A/B 落地）：A 网络配置集中化——新建 BackendConfig 收敛 TCB 域名与网络参数，CloudBaseGateway/SessionStore/CloudFunctionAi 改为引用，域名 2 处重复收敛为 1 处（服务去云绑定）；B 保守语义间距 token 化——MeasureScreen 10 处页面级间距映射到 QkSpacing（8dp→Sm、12dp→Md），图标/圆角/行内微间距保留裸 dp；任务 C 文案抽取评估暂缓（动态值占位符风险高、无多语言需求、不可测试验证） |
 | v59 | 2026-10-17 | DEC-026 组 H 修订（用户反馈「体测报告做得不好」）：头部卡恒在（无评分记录也有日期+大数字体重+增减，修复缺测量身份）、删重复的 BMI 独立卡（体型折进 BMI 行副标题）、身高/实际年龄移出关键指标表改「分析依据」脚注、指标图标映射补全（肥胖度/代谢/年龄等，新增 QkIcons.Age）；模拟器复验 + 295 项全绿 |

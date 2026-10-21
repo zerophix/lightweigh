@@ -48,4 +48,44 @@ if [ -d "$STATE_ROOT" ]; then
   done < <(find "$STATE_ROOT" -name '*.kt' -type f 2>/dev/null || true)
 fi
 
+# 分层纯度（ArchUnit 的源码面补充）：domain/application 必须保持纯 JVM。
+# 曾经为了把 Activity Context 传进 connectGatt，在 BlePort 上写成 setActivityContext(Any?)
+# ——编译器确实会拦 android.* 的直接 import，但拦不住用 Any 偷渡，所以另设此闸：
+# 只要内层 import 了 android/androidx 就说明平台概念又漏进内层了，应回头改成
+# 由 infrastructure 自行跟踪前台 Activity，而不是给端口开洞。
+INNER_ROOTS=("$ROOT/domain/src/main" "$ROOT/application/src/main")
+for d in "${INNER_ROOTS[@]}"; do
+  [ -d "$d" ] || continue
+  HITS="$(grep -rn --include='*.kt' --include='*.java' -E '^import (android|androidx)\.' "$d" || true)"
+  if [ -n "$HITS" ]; then
+    echo "  [FAIL] 内层模块（domain/application）禁止依赖 Android API——保持纯 JVM："
+    echo "$HITS"
+    exit 1
+  fi
+done
+
+# 表现层不得直连基础设施：feature/ui 只能依赖 application 端口与 domain。
+# ArchUnit 查的是字节码直接依赖，这条查源码 import，能在不跑 Gradle 时先拦一道。
+PRES_ROOTS=("$ROOT/app/src/main/kotlin/com/xcwk/scalehub/feature" "$ROOT/app/src/main/kotlin/com/xcwk/scalehub/ui")
+EXISTING=()
+for d in "${PRES_ROOTS[@]}"; do [ -d "$d" ] && EXISTING+=("$d"); done
+if [ "${#EXISTING[@]}" -gt 0 ]; then
+  HITS="$(grep -rn --include='*.kt' -E '^import com\.xcwk\.scalehub\.infrastructure' "${EXISTING[@]}" || true)"
+  if [ -n "$HITS" ]; then
+    echo "  [FAIL] 表现层禁止直接 import infrastructure——请经 BleGate / 端口转发："
+    echo "$HITS"
+    exit 1
+  fi
+fi
+
+# 源码质量（死 import / 重复实现 / 相似度分叉）
+# 容错：模板项目树内可能没有该脚本（它是项目自有扩展，不在 gov-owned.list）。
+# 跳过时必须留痕——静默跳过会让规则看起来生效而实际空转。
+CODE_CHECK="$ROOT/scripts/governance/gov-code-check.py"
+if [ -f "$CODE_CHECK" ]; then
+  python3 "$CODE_CHECK"
+else
+  echo "  (gov-code-check.py 不在树内，跳过源码质量检测)"
+fi
+
 exit 0

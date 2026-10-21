@@ -79,4 +79,20 @@ class MemberProfileTest {
         assertThat(MemberProfile.ageFrom(2000, 0, 0, today)).isEqualTo(26)
         assertThat(MemberProfile.ageFrom(0, 0, 0, today)).isEqualTo(0)
     }
+
+    // ---- create 工厂（DEC-034 组 C：昵称归一收敛到聚合）----
+
+    @Test
+    fun `create 昵称去空白并截断到二十_旧库口径`() {
+        // 旧库 ProfilePages.kt:491 的 trim().take(20)
+        val p = MemberProfile.create(true, 1996, 5, 20, 175, "  一二三四五六七八九十一二三四五六七八九十 extra  ")
+        assertThat(p.nickname).isEqualTo("一二三四五六七八九十一二三四五六七八九十")
+        assertThat(p.nickname.length).isEqualTo(20)
+    }
+
+    @Test
+    fun `create 短昵称原样保留`() {
+        val p = MemberProfile.create(true, 1996, 5, 20, 175, "小明")
+        assertThat(p.nickname).isEqualTo("小明")
+    }
 }

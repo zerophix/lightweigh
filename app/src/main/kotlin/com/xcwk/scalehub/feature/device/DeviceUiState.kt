@@ -21,7 +21,10 @@ data class DeviceUiState(
 )
 
 sealed interface DeviceIntent {
+    /** 切换扫描：扫描中→停止；空闲→开始（实现层自取前台 Activity，UI 无需关心 Context）。 */
     data object ToggleScan : DeviceIntent
+    /** 生命周期 ON_PAUSE：离开页面即停扫（旧库 BindActivity.onPause → stopScan）。 */
+    data object Pause : DeviceIntent
     data class Bind(val found: FoundScale) : DeviceIntent
 
     /** 扫码绑定（旧库 ScaleQr 路径：二维码只带 MAC/名称，默认 okok-1 协议）。 */

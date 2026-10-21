@@ -32,6 +32,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.xcwk.scalehub.application.query.TrendSegment
+import com.xcwk.scalehub.ui.components.segmentLabel
 import com.xcwk.scalehub.ui.components.QkBackButton
 import com.xcwk.scalehub.ui.components.QkButton
 import com.xcwk.scalehub.ui.components.QkButtonStyle
@@ -248,13 +249,6 @@ private fun HistoryLine(row: HistoryRowUi, onOpenReport: (Long) -> Unit, onDelet
             )
         }
     }
-}
-
-private fun segmentLabel(segment: TrendSegment): String = when (segment) {
-    TrendSegment.ALL_DAY -> "全天"
-    TrendSegment.MORNING -> "上午"
-    TrendSegment.AFTERNOON -> "下午"
-    TrendSegment.EVENING -> "晚上"
 }
 
 @Preview(showBackground = true)

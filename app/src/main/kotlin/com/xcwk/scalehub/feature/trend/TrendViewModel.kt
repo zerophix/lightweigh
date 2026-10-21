@@ -6,15 +6,15 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.xcwk.scalehub.App
+import com.xcwk.scalehub.application.DataChange
 import com.xcwk.scalehub.application.DataRefreshBus
 import com.xcwk.scalehub.application.query.TrendBlockRead
 import com.xcwk.scalehub.application.query.TrendDirection
 import com.xcwk.scalehub.application.query.TrendQuery
-import com.xcwk.scalehub.application.query.TrendRange
-import com.xcwk.scalehub.application.query.TrendSegment
 import com.xcwk.scalehub.application.query.TrendSeriesKind
 import com.xcwk.scalehub.application.query.TrendReading
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -39,9 +39,13 @@ class TrendViewModel(
 
     init {
         viewModelScope.launch { refresh() }
-        refreshBus?.changed?.let { signal ->
-            viewModelScope.launch { signal.collect { refresh() } }
-        }
+        // 只关心测量数据：本页读 TrendQuery → MeasurementRepository，
+        // 健康日志/档案变更与它无关（DEC-034 组 A，原来收到任何变更都全量重查）
+        refreshBus?.changed
+            ?.filter { it in TREND_RELEVANT }
+            ?.let { signal ->
+                viewModelScope.launch { signal.collect { refresh() } }
+            }
     }
 
     fun onIntent(intent: TrendIntent) {
@@ -135,6 +139,9 @@ class TrendViewModel(
     private fun signed(value: Double): String = if (value > 0) "+${one(value)}" else one(value)
 
     companion object {
+        /** 本页关心的数据变更：趋势图只画测量记录。 */
+        private val TREND_RELEVANT = setOf(DataChange.Measurements, DataChange.MemberScopeChanged)
+
         val Factory = viewModelFactory {
             initializer {
                 val app = this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as App

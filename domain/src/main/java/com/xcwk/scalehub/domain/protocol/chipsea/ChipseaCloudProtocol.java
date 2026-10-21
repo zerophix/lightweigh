@@ -1,5 +1,6 @@
 package com.xcwk.scalehub.domain.protocol.chipsea;
 
+import com.xcwk.scalehub.domain.protocol.ConnectionMode;
 import com.xcwk.scalehub.domain.protocol.ScaleEvent;
 import com.xcwk.scalehub.domain.protocol.ScaleProtocol;
 import com.xcwk.scalehub.domain.protocol.ScanMatch;
@@ -30,6 +31,15 @@ public final class ChipseaCloudProtocol implements ScaleProtocol {
     @Override
     public String id() {
         return ID;
+    }
+
+    /**
+     * 芯海秤是随机可解析地址——必须用扫描结果保留的 BluetoothDevice 实例连接。
+     * 用地址字符串重建会被当成公有地址，芯海秤就连不上（上游 ChipseaCloudProtocol.kt:18）。
+     */
+    @Override
+    public ConnectionMode connectionMode() {
+        return ConnectionMode.SCANNED_DEVICE;
     }
 
     @Override

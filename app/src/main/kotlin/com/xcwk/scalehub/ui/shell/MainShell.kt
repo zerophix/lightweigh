@@ -41,9 +41,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import com.xcwk.scalehub.App
 import com.xcwk.scalehub.feature.ai.AiRoute
 import com.xcwk.scalehub.feature.auth.AuthGateViewModel

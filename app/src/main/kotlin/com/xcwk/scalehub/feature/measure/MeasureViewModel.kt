@@ -7,12 +7,14 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.xcwk.scalehub.App
 import com.xcwk.scalehub.application.command.RecordMeasurementCommand
+import com.xcwk.scalehub.application.DataChange
 import com.xcwk.scalehub.application.DataRefreshBus
 import com.xcwk.scalehub.application.query.HealthLogItem
 import com.xcwk.scalehub.application.query.HealthLogQuery
 import com.xcwk.scalehub.application.query.MeasurementQuery
 import com.xcwk.scalehub.application.service.RecordMeasurementService
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -63,10 +65,13 @@ class MeasureViewModel(
 
     init {
         viewModelScope.launch { refresh() }
-        // 订阅数据源信号（DEC-021 支柱2：跨屏保存/删除后自动重读，替代 UiRefresh 计数）
-        refreshBus?.changed?.let { signal ->
-            viewModelScope.launch { signal.collect { refresh() } }
-        }
+        // 订阅数据源信号（DEC-021 支柱2：跨屏保存/删除后自动重读，替代 UiRefresh 计数）。
+        // 首页目标进度读 HomeGoalQuery = 测量 + 健康记录 + 目标 + 档案，故四类都关心
+        refreshBus?.changed
+            ?.filter { it in HOME_RELEVANT }
+            ?.let { signal ->
+                viewModelScope.launch { signal.collect { refresh() } }
+            }
     }
 
     private suspend fun refreshHome() {
@@ -122,6 +127,12 @@ class MeasureViewModel(
     }
 
     companion object {
+        /** 本页关心的数据变更：首页进度读测量 + 健康记录 + 目标 + 档案（HomeGoalQuery）。 */
+        private val HOME_RELEVANT = setOf(
+            DataChange.Measurements, DataChange.HealthLogs,
+            DataChange.Profile, DataChange.MemberScopeChanged,
+        )
+
         val Factory = viewModelFactory {
             initializer {
                 val app = this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as App

@@ -1,13 +1,39 @@
 {
-  "session_id": "sess-afb23s",
-  "base_head": "0a75be646e84c4bcf52ff40b04cfb470458129ff",
+  "session_id": "sess-3b1u3e",
+  "base_head": "98d61b75c0442ebe6d177df30eac8ba019fef870",
   "owned_files": [
+    ".cache/session-ledger.json",
     ".cache/session-marker.json",
-    ".cache/session.lock"
+    ".cache/session.lock",
+    "app/src/main/AndroidManifest.xml",
+    "app/src/main/kotlin/com/xcwk/scalehub/feature/device/DeviceScreen.kt",
+    "app/src/main/kotlin/com/xcwk/scalehub/feature/device/DeviceUiState.kt",
+    "app/src/main/kotlin/com/xcwk/scalehub/feature/device/DeviceViewModel.kt",
+    "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/scale/ScaleScreen.kt",
+    "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/scale/ScaleViewModel.kt",
+    "application/src/main/kotlin/com/xcwk/scalehub/application/ble/BlePort.kt",
+    "application/src/main/kotlin/com/xcwk/scalehub/application/measure/MeasureSession.kt",
+    "infrastructure/src/main/kotlin/com/xcwk/scalehub/infrastructure/ble/AndroidBleLink.kt",
+    "infrastructure/src/main/kotlin/com/xcwk/scalehub/infrastructure/ble/BlePermission.kt",
+    "\"docs/notes/BodyFatScale-\\347\\247\\273\\346\\244\\215\\346\\226\\271\\346\\241\\210.md\"",
+    "qk-health-release-skills.zip"
   ],
   "committed_files": [],
   "pending_files": [
+    ".cache/session-ledger.json",
     ".cache/session-marker.json",
-    ".cache/session.lock"
+    ".cache/session.lock",
+    "app/src/main/AndroidManifest.xml",
+    "app/src/main/kotlin/com/xcwk/scalehub/feature/device/DeviceScreen.kt",
+    "app/src/main/kotlin/com/xcwk/scalehub/feature/device/DeviceUiState.kt",
+    "app/src/main/kotlin/com/xcwk/scalehub/feature/device/DeviceViewModel.kt",
+    "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/scale/ScaleScreen.kt",
+    "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/scale/ScaleViewModel.kt",
+    "application/src/main/kotlin/com/xcwk/scalehub/application/ble/BlePort.kt",
+    "application/src/main/kotlin/com/xcwk/scalehub/application/measure/MeasureSession.kt",
+    "infrastructure/src/main/kotlin/com/xcwk/scalehub/infrastructure/ble/AndroidBleLink.kt",
+    "infrastructure/src/main/kotlin/com/xcwk/scalehub/infrastructure/ble/BlePermission.kt",
+    "\"docs/notes/BodyFatScale-\\347\\247\\273\\346\\244\\215\\346\\226\\271\\346\\241\\210.md\"",
+    "qk-health-release-skills.zip"
   ]
 }

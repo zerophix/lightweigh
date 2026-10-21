@@ -183,8 +183,20 @@ commands:
   path: application/src/test/kotlin/com/xcwk/scalehub/application/sync/SyncTriggerTest.kt
   status: stable
   type: gradle-test
+- description: 云推送点火订阅侧行为（本地写入点火/云端侧不回推/不补发历史/取消后停火, DEC-034 组 A）
+  path: application/src/test/kotlin/com/xcwk/scalehub/application/sync/SyncOnLocalWritesTest.kt
+  status: stable
+  type: gradle-test
 - description: 档案键登记守卫（KEY 常量集 == ALL_KEYS, DEC-029）
   path: infrastructure/src/test/kotlin/com/xcwk/scalehub/infrastructure/profile/ProfileStoreKeyTest.kt
+  status: stable
+  type: gradle-test
+- description: 同步编排行为（旧库 CloudSync 语义 + M2b 水位线/对账/幂等 + T-011 多成员隔离）
+  path: application/src/test/kotlin/com/xcwk/scalehub/application/sync/SyncServiceTest.kt
+  status: stable
+  type: gradle-test
+- description: 全链路端到端同步测试（本地写 → DataChange → SyncOnLocalWrites → SyncTrigger → SyncService → CloudDataPort, T-012）
+  path: application/src/test/kotlin/com/xcwk/scalehub/application/sync/FullChainSyncTest.kt
   status: stable
   type: gradle-test
 configs: []

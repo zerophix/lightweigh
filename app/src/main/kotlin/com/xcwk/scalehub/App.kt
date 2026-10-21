@@ -2,10 +2,12 @@ package com.xcwk.scalehub
 
 import android.content.Context
 import android.app.Application
+import com.xcwk.scalehub.application.DataChange
 import com.xcwk.scalehub.application.DataRefreshBus
-import com.xcwk.scalehub.application.ai.AiPort
 import com.xcwk.scalehub.application.ai.AiService
+import com.xcwk.scalehub.application.auth.AuthPort
 import com.xcwk.scalehub.application.auth.AuthService
+import com.xcwk.scalehub.application.ble.BlePort
 import com.xcwk.scalehub.application.query.HealthLogQuery
 import com.xcwk.scalehub.application.query.MeasurementQuery
 import com.xcwk.scalehub.application.query.ProfileQuery
@@ -13,15 +15,22 @@ import com.xcwk.scalehub.application.query.ReportQuery
 import com.xcwk.scalehub.application.query.TrendQuery
 import com.xcwk.scalehub.application.service.RecordHealthLogService
 import com.xcwk.scalehub.application.service.UpdateProfileService
+import com.xcwk.scalehub.application.sync.CloudSessionPort
+import com.xcwk.scalehub.application.sync.DeleteAccountService
+import com.xcwk.scalehub.application.sync.RestoreAccountService
 import com.xcwk.scalehub.application.sync.SyncService
+import com.xcwk.scalehub.application.sync.SyncOnLocalWrites
 import com.xcwk.scalehub.application.sync.SyncTrigger
 import com.xcwk.scalehub.application.service.DeleteMeasurementService
 import com.xcwk.scalehub.application.service.RecordMeasurementService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import com.xcwk.scalehub.domain.repository.DeviceRepository
 import com.xcwk.scalehub.domain.repository.HealthLogRepository
 import com.xcwk.scalehub.domain.repository.MeasurementRepository
+import com.xcwk.scalehub.domain.repository.MemberProfileReader
+import com.xcwk.scalehub.domain.repository.MemberProfileWriter
 import com.xcwk.scalehub.infrastructure.ai.CloudFunctionAi
 import com.xcwk.scalehub.infrastructure.ble.AndroidBleLink
 import com.xcwk.scalehub.infrastructure.cloud.CloudBaseGateway
@@ -49,15 +58,22 @@ class AppContainer(context: Context) {
     /** application 级后台作用域：云推送点火后在此执行（进程内存活，不随 VM 销毁）。 */
     val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-    /** 会话与认证（M2b）：同源实现双端口（会话读写 + 认证动作）。 */
-    val sessionStore: SessionStore by lazy { SessionStore(context) }
+    /**
+     * 会话与认证（M2b）：同源实现双端口（会话读写 + 认证动作）。
+     * 具体类型只在容器内可见，表现层经 [authPort] / [cloudSessionPort] 取用（DEC-035）。
+     */
+    private val sessionStoreImpl: SessionStore by lazy { SessionStore(context) }
 
-    val cloudGateway: CloudBaseGateway by lazy { CloudBaseGateway(sessionStore) }
+    val authPort: AuthPort get() = sessionStoreImpl
 
-    val database: AppDatabase by lazy { AppDatabase.get(context) }
+    val cloudSessionPort: CloudSessionPort get() = sessionStoreImpl
+
+    private val cloudGateway: CloudBaseGateway by lazy { CloudBaseGateway(sessionStoreImpl) }
+
+    private val database: AppDatabase by lazy { AppDatabase.get(context) }
 
     /** 本机测量用户（移植补齐：多成员）。 */
-    val memberRepository: com.xcwk.scalehub.infrastructure.member.MemberStore by lazy {
+    private val memberRepository: com.xcwk.scalehub.infrastructure.member.MemberStore by lazy {
         com.xcwk.scalehub.infrastructure.member.MemberStore(context)
     }
 
@@ -67,10 +83,17 @@ class AppContainer(context: Context) {
     val healthLogRepository: HealthLogRepository by lazy {
         RoomHealthLogRepository(database.healthLogDao(), memberRepository::activeId)
     }
-    val profileStore: ProfileStore by lazy { ProfileStore(context, memberRepository::activeId) }
+    /** 档案存取：同一个实现同时充当读口与写口，容器对外按用途分别暴露（DEC-035）。 */
+    private val profileStoreImpl: ProfileStore by lazy {
+        ProfileStore(context, memberRepository::activeId)
+    }
+
+    val profileReader: MemberProfileReader get() = profileStoreImpl
+
+    val profileWriter: MemberProfileWriter get() = profileStoreImpl
 
     /** 目标存储（移植补齐：首页目标进度卡）。 */
-    val goalStore: com.xcwk.scalehub.infrastructure.profile.GoalStore by lazy {
+    private val goalStore: com.xcwk.scalehub.infrastructure.profile.GoalStore by lazy {
         com.xcwk.scalehub.infrastructure.profile.GoalStore(context, memberRepository::activeId)
     }
 
@@ -78,28 +101,36 @@ class AppContainer(context: Context) {
     val setTargetWeight: (Float) -> Unit = { kg -> goalStore.targetWeight = kg }
 
     val recordMeasurementService: RecordMeasurementService by lazy {
-        RecordMeasurementService(measurementRepository, profileStore, dataRefreshBus, syncTrigger)
+        RecordMeasurementService(measurementRepository, profileStoreImpl, dataRefreshBus, memberId = activeMemberId)
     }
     val measurementQuery: MeasurementQuery by lazy { MeasurementQuery(measurementRepository) }
     val healthLogQuery: HealthLogQuery by lazy { HealthLogQuery(healthLogRepository) }
     val trendQuery: TrendQuery by lazy { TrendQuery(measurementRepository) }
     val recordHealthLogService: RecordHealthLogService by lazy {
-        RecordHealthLogService(healthLogRepository, dataRefreshBus, syncTrigger)
+        RecordHealthLogService(healthLogRepository, dataRefreshBus, memberId = activeMemberId)
     }
-    val profileQuery: ProfileQuery by lazy { ProfileQuery(profileStore) }
+    val profileQuery: ProfileQuery by lazy { ProfileQuery(profileStoreImpl) }
 
     /** 首页目标进度查询（移植补齐 H1）。 */
     val homeGoalQuery: com.xcwk.scalehub.application.query.HomeGoalQuery by lazy {
         com.xcwk.scalehub.application.query.HomeGoalQuery(
-            measurementRepository, healthLogRepository, goalStore, profileStore,
+            measurementRepository, healthLogRepository, goalStore, profileStoreImpl,
         )
     }
     val reportQuery: ReportQuery by lazy { ReportQuery(measurementRepository) }
     val updateProfileService: UpdateProfileService by lazy {
-        UpdateProfileService(profileStore, syncTrigger)
+        UpdateProfileService(profileStoreImpl, dataRefreshBus)
     }
     val deleteMeasurementService: DeleteMeasurementService by lazy {
         DeleteMeasurementService(measurementRepository, dataRefreshBus)
+    }
+
+    /** 账号恢复 / 注销用例（表现层不发数据变更信号，广播在此层收口）。 */
+    val restoreAccountService: RestoreAccountService by lazy {
+        RestoreAccountService(syncService, dataRefreshBus)
+    }
+    val deleteAccountService: DeleteAccountService by lazy {
+        DeleteAccountService(syncService, dataRefreshBus)
     }
 
     /** 头像存取口（AvatarStore 藏在容器后，feature 层只见函数类型）。 */
@@ -116,7 +147,7 @@ class AppContainer(context: Context) {
     val activeMemberId: () -> String = { memberRepository.activeId() }
     val switchMember: (String) -> Unit = { id ->
         memberRepository.switch(id)
-        dataRefreshBus.notifyChanged()
+        dataRefreshBus.notifyChanged(DataChange.MemberScopeChanged)
     }
     val addMember: (String) -> Boolean = { name ->
         memberRepository.add(name) != null
@@ -125,7 +156,7 @@ class AppContainer(context: Context) {
         val ok = memberRepository.remove(id)
         if (ok) {
             removeMemberLocalData(id)
-            dataRefreshBus.notifyChanged()
+            dataRefreshBus.notifyChanged(DataChange.MemberScopeChanged)
         }
         ok
     }
@@ -136,7 +167,7 @@ class AppContainer(context: Context) {
 
     /** 删除某成员的本机痕迹：档案键 + 头像文件（测量/健康记录随 member_id 留档，声明口径）。 */
     val removeMemberLocalData: (String) -> Unit = { id ->
-        profileStore.clearMember(id)
+        profileStoreImpl.clearMember(id)
         avatarStore.removeFor(id)
     }
 
@@ -145,30 +176,42 @@ class AppContainer(context: Context) {
     val aiPrefill: () -> String = { aiPrefillText }
 
     /** 正式账号读取口（SessionStore 藏在容器后，feature 层不直调 infra）。 */
-    val isFormalAccount: () -> Boolean = { sessionStore.isFormalAccount() }
+    val isFormalAccount: () -> Boolean = { sessionStoreImpl.isFormalAccount() }
 
-    /** 已绑定秤仓储（M3c）。 */
-    val deviceRepository: RoomDeviceRepository by lazy {
+    /** 已绑定秤仓储（M3c）。具体类型不出容器，表现层只见端口（DEC-035）。 */
+    private val deviceRepositoryImpl: RoomDeviceRepository by lazy {
         RoomDeviceRepository(AppDatabase.get(context).deviceDao())
     }
 
+    val deviceRepository: DeviceRepository get() = deviceRepositoryImpl
+
     val syncService: SyncService by lazy {
         SyncService(
-            sessionStore, cloudGateway, sessionStore, deviceRepository, goalStore,
-            measurementRepository, healthLogRepository, profileStore, profileStore,
+            sessionStoreImpl, cloudGateway, sessionStoreImpl, deviceRepositoryImpl, goalStore,
+            measurementRepository, healthLogRepository, profileStoreImpl, profileStoreImpl,
+            memberId = activeMemberId,
         )
     }
 
     /**
-     * 云推送触发器（P0 断链修复）：写用例落库后 fire()，后台执行 push。
-     * 定义在 syncService 之后但按需懒构造——服务侧 lazy 引用不会成环。
+     * 云推送触发器：本地写入事件点火（DEC-034 组 A，替代 F-002 的「写用例注入 SyncTrigger」）。
+     *
+     * 用例现在只发 DataChange，既不知道 UI 也不知道云；换同步策略（批量/定时/仅 Wi-Fi）
+     * 只改 [SyncOnLocalWrites] 一处订阅，不必动任何用例。
+     *
+     * 订阅在容器构造期即启动（不能藏在 lazy 里：lazy 要等首次访问才初始化，
+     * 而用例不再持有它的引用，第一个写入事件可能在订阅建立前就发出去了）。
      */
     val syncTrigger: SyncTrigger by lazy { SyncTrigger(applicationScope) { syncService.push() } }
 
-    val authService: AuthService by lazy { AuthService(sessionStore, syncService) }
+    init {
+        SyncOnLocalWrites(dataRefreshBus, applicationScope, syncTrigger).start()
+    }
+
+    val authService: AuthService by lazy { AuthService(sessionStoreImpl, syncService) }
 
     /** AI 问答（M2c）：实现随 M2 部署联调（云函数 ai-chat）。 */
-    val aiService: AiService by lazy { AiService(sessionStore, CloudFunctionAi(sessionStore)) }
+    val aiService: AiService by lazy { AiService(sessionStoreImpl, CloudFunctionAi(sessionStoreImpl)) }
 
     /** 测量页偏好（"不再提示只存体重"开关，旧库 skipWeightOnlyPrompt）。 */
     private val measurePrefs: android.content.SharedPreferences by lazy {
@@ -178,6 +221,11 @@ class AppContainer(context: Context) {
     /** "不再提示只存体重"读取口（SharedPreferences 藏在容器后，feature 层不直触）。 */
     val skipWeightOnlyPrompt: () -> Boolean = { measurePrefs.getBoolean("skip_weight_only", false) }
 
-    /** 蓝牙链路（M3c）：测量页经 MeasureSession 使用；权限门在 trigger 层。 */
-    val bleLink: AndroidBleLink by lazy { AndroidBleLink(context) }
+    /**
+     * 蓝牙链路（M3c）：测量页经 MeasureSession 使用；权限门在 trigger 层。
+     * 具体类型不出容器，表现层只见 [BlePort]（DEC-035）。
+     */
+    private val bleLinkImpl: AndroidBleLink by lazy { AndroidBleLink(context) }
+
+    val blePort: BlePort get() = bleLinkImpl
 }

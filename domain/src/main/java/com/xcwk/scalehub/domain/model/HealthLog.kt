@@ -1,5 +1,6 @@
 package com.xcwk.scalehub.domain.model
 
+import com.xcwk.scalehub.domain.types.Clock
 import com.xcwk.scalehub.domain.types.DomainException
 
 /**
@@ -14,6 +15,9 @@ import com.xcwk.scalehub.domain.types.DomainException
  *                                   负数无业务含义；weight 的 -1 体脂哨兵不在此路径]
  *
  * 读写同路径守卫：Room 读映射经本构造器，脏行 fail-fast（同 MeasureRecord 语义）。
+ *
+ * 成员归属不在此聚合内（DEC-034 组 D / F-005，同 MeasureRecord）：归属由仓储端口
+ * 签名 save(log, memberId) 显式携带，聚合只描述「一条记录的事实」。
  */
 data class HealthLog(
     val time: Long,
@@ -22,8 +26,6 @@ data class HealthLog(
     val value2: Double,
     val label: String,
     val note: String,
-    /** 归属成员（多成员维；仓储落库时以当前成员盖章）。 */
-    val memberId: String = "",
 ) {
     init {
         if (time <= 0) {
@@ -39,6 +41,28 @@ data class HealthLog(
         }
         if (value2 < 0) {
             throw DomainException("副值不可为负: $value2")
+        }
+    }
+
+    companion object {
+        /**
+         * 新建一条健康记录（DEC-034 组 C / F-003 + F-006）。
+         *
+         * 收进聚合的两件事：
+         *  1. **习惯类主值归一为 1.0**（旧库 RecordScreen 保存分支 Pages.kt:539
+         *     `add("habit", 1.0, ...)`——习惯记录的主值恒为 1，名称才是记录主体）
+         *  2. **时间戳盖章**——时间由 [Clock] 取，用例拿不到时钟也就绕不过盖章规则
+         */
+        fun create(
+            type: String,
+            value: Double,
+            value2: Double,
+            label: String,
+            note: String,
+            clock: Clock,
+        ): HealthLog {
+            val normalized = if (HealthLogType.fromWire(type) == HealthLogType.HABIT) 1.0 else value
+            return HealthLog(clock.nowMillis(), type, normalized, value2, label, note)
         }
     }
 }

@@ -42,9 +42,10 @@ class RoomMappingTest {
             1700000000000L, 70.0, 500.0, 18.4, "AA:BB", "okok-bia-1",
             true, 30, 175,
         )
-        repo.save(record)
+        repo.save(record, "member-1")
         assertThat(dao.saved).hasSize(1)
         assertThat(dao.saved[0].male).isTrue()
+        assertThat(dao.saved[0].memberId).isEqualTo("member-1")
         assertThat(dao.saved[0].ageYears).isEqualTo(30)
         assertThat(dao.saved[0].heightCm).isEqualTo(175)
 
