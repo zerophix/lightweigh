@@ -220,6 +220,13 @@ echo -e "${BOLD}========================================${NC}"
   echo "    1. Claude Code 启动自动读取交接"
   echo "    2. 必须向人类确认下一步方向"
   echo "    3. 确认后继续：bash scripts/workflow/wf-task-board.sh confirm"
+
+# ── 8. 清理会话标识（保留 staged-claims 供下一会话审计）──
+SESSION_FILE="$ROOT/.ai/current-session.json"
+if [ -f "$SESSION_FILE" ]; then
+  echo " 清理会话标识: $SESSION_FILE"
+  rm -f "$SESSION_FILE"
+fi
 }
 
 case "${1:-}" in

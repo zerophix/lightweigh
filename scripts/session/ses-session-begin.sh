@@ -5,10 +5,11 @@
 # 被 .claude/settings.json 的 SessionStart hook 调用
 #
 # 职责:
-#   1. 加载上下文缓存
-#   2. 读取收件箱 — 强制展示未读消息
-#   3. 读取任务板 — 展示待确认的下一步 + 进行中任务
-#   4. 输出结构化接力提示 → AI 启动时必读
+#   1. 生成/恢复会话 ID 并写入 .ai/current-session.json
+#   2. 加载上下文缓存
+#   3. 读取收件箱 — 强制展示未读消息
+#   4. 读取任务板 — 展示待确认的下一步 + 进行中任务
+#   5. 输出结构化接力提示 → AI 启动时必读
 # ============================================================
 
 set -euo pipefail
@@ -21,9 +22,38 @@ CACHE_SCRIPT="$ROOT/scripts/session/ses-context-cache.sh"
 INBOX_DIR="$ROOT/docs/ai/inbox"
 TASKS_FILE="$ROOT/.ai/tasks.json"
 STATUS_FILE="$ROOT/STATUS.md"
+SESSION_FILE="$ROOT/.ai/current-session.json"
 
-# 静默模式：所有失败吞掉，不阻塞 Claude Code 启动
-# 但接力提示输出到 stdout，AI 无法忽视
+# ---------- 0. 生成/恢复会话 ID ----------
+# 优先复用现有会话（同一终端连续启动），否则生成新 ID
+if [ -f "$SESSION_FILE" ]; then
+  EXISTING_ID=$(python3 -c "
+import json, time
+with open('$SESSION_FILE') as f:
+    d = json.load(f)
+sid = d.get('session_id', '')
+ts = d.get('timestamp', 0)
+if time.time() - ts < 86400:  # 24h 内复用
+    print(sid)
+" 2>/dev/null)
+else
+  EXISTING_ID=""
+fi
+
+if [ -n "$EXISTING_ID" ]; then
+  SESSION_ID="$EXISTING_ID"
+else
+  SESSION_ID="ses-$(date -u +%Y%m%d-%H%M%S)-$(head -c 4 /dev/urandom | od -An -tx1 | tr -d ' \n')"
+fi
+
+python3 -c "
+import json, time
+data = {'session_id': '$SESSION_ID', 'timestamp': time.time()}
+with open('$SESSION_FILE', 'w') as f:
+    json.dump(data, f, ensure_ascii=False)
+" 2>/dev/null
+
+echo "🆔 会话标识: $SESSION_ID"
 
 # ---------- 1. 加载上下文缓存 ----------
 if [ -f "$CACHE_SCRIPT" ]; then

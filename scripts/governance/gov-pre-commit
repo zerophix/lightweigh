@@ -26,6 +26,73 @@ if [ "$BRANCH" = "master" ]; then
   fi
 fi
 
+# =============================================================
+# 阶段 0b: 会话归属校验 (T-003) — 防止跨会话误提交
+# =============================================================
+SESSION_FILE="$ROOT/.ai/current-session.json"
+CLAIM_FILE="$ROOT/.ai/staged-claims.json"
+
+if [ -f "$SESSION_FILE" ]; then
+  CURRENT_SESSION=$(python3 -c "
+import json
+with open('$SESSION_FILE') as f:
+    d = json.load(f)
+print(d.get('session_id', ''))
+" 2>/dev/null)
+else
+  CURRENT_SESSION=""
+fi
+
+if [ -n "$CURRENT_SESSION" ]; then
+  # 读取已暂存文件
+  STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACMR)
+  
+  if [ -n "$STAGED_FILES" ]; then
+    # 读取声明文件
+    if [ -f "$CLAIM_FILE" ]; then
+      UNCLAIMED=""
+      WRONG_CLAIM=""
+      
+      while IFS= read -r file; do
+        [ -z "$file" ] && continue
+        CLAIMED_BY=$(python3 -c "
+import json, sys
+with open('$CLAIM_FILE') as f:
+    claims = json.load(f)
+print(claims.get(sys.argv[1], ''))
+" "$file" 2>/dev/null)
+        
+        if [ -z "$CLAIMED_BY" ]; then
+          UNCLAIMED="$UNCLAIMED $file"
+        elif [ "$CLAIMED_BY" != "$CURRENT_SESSION" ]; then
+          WRONG_CLAIM="$WRONG_CLAIM $file (归属: $CLAIMED_BY)"
+        fi
+      done <<< "$STAGED_FILES"
+      
+      if [ -n "$UNCLAIMED" ]; then
+        echo "❌ 暂存区有未声明归属的文件 (T-003 归属校验):"
+        for f in $UNCLAIMED; do echo "   $f"; done
+        echo "   请先声明归属: bash scripts/session/ses-claim-staged.sh"
+        echo "   或跳过: git commit --no-verify"
+        exit 1
+      fi
+      
+      if [ -n "$WRONG_CLAIM" ]; then
+        echo "❌ 暂存区有归属其他会话的文件 (T-003 归属校验):"
+        for f in $WRONG_CLAIM; do echo "   $f"; done
+        echo "   请先取消暂存或由归属会话提交"
+        echo "   或跳过: git commit --no-verify"
+        exit 1
+      fi
+    else
+      echo "⚠️  暂存区有文件但无归属声明文件 (T-003)"
+      echo "   请声明归属: bash scripts/session/ses-claim-staged.sh"
+      echo "   或跳过: git commit --no-verify"
+      exit 1
+    fi
+  fi
+fi
+
 # Detect changes
 CHANGED_DOCS=$(git diff --cached --name-only --diff-filter=ACMR | grep '^docs/' || true)
 CHANGED_MD=$(git diff --cached --name-only --diff-filter=ACMR | grep '\.md$' || true)
