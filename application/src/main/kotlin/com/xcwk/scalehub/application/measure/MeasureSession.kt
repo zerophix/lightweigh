@@ -93,11 +93,13 @@ class MeasureSession(
     fun start() {
         if (closed) return
         if (!ble.isBluetoothEnabled()) {
+            DebugLog.add("session", "start: BT disabled — 扫描未启动")
             showWait("请打开蓝牙", "打开手机蓝牙后才能连接体脂秤")
             _state.update { it.copy(notice = "手机蓝牙未打开") }
             return
         }
         if (devices.devices().isEmpty()) {
+            DebugLog.add("session", "start: no bound scale — 扫描未启动")
             showWait("无法连接", "请先绑定体脂秤")
             _state.update { it.copy(link = "未连接", needBind = true) }
             return
@@ -107,6 +109,7 @@ class MeasureSession(
         scope.launch {
             lastWeightRaw = lastWeightTenths()
             if (closed) return@launch
+            DebugLog.add("session", "scan begin: lastWeightRaw=$lastWeightRaw bound=${devices.devices().size}")
             beginConnectWait()
             watchForScale()
         }
@@ -148,6 +151,8 @@ class MeasureSession(
         cancelRetry()
         cancelZero()
         cancelTips()
+        scanVerdictJob?.cancel()
+        scanVerdictJob = null
         ble.stopScan()
         ble.disconnect()
     }
@@ -158,9 +163,24 @@ class MeasureSession(
     private var scanGateLogged = false
     private var scanUnboundLogged = false
 
+    /** 扫描证据计数与看门狗：N 秒无绑定命中即落一行定论，不让「等死」只表现为无限流水。 */
+    private var scanAdCount = 0
+    private var scanVerdictJob: Job? = null
+
     private fun watchForScale() {
         scanGateLogged = false
         scanUnboundLogged = false
+        scanAdCount = 0
+        scanVerdictJob?.cancel()
+        scanVerdictJob = scope.launch {
+            delay(SCAN_VERDICT_MS)
+            if (closed || phase.picked) return@launch
+            DebugLog.add(
+                "session",
+                "scan verdict ${SCAN_VERDICT_MS / 1000}s: $scanAdCount ads, bound match=0 " +
+                    "— 秤未广播或未绑定（查占线/bonded/是否已唤醒）",
+            )
+        }
         ble.scan(object : BleScanListener {
             override fun onScanStarted() {
                 _state.update { it.copy(notice = "开始寻找已绑定的秤") }
@@ -174,6 +194,7 @@ class MeasureSession(
 
             override fun onDeviceFound(name: String, deviceMac: String, rssi: Int, scanRecord: ByteArray?) {
                 if (closed) return
+                scanAdCount++
                 if (ble.isConnected()) {
                     // 守卫1（静默路径）：链路已连着时扫描结果全部作废——不打日志会表现为
                     // 「扫描流水不断却永远不 connect」，与秤无广播完全同相，必须留证据
@@ -849,6 +870,9 @@ class MeasureSession(
         const val QUIET_RETRY_DELAY_MS = 800L
         const val ZERO_DELAY_MS = 1000L
         const val TIP_DELAY_MS = 4000L
+
+        /** 扫描看门狗：此窗口内零绑定命中即落一行定论（悬浮面板不允许「无限等待无结论」）。 */
+        const val SCAN_VERDICT_MS = 8000L
         const val OkokBroadcastProtocolId = "okok-broadcast-1"
         val TIPS = listOf(
             "双脚尽量覆盖所有电极片",
