@@ -371,6 +371,7 @@
 
 | 版本 | 日期 | 变更摘要 |
 |------|------|---------|
+| v74 | 2026-10-21 | DEC-038 第 4 条根因：连接地址移植缺口——参考全部连接点用扫描活地址（linkAddress=deviceMac），我们误用绑定表存档地址，芯海随机地址轮换后 scannedDevices 查不到即「没有扫到这台芯海秤」失败；MeasureSession 增 linkAddress，首连/quietReconnect/retryConnect 统一活地址优先，start() 清空；协议解析层与参考逐字节对拍一致（非解析问题） |
 | v73 | 2026-10-21 | DEC-038 真机追因轮：协议标记穷举证实秤广播缺席（47 条 0 命中）后四路收口——链路防固件静默死锁（订阅 CCCD/写队列 3s 超时+身份校验）、扫描门两静默守卫补去重证据日志、扫描模式对齐参考 LOW_LATENCY（原 BALANCED 半占空比错过唤醒脉冲）、悬浮日志防洪（ble 层抽样+5s 汇总+停扫总账，session 判决层不抽样）+ 8s 扫描看门狗定论行 + start 守卫日志；修 DeviceScreen heroText 硬编码「已连接」UI 谎言（绑定页从不建连，该字样误导真机排查数轮，改「使用中」）；5 条新回归测试 |
 | v72 | 2026-10-21 | DEC-040 全链路调试日志：BleDebugLog 泛化改名 application.debug.DebugLog（语义覆盖 ble/session/sync/cloud/ai/auth，测试类同步更名 DebugLogTest）；四链路插桩约 30 处——SyncService 记 push/restore/deleteAccount 成败+四表条数水位线+拉取失败定位+坏行跳过，CloudBaseGateway/CloudFunctionAi/SessionStore 的 request() 统一记 http method/path/code 与网络异常（runCatching 吞掉的失败从此可见）；敏感信息硬约束：auth 只记 path 不记含 verify_code 的 query，token/验证码/手机号禁入日志；面板标题改「调试日志」；374 测试+ArchUnit 14 条全绿 |
 | v71 | 2026-10-21 | DEC-039 蓝牙调试悬浮球：application 层新增 BleDebugLog（纯 JVM 环形缓冲 2 万行，synchronized，logcat 双写不破坏原行为）；AndroidBleLink blog() 收敛 12 处日志点并补齐 TX/RX hex、订阅逐特征进度、读失败分支；MeasureSession 编排日志 25 处（协议重绑/连接回调/帧解析/封存/落库分支）；app 新增 ui.debug.DebugOverlay 悬浮球+面板（拖动吸附/一键复制/清空/自动贴底），面板经真机反馈由全屏改为底部 62% 小窗（顶部圆角、点外遮罩关闭）；MainActivity Box 叠加，BuildConfig.DEBUG 门控（buildFeatures 开 buildConfig）；374 测试+ArchUnit 14 条全绿 |

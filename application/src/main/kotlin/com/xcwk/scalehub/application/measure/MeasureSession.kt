@@ -85,6 +85,14 @@ class MeasureSession(
 
     private val closed: Boolean get() = phase is SessionPhase.Closed
     private val mac: String? get() = binding?.mac
+
+    /**
+     * 连接用的活地址：必须用本次扫描结果里的地址（参考 MeasureActivity.linkAddress :325-326）。
+     * 芯海是随机地址秤，绑定表里存的地址可能已轮换失效；connectScannedDevice 按地址查
+     * 扫描缓存 scannedDevices，用死地址查不到即报「没有扫到这台芯海秤」——参考项目
+     * 用扫描活地址直连、我们曾用绑定死地址，正是「参考连得上我们连不上」的根因（DEC-038）。
+     */
+    private var linkAddress: String? = null
     private val protocol: ScaleProtocol? get() = binding?.protocol
 
     // ---- 对外入口（trigger 层调用）----
@@ -105,6 +113,7 @@ class MeasureSession(
             return
         }
         binding = null
+        linkAddress = null
         // DEC-038 组D：先取到上次体重再开扫——首包用户信息与 3kg 差值守卫都不允许读到 -1
         scope.launch {
             lastWeightRaw = lastWeightTenths()
@@ -228,7 +237,9 @@ class MeasureSession(
                         deliverBroadcast(scanRecord)
                         return
                     }
-                    ble.connect(chosen.mac, connectListener, proto.connectionMode())
+                    // 参考 MeasureActivity :325-326：连扫描活地址，不用绑定表死地址
+                    linkAddress = deviceMac
+                    ble.connect(deviceMac, connectListener, proto.connectionMode())
                     return
                 }
                 val proto = protocol
@@ -647,7 +658,8 @@ class MeasureSession(
     private fun quietReconnect() {
         quietRetryJob = null
         if (closed || phase.sealed || !phase.linkReady || !phase.steppingOff) return
-        val currentMac = mac ?: return
+        // 参考 quietReconnect :829：linkAddress ?: mac，活地址优先
+        val currentMac = linkAddress ?: mac ?: return
         ble.connect(currentMac, connectListener, protocol?.connectionMode() ?: ConnectionMode.PUBLIC_ADDRESS)
     }
 
@@ -692,13 +704,14 @@ class MeasureSession(
         retryJob = null
         if (closed || phase.sealed || phase.linkReady) return
         if (ble.isConnecting()) return
-        val currentMac = mac
+        // 参考 retryConnect :853：linkAddress ?: mac，活地址优先
+        val address = linkAddress ?: mac
         val proto = protocol
-        if (currentMac == null || proto == null || proto.requiredCharacteristic() == null) {
+        if (address == null || proto == null || proto.requiredCharacteristic() == null) {
             if (!phase.picked) watchForScale()
             return
         }
-        ble.connect(currentMac, connectListener, proto.connectionMode())
+        ble.connect(address, connectListener, proto.connectionMode())
     }
 
     private fun beginConnectWait() {
