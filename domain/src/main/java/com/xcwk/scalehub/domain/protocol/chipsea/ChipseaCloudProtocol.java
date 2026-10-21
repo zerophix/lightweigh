@@ -7,6 +7,7 @@ import com.xcwk.scalehub.domain.protocol.ScanMatch;
 import com.xcwk.scalehub.domain.protocol.HexUtil;
 
 import java.util.Calendar;
+import java.util.Locale;
 import java.util.UUID;
 
 /**
@@ -173,7 +174,8 @@ public final class ChipseaCloudProtocol implements ScaleProtocol {
             return null;
         }
         int version = scanRecord[index + 2] & 0xFF;
-        if (version != BROADCAST_VERSION) {
+        // forceChipsea: 设备名称包含 "Chipsea"，跳过版本 0x02 检查
+        if (!isChipseaName(scanRecord) && version != BROADCAST_VERSION) {
             return null;
         }
         int property = scanRecord[index + 3] & 0xFF;
@@ -252,11 +254,15 @@ public final class ChipseaCloudProtocol implements ScaleProtocol {
      * 只看厂商数据开头。厂商标识 0xFFF0 小端是 F0 FF，有的秤直接发 FF F0，下一字节必须是 0x02。
      * 服务列表里的 FFF0 也是 F0 FF，后面常跟着下一组广告的长度 0x02，那不是芯海版本。
      * 开头已是 OKOK 的 0x10 或 0x11 时，整段都不要认成芯海。
+     *
+     * 例如外壳，但广播版本 0x10 的 Chipsea_BLE 设备名称包含 "Chipsea"，
+     * 应当跳过 OKOK 排除逻辑，仍然识别为芯海云端版 (chipsea-cloud-1)。
      */
     private static int marker(byte[] data) {
         if (data == null) {
             return -1;
         }
+        boolean forceChipsea = isChipseaName(data);
         int cursor = 0;
         boolean sawStructure = false;
         while (cursor + 1 < data.length) {
@@ -269,12 +275,19 @@ public final class ChipseaCloudProtocol implements ScaleProtocol {
             int start = cursor + 2;
             int end = cursor + 1 + length;
             if (type == 0xFF) {
-                if (vendorVersion(data, start, end, 0x10) || vendorVersion(data, start, end, 0x11)) {
+                if (!forceChipsea &&
+                    (vendorVersion(data, start, end, 0x10) || vendorVersion(data, start, end, 0x11))) {
                     return -1;
                 }
                 int found = chipseaAt(data, start, end);
                 if (found >= 0) {
                     return found;
+                }
+                if (forceChipsea) {
+                    int forced = chipseaAtTagOnly(data, start, end);
+                    if (forced >= 0) {
+                        return forced;
+                    }
                 }
             }
             cursor += 1 + length;
@@ -282,15 +295,63 @@ public final class ChipseaCloudProtocol implements ScaleProtocol {
         if (sawStructure) {
             return -1;
         }
-        if (vendorVersion(data, 0, data.length, 0x10) || vendorVersion(data, 0, data.length, 0x11)) {
+        if (!forceChipsea &&
+            (vendorVersion(data, 0, data.length, 0x10) || vendorVersion(data, 0, data.length, 0x11))) {
             return -1;
         }
-        return chipseaAt(data, 0, data.length);
+        int found = chipseaAt(data, 0, data.length);
+        if (found >= 0) {
+            return found;
+        }
+        if (forceChipsea) {
+            return chipseaAtTagOnly(data, 0, data.length);
+        }
+        return -1;
+    }
+
+    /**
+     * 从扫描记录中提取设备名称 (AD type 0x09 / 0x08)，
+     * 如果名称包含 "Chipsea" (不区分大小写) 则返回 true。
+     * 用于识别广播版本为 OKOK (0x10) 但 GATT 使用 Chipsea 协议的混合设备。
+     */
+    private static boolean isChipseaName(byte[] data) {
+        if (data == null) {
+            return false;
+        }
+        int cursor = 0;
+        while (cursor + 1 < data.length) {
+            int length = data[cursor] & 0xFF;
+            if (length == 0 || cursor + 1 + length > data.length) {
+                break;
+            }
+            int type = data[cursor + 1] & 0xFF;
+            if (type == 0x09 || type == 0x08) {
+                // AD type 0x09 = Complete Local Name, 0x08 = Short Local Name
+                String name = new String(data, cursor + 2, length - 1, java.nio.charset.StandardCharsets.UTF_8);
+                if (name.toLowerCase(Locale.ROOT).contains("chipsea")) {
+                    return true;
+                }
+            }
+            cursor += 1 + length;
+        }
+        return false;
     }
 
     private static int chipseaAt(byte[] data, int start, int end) {
         int at = tagIndex(data, start, end);
         if (at >= 0 && end - at >= 6 && (data[at + 2] & 0xFF) == BROADCAST_VERSION) {
+            return at;
+        }
+        return -1;
+    }
+
+    /**
+     * 仅查找厂商标签 (FF F0 或 F0 FF), 不检查版本字节。
+     * 用于 forceChipsea 模式: 名称含 "Chipsea" 的设备跳过版本检查。
+     */
+    private static int chipseaAtTagOnly(byte[] data, int start, int end) {
+        int at = tagIndex(data, start, end);
+        if (at >= 0 && end - start >= 6 && end - at >= 6) {
             return at;
         }
         return -1;

@@ -67,6 +67,51 @@ class ChipseaCloudProtocolTest {
         }
     }
 
+    /** AD 结构广播：[Flags][FF F0 厂商数据 版本 0x10][设备名称 Chipsea_BLE] */
+    private fun hybridAdvertisement(property: Int, weightRaw: Int, mac: ByteArray, name: String): ByteArray {
+        // 构造包含厂商数据 + 设备名称的扫描记录
+        val mfrData = ByteArray(15)  // 厂商数据: FF F0 + version + property + weightLE + MAC(6) + 2预留
+        mfrData[0] = 0xFF.toByte()
+        mfrData[1] = 0xF0.toByte()
+        mfrData[2] = 0x10  // OKOK 版本
+        mfrData[3] = property.toByte()
+        mfrData[4] = weightRaw.toByte()
+        mfrData[5] = (weightRaw shr 8).toByte()
+        System.arraycopy(mac, 0, mfrData, 6, 6)
+
+        val nameBytes = name.toByteArray(Charsets.UTF_8)
+        // AD 结构: [长度][类型][数据]
+        val record = ByteArray(1 + 1 + mfrData.size + 1 + 1 + nameBytes.size)
+        var pos = 0
+        // 厂商数据 AD 结构
+        record[pos++] = (mfrData.size + 1).toByte()  // 长度 (数据 + 类型)
+        record[pos++] = 0xFF.toByte()                // 类型: 厂商自定义
+        System.arraycopy(mfrData, 0, record, pos, mfrData.size)
+        pos += mfrData.size
+        // 设备名称 AD 结构
+        record[pos++] = (nameBytes.size + 1).toByte()
+        record[pos++] = 0x09.toByte()                // 类型: 完整本地名称
+        System.arraycopy(nameBytes, 0, record, pos, nameBytes.size)
+        return record
+    }
+
+    @Test
+    fun `chipsea device name with okok version 0x10 is recognized as chipsea`() {
+        val mac = byteArrayOf(0x11, 0x22, 0x33, 0x44, 0x55, 0x66)
+        val record = hybridAdvertisement(0x00, 6550, mac, "Chipsea_BLE")
+        val match = ChipseaCloudProtocol.INSTANCE.match(record)
+        requireNotNull(match)
+        assertThat(match.protocolId).isEqualTo("chipsea-cloud-1")
+        assertThat(match.summary).isEqualTo("65.5 kg  云端版")
+    }
+
+    @Test
+    fun `plain okok device without chipsea name still rejected`() {
+        val mac = byteArrayOf(0x11, 0x22, 0x33, 0x44, 0x55, 0x66)
+        val record = hybridAdvertisement(0x00, 6550, mac, "OKOK-SCALE")
+        assertThat(ChipseaCloudProtocol.INSTANCE.match(record)).isNull()
+    }
+
     @Test
     fun `owns accepts forward and reverse mac`() {
         val macBytes = byteArrayOf(0x11, 0x22, 0x33, 0x44, 0x55, 0x66.toByte())
