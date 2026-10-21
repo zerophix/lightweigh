@@ -9,13 +9,13 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -111,14 +111,32 @@ fun DebugOverlay() {
             }
         }
         if (panelOpen) {
-            DebugPanel(onClose = { panelOpen = false })
+            Box(Modifier.fillMaxSize()) {
+                // 点击面板外的遮罩区域关闭
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(Color(0x66000000))
+                        .clickable { panelOpen = false },
+                )
+                DebugPanel(
+                    onClose = { panelOpen = false },
+                    Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth()
+                        .fillMaxHeight(0.62f)
+                        .clip(RoundedCornerShape(topStart = 14.dp, topEnd = 14.dp))
+                        .background(Color(0xF20B1F1A))
+                        .padding(8.dp),
+                )
+            }
         }
     }
 }
 
-/** 全屏日志面板：轮询快照渲染，支持复制/清空/自动贴底。 */
+/** 底部小窗日志面板：轮询快照渲染，支持复制/清空/自动贴底。 */
 @Composable
-private fun DebugPanel(onClose: () -> Unit) {
+private fun DebugPanel(onClose: () -> Unit, modifier: Modifier = Modifier) {
     val lines by produceState(initialValue = emptyList<String>()) {
         while (true) {
             value = BleDebugLog.snapshot()
@@ -129,12 +147,9 @@ private fun DebugPanel(onClose: () -> Unit) {
     val context = LocalContext.current
 
     Column(
-        Modifier
-            .fillMaxSize()
-            .background(Color(0xF20B1F1A))
-            .statusBarsPadding()
+        modifier
             .navigationBarsPadding()
-            .padding(8.dp),
+            .padding(bottom = 8.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
