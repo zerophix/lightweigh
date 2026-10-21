@@ -24,6 +24,9 @@ sealed interface DataChange {
     /** 健康记录增删（趋势 / 历史里的习惯与日志部分）。 */
     data object HealthLogs : DataChange
 
+    /** 习惯定义增删改（习惯管理页，DEC-043-D）。 */
+    data object Habits : DataChange
+
     /** 成员档案变更（我的页 / 报告的体成分计算输入）。 */
     data object Profile : DataChange
 
@@ -41,7 +44,7 @@ sealed interface DataChange {
 
     companion object {
         /** 需要推云的事件集合——SyncTrigger 的点火源只认这一组。 */
-        val LOCAL_WRITES: Set<DataChange> = setOf(Measurements, HealthLogs, Profile)
+        val LOCAL_WRITES: Set<DataChange> = setOf(Measurements, HealthLogs, Profile, Habits)
     }
 }
 

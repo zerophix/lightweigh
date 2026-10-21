@@ -13,8 +13,9 @@ const val HISTORY_ROUTE_NAME = "history"
 fun HistoryRoute(
     onBack: () -> Unit,
     onOpenReport: (Long) -> Unit = {},
+    onOpenCompare: () -> Unit = {},
     vm: HistoryViewModel = viewModel(factory = HistoryViewModel.Factory()),
 ) {
     val state by vm.state.collectAsStateWithLifecycle()
-    HistoryScreen(state = state, onIntent = vm::onIntent, onBack = onBack, onOpenReport = onOpenReport)
+    HistoryScreen(state = state, onIntent = vm::onIntent, onBack = onBack, onOpenReport = onOpenReport, onOpenCompare = onOpenCompare)
 }

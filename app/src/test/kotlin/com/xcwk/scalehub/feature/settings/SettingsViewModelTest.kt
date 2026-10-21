@@ -66,6 +66,9 @@ class SettingsViewModelTest {
 
         override suspend fun sendSmsCode(rawDigits: String) =
             SmsCodeResult(true, "验证码已发送", "v-1", false)
+        override suspend fun signInWithPassword(phone: String, password: String) = SignInResult(true, "登录成功")
+        override suspend fun signInWithEmail(email: String, password: String) = SignInResult(true, "登录成功")
+        override suspend fun signInWithWeChat() = SignInResult(true, "登录成功")
         override suspend fun signInWithCode(
             rawDigits: String,
             verificationId: String,
@@ -124,6 +127,7 @@ class SettingsViewModelTest {
     private class FakeProfileReader : MemberProfileReader {
         override fun male() = true
         override fun ageYears() = 30
+        override fun unitPreferences() = com.xcwk.scalehub.domain.model.UserUnitPreferences()
         override fun heightCm() = 175
         override fun birthYear() = 1996
         override fun birthMonth() = 5
@@ -133,6 +137,7 @@ class SettingsViewModelTest {
 
     private class FakeProfileWriter : MemberProfileWriter {
         var saves = 0
+        override suspend fun saveUnitPreferences(prefs: com.xcwk.scalehub.domain.model.UserUnitPreferences) {}
         override suspend fun save(profile: MemberProfile) { saves++ }
     }
 

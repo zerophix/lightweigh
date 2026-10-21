@@ -1,5 +1,7 @@
 package com.xcwk.scalehub.domain.repository
 
+import com.xcwk.scalehub.domain.model.UserUnitPreferences
+
 /**
  * 成员档案读取端口（用例的编排输入 + 我的页展示）。
  * ageYears 语义：出生年缺失时返回 0（守卫在实现侧），算法对无效输入自会给出无效结果；
@@ -14,4 +16,7 @@ interface MemberProfileReader {
     fun birthMonth(): Int
     fun birthDay(): Int
     fun nickname(): String
+
+    /** 单位偏好（重量/长度单位、是否应用到衍生指标）。 */
+    fun unitPreferences(): UserUnitPreferences
 }

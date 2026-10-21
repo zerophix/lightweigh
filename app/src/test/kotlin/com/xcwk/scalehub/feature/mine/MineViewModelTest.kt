@@ -42,6 +42,7 @@ class MineViewModelTest {
     ) : MemberProfileReader {
         override fun male() = true
         override fun ageYears() = if (yearValue > 0) 30 else 0
+        override fun unitPreferences() = com.xcwk.scalehub.domain.model.UserUnitPreferences()
         override fun heightCm() = heightValue
         override fun birthYear() = yearValue
         override fun birthMonth() = if (yearValue > 0) 5 else 0
@@ -51,6 +52,7 @@ class MineViewModelTest {
 
     private class FakeWriter(private val reader: FakeReader) : MemberProfileWriter {
         var saved: MemberProfile? = null
+        override suspend fun saveUnitPreferences(prefs: com.xcwk.scalehub.domain.model.UserUnitPreferences) {}
         override suspend fun save(profile: MemberProfile) {
             saved = profile
             // 回写读侧，模拟 ProfileStore 单源语义（保存后重读应见新值）

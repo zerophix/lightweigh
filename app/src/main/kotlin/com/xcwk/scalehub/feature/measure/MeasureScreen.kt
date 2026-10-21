@@ -61,6 +61,7 @@ import com.xcwk.scalehub.ui.theme.QkColor
 import com.xcwk.scalehub.ui.theme.QkRadius
 import com.xcwk.scalehub.ui.theme.QkSpacing
 import java.util.Locale
+import kotlin.math.absoluteValue
 
 /**
  * feature.measure — 首页（设计稿「首页」屏）。
@@ -86,6 +87,7 @@ fun MeasureScreen(
     onOpenQuick: () -> Unit = {},
 ) {
     val state by vm.state.collectAsStateWithLifecycle()
+    val unitPrefs by vm.unitPrefs.collectAsStateWithLifecycle()
     val home = state.home
 
     Column(
@@ -96,6 +98,7 @@ fun MeasureScreen(
     ) {
         WeightCard(
             home = home,
+            unitPrefs = unitPrefs,
             onOpenReport = onOpenReport,
             onOpenHistory = onOpenHistory,
             onSetHeight = onOpenMine,
@@ -103,8 +106,8 @@ fun MeasureScreen(
         AiAskRow(onAskAi = onAskAi)
         TodayDietCard(home = home, onOpenRecord = onOpenRecord, onOpenQuick = onOpenQuick)
         Row(modifier = Modifier.padding(top = QkSpacing.CardGap), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            GoalCard(home = home, modifier = Modifier.weight(1f), onSetTarget = { vm.onIntent(MeasureIntent.SetTargetWeight(it)) })
-            WeekTrendCard(home = home, modifier = Modifier.weight(1f), onOpenHistory = onOpenHistory)
+            GoalCard(home = home, modifier = Modifier.weight(1f), onSetTarget = { vm.onIntent(MeasureIntent.SetTargetWeight(it)) }, unitPrefs = unitPrefs)
+            WeekTrendCard(home = home, modifier = Modifier.weight(1f), onOpenHistory = onOpenHistory, unitPrefs = unitPrefs)
         }
         Row(modifier = Modifier.padding(top = QkSpacing.CardGap), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             WaterCard(home = home, modifier = Modifier.weight(1f), onRecord = { onOpenRecord("water", "") })
@@ -152,6 +155,7 @@ fun MeasureScreen(
             onChange = { vm.onIntent(MeasureIntent.WeightChanged(it)) },
             onSave = { vm.onIntent(MeasureIntent.Save) },
             onScale = onOpenScale,
+            unitPrefs = unitPrefs,
         )
         state.lastRecord?.let {
             Text(
@@ -221,6 +225,7 @@ fun MeasureScreen(
 @Composable
 private fun WeightCard(
     home: HomeGoalState,
+    unitPrefs: com.xcwk.scalehub.domain.model.UserUnitPreferences,
     onOpenReport: (Long) -> Unit,
     onOpenHistory: () -> Unit,
     onSetHeight: () -> Unit,
@@ -255,16 +260,10 @@ private fun WeightCard(
                         when {
                             masked -> "***"
                             home.latestWeight == null -> "--"
-                            else -> String.format(Locale.US, "%.1f", home.latestWeight)
+                            else -> com.xcwk.scalehub.application.format.QkFormat.weightStr(home.latestWeight!!, unitPrefs)
                         },
                         style = MaterialTheme.typography.displayLarge,
                         color = QkColor.Fg,
-                    )
-                    Text(
-                        " kg",
-                        modifier = Modifier.padding(bottom = 5.dp),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = QkColor.Muted,
                     )
                 }
                 Text(
@@ -274,7 +273,9 @@ private fun WeightCard(
                         home.diffText == null -> "暂无对比数据"
                         else -> {
                             val down = home.diffText!!.startsWith("-")
-                            "比上次 ${if (down) "↓" else "↑"} ${home.diffText} kg"
+                            val diffKg = home.diffText!!.toDoubleOrNull() ?: 0.0
+                            val diffStr = com.xcwk.scalehub.application.format.QkFormat.weightValue(diffKg.absoluteValue, unitPrefs)
+                            "比上次 ${if (down) "↓" else "↑"} ${diffStr} ${com.xcwk.scalehub.application.format.QkFormat.weightUnitLabel(unitPrefs)}"
                         }
                     },
                     modifier = Modifier.padding(top = 4.dp),
@@ -300,7 +301,7 @@ private fun WeightCard(
                 Box(modifier = Modifier.width(1.dp).height(34.dp).background(QkColor.LineSoft))
                 MetricCell(
                     label = "腰围",
-                    value = if (home.waistCm == null) "--" else String.format(Locale.US, "%.0f", home.waistCm),
+                    value = if (home.waistCm == null) "--" else com.xcwk.scalehub.application.format.QkFormat.heightStr(home.waistCm!!, unitPrefs),
                 )
             }
         }
@@ -470,7 +471,7 @@ private fun MealCell(
 // ---------------------------------------------------------------- 目标 / 体重趋势
 
 @Composable
-private fun GoalCard(home: HomeGoalState, modifier: Modifier = Modifier, onSetTarget: (Float) -> Unit) {
+private fun GoalCard(home: HomeGoalState, modifier: Modifier = Modifier, onSetTarget: (Float) -> Unit, unitPrefs: com.xcwk.scalehub.domain.model.UserUnitPreferences) {
     var showPicker by rememberSaveable { mutableStateOf(false) }
     QkCard(modifier = modifier, padding = QkSpacing.CardPad) {
         Text("目标", style = MaterialTheme.typography.titleMedium, color = QkColor.Fg)
@@ -478,9 +479,9 @@ private fun GoalCard(home: HomeGoalState, modifier: Modifier = Modifier, onSetTa
         Text(
             when {
                 home.targetWeight <= 0f -> "未设置"
-                gap == null -> String.format(Locale.US, "目标 %.1f kg", home.targetWeight)
-                gap > 0 -> String.format(Locale.US, "减重 %.1f kg", gap)
-                gap < 0 -> String.format(Locale.US, "增重 %.1f kg", -gap)
+                gap == null -> "目标 ${com.xcwk.scalehub.application.format.QkFormat.weightStr(home.targetWeight.toDouble(), unitPrefs)}"
+                gap > 0 -> "减重 ${com.xcwk.scalehub.application.format.QkFormat.weightStr(gap.toDouble(), unitPrefs)}"
+                gap < 0 -> "增重 ${com.xcwk.scalehub.application.format.QkFormat.weightStr((-gap).toDouble(), unitPrefs)}"
                 else -> "已达成"
             },
             modifier = Modifier.padding(top = QkSpacing.Sm),
@@ -501,7 +502,7 @@ private fun GoalCard(home: HomeGoalState, modifier: Modifier = Modifier, onSetTa
             title = { Text("设置目标体重") },
             text = {
                 QkWheelPicker(
-                    labels = (30..200).map { "$it 公斤" },
+                    labels = (30..200).map { "${it} ${com.xcwk.scalehub.application.format.QkFormat.weightUnitLabel(unitPrefs)}" },
                     initialIndex = initial - 30,
                 ) { picked = 30 + it }
             },
@@ -517,7 +518,7 @@ private fun GoalCard(home: HomeGoalState, modifier: Modifier = Modifier, onSetTa
 }
 
 @Composable
-private fun WeekTrendCard(home: HomeGoalState, modifier: Modifier = Modifier, onOpenHistory: () -> Unit) {
+private fun WeekTrendCard(home: HomeGoalState, modifier: Modifier = Modifier, onOpenHistory: () -> Unit, unitPrefs: com.xcwk.scalehub.domain.model.UserUnitPreferences) {
     QkCard(modifier = modifier, padding = QkSpacing.CardPad, onClick = onOpenHistory) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text("体重趋势", style = MaterialTheme.typography.titleMedium, color = QkColor.Fg)
@@ -530,13 +531,13 @@ private fun WeekTrendCard(home: HomeGoalState, modifier: Modifier = Modifier, on
         if (home.weekWeights.size >= 2) {
             Row(modifier = Modifier.padding(top = 6.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    String.format(Locale.US, "%.1f", home.weekWeights.first()),
+                    com.xcwk.scalehub.application.format.QkFormat.weightStr(home.weekWeights.first(), unitPrefs),
                     style = MaterialTheme.typography.labelSmall,
                     color = QkColor.Muted,
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
-                    String.format(Locale.US, "%.1f", home.weekWeights.last()),
+                    com.xcwk.scalehub.application.format.QkFormat.weightStr(home.weekWeights.last(), unitPrefs),
                     style = MaterialTheme.typography.labelSmall,
                     color = QkColor.Primary,
                     fontWeight = FontWeight.Bold,
@@ -552,7 +553,7 @@ private fun WeekTrendCard(home: HomeGoalState, modifier: Modifier = Modifier, on
             QkEmptyHint("记录两次以上可见趋势")
         }
         Text(
-            home.weekChange?.let { String.format(Locale.US, "近 7 天 %+.1f kg", it) } ?: "近 7 天 --",
+            home.weekChange?.let { "近 7 天 ${com.xcwk.scalehub.application.format.QkFormat.weightStr(it.toDouble(), unitPrefs)}" } ?: "近 7 天 --",
             modifier = Modifier.padding(top = 4.dp),
             style = MaterialTheme.typography.labelSmall,
             color = QkColor.Muted,
@@ -722,6 +723,7 @@ private fun ManualWeightCard(
     onChange: (String) -> Unit,
     onSave: () -> Unit,
     onScale: () -> Unit,
+    unitPrefs: com.xcwk.scalehub.domain.model.UserUnitPreferences,
 ) {
     val typed = value.isNotBlank()
     QkCard(modifier = Modifier.padding(top = QkSpacing.CardGap), padding = QkSpacing.CardPad) {
@@ -734,7 +736,7 @@ private fun ManualWeightCard(
             QkTextField(
                 value = value,
                 onValueChange = onChange,
-                placeholder = "请输入体重 (kg)",
+                placeholder = "请输入体重 (${com.xcwk.scalehub.application.format.QkFormat.weightUnitLabel(unitPrefs)})",
                 modifier = Modifier.weight(1f),
             )
             // 一个按钮位两种语义：填了数字就是「保存」，空着就是「蓝牙称重」。

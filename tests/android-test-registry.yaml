@@ -207,5 +207,9 @@ commands:
   path: application/src/test/kotlin/com/xcwk/scalehub/application/ble/BlePortContractTest.kt
   status: stable
   type: gradle-test
+- description: 习惯管理页 ViewModel 行为（列表/编辑器/保存/删除/打卡, DEC-043-D）
+  path: app/src/test/kotlin/com/xcwk/scalehub/feature/habit/HabitViewModelTest.kt
+  status: stable
+  type: gradle-test
 configs: []
 orphans: []

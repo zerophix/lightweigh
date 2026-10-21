@@ -9,16 +9,20 @@ import com.xcwk.scalehub.App
 import com.xcwk.scalehub.application.command.RecordMeasurementCommand
 import com.xcwk.scalehub.application.DataChange
 import com.xcwk.scalehub.application.DataRefreshBus
+import com.xcwk.scalehub.application.format.QkFormat
 import com.xcwk.scalehub.application.query.HealthLogItem
 import com.xcwk.scalehub.application.query.HealthLogQuery
 import com.xcwk.scalehub.application.query.MeasurementQuery
 import com.xcwk.scalehub.application.service.RecordMeasurementService
+import com.xcwk.scalehub.domain.repository.MemberProfileReader
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 /**
  * feature.measure — UDF 四件套之 ViewModel（v2 首屏：手动记体重 + 最近列表）。
@@ -58,8 +62,14 @@ class MeasureViewModel(
     private val refreshBus: DataRefreshBus? = null,
     private val homeQuery: com.xcwk.scalehub.application.query.HomeGoalQuery? = null,
     private val setTargetWeight: (Float) -> Unit = {},
+    private val profileReader: MemberProfileReader,
 ) : ViewModel() {
 
+    // 单位偏好（响应式，切换成员/设置变更时自动刷新）
+    private val _unitPrefs = MutableStateFlow(profileReader.unitPreferences())
+    val unitPrefs: StateFlow<com.xcwk.scalehub.domain.model.UserUnitPreferences> = _unitPrefs
+
+    // 合并 home state + 单位偏好 → 格式化后的显示状态
     private val _state = MutableStateFlow(MeasureUiState())
     val state: StateFlow<MeasureUiState> = _state.asStateFlow()
 
@@ -114,11 +124,12 @@ class MeasureViewModel(
     private suspend fun refresh() {
         refreshHome()
         val stamp = java.text.SimpleDateFormat("MM-dd HH:mm", java.util.Locale.CHINA)
+        val prefs = _unitPrefs.value
         val items = measurementQuery.recent(20).map { row ->
             RecentMeasureItem(
                 time = row.time,
-                weightText = String.format(java.util.Locale.US, "%.1f kg", row.weight),
-                fatText = if (row.fat >= 0) String.format(java.util.Locale.US, "%.1f%%", row.fat) else null,
+                weightText = QkFormat.weightStr(row.weight, prefs),
+                fatText = if (row.fat >= 0) QkFormat.percentStr(row.fat, prefs) else null,
                 timeText = stamp.format(java.util.Date(row.time)),
             )
         }
@@ -143,6 +154,7 @@ class MeasureViewModel(
                     app.container.dataRefreshBus,
                     homeQuery = app.container.homeGoalQuery,
                     setTargetWeight = app.container.setTargetWeight,
+                    profileReader = app.container.profileReader,
                 )
             }
         }

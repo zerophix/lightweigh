@@ -1,12 +1,16 @@
 package com.xcwk.scalehub.domain.repository
 
 import com.xcwk.scalehub.domain.model.Member
+import com.xcwk.scalehub.domain.model.UserUnitPreferences
 
 /**
  * 本机测量用户仓储（旧库 MemberStore 语义切面）。
  * 至少保留一个用户；新增即成为当前用户（旧库 add :85 save(list, id)）。
+ * 组合档案读写端口（单位偏好随用户档案同生命周期）。
  */
-interface MemberRepository {
+interface MemberRepository :
+    MemberProfileReader,
+    MemberProfileWriter {
     fun members(): List<Member>
 
     fun activeId(): String

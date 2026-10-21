@@ -50,6 +50,14 @@ import com.xcwk.scalehub.feature.features.FeatureRoute
 import com.xcwk.scalehub.feature.history.HistoryRoute
 import com.xcwk.scalehub.feature.measure.MeasureScreen
 import com.xcwk.scalehub.feature.measure.scale.ScaleRoute
+import com.xcwk.scalehub.feature.habit.HabitRoute
+import com.xcwk.scalehub.feature.guide.GuideScreen
+import com.xcwk.scalehub.feature.history.HistoryCompareScreen
+import com.xcwk.scalehub.feature.settings.UnitSettingsScreen
+import com.xcwk.scalehub.feature.settings.PrivacySettingsScreen
+import com.xcwk.scalehub.feature.settings.SyncStatusScreen
+import com.xcwk.scalehub.feature.auth.PasswordLoginCard
+import com.xcwk.scalehub.feature.auth.SetPasswordCard
 import com.xcwk.scalehub.feature.member.MembersRoute
 import com.xcwk.scalehub.feature.mine.MineRoute
 import com.xcwk.scalehub.feature.record.RECORD_TYPE_TITLES
@@ -166,6 +174,7 @@ fun MainShell() {
                         onOpenMembers = { go(NavEvent.Push(NavOverlay.Members)) },
                         onOpenHistory = { go(NavEvent.Push(NavOverlay.History)) },
                         onOpenDevice = { go(NavEvent.SelectTab(MainTab.DEVICE)) },
+                        onOpenHabit = { go(NavEvent.Push(NavOverlay.Habit)) },
                     )
                 }
                 // 覆盖页按栈序叠放：下层保持组合态，返回即回到刚才页面（需求口径）
@@ -182,8 +191,13 @@ fun MainShell() {
                                 go(NavEvent.ReplaceTop(NavOverlay.Report(time)))
                             },
                             onPushReport = { time -> go(NavEvent.Push(NavOverlay.Report(time))) },
-                            // 称重未绑定态「去绑定设备」：切设备页签（SelectTab 同时清覆盖栈）
                             onGoDevice = { go(NavEvent.SelectTab(MainTab.DEVICE)) },
+                            onPushHabit = { go(NavEvent.Push(NavOverlay.Habit)) },
+                            onPushHistoryCompare = { go(NavEvent.Push(NavOverlay.HistoryCompare)) },
+                            onPushUnitSettings = { go(NavEvent.Push(NavOverlay.UnitSettings)) },
+                            onPushPrivacySettings = { go(NavEvent.Push(NavOverlay.PrivacySettings)) },
+                            onPushSyncStatus = { go(NavEvent.Push(NavOverlay.SyncStatus)) },
+                            onPushSetPassword = { go(NavEvent.Push(NavOverlay.SetPassword)) },
                         )
                     }
                 }
@@ -353,15 +367,29 @@ private fun OverlayHost(
     onReplaceWithReport: (Long) -> Unit,
     onPushReport: (Long) -> Unit,
     onGoDevice: () -> Unit,
+    onPushHabit: () -> Unit = {},
+    onPushHistoryCompare: () -> Unit = {},
+    onPushUnitSettings: () -> Unit = {},
+    onPushPrivacySettings: () -> Unit = {},
+    onPushSyncStatus: () -> Unit = {},
+    onPushSetPassword: () -> Unit = {},
 ) {
     when (overlay) {
         NavOverlay.Ai -> AiRoute(onBack = onBack)
         NavOverlay.Scale -> ScaleRoute(onBack = onBack, onOpenReport = onReplaceWithReport, onGoBind = onGoDevice)
         is NavOverlay.Report -> ReportRoute(time = overlay.time, onBack = onBack, onAskAi = onAskAi)
         is NavOverlay.Feature -> FeatureRoute(name = overlay.name, onBack = onBack)
-        NavOverlay.History -> HistoryRoute(onBack = onBack, onOpenReport = onPushReport)
-        NavOverlay.Settings -> SettingsRoute(onBack = onBack)
+        NavOverlay.History -> HistoryRoute(onBack = onBack, onOpenReport = onPushReport, onOpenCompare = onPushHistoryCompare)
+        NavOverlay.Settings -> SettingsRoute(onBack = onBack, onOpenUnitSettings = onPushUnitSettings, onOpenPrivacySettings = onPushPrivacySettings, onOpenSyncStatus = onPushSyncStatus, onOpenSetPassword = onPushSetPassword)
         NavOverlay.Members -> MembersRoute(onBack = onBack)
+        NavOverlay.Habit -> HabitRoute(onBack = onBack)
+        NavOverlay.Guide -> GuideScreen(onDone = onBack, onSkip = onBack)
+        NavOverlay.HistoryCompare -> HistoryCompareScreen(onBack = onBack)
+        NavOverlay.UnitSettings -> UnitSettingsScreen(onBack = onBack)
+        NavOverlay.PrivacySettings -> PrivacySettingsScreen(onBack = onBack)
+        NavOverlay.SyncStatus -> SyncStatusScreen(onBack = onBack)
+        NavOverlay.PasswordLogin -> PasswordLoginCard(onSubmit = { _, _ -> }, onSwitchToCode = onBack)
+        NavOverlay.SetPassword -> SetPasswordCard(onSubmit = { _, _ -> }, onCancel = onBack)
     }
 }
 
@@ -387,6 +415,14 @@ private val NavStateSaver: Saver<NavState, Any> = listSaver(
                         NavOverlay.History -> "history"
                         NavOverlay.Settings -> "settings"
                         NavOverlay.Members -> "members"
+                        NavOverlay.Habit -> "habit"
+                        NavOverlay.Guide -> "guide"
+                        NavOverlay.HistoryCompare -> "historyCompare"
+                        NavOverlay.UnitSettings -> "unitSettings"
+                        NavOverlay.PrivacySettings -> "privacySettings"
+                        NavOverlay.SyncStatus -> "syncStatus"
+                        NavOverlay.PasswordLogin -> "passwordLogin"
+                        NavOverlay.SetPassword -> "setPassword"
                     },
                 )
             }
@@ -411,6 +447,14 @@ private val NavStateSaver: Saver<NavState, Any> = listSaver(
                     raw == "history" -> NavOverlay.History
                     raw == "settings" -> NavOverlay.Settings
                     raw == "members" -> NavOverlay.Members
+                    raw == "habit" -> NavOverlay.Habit
+                    raw == "guide" -> NavOverlay.Guide
+                    raw == "historyCompare" -> NavOverlay.HistoryCompare
+                    raw == "unitSettings" -> NavOverlay.UnitSettings
+                    raw == "privacySettings" -> NavOverlay.PrivacySettings
+                    raw == "syncStatus" -> NavOverlay.SyncStatus
+                    raw == "passwordLogin" -> NavOverlay.PasswordLogin
+                    raw == "setPassword" -> NavOverlay.SetPassword
                     raw.startsWith("report$FIELD_SEP") ->
                         raw.substringAfter(FIELD_SEP).toLongOrNull()?.let { NavOverlay.Report(it) }
                     raw.startsWith("feature$FIELD_SEP") -> NavOverlay.Feature(raw.substringAfter(FIELD_SEP))

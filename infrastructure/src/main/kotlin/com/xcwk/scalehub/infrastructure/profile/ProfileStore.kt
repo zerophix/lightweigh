@@ -2,6 +2,9 @@ package com.xcwk.scalehub.infrastructure.profile
 
 import android.content.Context
 import com.xcwk.scalehub.domain.model.MemberProfile
+import com.xcwk.scalehub.domain.model.UserUnitPreferences
+import com.xcwk.scalehub.domain.model.WeightUnit
+import com.xcwk.scalehub.domain.model.LengthUnit
 import com.xcwk.scalehub.domain.repository.MemberProfileReader
 import com.xcwk.scalehub.domain.repository.MemberProfileWriter
 import java.time.LocalDate
@@ -44,6 +47,25 @@ class ProfileStore(
             .apply()
     }
 
+    override fun unitPreferences(): UserUnitPreferences {
+        val weightUnitStr = prefs.getString(key(KEY_WEIGHT_UNIT), "KG") ?: "KG"
+        val lengthUnitStr = prefs.getString(key(KEY_LENGTH_UNIT), "CM") ?: "CM"
+        val applyToDerived = prefs.getBoolean(key(KEY_APPLY_TO_DERIVED), true)
+        return UserUnitPreferences(
+            weightUnit = WeightUnit.valueOf(weightUnitStr),
+            lengthUnit = LengthUnit.valueOf(lengthUnitStr),
+            applyToDerived = applyToDerived
+        )
+    }
+
+    override suspend fun saveUnitPreferences(prefs: UserUnitPreferences) {
+        this.prefs.edit()
+            .putString(key(KEY_WEIGHT_UNIT), prefs.weightUnit.name)
+            .putString(key(KEY_LENGTH_UNIT), prefs.lengthUnit.name)
+            .putBoolean(key(KEY_APPLY_TO_DERIVED), prefs.applyToDerived)
+            .apply()
+    }
+
     /**
      * 删除某成员的全部档案键（成员移除联动）。
      * 遍历 [ALL_KEYS] 单一事实源，不再就地枚举：新增档案字段只需在 companion 登记一次，
@@ -76,6 +98,9 @@ class ProfileStore(
         const val KEY_BIRTH_DAY = "birthDay"
         const val KEY_HEIGHT_CM = "heightCm"
         const val KEY_NICKNAME = "nickname"
+        const val KEY_WEIGHT_UNIT = "weightUnit"
+        const val KEY_LENGTH_UNIT = "lengthUnit"
+        const val KEY_APPLY_TO_DERIVED = "applyToDerived"
 
         /**
          * 档案键全集（单一事实源）：clearMember 遍历此表；读写各经对应常量。
@@ -85,6 +110,7 @@ class ProfileStore(
          */
         internal val ALL_KEYS = listOf(
             KEY_MALE, KEY_BIRTH_YEAR, KEY_BIRTH_MONTH, KEY_BIRTH_DAY, KEY_HEIGHT_CM, KEY_NICKNAME,
+            KEY_WEIGHT_UNIT, KEY_LENGTH_UNIT, KEY_APPLY_TO_DERIVED
         )
     }
 }

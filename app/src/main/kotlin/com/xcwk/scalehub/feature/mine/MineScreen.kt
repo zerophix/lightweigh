@@ -66,6 +66,7 @@ fun MineScreen(
     onOpenMembers: () -> Unit = {},
     onOpenHistory: () -> Unit = {},
     onOpenDevice: () -> Unit = {},
+    onOpenHabit: () -> Unit = {},
 ) {
     var showAvatarSheet by rememberSaveable { mutableStateOf(false) }
     var showBirthSheet by rememberSaveable { mutableStateOf(false) }

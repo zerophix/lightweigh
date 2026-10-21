@@ -2,6 +2,9 @@ package com.xcwk.scalehub.infrastructure.member
 
 import android.content.Context
 import com.xcwk.scalehub.domain.model.Member
+import com.xcwk.scalehub.domain.model.UserUnitPreferences
+import com.xcwk.scalehub.domain.model.WeightUnit
+import com.xcwk.scalehub.domain.model.LengthUnit
 import com.xcwk.scalehub.domain.repository.MemberRepository
 import org.json.JSONArray
 import org.json.JSONObject
@@ -68,6 +71,50 @@ class MemberStore(context: Context) : MemberRepository {
         val next = if (activeId() == id) list.first().id else activeId()
         save(list, next)
         return true
+    }
+
+    override fun unitPreferences(): UserUnitPreferences {
+        val id = activeId()
+        val weightUnitStr = prefs.getString("unit_weight_$id", "KG") ?: "KG"
+        val lengthUnitStr = prefs.getString("unit_length_$id", "CM") ?: "CM"
+        val applyToDerived = prefs.getBoolean("unit_apply_derived_$id", true)
+        return UserUnitPreferences(
+            weightUnit = WeightUnit.valueOf(weightUnitStr),
+            lengthUnit = LengthUnit.valueOf(lengthUnitStr),
+            applyToDerived = applyToDerived
+        )
+    }
+
+    override suspend fun saveUnitPreferences(prefs: UserUnitPreferences) {
+        val id = activeId()
+        this.prefs.edit()
+            .putString("unit_weight_$id", prefs.weightUnit.name)
+            .putString("unit_length_$id", prefs.lengthUnit.name)
+            .putBoolean("unit_apply_derived_$id", prefs.applyToDerived)
+            .apply()
+    }
+
+    // ---- MemberProfileReader（按 activeId 隔离，DEC-043-C）----
+    override fun male(): Boolean = prefs.getBoolean("male_${activeId()}", true)
+    override fun ageYears(): Int = prefs.getInt("age_${activeId()}", 0)
+    override fun heightCm(): Int = prefs.getInt("height_${activeId()}", 0)
+    override fun birthYear(): Int = prefs.getInt("birth_year_${activeId()}", 0)
+    override fun birthMonth(): Int = prefs.getInt("birth_month_${activeId()}", 0)
+    override fun birthDay(): Int = prefs.getInt("birth_day_${activeId()}", 0)
+    override fun nickname(): String = prefs.getString("nickname_${activeId()}", "") ?: ""
+
+    // ---- MemberProfileWriter ----
+    override suspend fun save(profile: com.xcwk.scalehub.domain.model.MemberProfile) {
+        val id = activeId()
+        this.prefs.edit()
+            .putBoolean("male_$id", profile.male)
+            .putInt("age_$id", profile.ageYears())
+            .putInt("height_$id", profile.heightCm)
+            .putInt("birth_year_$id", profile.birthYear)
+            .putInt("birth_month_$id", profile.birthMonth)
+            .putInt("birth_day_$id", profile.birthDay)
+            .putString("nickname_$id", profile.nickname)
+            .apply()
     }
 
     private fun ensure() {

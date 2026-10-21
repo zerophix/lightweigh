@@ -43,6 +43,16 @@ sealed interface NavOverlay {
 
     /** 我的 → 成员管理（原 MineRoute 的局部布尔，P1 并入）。 */
     data object Members : NavOverlay
+
+    // ---- DEC-043 新增覆盖页 ----
+    data object Habit : NavOverlay
+    data object Guide : NavOverlay
+    data object HistoryCompare : NavOverlay
+    data object UnitSettings : NavOverlay
+    data object PrivacySettings : NavOverlay
+    data object SyncStatus : NavOverlay
+    data object PasswordLogin : NavOverlay
+    data object SetPassword : NavOverlay
 }
 
 /** 导航意图。所有页面跳转都必须表达成这里的一种事件。 */

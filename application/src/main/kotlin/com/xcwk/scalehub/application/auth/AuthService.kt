@@ -41,4 +41,34 @@ class AuthService(
         }
         return result
     }
+
+    /** 密码登录（T-044/DEC-043-G）。 */
+    suspend fun signInWithPassword(phone: String, password: String): SignInResult {
+        val result = auth.signInWithPassword(phone, password)
+        if (result.ok) {
+            auth.markEntered()
+            runCatching { sync?.restore() }
+        }
+        return result
+    }
+
+    /** 邮箱登录。 */
+    suspend fun signInWithEmail(email: String, password: String): SignInResult {
+        val result = auth.signInWithEmail(email, password)
+        if (result.ok) {
+            auth.markEntered()
+            runCatching { sync?.restore() }
+        }
+        return result
+    }
+
+    /** 微信登录。 */
+    suspend fun signInWithWeChat(): SignInResult {
+        val result = auth.signInWithWeChat()
+        if (result.ok) {
+            auth.markEntered()
+            runCatching { sync?.restore() }
+        }
+        return result
+    }
 }

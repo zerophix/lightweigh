@@ -42,6 +42,9 @@ class AuthGateViewModelTest {
         var enteredFlag = false
         val signInRegistered = mutableListOf<Boolean>()
         override suspend fun sendSmsCode(rawDigits: String) = smsResult
+        override suspend fun signInWithPassword(phone: String, password: String) = signInResult
+        override suspend fun signInWithEmail(email: String, password: String) = signInResult
+        override suspend fun signInWithWeChat() = signInResult
         override suspend fun signInWithCode(
             rawDigits: String, verificationId: String, registered: Boolean, code: String,
         ): SignInResult {

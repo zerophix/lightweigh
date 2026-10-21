@@ -65,6 +65,9 @@ class FullChainSyncTest {
     private class FakeAuth : com.xcwk.scalehub.application.auth.AuthPort {
         override suspend fun deleteCurrentUser(verifyCode: String): String? = null
         override suspend fun sendSmsCode(rawDigits: String) = throw UnsupportedOperationException()
+        override suspend fun signInWithPassword(phone: String, password: String) = throw UnsupportedOperationException()
+        override suspend fun signInWithEmail(email: String, password: String) = throw UnsupportedOperationException()
+        override suspend fun signInWithWeChat() = throw UnsupportedOperationException()
         override suspend fun signInWithCode(
             rawDigits: String, verificationId: String, registered: Boolean, code: String,
         ) = throw UnsupportedOperationException()
@@ -110,12 +113,14 @@ class FullChainSyncTest {
     ) : MemberProfileReader, MemberProfileWriter {
         override fun male() = true
         override fun ageYears() = 30
+        override fun unitPreferences() = com.xcwk.scalehub.domain.model.UserUnitPreferences()
         override fun heightCm() = height
         override fun birthYear() = year
         override fun birthMonth() = 5
         override fun birthDay() = 20
         override fun nickname() = ""
         override suspend fun save(profile: MemberProfile) { }
+        override suspend fun saveUnitPreferences(prefs: com.xcwk.scalehub.domain.model.UserUnitPreferences) {}
     }
 
     /**

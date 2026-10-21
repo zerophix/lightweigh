@@ -31,6 +31,7 @@ class RecordMeasurementServiceTest {
         var heightCmValue = 175
         override fun male() = true
         override fun ageYears() = 30
+        override fun unitPreferences() = com.xcwk.scalehub.domain.model.UserUnitPreferences()
         override fun heightCm() = heightCmValue
         override fun birthYear() = 1996
         override fun birthMonth() = 5

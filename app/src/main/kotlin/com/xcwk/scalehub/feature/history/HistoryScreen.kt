@@ -63,6 +63,7 @@ fun HistoryScreen(
     onIntent: (HistoryIntent) -> Unit,
     onBack: () -> Unit = {},
     onOpenReport: (Long) -> Unit = {},
+    onOpenCompare: () -> Unit = {},
 ) {
     val context = LocalContext.current
     var showDayPicker by rememberSaveable { mutableStateOf(false) }
@@ -81,6 +82,12 @@ fun HistoryScreen(
             QkPageTitle(
                 title = "历史记录",
                 modifier = Modifier.weight(1f).padding(start = QkSpacing.Md),
+            )
+            QkButton(
+                text = "对比",
+                style = QkButtonStyle.Ghost,
+                onClick = onOpenCompare,
+                modifier = Modifier.padding(end = 4.dp),
             )
             QkButton(
                 text = "导出",

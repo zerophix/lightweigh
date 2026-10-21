@@ -8,15 +8,20 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.xcwk.scalehub.App
 import com.xcwk.scalehub.application.ble.BlePort
 import com.xcwk.scalehub.application.debug.DebugLog
+import com.xcwk.scalehub.application.format.QkFormat
 import com.xcwk.scalehub.application.measure.MeasureSession
 import com.xcwk.scalehub.application.measure.MeasureState
 import com.xcwk.scalehub.application.service.RecordMeasurementService
+import com.xcwk.scalehub.domain.model.UserUnitPreferences
 import com.xcwk.scalehub.domain.repository.DeviceRepository
 import com.xcwk.scalehub.domain.repository.MemberProfileReader
 import kotlin.math.roundToInt
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 /**
@@ -45,9 +50,17 @@ class ScaleViewModel(
     private val _state = MutableStateFlow(MeasureState())
     val state: StateFlow<MeasureState> = _state.asStateFlow()
 
+    /** 单位偏好（响应式，切换成员/设置变更时自动刷新）。 */
+    private val _unitPrefs = MutableStateFlow(profile.unitPreferences())
+    val unitPrefs: StateFlow<UserUnitPreferences> = _unitPrefs
+
     init {
         // 把当前会话的状态转发出去；会话重建时旧 collect 先取消再挂新的
         collectSessionState()
+        // 监听单位偏好变更（成员切换/设置修改）
+        viewModelScope.launch {
+            _unitPrefs.update { profile.unitPreferences() }
+        }
     }
 
     private fun collectSessionState() {

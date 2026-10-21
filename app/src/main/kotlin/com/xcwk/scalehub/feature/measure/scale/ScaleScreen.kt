@@ -54,6 +54,7 @@ fun ScaleRoute(
     vm: ScaleViewModel = viewModel(factory = ScaleViewModel.Factory),
 ) {
     val state by vm.state.collectAsStateWithLifecycle()
+    val unitPrefs by vm.unitPrefs.collectAsStateWithLifecycle()
     // 权限门与蓝牙开关态均由共享组件提供（ui/components/BleSupport.kt）
     val btEnabled = rememberBtEnabled()
 
@@ -77,6 +78,7 @@ fun ScaleRoute(
 
         ScaleContent(
             state = state,
+            unitPrefs = unitPrefs,
             permissionGranted = granted,
             bluetoothEnabled = btEnabled,
             onIntent = vm::onIntent,
@@ -94,6 +96,7 @@ fun ScaleRoute(
 @Composable
 fun ScaleContent(
     state: MeasureState,
+    unitPrefs: com.xcwk.scalehub.domain.model.UserUnitPreferences,
     permissionGranted: Boolean,
     bluetoothEnabled: Boolean,
     onIntent: (ScaleIntent) -> Unit,
@@ -133,8 +136,12 @@ fun ScaleContent(
                         Text("${state.countdown}s", modifier = Modifier.padding(top = 16.dp), style = MaterialTheme.typography.displaySmall, color = MaterialTheme.colorScheme.primary)
                     }
                     if (state.phase == MeasurePhase.LIVE) {
-                        Text(state.weightText, modifier = Modifier.padding(top = 24.dp), style = MaterialTheme.typography.displayLarge)
-                        Text("公斤", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        val weightKg = state.weightText.toDoubleOrNull() ?: 0.0
+                        Text(
+                            com.xcwk.scalehub.application.format.QkFormat.weightStr(weightKg, unitPrefs),
+                            modifier = Modifier.padding(top = 24.dp),
+                            style = MaterialTheme.typography.displayLarge
+                        )
                     }
                     state.notice.takeIf { it.isNotEmpty() }?.let {
                         Text(it, modifier = Modifier.padding(top = 16.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -160,8 +167,11 @@ fun ScaleContent(
                 val outcome = requireNotNull(state.outcome)
                 Column(modifier = Modifier.fillMaxWidth().padding(top = 32.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                     if (outcome.weight.isNotEmpty()) {
-                        Text(outcome.weight, style = MaterialTheme.typography.displayMedium)
-                        Text("公斤", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        val weightKg = outcome.weight.toDoubleOrNull() ?: 0.0
+                        Text(
+                            com.xcwk.scalehub.application.format.QkFormat.weightStr(weightKg, unitPrefs),
+                            style = MaterialTheme.typography.displayMedium
+                        )
                     }
                     Text(outcome.title, modifier = Modifier.padding(top = 12.dp), style = MaterialTheme.typography.headlineSmall)
                     if (outcome.fat.isNotEmpty() && outcome.fat != "--") {
@@ -262,6 +272,7 @@ private fun ScaleWaitPreview() {
     QkTheme {
         ScaleContent(
             state = MeasureState(desc = "双脚尽量覆盖所有电极片", countdown = 23, showCountdown = true, link = "连接中"),
+            unitPrefs = com.xcwk.scalehub.domain.model.UserUnitPreferences(),
             permissionGranted = true,
             bluetoothEnabled = true,
             onIntent = {},
@@ -285,6 +296,7 @@ private fun ScaleOutcomePreview() {
                     confirmable = true,
                 ),
             ),
+            unitPrefs = com.xcwk.scalehub.domain.model.UserUnitPreferences(),
             permissionGranted = true,
             bluetoothEnabled = true,
             onIntent = {},
