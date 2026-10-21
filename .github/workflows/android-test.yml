@@ -11,8 +11,8 @@ name: android-test
 
 on:
   workflow_dispatch:
-  # schedule:
-  #   - cron: '0 18 * * 1'   # 每周一 02:00 (UTC+8) 兜底；先手动验证通过再启用
+  schedule:
+    - cron: '0 18 * * 1'   # 每周一 02:00 (UTC+8) 兜底；本地模拟器验证通过后启用 (T-017)
 
 jobs:
   connected-android-test:
