@@ -194,7 +194,7 @@ class MeasureSession(
         }
         if (scanRecord != null) {
             for (device in devices.devices()) {
-                if (ChipseaCloudProtocol.INSTANCE.owns(scanRecord, device.mac)) return device
+                if (Protocols.owns(scanRecord, device.mac)) return device
             }
         }
         return null

@@ -49,4 +49,9 @@ public interface ScaleProtocol {
     /** 开始一次新的连接或广播测量前清掉未收齐的分包。 */
     default void reset() {
     }
+
+    /** 广播是否归属该设备地址（用于 matchBound 兜底识别）。默认 false。 */
+    default boolean owns(byte[] scanRecord, String deviceAddress) {
+        return false;
+    }
 }
