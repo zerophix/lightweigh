@@ -154,7 +154,13 @@ class MeasureSession(
 
     // ---- 扫描与识别（:304-394）----
 
+    /** 扫描门守卫的去重日志标记——onDeviceFound 每秒可来上百条，各只报一次（真机定位用）。 */
+    private var scanGateLogged = false
+    private var scanUnboundLogged = false
+
     private fun watchForScale() {
+        scanGateLogged = false
+        scanUnboundLogged = false
         ble.scan(object : BleScanListener {
             override fun onScanStarted() {
                 _state.update { it.copy(notice = "开始寻找已绑定的秤") }
@@ -167,8 +173,30 @@ class MeasureSession(
             }
 
             override fun onDeviceFound(name: String, deviceMac: String, rssi: Int, scanRecord: ByteArray?) {
-                if (closed || ble.isConnected()) return
-                val device = matchBound(deviceMac, scanRecord) ?: return
+                if (closed) return
+                if (ble.isConnected()) {
+                    // 守卫1（静默路径）：链路已连着时扫描结果全部作废——不打日志会表现为
+                    // 「扫描流水不断却永远不 connect」，与秤无广播完全同相，必须留证据
+                    if (!scanGateLogged) {
+                        scanGateLogged = true
+                        DebugLog.add("session", "scan gate: found $deviceMac but link already connected, all found ignored")
+                    }
+                    return
+                }
+                val device = matchBound(deviceMac, scanRecord)
+                if (device == null) {
+                    // 守卫2（静默路径）：秤广播被协议识别却无绑定设备拥有它 = 绑定缺失/换秤未绑；
+                    // 协议无标记则属正常（手机耳机广告）。只在「识别到秤但绑不上」时报一次
+                    val recognized = if (scanRecord != null) Protocols.match(scanRecord) else null
+                    if (recognized != null && !scanUnboundLogged) {
+                        scanUnboundLogged = true
+                        DebugLog.add(
+                            "session",
+                            "scan gate: scale ad recognized (${recognized.protocolId}) but not bound mac=$deviceMac — 请先绑定该秤",
+                        )
+                    }
+                    return
+                }
                 if (!phase.picked) {
                     val chosen = preferAdvertisedProtocol(device, scanRecord) ?: return
                     phase = phase.reduce(SessionEvent.MarkPicked)

@@ -192,6 +192,7 @@ M1 骨架已落地：四模块分层 + 单元测试方法全绿。整体构建�
 - 教训：批量脚本改源码时，后插的代码块会落进前面批量替换的射程——给 AndroidBleLink 插 blog() 辅助函数时，函数体里的 `Log.d("BLE_DEBUG", …)` 正好命中下一条「全部 Log.d 换 blog」的全局替换，一跑就是无限递归。批量替换的顺序本身就是语义：先做全局替换、再插入新代码块，或者给新块用占位符延后展开；断言计数（expected/got）是唯一能当场拦住这类事故的手段。
 - 坑：Compose 的 `Modifier.weight` 是 RowScope/ColumnScope 成员不是独立修饰符——单独 import 会命中 internal 错误，且它只在对应 scope 的 content lambda 里可用；另外 Kotlin 不允许命名参数和位置参数混排（`LazyColumn(state = …, Modifier…)` 直接编译失败），Modifier 参数要么全位置要么命名。Android 新模块如果要用 BuildConfig，AGP 8+ 默认不生成，buildFeatures 里要显式 `buildConfig = true`。
 - 教训：给「吞异常」的代码补日志时，先分清哪些异常是故意吞的——AndroidBleLink 里 `catch (ignored: RuntimeException) {}` 全是 close() 清理兜底，吞掉是对的，给它们补日志反而制造噪音；真正要补的是 `runCatching { … }.getOrNull()` 这种把超时/401/解析失败统统折叠成 null 的模式，null 本身不带任何原因。另外给 HTTP 层补日志时发现 auth 的注销接口把验证码放在 URL query 里（`?verify_code=`）——日志记 URL 就等于把验证码写进排障面板，敏感过滤不能靠自觉，要在记日志的那行代码里物理截断（`substringBefore("?")`）。
+- 教训：真机日志「有流水无结论」时，先拿脚本对协议特征标记做穷举，再谈状态机——两段真机扫描日志（23 条 + 24 条广播）逐条喂给协议标记检查（表 3.1 的 `FF F0`、表 2.1 的 `10 FF C0`），命中 0 条：日志里根本没有秤的广播，链路卡在第一个触发事件（秤广播）之前，而非状态机某一跳不通。同时发现 `onDeviceFound` 的两个 return 守卫（链路已连、未绑定命中）完全静默——「扫描流水不断却永不 connect」与「秤无广播」在日志上同相，无法区分；已补去重证据点。结论：状态机审查回答不了「触发事件为什么不存在」，这类问题的证据在现场射频层，先证明事件在不在，再审消费事件的逻辑。
 
 ### 交付状态（如实标注，以隔离构建证据为准）
 
