@@ -25,8 +25,10 @@ public final class BroadcastOnly {
         }
         MessageFlags flags = new MessageFlags(field[8] & 0xFF);
         int weightRaw = HexUtil.readUInt16Be(field, 2);
+        // DEC-038 组D：与连接帧（表 3.7）同口径按 0.1Ω 精度还原——表 2.2 未标精度，
+        // 按同一物理量同编码约定推定；G5 真机复核点，若不符仅需改回本行。
         int resistance = HexUtil.readUInt16Be(field, 4);
-        return new BroadcastOnly(flags, new WeightValue(weightRaw, flags, true), resistance);
+        return new BroadcastOnly(flags, new WeightValue(weightRaw, flags, true), resistance / 10.0);
     }
 
     public String summary() {

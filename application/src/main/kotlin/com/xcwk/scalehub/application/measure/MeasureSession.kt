@@ -102,9 +102,13 @@ class MeasureSession(
             return
         }
         binding = null
-        refreshLastWeight()
-        beginConnectWait()
-        watchForScale()
+        // DEC-038 组D：先取到上次体重再开扫——首包用户信息与 3kg 差值守卫都不允许读到 -1
+        scope.launch {
+            lastWeightRaw = lastWeightTenths()
+            if (closed) return@launch
+            beginConnectWait()
+            watchForScale()
+        }
     }
 
     /** 重试连接（旧库 btnRetry/retryConnect :115,880-894）。 */

@@ -718,6 +718,26 @@ class MeasureSessionTest {
     }
 
     /**
+     * DEC-038 组D：开扫前先取上次体重——首包用户信息必须已带上次体重（0.1kg LE @7-8）。
+     * 旧路径 refreshLastWeight 异步竞态，快速链路（广播秤）下用户帧可能发 0（无效）。
+     */
+    @Test
+    fun `首包用户信息携带上次体重`() = runTest {
+        val ble = FakeBle()
+        val devices = FakeDevices(mutableListOf(ScaleDevice("秤", "AA:BB:CC:DD:EE:FF", "2026-10-16", true)))
+        val session = harness(backgroundScope, devices, ble, lastRaw = 600)
+        session.start(); runCurrent()
+        ble.emitFound("AA:BB:CC:DD:EE:FF", byteArrayOf(0x01))
+        ble.emitConnectSuccess()
+        ble.indicateSuccess()   // 写时间 → 写用户 → 读电量
+
+        val user = ble.writePayloads.last()
+        assertThat(user[0]).isEqualTo(0xA0.toByte())
+        assertThat(user[7]).isEqualTo(0x58.toByte())   // 600 LE 低字节
+        assertThat(user[8]).isEqualTo(0x02)            // 600 LE 高字节
+    }
+
+    /**
      * DEC-038 组A：可选特征（电量）读失败不得弹断开提示。
      * 旧路径 read() 失败复用 onIndicateFailure → linkReady → 700ms 假「连接已断开」。
      */

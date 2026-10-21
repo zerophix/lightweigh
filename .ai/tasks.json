@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-10-21T06:13:51Z",
+  "updated_at": "2026-10-21T06:21:49Z",
   "next_action": "T-016 已完成(DEC-037)。剩余: T-007(真机对拍,用户测试中)、T-008/T-013(分支保护,需人类决策: 转公开或升Pro)、T-018(release 发布配置: BASE 注入+R8)。master 积压 26+ 提交未 push, 合并后评估推送。",
   "next_action_why": "",
   "next_action_confirmed": true,
@@ -242,6 +242,28 @@
       "dec": "",
       "created_at": "2026-10-21T06:06:41Z",
       "updated_at": "2026-10-21T06:13:51Z",
+      "notes": ""
+    },
+    {
+      "id": "T-022",
+      "description": "T-022: DEC-038 组D P1-4 lastWeightRaw 竞态 (start 先 await 再开扫 + 首包用户信息回归测试)",
+      "why": "",
+      "status": "completed",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-21T06:21:49Z",
+      "updated_at": "2026-10-21T06:21:49Z",
+      "notes": ""
+    },
+    {
+      "id": "T-023",
+      "description": "T-023: DEC-038 组D P1-5 广播电阻 0.1Ω 精度还原 (BroadcastOnly /10 + 测试更新 + G5 真机复核点)",
+      "why": "",
+      "status": "completed",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-21T06:21:49Z",
+      "updated_at": "2026-10-21T06:21:49Z",
       "notes": ""
     }
   ]
