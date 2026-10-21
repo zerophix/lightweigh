@@ -1,7 +1,7 @@
 {
   "version": 1,
   "updated_at": "2026-10-21T06:21:49Z",
-  "next_action": "T-016 已完成(DEC-037)。剩余: T-007(真机对拍,用户测试中)、T-008/T-013(分支保护,需人类决策: 转公开或升Pro)、T-018(release 发布配置: BASE 注入+R8)。master 积压 26+ 提交未 push, 合并后评估推送。",
+  "next_action": "T-024 调试悬浮球已完成(DEC-039)。剩余: T-007(真机对拍+悬浮球体验, 用户测试中)、T-008/T-013(分支保护, 需人类决策)、T-018(release 发布配置)。",
   "next_action_why": "",
   "next_action_confirmed": true,
   "known_risks": [
@@ -265,6 +265,12 @@
       "created_at": "2026-10-21T06:21:49Z",
       "updated_at": "2026-10-21T06:21:49Z",
       "notes": ""
+    },
+    {
+      "id": "T-024",
+      "title": "蓝牙调试悬浮球与 2 万行日志面板",
+      "status": "completed",
+      "detail": "DEC-039: BleDebugLog 环形缓冲 + AndroidBleLink/MeasureSession 插桩 + ui.debug.DebugOverlay（拖动/复制/清空/贴底），BuildConfig.DEBUG 门控"
     }
   ]
 }

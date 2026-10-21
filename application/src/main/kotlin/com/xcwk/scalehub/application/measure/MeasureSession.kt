@@ -1,6 +1,7 @@
 package com.xcwk.scalehub.application.measure
 
 import com.xcwk.scalehub.application.ble.BleConnectListener
+import com.xcwk.scalehub.application.ble.BleDebugLog
 import com.xcwk.scalehub.application.ble.BleIndicateListener
 import com.xcwk.scalehub.application.ble.BlePort
 import com.xcwk.scalehub.application.ble.BleScanListener
@@ -215,6 +216,7 @@ class MeasureSession(
             return device
         }
         devices.bind(device.name, device.mac, recognized.protocolId)
+        BleDebugLog.add("session", "rebind: ${device.name} ${device.mac} ${device.protocolId} -> ${recognized.protocolId}")
         return devices.device(device.mac) ?: device
     }
 
@@ -225,12 +227,14 @@ class MeasureSession(
         // 协议自带算法时用之，否则沿用设备记录里的编号（规则收在 ScaleDevice，DEC-034 组 B）
         val algorithm = ScaleDevice.algorithmFor(proto.id(), device.algorithmId)
         binding = DeviceBinding(device.mac, proto, algorithm)
+        BleDebugLog.add("session", "device picked: ${device.name} mac=${device.mac} protocol=${proto.id()} algorithm=$algorithm")
     }
 
     private fun deliverBroadcast(scanRecord: ByteArray?) {
         val proto = protocol ?: return
         if (phase.saved || scanRecord == null) return
         val event = proto.broadcast(scanRecord)
+        BleDebugLog.add("session", "broadcast: weight=${event?.weightKg}")
         markLinked()
         if (event?.weightKg == null) return
         if (event.weightKg <= 0) {
@@ -245,12 +249,14 @@ class MeasureSession(
     private val connectListener = object : BleConnectListener {
         override fun onStartConnect() {
             protocol?.reset()
+            BleDebugLog.add("session", "connect: onStartConnect")
             if (!phase.linkReady) {
                 _state.update { it.copy(link = "连接中", notice = "正在连接设备，请踩亮体脂秤屏幕…") }
             }
         }
 
         override fun onConnectFail(reason: String) {
+            BleDebugLog.add("session", "connect fail: $reason (sealed=${phase.sealed} settling=${phase.settling} linkReady=${phase.linkReady})")
             phase = phase.reduce(SessionEvent.ClearSuppress)
             _state.update { it.copy(notice = reason) }
             if (closed || phase.sealed) return
@@ -267,12 +273,14 @@ class MeasureSession(
         }
 
         override fun onConnectSuccess(mac: String, services: List<String>) {
+            BleDebugLog.add("session", "connect success: mac=$mac services=${services.size}")
             _state.update { it.copy(link = "连接中") }
             val proto = protocol ?: return
             ble.subscribe(proto.subscribe().toList(), proto.requiredCharacteristic(), proto.missingRequiredMessage(), indicateListener)
         }
 
         override fun onDisConnected(mac: String) {
+            BleDebugLog.add("session", "link lost: mac=$mac suppress=${phase.suppressNextDisconnect} sealed=${phase.sealed} settling=${phase.settling}")
             if (phase.suppressNextDisconnect) {
                 phase = phase.reduce(SessionEvent.ClearSuppress)
                 return
@@ -294,6 +302,7 @@ class MeasureSession(
 
     private val indicateListener = object : BleIndicateListener {
         override fun onIndicateSuccess() {
+            BleDebugLog.add("session", "subscribe: success (linkReady=${phase.linkReady})")
             if (closed) return
             _state.update { it.copy(notice = "") }
             if (phase.linkReady) {
@@ -306,6 +315,7 @@ class MeasureSession(
         }
 
         override fun onIndicateFailure(reason: String) {
+            BleDebugLog.add("session", "subscribe fail: $reason (connected=${ble.isConnected()})")
             _state.update { it.copy(notice = reason) }
             if (phase.settling) {
                 holdStepOff()
@@ -326,6 +336,7 @@ class MeasureSession(
 
         /** DEC-038 组A：可选特征读失败只提示，不算链路故障。 */
         override fun onReadFailure(reason: String) {
+            BleDebugLog.add("session", "read fail: $reason")
             _state.update { it.copy(notice = reason) }
         }
 
@@ -342,9 +353,17 @@ class MeasureSession(
     private fun writeTimeThenUser() {
         val proto = protocol ?: return
         val timeChar = proto.timeCharacteristic() ?: return
+        BleDebugLog.add("session", "TX session: writeTime")
         ble.write(timeChar, proto.timePacket(), object : BleWriteListener {
-            override fun onWriteSuccess() = sendUser()
-            override fun onWriteFailure(reason: String) = sendUser()
+            override fun onWriteSuccess() {
+                BleDebugLog.add("session", "TX session: writeTime ok -> sendUser")
+                sendUser()
+            }
+
+            override fun onWriteFailure(reason: String) {
+                BleDebugLog.add("session", "TX session: writeTime fail: $reason -> sendUser anyway")
+                sendUser()
+            }
         })
     }
 
@@ -352,25 +371,38 @@ class MeasureSession(
         val proto = protocol ?: return
         val data = proto.userPacket(memberSlot(), profile.male(), profile.ageYears(), profile.heightCm(), lastWeightRaw.coerceAtLeast(0))
         val userChar = proto.userCharacteristic() ?: return
+        BleDebugLog.add("session", "TX session: sendUser len=${data.size}")
         ble.write(userChar, data, object : BleWriteListener {
             override fun onWriteSuccess() {
+                BleDebugLog.add("session", "TX session: sendUser ok -> readBattery")
                 proto.batteryCharacteristic()?.let { ble.read(it) }
             }
 
-            override fun onWriteFailure(reason: String) = Unit
+            override fun onWriteFailure(reason: String) {
+                BleDebugLog.add("session", "TX session: sendUser fail: $reason")
+            }
         })
     }
 
     private fun handleIncoming(characteristic: UUID, data: ByteArray) {
         val proto = protocol ?: return
-        val event = proto.parse(characteristic, data) ?: return
-        if (event.history) return
+        val event = proto.parse(characteristic, data)
+        if (event == null) {
+            BleDebugLog.add("session", "parse: uuid=$characteristic -> null (dropped)")
+            return
+        }
+        if (event.history) {
+            BleDebugLog.add("session", "parse: history frame ignored")
+            return
+        }
         if (event.batteryPercent != null) {
+            BleDebugLog.add("session", "parse: battery=${event.batteryPercent}%")
             _state.update { it.copy(notice = "电量 ${event.batteryPercent}%") }
             return
         }
         if (phase.sealed) return
         if (event.weightKg == null) return
+        BleDebugLog.add("session", "frame: weight=${event.weightKg} impedance=${event.impedanceOhm} heart=${event.heartRate} kind=${event.kind}")
         present(event)
     }
 
@@ -383,6 +415,7 @@ class MeasureSession(
         phase = phase.reduce(SessionEvent.KindObserved(event.kind))
         val kilograms = event.weightKg
         if (kilograms <= 0) {
+            BleDebugLog.add("session", "zero seen: weight=$kilograms")
             phase = phase.reduce(SessionEvent.ZeroSeen)
             if (phase.steppingOff) {
                 cancelDisconnectPrompt()
@@ -404,6 +437,7 @@ class MeasureSession(
         }
         cancelDisconnectPrompt()
         phase = phase.reduce(SessionEvent.Seal(kilograms))
+        BleDebugLog.add("session", "sealed: weight=$kilograms impedance=${event.impedanceOhm}")
         cancelZero()
         if (kilograms < MIN_WEIGHT_KG) {
             outcome(MeasureOutcomeKind.TOO_LIGHT, "体重过轻", "低于 10 公斤，这次不写入。请重新上秤。")
@@ -486,10 +520,14 @@ class MeasureSession(
         phase = phase.reduce(SessionEvent.ConfirmConsumed)
         val sealed = phase.sealedResult ?: return
         // DEC-038 组C：已落库的结果不得二次写（确认按钮连点 = 双协程排队）
-        if (sealed.saved) return
+        if (sealed.saved) {
+            BleDebugLog.add("session", "save skipped: already saved weight=${sealed.weight}")
+            return
+        }
         val currentBinding = binding
         val currentMac = currentBinding?.mac
         if (currentBinding == null || currentMac == null || !devices.contains(currentMac)) {
+            BleDebugLog.add("session", "save rejected: not bound binding=$currentBinding mac=$currentMac")
             outcome(MeasureOutcomeKind.NOT_BOUND, "这不是已绑定的秤", "地址不一致，这次不写入。")
             return
         }
@@ -498,6 +536,7 @@ class MeasureSession(
             RecordMeasurementCommand(sealed.weight, impedance, currentMac, currentBinding.algorithmId),
         )
         phase = phase.reduce(SessionEvent.SaveCommitted)
+        BleDebugLog.add("session", "saved: weight=${sealed.weight} impedance=$impedance weightOnly=$weightOnly")
         refreshLastWeight()
         ble.stopScan()
         val extra = when {
