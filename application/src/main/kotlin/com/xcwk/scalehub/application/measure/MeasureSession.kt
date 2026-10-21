@@ -366,11 +366,13 @@ class MeasureSession(
             if (closed) return
             _state.update { it.copy(notice = "") }
             if (phase.linkReady) {
+                DebugLog.add("session", "linkReady: true (already)")
                 _state.update { it.copy(link = "已连接") }
                 writeTimeThenUser()
                 return
             }
             beginStand()
+            DebugLog.add("session", "linkReady: false -> true (beginStand)")
             writeTimeThenUser()
         }
 
@@ -682,6 +684,7 @@ class MeasureSession(
         cancelRetry()
         cancelZero()
         // DEC-038 组B：链路已死，相位降级——否则 retryConnect 被 linkReady 守卫拦成死按钮
+        DebugLog.add("session", "markLinked: linkReady true -> false (Downgrade)")
         phase = phase.reduce(SessionEvent.Downgrade)
         _state.update {
             it.copy(
@@ -715,6 +718,7 @@ class MeasureSession(
     }
 
     private fun beginConnectWait() {
+        DebugLog.add("session", "markLinked: linkReady true -> false (ResetForConnect)")
         phase = phase.reduce(SessionEvent.ResetForConnect)
         cancelZero()
         tipIndex = 0
@@ -732,6 +736,7 @@ class MeasureSession(
 
     private fun markLinked() {
         if (phase.linkReady) return
+        DebugLog.add("session", "markLinked: linkReady false -> true (LinkEstablished)")
         phase = phase.reduce(SessionEvent.LinkEstablished)
         cancelCountdown()
         cancelRetry()
