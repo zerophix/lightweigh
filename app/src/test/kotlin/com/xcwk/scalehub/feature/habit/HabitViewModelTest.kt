@@ -28,6 +28,7 @@ import org.junit.Test
  * habit — ViewModel 行为测试（DEC-043-D）。
  * 验证：列表渲染、打开/关闭编辑器、保存习惯（新增+编辑）、删除、打卡。
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 class HabitViewModelTest {
 
     companion object {
@@ -59,7 +60,7 @@ class HabitViewModelTest {
         fun setItems(items: List<HabitItem>) { _items.value = items }
     }
 
-    /** fake repository：记录 save(delete/tick) 调用。 */
+    /** fake repository：记录 save/delete/tick 调用。 */
     private class FakeHabitRepository : HabitRepository {
         val saved = mutableListOf<Habit>()
         val deleted = mutableListOf<String>()
@@ -178,14 +179,9 @@ class HabitViewModelTest {
     }
 
     @Test
-    fun `save with invalid name shows error`() = runTest {
+    fun `save with empty name still dispatches without crashing`() = runTest {
         val vm = makeVm(FakeHabitQueryPort(), FakeHabitRepository())
 
-        // Save with empty name — the RecordHabitCommand will create a Habit,
-        // but the UI disables the button. Test the ViewModel rejects bad input.
-        // Actually the ViewModel delegates to RecordHabitService which doesn't validate name.
-        // The validation is in Habit.create (name is trimmed). This test verifies
-        // that the intent is dispatched without crashing.
         vm.onIntent(HabitIntent.Save(
             id = null,
             name = "",
@@ -197,7 +193,7 @@ class HabitViewModelTest {
         ))
 
         // Service will still attempt to save (name gets trimmed to empty)
-        assertThat(vm.state.value.error).isNull() // No error at ViewModel level
+        assertThat(vm.state.value.error).isNull()
     }
 
     @Test

@@ -200,6 +200,7 @@ M1 骨架已落地：四模块分层 + 单元测试方法全绿。整体构建�
 - 教训：自定义导航壳如果不按 destination 提供 ViewModelStoreOwner，overlay 里的 viewModel() 实际是 Activity 级的——overlay 弹出不触发 onCleared，后台会话继续扫描/连接/倒计时，重进页面还拿着死会话空转。修复拆两半：离开即 DisposableEffect onDispose 显式 stop；重进要可用就不能复活终态（Closed 钉死是对的），而是 VM 持构造参数、检测 closed 就重建新会话。状态机终态语义与 UI 可重入性不冲突，冲突的是「只有一个会话实例」的假设。
 - 教训：**多 AI 并发开发时，任务板必须先清理再分工**——本轮发现 T-042/043/044 三个 P0 任务全部标记 `in_progress @ai` 且持续 >24h 导致 GOV-PROTO-003 红灯，实则 T-042 已完工、T-043 从未开工、T-044 归属另一会话。治理规则把「僵尸任务」定义为 in_progress 超过 24h，而多会话环境下「在途」不等于「在做」。正确流程：1) 接管前跑 `wf-task-board.sh list` 核实真实归属与状态；2) 非本会话的任务不得随意 `take` 或 `done`，需通过收件箱确认；3) 只做自己认领的切片，完成即 `done` 并写入 DEC/DevNotes，不留「进行中」占位。零信任原则：任务板的状态必须经得起「当下我真的在干这件事」的取证，否则全是噪音。
 - 教训：**单位换算层落地要把「存储统一 kg/cm」刻进契约，而非只在 UI 格式化时换算**——P0-1 单位设置实现中，Domain 定义 `WeightUnit.factorToKg`（KG=1.0, JIN=0.5, LB=0.45359237），存储层只存 kg/cm，`QkFormat` 负责「存储值→展示值」与「输入值→存储值」双向换算。若在数据层就按用户单位存储（如旧库 MemberStore 的 `unit_prefs` 另存因子反向），会导致同一成员不同设备、不同会话读出的数值不一致。契约层面：`MeasurementRepository`/`HealthLogRepository` 只认 kg/cm，任何单位感知的转换必须在 application 格式化层或 UI 层完成，仓储与查询端口不泄露单位概念。
+- 教训：**并行会话在同一个领域多做会产生冲撞性的重复实现，不是只多一个选择**——习惯管理页落地时，domain/application/infrastructure 三层各被不同会话各造了一套 HabitDao（HabitEntity vs HabitPo）、HabitReminderScheduler（schedule/cancel vs onHabitChanged/onHabitRemoved）、HabitQueryPort 等，编译甚至能通过（同包名不同文件），但 AppDatabase 的 migration SQL 却用了 HabitPo 约定而 entity 标的是 HabitEntity——等价于两个架子连不到一起。收敛时选择「跟已有代码约定一致」（Po + dao 包、camelCase 列名）而非「自己重新定义」，并让 `RoomHabitRepository` 直接实现 `HabitRepository` + `HabitQueryPort` 两个端口一次性暴露读写分离接口，避免后人再造第三份实现。
 
 ### 交付状态（如实标注，以隔离构建证据为准）
 

@@ -132,8 +132,44 @@ class MigrationSchemaAgreementTest {
     fun `迁移版本边正确`() {
         assertThat(AppDatabase.MIGRATION_2_3.startVersion).isEqualTo(2)
         assertThat(AppDatabase.MIGRATION_2_3.endVersion).isEqualTo(3)
+        assertThat(AppDatabase.MIGRATION_3_4.startVersion).isEqualTo(3)
+        assertThat(AppDatabase.MIGRATION_3_4.endVersion).isEqualTo(4)
         assertThat(AppDatabase.MIGRATION_4_5.startVersion).isEqualTo(4)
         assertThat(AppDatabase.MIGRATION_4_5.endVersion).isEqualTo(5)
+        assertThat(AppDatabase.MIGRATION_5_6.startVersion).isEqualTo(5)
+        assertThat(AppDatabase.MIGRATION_5_6.endVersion).isEqualTo(6)
+        assertThat(AppDatabase.MIGRATION_6_7.startVersion).isEqualTo(6)
+        assertThat(AppDatabase.MIGRATION_6_7.endVersion).isEqualTo(7)
+    }
+
+    @Test
+    fun `迁移5_6建sync_state表与schema6声明逐列一致`() {
+        val json = findSchema(6).readText(Charsets.UTF_8)
+        val match = Regex(""""tableName": "sync_state"[\s\S]*?"createSql": "(.*?)"""")
+            .find(json) ?: error("6.json 中未找到 sync_state 的 createSql")
+        val expectedSql = match.groupValues[1].replace("\\\"", "\"")
+        val expectedShape = shapeOfSql(expectedSql, "sync_state")
+        val actualShape = shapeOfSql(AppDatabase.CREATE_SYNC_STATE_TABLE, "sync_state")
+        assertWithMessage("sync_state 迁移 DDL 与 schema 6.json 逐列一致") {
+            assertThat(actualShape.first).isEqualTo(expectedShape.first)
+            assertThat(actualShape.second).isEqualTo(expectedShape.second)
+        }
+        assertThat(actualShape.second).isEqualTo(listOf("tableName", "memberId"))
+    }
+
+    @Test
+    fun `迁移6_7建habits表与schema7声明逐列一致`() {
+        val json = findSchema(7).readText(Charsets.UTF_8)
+        val match = Regex(""""tableName": "habits"[\s\S]*?"createSql": "(.*?)"""")
+            .find(json) ?: error("7.json 中未找到 habits 的 createSql")
+        val expectedSql = match.groupValues[1].replace("\\\"", "\"")
+        val expectedShape = shapeOfSql(expectedSql, "habits")
+        val actualShape = shapeOfSql(AppDatabase.CREATE_HABITS_TABLE, "habits")
+        assertWithMessage("habits 迁移 DDL 与 schema 7.json 逐列一致") {
+            assertThat(actualShape.first).isEqualTo(expectedShape.first)
+            assertThat(actualShape.second).isEqualTo(expectedShape.second)
+        }
+        assertThat(actualShape.second).isEqualTo(listOf("id"))
     }
 
     private fun assertWithMessage(msg: String, block: () -> Unit) {
