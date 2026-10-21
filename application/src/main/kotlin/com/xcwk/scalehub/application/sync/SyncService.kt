@@ -3,6 +3,7 @@ package com.xcwk.scalehub.application.sync
 import com.xcwk.scalehub.application.query.MeasurementQueryPort
 import com.xcwk.scalehub.application.query.HealthLogQueryPort
 import com.xcwk.scalehub.application.auth.AuthPort
+import com.xcwk.scalehub.application.debug.DebugLog
 import com.xcwk.scalehub.domain.model.HealthLog
 import com.xcwk.scalehub.domain.model.MeasureRecord
 import com.xcwk.scalehub.domain.model.MemberProfile
@@ -57,16 +58,31 @@ class SyncService(
 
     /** 日常推送（只上传本机）。false=未登录/网络失败（吞异常同旧库:54）。 */
     suspend fun push(): Boolean = mutex.withLock {
-        if (!session.isFormalAccount()) return@withLock false
-        runCatching { pushNow() }.isSuccess
+        if (!session.isFormalAccount()) {
+            DebugLog.add("sync", "push: skipped (guest)")
+            return@withLock false
+        }
+        val ok = runCatching { pushNow() }
+            .onFailure { DebugLog.add("sync", "push: FAILED ${it.javaClass.simpleName}: ${it.message}") }
+            .isSuccess
+        DebugLog.add("sync", "push: ${if (ok) "ok" else "FAILED"}")
+        ok
     }
 
     /** 恢复：拉云端合并本机 → 回推本机增量（旧库 restore:74-93）。 */
     suspend fun restore(): SyncOutcome {
         if (!session.isFormalAccount()) return SyncOutcome(false, "请先使用手机号登录")
-        val pulled = runCatching { restoreNow() }.getOrDefault(false)
-        if (!pulled) return SyncOutcome(false, "恢复失败，请检查网络后重试")
+        DebugLog.add("sync", "restore: start")
+        val pulled = runCatching { restoreNow() }
+            .onFailure { DebugLog.add("sync", "restore: FAILED ${it.javaClass.simpleName}: ${it.message}") }
+            .getOrDefault(false)
+        if (!pulled) {
+            DebugLog.add("sync", "restore: pull failed")
+            return SyncOutcome(false, "恢复失败，请检查网络后重试")
+        }
         runCatching { pushNow() }
+            .onFailure { DebugLog.add("sync", "restore re-push: FAILED ${it.javaClass.simpleName}") }
+        DebugLog.add("sync", "restore: ok")
         return SyncOutcome(true, "已从云端恢复当前测量用户的记录")
     }
 
@@ -80,27 +96,36 @@ class SyncService(
         val authError = try {
             auth.deleteCurrentUser(digits)
         } catch (e: Exception) {
+            DebugLog.add("sync", "deleteAccount: auth FAILED ${e.javaClass.simpleName}")
             "当前网络不可用，请联网后再试"
         }
-        if (authError != null) return SyncOutcome(false, authError)
+        if (authError != null) {
+            DebugLog.add("sync", "deleteAccount: rejected ($authError)")
+            return SyncOutcome(false, authError)
+        }
         // 云端清表尽力而为（旧库逐表只记日志:276-281）
         runCatching {
             cloud.delete("measurements", "owner_id=eq.$userId")
             cloud.delete("devices", "owner_id=eq.$userId")
             cloud.delete("health_logs", "owner_id=eq.$userId")
             cloud.delete("profiles", "id=eq.$userId")
-        }
+        }.onFailure { DebugLog.add("sync", "deleteAccount: cloud wipe FAILED ${it.javaClass.simpleName}") }
         // 清除全部同步状态（水位线归零，M2b）
         runCatching { syncState?.clearAll() }
         session.signOut()
+        DebugLog.add("sync", "deleteAccount: done")
         return SyncOutcome(true, "账号已注销")
     }
 
     // ---- 内部编排 ----
 
     private suspend fun pushNow() {
-        val token = session.accessToken() ?: return
-        val userId = session.subject(token) ?: return
+        val token = session.accessToken() ?: run {
+            DebugLog.add("sync", "pushNow: aborted (no token)"); return
+        }
+        val userId = session.subject(token) ?: run {
+            DebugLog.add("sync", "pushNow: aborted (no subject)"); return
+        }
         upsertProfile(userId)
         syncDevices(userId)
         syncMeasurements(userId)
@@ -125,7 +150,8 @@ class SyncService(
             if (g.calorieGoal > 0 && g.calorieGoal != 2049) fields["calorie_goal"] = g.calorieGoal
             if (g.waterGoal > 0 && g.waterGoal != 2000) fields["water_goal"] = g.waterGoal
         }
-        cloud.upsert("profiles", "id", listOf(CloudRow(fields)))
+        val ok = cloud.upsert("profiles", "id", listOf(CloudRow(fields)))
+        DebugLog.add("sync", "push profile: fields=${fields.size} ok=$ok")
     }
 
     /** devices 上云沿旧库五列（:305-325）：协议/算法不随云走。 */
@@ -141,7 +167,10 @@ class SyncService(
                 },
             )
         }
-        if (rows.isNotEmpty()) cloud.upsert("devices", "owner_id,mac", rows)
+        if (rows.isNotEmpty()) {
+            val ok = cloud.upsert("devices", "owner_id,mac", rows)
+            DebugLog.add("sync", "push devices: n=${rows.size} ok=$ok")
+        }
     }
 
     private suspend fun syncMeasurements(userId: String) {
@@ -167,6 +196,7 @@ class SyncService(
             )
         }
         val ok = cloud.upsert("measurements", "owner_id,measured_at", rows)
+        DebugLog.add("sync", "push measurements: n=${rows.size} watermark=$watermark ok=$ok")
         // 推送成功后更新水位线（先推后记，崩溃可重推但不丢）
         if (ok) {
             val maxTime = all.maxOf { it.time }
@@ -194,6 +224,7 @@ class SyncService(
             )
         }
         val ok = cloud.upsert("health_logs", "owner_id,logged_at,type", rows)
+        DebugLog.add("sync", "push health_logs: n=${rows.size} watermark=$watermark ok=$ok")
         // 推送成功后更新水位线
         if (ok) {
             val maxTime = allLogs.maxOf { it.time }
@@ -221,28 +252,35 @@ class SyncService(
         val token = session.accessToken() ?: return false
         val userId = session.subject(token) ?: return false
         val mid = memberId()
-        val profileRows = cloud.rows("profiles", "id=eq.$userId&select=*") ?: return false
-        val deviceRows = cloud.rows("devices", "owner_id=eq.$userId&select=*") ?: return false
+        val profileRows = cloud.rows("profiles", "id=eq.$userId&select=*")
+            ?: run { DebugLog.add("sync", "pull profiles: FAILED"); return false }
+        val deviceRows = cloud.rows("devices", "owner_id=eq.$userId&select=*")
+            ?: run { DebugLog.add("sync", "pull devices: FAILED"); return false }
 
         // measurements 增量拉取：只拉 > pulledWatermark 的行
         val mWatermark = syncState?.get("measurements", mid)?.second ?: 0L
         val mFilter = if (mWatermark > 0) "&measured_at=gt.$mWatermark" else ""
         val measurementRows = cloud.rows(
             "measurements", "owner_id=eq.$userId&select=*&order=measured_at.desc&limit=180$mFilter",
-        ) ?: return false
+        ) ?: run { DebugLog.add("sync", "pull measurements: FAILED (watermark=$mWatermark)"); return false }
 
         // health_logs 增量拉取：只拉 > pulledWatermark 的行
         val hWatermark = syncState?.get("health_logs", mid)?.second ?: 0L
         val hFilter = if (hWatermark > 0) "&logged_at=gt.$hWatermark" else ""
         val logRows = cloud.rows(
             "health_logs", "owner_id=eq.$userId&select=*&order=logged_at.desc&limit=300$hFilter",
-        ) ?: return false
+        ) ?: run { DebugLog.add("sync", "pull health_logs: FAILED (watermark=$hWatermark)"); return false }
 
         mergeDevices(deviceRows)
         val mergedMMax = mergeMeasurements(measurementRows)
         val mergedHMax = mergeHealthLogs(logRows)
         mergeProfile(profileRows.firstOrNull())
 
+        DebugLog.add(
+            "sync",
+            "restore pulled: profiles=${profileRows.size} devices=${deviceRows.size} " +
+                "measurements=${measurementRows.size} logs=${logRows.size}",
+        )
         // 拉取成功后更新水位线（先拉后记，崩溃可重拉但不丢）
         if (mergedMMax > 0) syncState?.updatePulled("measurements", mid, mergedMMax)
         if (mergedHMax > 0) syncState?.updatePulled("health_logs", mid, mergedHMax)
@@ -304,6 +342,8 @@ class SyncService(
                     memberId(),
                 )
                 if (time > maxTime) maxTime = time
+            }.onFailure {
+                DebugLog.add("sync", "merge measurements: bad row skipped t=$time (${it.javaClass.simpleName})")
             }   // 坏行跳过（守卫 fail-fast 即过滤器）
         }
         return maxTime
@@ -332,6 +372,8 @@ class SyncService(
                     memberId(),
                 )
                 if (time > maxTime) maxTime = time
+            }.onFailure {
+                DebugLog.add("sync", "merge health_logs: bad row skipped t=$time type=$type (${it.javaClass.simpleName})")
             }
         }
         return maxTime

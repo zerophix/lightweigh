@@ -148,7 +148,7 @@ commands:
   status: stable
   type: gradle-test
 - description: 调试日志环形缓冲契约（2 万行上限/最旧淘汰/快照隔离/并发安全）
-  path: application/src/test/kotlin/com/xcwk/scalehub/application/ble/BleDebugLogTest.kt
+  path: application/src/test/kotlin/com/xcwk/scalehub/application/debug/DebugLogTest.kt
   status: stable
   type: gradle-test
 - description: 测量会话相位转移矩阵（状态×事件逐格 + 2000 步随机不变量, DEC-024）

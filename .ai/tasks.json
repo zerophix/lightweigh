@@ -1,7 +1,7 @@
 {
   "version": 1,
   "updated_at": "2026-10-21T06:21:49Z",
-  "next_action": "T-024 调试悬浮球已完成(DEC-039)。剩余: T-007(真机对拍+悬浮球体验, 用户测试中)、T-008/T-013(分支保护, 需人类决策)、T-018(release 发布配置)。",
+  "next_action": "T-025 全链路日志已完成(DEC-040)。剩余: T-007(真机对拍+悬浮球体验, 用户测试中)、T-008/T-013(分支保护, 需人类决策)、T-018(release 发布配置)。",
   "next_action_why": "",
   "next_action_confirmed": true,
   "known_risks": [
@@ -271,6 +271,12 @@
       "title": "蓝牙调试悬浮球与 2 万行日志面板",
       "status": "completed",
       "detail": "DEC-039: BleDebugLog 环形缓冲 + AndroidBleLink/MeasureSession 插桩 + ui.debug.DebugOverlay（拖动/复制/清空/贴底），BuildConfig.DEBUG 门控"
+    },
+    {
+      "id": "T-025",
+      "title": "全链路调试日志（sync/cloud/ai/auth 接入 DebugLog）",
+      "status": "completed",
+      "detail": "DEC-040: BleDebugLog 泛化为 application.debug.DebugLog，四链路插桩约 30 处，敏感信息过滤（auth 只记 path）"
     }
   ]
 }

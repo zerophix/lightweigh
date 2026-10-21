@@ -52,7 +52,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.xcwk.scalehub.BuildConfig
-import com.xcwk.scalehub.application.ble.BleDebugLog
+import com.xcwk.scalehub.application.debug.DebugLog
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlin.math.roundToInt
@@ -60,7 +60,7 @@ import kotlin.math.roundToInt
 /**
  * 蓝牙调试悬浮球 + 日志面板（仅 debug 构建，随 [BuildConfig.DEBUG] 门控）。
  *
- * - 数据源 [BleDebugLog]：2 万行环形缓冲，AndroidBleLink/MeasureSession 双写入。
+ * - 数据源 [DebugLog]：2 万行环形缓冲，覆盖 ble/session/sync/cloud/ai/auth 全链路。
  * - 球可拖动、松手吸附左右边缘；点击展开全屏面板。
  * - 面板：LazyColumn 滚动 + 一键复制 + 清空 + 跟随底部（用户上滑暂停跟随）。
  */
@@ -139,7 +139,7 @@ fun DebugOverlay() {
 private fun DebugPanel(onClose: () -> Unit, modifier: Modifier = Modifier) {
     val lines by produceState(initialValue = emptyList<String>()) {
         while (true) {
-            value = BleDebugLog.snapshot()
+            value = DebugLog.snapshot()
             delay(400)
         }
     }
@@ -153,7 +153,7 @@ private fun DebugPanel(onClose: () -> Unit, modifier: Modifier = Modifier) {
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                "BLE 调试日志 ${lines.size}/${BleDebugLog.MAX_LINES}",
+                "调试日志 ${lines.size}/${DebugLog.MAX_LINES}",
                 color = Color(0xFFB7F0D9),
                 fontSize = 13.sp,
                 fontFamily = FontFamily.Monospace,
@@ -167,7 +167,7 @@ private fun DebugPanel(onClose: () -> Unit, modifier: Modifier = Modifier) {
                     Toast.makeText(context, "复制失败: ${ex.javaClass.simpleName}", Toast.LENGTH_SHORT).show()
                 }
             }
-            PanelAction(Icons.Outlined.DeleteSweep, "清空") { BleDebugLog.clear() }
+            PanelAction(Icons.Outlined.DeleteSweep, "清空") { DebugLog.clear() }
             PanelAction(Icons.Outlined.Close, "关闭", onClick = onClose)
         }
         val listState = rememberLazyListState()

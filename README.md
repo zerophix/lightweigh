@@ -191,6 +191,7 @@ M1 骨架已落地：四模块分层 + 单元测试方法全绿。整体构建�
 - 坑：读写分离后「写口与查询端口必须共享同一实例」，编译器不会提醒你分了两个——SyncService 测试里 `measures2, FakeLogRepo(), measures2, FakeLogRepo()` 看似等价，实则 save 写进第一个实例、push 查询读第二个，写入永远读不到；只有跑测试才会红。凡是一个对象同时扮演写口和读口的角色，wiring 时先确认它们指向同一实例。
 - 教训：批量脚本改源码时，后插的代码块会落进前面批量替换的射程——给 AndroidBleLink 插 blog() 辅助函数时，函数体里的 `Log.d("BLE_DEBUG", …)` 正好命中下一条「全部 Log.d 换 blog」的全局替换，一跑就是无限递归。批量替换的顺序本身就是语义：先做全局替换、再插入新代码块，或者给新块用占位符延后展开；断言计数（expected/got）是唯一能当场拦住这类事故的手段。
 - 坑：Compose 的 `Modifier.weight` 是 RowScope/ColumnScope 成员不是独立修饰符——单独 import 会命中 internal 错误，且它只在对应 scope 的 content lambda 里可用；另外 Kotlin 不允许命名参数和位置参数混排（`LazyColumn(state = …, Modifier…)` 直接编译失败），Modifier 参数要么全位置要么命名。Android 新模块如果要用 BuildConfig，AGP 8+ 默认不生成，buildFeatures 里要显式 `buildConfig = true`。
+- 教训：给「吞异常」的代码补日志时，先分清哪些异常是故意吞的——AndroidBleLink 里 `catch (ignored: RuntimeException) {}` 全是 close() 清理兜底，吞掉是对的，给它们补日志反而制造噪音；真正要补的是 `runCatching { … }.getOrNull()` 这种把超时/401/解析失败统统折叠成 null 的模式，null 本身不带任何原因。另外给 HTTP 层补日志时发现 auth 的注销接口把验证码放在 URL query 里（`?verify_code=`）——日志记 URL 就等于把验证码写进排障面板，敏感过滤不能靠自觉，要在记日志的那行代码里物理截断（`substringBefore("?")`）。
 
 ### 交付状态（如实标注，以隔离构建证据为准）
 

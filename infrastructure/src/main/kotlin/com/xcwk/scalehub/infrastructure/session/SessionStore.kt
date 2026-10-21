@@ -3,6 +3,7 @@ package com.xcwk.scalehub.infrastructure.session
 import android.content.Context
 import android.util.Base64
 import com.xcwk.scalehub.application.auth.AuthPort
+import com.xcwk.scalehub.application.debug.DebugLog
 import com.xcwk.scalehub.application.auth.SignInResult
 import com.xcwk.scalehub.application.auth.SmsCodeResult
 import com.xcwk.scalehub.application.sync.CloudSessionPort
@@ -38,6 +39,7 @@ class SessionStore(context: Context) : CloudSessionPort, AuthPort {
     override fun subject(token: String): String? = subjectOf(token)
 
     override fun signOut() {
+        DebugLog.add("auth", "signOut")
         prefs.edit()
             .remove(KEY_ACCESS).remove(KEY_REFRESH).remove(KEY_EXPIRES).remove(KEY_PHONE)
             .putBoolean(KEY_FORMAL, false)
@@ -58,15 +60,21 @@ class SessionStore(context: Context) : CloudSessionPort, AuthPort {
         val result = request(
             "POST", "${BackendConfig.BASE}/auth/v1/verification", null,
             JSONObject().put("phone_number", phone).put("target", "ANY").toString(),
-        ) ?: return@withContext SmsCodeResult(false, "当前网络不可用，请联网后再获取验证码", "", false)
+        ) ?: run {
+            DebugLog.add("auth", "sms: network FAILED")
+            return@withContext SmsCodeResult(false, "当前网络不可用，请联网后再获取验证码", "", false)
+        }
         if (result.first !in 200..299) {
+            DebugLog.add("auth", "sms: rejected http=${result.first}")
             return@withContext SmsCodeResult(false, authMessage(result.second, "验证码发送失败，请稍后重试"), "", false)
         }
         val json = JSONObject(result.second)
         val verificationId = json.optString("verification_id")
         if (verificationId.isEmpty()) {
+            DebugLog.add("auth", "sms: no verification_id")
             return@withContext SmsCodeResult(false, "验证码发送失败，请稍后重试", "", false)
         }
+        DebugLog.add("auth", "sms: sent isUser=${json.optBoolean("is_user")}")
         SmsCodeResult(true, "验证码已发送", verificationId, json.optBoolean("is_user", false))
     }
 
@@ -83,12 +91,19 @@ class SessionStore(context: Context) : CloudSessionPort, AuthPort {
         val verified = request(
             "POST", "${BackendConfig.BASE}/auth/v1/verification/verify", null,
             JSONObject().put("verification_id", verificationId).put("verification_code", code).toString(),
-        ) ?: return@withContext SignInResult(false, "当前网络不可用，请联网后再登录")
+        ) ?: run {
+            DebugLog.add("auth", "verify: network FAILED")
+            return@withContext SignInResult(false, "当前网络不可用，请联网后再登录")
+        }
         if (verified.first !in 200..299) {
+            DebugLog.add("auth", "verify: rejected http=${verified.first}")
             return@withContext SignInResult(false, authMessage(verified.second, "验证码不正确"))
         }
         val vToken = JSONObject(verified.second).optString("verification_token")
-        if (vToken.isEmpty()) return@withContext SignInResult(false, "验证码不正确")
+        if (vToken.isEmpty()) {
+            DebugLog.add("auth", "verify: no verification_token")
+            return@withContext SignInResult(false, "验证码不正确")
+        }
         // 已注册走 signin，新号走 signup（旧库 finishSignIn:123-133）
         val session = if (registered) {
             request("POST", "${BackendConfig.BASE}/auth/v1/signin", null,
@@ -96,14 +111,20 @@ class SessionStore(context: Context) : CloudSessionPort, AuthPort {
         } else {
             request("POST", "${BackendConfig.BASE}/auth/v1/signup", null,
                 JSONObject().put("phone_number", phone).put("verification_token", vToken).toString())
-        } ?: return@withContext SignInResult(false, "当前网络不可用，请联网后再登录")
+        } ?: run {
+            DebugLog.add("auth", "signin(${if (registered) "existing" else "new"}): network FAILED")
+            return@withContext SignInResult(false, "当前网络不可用，请联网后再登录")
+        }
         if (session.first !in 200..299) {
+            DebugLog.add("auth", "signin: rejected http=${session.first}")
             return@withContext SignInResult(false, authMessage(session.second, "登录失败，请稍后重试"))
         }
         if (storeSession(session.second) == null) {
+            DebugLog.add("auth", "signin: storeSession FAILED")
             return@withContext SignInResult(false, "登录失败，请稍后重试")
         }
         prefs.edit().putBoolean(KEY_FORMAL, true).putString(KEY_PHONE, rawDigits).apply()
+        DebugLog.add("auth", "signin: ok (registered=$registered)")
         SignInResult(true, "登录成功")
     }
 
@@ -135,15 +156,25 @@ class SessionStore(context: Context) : CloudSessionPort, AuthPort {
         val result = request(
             "POST", "${BackendConfig.BASE}/auth/v1/token?grant_type=refresh_token", null,
             JSONObject().put("refresh_token", refresh).toString(),
-        ) ?: return null
-        if (result.first !in 200..299) return null
+        ) ?: run {
+            DebugLog.add("auth", "refresh: network FAILED")
+            return null
+        }
+        if (result.first !in 200..299) {
+            DebugLog.add("auth", "refresh: rejected http=${result.first} (session dead)")
+            return null
+        }
+        DebugLog.add("auth", "refresh: ok")
         return storeSession(result.second)
     }
 
     private fun storeSession(body: String): String? {
         val json = JSONObject(body)
         val access = json.optString("access_token")
-        if (access.isEmpty()) return null
+        if (access.isEmpty()) {
+            DebugLog.add("auth", "storeSession: no access_token")
+            return null
+        }
         val refresh = json.optString("refresh_token")
         val expiresIn = json.optLong("expires_in", 7200L)
         prefs.edit()
@@ -151,6 +182,7 @@ class SessionStore(context: Context) : CloudSessionPort, AuthPort {
             .putString(KEY_REFRESH, refresh)
             .putLong(KEY_EXPIRES, System.currentTimeMillis() + expiresIn * 1000L)
             .apply()
+        DebugLog.add("auth", "storeSession: ok expiresIn=${expiresIn}s")
         return access
     }
 
@@ -171,7 +203,10 @@ class SessionStore(context: Context) : CloudSessionPort, AuthPort {
             val text = (if (code in 200..299) conn.inputStream else conn.errorStream)
                 ?.bufferedReader()?.use { it.readText() }.orEmpty()
             conn.disconnect()
+            DebugLog.add("auth", "http $method ${url.substringAfter("/auth/v1/").substringBefore("?")} -> $code")
             code to text
+        }.onFailure {
+            DebugLog.add("auth", "http $method FAILED: ${it.javaClass.simpleName}: ${it.message}")
         }.getOrNull()
 
     companion object {
