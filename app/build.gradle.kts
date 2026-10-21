@@ -26,7 +26,11 @@ android {
         isCoreLibraryDesugaringEnabled = true
     }
     kotlinOptions { jvmTarget = "17" }
-    buildFeatures { compose = true }
+    buildFeatures {
+        compose = true
+        // DebugOverlay 悬浮球仅 DEBUG 构建显示，依赖生成的 BuildConfig.DEBUG 门控
+        buildConfig = true
+    }
     packaging { resources.excludes += "/META-INF/{AL2.0,LGPL2.1}" }
     testOptions {
         // 蓝牙排障日志直接用 android.util.Log；纯 JVM 单测未 mock，返回默认值而非抛异常

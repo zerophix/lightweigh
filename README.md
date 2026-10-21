@@ -189,6 +189,8 @@ M1 骨架已落地：四模块分层 + 单元测试方法全绿。整体构建�
 - 坑：测试全绿不等于链路接通——全项目审计时发现 `SyncService.push()` 有完整实现、注入进了容器、六项单测全绿，唯独生产代码零调用：云同步只靠设置页「恢复账号」下拉，本地写的一切永远上不去，换机迁移拉到的还是旧快照。「组件有测试」证明的是组件对，不是产品对。教训：审计要沿「定义 → 注入 → 调用」三段走完整链路，grep 调用方和读定义一样重要；凡是「已实装但无人触发」的能力，要么补触发点，要么明确摘掉，挂在中间最危险。配套的工具坑：macOS 的 BSD grep 在 BRE 模式下不认 `\|` 交替符，`grep "A\|B"` 会静默返空——本轮差点因此误报「恢复账号入口不存在」，批量检索一律 `grep -E`。
 - 教训：动手重构前先 grep 一遍「同类东西的既有先例」，比读架构文档更快拿到真答案——T-016 中途方案把 `recent/between` 换个名字塞回 `domain.repository`（自违「仓储仅存取」的目标），还包了 4 层委托链；对照源码才发现 `BlePort`/`SyncStatePort`/`AiPort` 等 5 个端口全部是「定义在 application、实现在 infrastructure」的既定模式，半天工作量整体回退重来。架构文档写的是原则，代码里的先例才是施工图。
 - 坑：读写分离后「写口与查询端口必须共享同一实例」，编译器不会提醒你分了两个——SyncService 测试里 `measures2, FakeLogRepo(), measures2, FakeLogRepo()` 看似等价，实则 save 写进第一个实例、push 查询读第二个，写入永远读不到；只有跑测试才会红。凡是一个对象同时扮演写口和读口的角色，wiring 时先确认它们指向同一实例。
+- 教训：批量脚本改源码时，后插的代码块会落进前面批量替换的射程——给 AndroidBleLink 插 blog() 辅助函数时，函数体里的 `Log.d("BLE_DEBUG", …)` 正好命中下一条「全部 Log.d 换 blog」的全局替换，一跑就是无限递归。批量替换的顺序本身就是语义：先做全局替换、再插入新代码块，或者给新块用占位符延后展开；断言计数（expected/got）是唯一能当场拦住这类事故的手段。
+- 坑：Compose 的 `Modifier.weight` 是 RowScope/ColumnScope 成员不是独立修饰符——单独 import 会命中 internal 错误，且它只在对应 scope 的 content lambda 里可用；另外 Kotlin 不允许命名参数和位置参数混排（`LazyColumn(state = …, Modifier…)` 直接编译失败），Modifier 参数要么全位置要么命名。Android 新模块如果要用 BuildConfig，AGP 8+ 默认不生成，buildFeatures 里要显式 `buildConfig = true`。
 
 ### 交付状态（如实标注，以隔离构建证据为准）
 
