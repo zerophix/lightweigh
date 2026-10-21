@@ -50,3 +50,4 @@ echo "========================================"
 echo ""
 echo "  如需跳过 hooks：git commit --no-verify"
 exit 0
+# session 1
