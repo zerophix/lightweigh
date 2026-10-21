@@ -32,8 +32,8 @@ class BroadcastOnlyTest {
         assertThat(info.weight.value).isEqualTo(65.5)
         assertThat(info.weight.kilograms()).isEqualTo(65.5)
         assertThat(info.flags.weightLocked).isTrue()
-        // 行为锁定：广播电阻原样透传旧库口径（BroadcastOnly.java:28 不做 /10）
-        assertThat(info.resistanceOhm).isEqualTo(5000.0)
+        // DEC-038 组D：广播电阻按 0.1Ω 精度还原（5000 → 500.0Ω），与连接帧同口径
+        assertThat(info.resistanceOhm).isEqualTo(500.0)
         assertThat(info.summary()).contains("体脂秤")
         assertThat(info.summary()).contains("锁定")
     }
