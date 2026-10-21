@@ -12,6 +12,14 @@ data class ReportMetricUi(
 
 data class ReportRiskUi(val name: String, val levelText: String, val tone: Int)
 
+/** 报告分析 tab 目标达成行（体重/BMI/体脂率/肌肉率）。 */
+data class ReportGoalRow(
+    val name: String,
+    val valueText: String,
+    val achieved: Boolean,
+    val rangeText: String,
+)
+
 data class ReportUiState(
     val loading: Boolean = true,
     val found: Boolean = false,
@@ -36,6 +44,15 @@ data class ReportUiState(
     val disclaimer: String = "",
     /** AI 解读可用（正式账号口径，M4 联动）。 */
     val aiEnabled: Boolean = false,
+    // ---- 报告分析 tab（DEC-043-A）----
+    /** BMI 分档 0-4（BodyFigure 身宽 + BmiScaleBar 游标色）。 */
+    val bmiLevel: Int = 1,
+    /** 近期体重序列（最多 11 条，时间正序，用于折线图）。 */
+    val recentWeights: List<Double> = emptyList(),
+    /** 近期体脂率序列（过滤 -1 无效值）。 */
+    val recentFats: List<Double> = emptyList(),
+    /** 目标达成行（体重/BMI/体脂率/肌肉率）。 */
+    val goalRows: List<ReportGoalRow> = emptyList(),
 )
 
 sealed interface ReportIntent {

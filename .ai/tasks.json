@@ -1,7 +1,7 @@
 {
   "version": 1,
   "updated_at": "2026-10-21T07:54:36Z",
-  "next_action": "T-027 会话生命周期修复已完成(DEC-042)。剩余: T-007(真机对拍, 用户测试中)、T-008/T-013(分支保护, 需人类决策)、T-018(release 发布配置)。",
+  "next_action": "T-028~T-041: DEC-043 对齐参考项目 13 项缺失功能（P0: 报告分析tab/AI结构化卡片/单位设置；P1: 习惯管理/趋势扩展/新手引导/密码登录；P2-P3: 其余）。按组实现+独立提交。",
   "next_action_why": "",
   "next_action_confirmed": true,
   "known_risks": [
@@ -311,6 +311,90 @@
       "title": "测量会话生命周期修复（退出即停 + 重进重建）",
       "status": "completed",
       "detail": "DEC-042: ScaleRoute onDispose 调 stop；ScaleViewModel 会话可重建（closed 终态 newSession）"
+    },
+    {
+      "id": "T-028",
+      "title": "报告分析 tab",
+      "status": "pending",
+      "detail": "DEC-043-A: 成分/体型矩阵/目标达成/折线/插画"
+    },
+    {
+      "id": "T-029",
+      "title": "AI 结构化卡片",
+      "status": "pending",
+      "detail": "DEC-043-B: 饮食卡入库/运动卡/指标解读卡/拍照入口/欢迎示例"
+    },
+    {
+      "id": "T-030",
+      "title": "单位设置",
+      "status": "pending",
+      "detail": "DEC-043-C: kg/斤/磅、cm/in 全局换算层"
+    },
+    {
+      "id": "T-031",
+      "title": "习惯管理页",
+      "status": "pending",
+      "detail": "DEC-043-D: 定义/周期/次数/提醒/打卡列表"
+    },
+    {
+      "id": "T-032",
+      "title": "趋势扩展指标",
+      "status": "pending",
+      "detail": "DEC-043-E: 骨骼肌/水分/基础代谢/肌肉/蛋白质 + 聚合模式 + 自定义范围"
+    },
+    {
+      "id": "T-033",
+      "title": "新手引导三步",
+      "status": "pending",
+      "detail": "DEC-043-F: 资料→单位→绑秤"
+    },
+    {
+      "id": "T-034",
+      "title": "密码登录+设置密码",
+      "status": "pending",
+      "detail": "DEC-043-G: 账号安全双通道"
+    },
+    {
+      "id": "T-035",
+      "title": "历史双记录对比",
+      "status": "pending",
+      "detail": "DEC-043-H: 两条记录对比"
+    },
+    {
+      "id": "T-036",
+      "title": "设置扩展",
+      "status": "pending",
+      "detail": "DEC-043-I: 语音播报/隐私设置页/同步状态详情页"
+    },
+    {
+      "id": "T-037",
+      "title": "首页体验",
+      "status": "pending",
+      "detail": "DEC-043-J: 成员快捷切换弹层+离线横幅+卡片管理"
+    },
+    {
+      "id": "T-038",
+      "title": "测量页扩展",
+      "status": "pending",
+      "detail": "DEC-043-K: 测量中切换用户/帮助弹窗/跳过提示/小贴士"
+    },
+    {
+      "id": "T-039",
+      "title": "设备页扩展",
+      "status": "pending",
+      "detail": "DEC-043-L: 测量小贴士卡/最近测量时间/开始称重快捷按钮"
+    },
+    {
+      "id": "T-040",
+      "title": "我的资料扩展",
+      "status": "pending",
+      "detail": "DEC-043-M: 个人简介/所在地/展示标签"
+    },
+    {
+      "id": "T-041",
+      "title": "我的档案页扩展",
+      "status": "pending",
+      "detail": "DEC-043-N: 围度/内脏脂肪/目标进度条"
     }
   ]
 }

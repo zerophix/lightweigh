@@ -25,12 +25,12 @@ class ReportViewModelTest {
             ),
         )
         val formal = ReportViewModel(
-            ReportQuery(FakeRepo(rows.toList())), 1000L, ZoneId.of("Asia/Shanghai"),
+            ReportQuery(FakeRepo(rows.toList())), FakeRepo(rows.toList()), 1000L, ZoneId.of("Asia/Shanghai"),
             isFormalAccount = { true },
         )
         assertThat(formal.state.value.aiEnabled).isTrue()
         val guest = ReportViewModel(
-            ReportQuery(FakeRepo(rows.toList())), 1000L, ZoneId.of("Asia/Shanghai"),
+            ReportQuery(FakeRepo(rows.toList())), FakeRepo(rows.toList()), 1000L, ZoneId.of("Asia/Shanghai"),
             isFormalAccount = { false },
         )
         assertThat(guest.state.value.aiEnabled).isFalse()
@@ -60,7 +60,7 @@ class ReportViewModelTest {
     }
 
     private fun vm(time: Long, vararg rows: MeasureRecord) =
-        ReportViewModel(ReportQuery(FakeRepo(rows.toList())), time, ZoneId.of("Asia/Shanghai"))
+        ReportViewModel(ReportQuery(FakeRepo(rows.toList())), FakeRepo(rows.toList()), time, ZoneId.of("Asia/Shanghai"))
 
     @Test
     fun `报告格式化_大数字与比上次`() {
@@ -89,7 +89,7 @@ class ReportViewModelTest {
     @Test
     fun `记录不存在_未找到态`() {
         val vm = vm(1000L, MeasureRecord(1000L, 70.0, 0.0, -1.0, "", "builtin-1"))
-        val s = ReportViewModel(ReportQuery(FakeRepo(emptyList())), 999L, ZoneId.of("Asia/Shanghai")).state.value
+        val s = ReportViewModel(ReportQuery(FakeRepo(emptyList())), FakeRepo(emptyList()), 999L, ZoneId.of("Asia/Shanghai")).state.value
         assertThat(s.loading).isFalse()
         assertThat(s.found).isFalse()
         assertThat(vm.state.value.found).isTrue()   // 对照：原记录在

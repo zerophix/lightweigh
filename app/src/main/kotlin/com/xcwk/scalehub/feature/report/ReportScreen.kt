@@ -1,5 +1,7 @@
 package com.xcwk.scalehub.feature.report
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,6 +14,12 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -105,6 +113,33 @@ fun ReportScreen(
             )
         }
 
+        // Tab 切换（旧库 Pages.kt:544-554）：身体指标 / 报告分析
+        var tab by remember { mutableIntStateOf(0) }
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(top = QkSpacing.Sm, bottom = QkSpacing.Sm),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            listOf("身体指标", "报告分析").forEachIndexed { i, label ->
+                val selected = tab == i
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 4.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(if (selected) QkColor.Primary else QkColor.Mint)
+                        .padding(vertical = 8.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        label,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = if (selected) Color.White else QkColor.Muted,
+                    )
+                }
+            }
+        }
+
+        if (tab == 0) {
         // 头部卡：有评分走原型评分卡；无评分（手动记录）退化为体重主卡
         QkCard {
             Text(
@@ -268,6 +303,10 @@ fun ReportScreen(
             modifier = Modifier.fillMaxWidth().padding(top = QkSpacing.Sm),
             onClick = onAskAi,
         )
+        } else {
+            // Tab 1: 报告分析
+            ReportAnalysisTab(state = state, male = true)
+        }
         Spacer(modifier = Modifier.height(28.dp))
     }
 }

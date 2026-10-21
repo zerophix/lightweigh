@@ -371,6 +371,7 @@
 
 | 版本 | 日期 | 变更摘要 |
 |------|------|---------|
+| v75 | 2026-10-21 | DEC-043-A T-028 报告分析 tab：ReportScreen 改双 tab（身体指标/报告分析）；新增 ReportAnalysisTab.kt（BodyFigure Canvas 小人插画/BmiScaleBar BMI 14-38 映射色带/HistoryLine 120dp 折线图/体型 3x3 矩阵/目标达成行/体重控制卡）；ReportViewModel 注入 MeasurementQueryPort 取近期序列（最多 11 条）+ 计算目标达成行（体重 stdWeight×0.9-1.1/BMI 18.5-24/体脂男 10-20 女 18-28/肌肉率男 32-56 女 28-52）；app 测试全绿 |
 | v74 | 2026-10-21 | DEC-038 第 4 条根因：连接地址移植缺口——参考全部连接点用扫描活地址（linkAddress=deviceMac），我们误用绑定表存档地址，芯海随机地址轮换后 scannedDevices 查不到即「没有扫到这台芯海秤」失败；MeasureSession 增 linkAddress，首连/quietReconnect/retryConnect 统一活地址优先，start() 清空；协议解析层与参考逐字节对拍一致（非解析问题） |
 | v73 | 2026-10-21 | DEC-038 真机追因轮：协议标记穷举证实秤广播缺席（47 条 0 命中）后四路收口——链路防固件静默死锁（订阅 CCCD/写队列 3s 超时+身份校验）、扫描门两静默守卫补去重证据日志、扫描模式对齐参考 LOW_LATENCY（原 BALANCED 半占空比错过唤醒脉冲）、悬浮日志防洪（ble 层抽样+5s 汇总+停扫总账，session 判决层不抽样）+ 8s 扫描看门狗定论行 + start 守卫日志；修 DeviceScreen heroText 硬编码「已连接」UI 谎言（绑定页从不建连，该字样误导真机排查数轮，改「使用中」）；5 条新回归测试 |
 | v74 | 2026-10-21 | DEC-042 测量会话生命周期锚定 overlay：ScaleRoute 离开即 DisposableEffect onDispose 调 vm.stop()（停扫描/断连接/取消定时器），修复「退出测量页会话后台空转」；ScaleViewModel session 改 var + newSession() 工厂，start() 检测 closed 终态即重建新会话并重挂 state 收集（旧 collect 先 cancel 防泄漏），VM 自持 MutableStateFlow 转发，重进测量页可用；MeasureSession.closed 提升公开只读；顺手修 DebugPanel 函数内非法 typealias/const val；374 测试全绿 |
