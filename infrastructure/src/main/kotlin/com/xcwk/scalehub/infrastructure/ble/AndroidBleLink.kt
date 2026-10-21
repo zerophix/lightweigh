@@ -22,6 +22,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import com.xcwk.scalehub.application.ble.BleConnectListener
+import com.xcwk.scalehub.application.ble.BleDebugLog
 import com.xcwk.scalehub.application.ble.BleIndicateListener
 import com.xcwk.scalehub.application.ble.BlePort
 import com.xcwk.scalehub.application.ble.BleScanListener
@@ -105,6 +106,13 @@ class AndroidBleLink(context: Context) : BlePort {
     private var requiredMissing: String = "没有测量所需特征"
     private var connectTimeout: Runnable? = null
 
+    /** 订阅链推进依赖 onDescriptorWrite 回调——部分秤固件静默不回调，必须超时兜底（真机死锁点）。 */
+    private var subscribeTimeout: Runnable? = null
+    private var pendingDescriptor: BluetoothGattDescriptor? = null
+
+    /** 写队列推进依赖 onCharacteristicWrite 回调——2A08 时间写入静默会卡死用户信息下发（真机死锁点）。 */
+    private var writeTimeout: Runnable? = null
+
     /** 连接令牌：每次 connect/disconnect 递增，过期回调据此自弃（上游 BLEManager.connectToken）。 */
     private var connectToken = 0
 
@@ -114,12 +122,28 @@ class AndroidBleLink(context: Context) : BlePort {
     private var scannedDeviceForConnection: BluetoothDevice? = null
     private val scannedDevices = ConcurrentHashMap<String, BluetoothDevice>()
 
+    /** 调试双写：logcat 保持 BLE_DEBUG tag 不变，同时进应用内悬浮调试面板的环形缓冲。 */
+    private fun blog(message: String) {
+        Log.d("BLE_DEBUG", message)
+        BleDebugLog.add("ble", message)
+    }
+
+    /** 16/32 位标准 UUID 缩写为 0xXXXX，避免面板行过长；非常规 UUID 保持全形。 */
+    private fun shortUuid(uuid: UUID): String {
+        val text = uuid.toString()
+        return if (text.startsWith("0000") && text.endsWith("-1000-8000-00805f9b34fb")) {
+            "0x${text.substring(4, 8)}"
+        } else {
+            text
+        }
+    }
+
     override fun isBluetoothEnabled(): Boolean = adapter != null && adapter.isEnabled
 
     override fun scan(listener: BleScanListener) {
         val bt = adapter
         if (bt == null || !bt.isEnabled) {
-            Log.d("BLE_DEBUG", "scan() skipped: adapter=$bt enabled=${bt?.isEnabled}")
+            blog("scan() skipped: adapter=$bt enabled=${bt?.isEnabled}")
             return
         }
         stopScan()
@@ -131,7 +155,7 @@ class AndroidBleLink(context: Context) : BlePort {
             .setScanMode(ScanSettings.SCAN_MODE_BALANCED)
             .setReportDelay(0)
             .build()
-        Log.d("BLE_DEBUG", "scan() started: mode=BALANCED")
+        blog("scan() started: mode=BALANCED")
         scanCallback = object : ScanCallback() {
             override fun onScanResult(callbackType: Int, result: ScanResult) {
                 val device = result.device
@@ -153,8 +177,7 @@ class AndroidBleLink(context: Context) : BlePort {
                 val copy = record?.bytes?.clone()
                 val finalName = if (name.isEmpty()) "(无名设备)" else name
                 val rssi = result.rssi
-                Log.d(
-                    "BLE_DEBUG",
+                blog(
                     "onScanResult: name=$finalName mac=$foundMac rssi=$rssi hex=${copy?.toHex() ?: "null"}",
                 )
                 mainHandler.post {
@@ -250,7 +273,7 @@ class AndroidBleLink(context: Context) : BlePort {
         connecting = true
         armConnectTimeout(token)
         scheduleScannedDeviceOpen(token)
-        Log.d("BLE_DEBUG", "connect(scannedDevice): mac=$mac attempt=0")
+        blog("connect(scannedDevice): mac=$mac attempt=0")
     }
 
     private fun readyToConnect(mac: String): Boolean {
@@ -323,7 +346,7 @@ class AndroidBleLink(context: Context) : BlePort {
                 @Suppress("DEPRECATION")
                 device.connectGatt(caller, false, gattCallback)
             }
-            Log.d("BLE_DEBUG", "$tag: ${device.address} context=${caller::class.simpleName}")
+            blog("$tag: ${device.address} context=${caller::class.simpleName}")
         } catch (ex: SecurityException) {
             failOpen(scanned, "没有蓝牙权限")
         } catch (ex: IllegalArgumentException) {
@@ -366,6 +389,9 @@ class AndroidBleLink(context: Context) : BlePort {
         scannedDeviceForConnection = null
         connecting = false
         connectTimeout?.let { mainHandler.removeCallbacks(it) }
+        cancelSubscribeTimeout()
+        cancelWriteTimeout()
+        pendingDescriptor = null
         writes.clear()
         writeInFlight = false
         subscribeList.clear()
@@ -404,9 +430,11 @@ class AndroidBleLink(context: Context) : BlePort {
 
     override fun write(characteristic: UUID?, data: ByteArray, listener: BleWriteListener?) {
         val copy = data.clone()
+        blog("TX queued: uuid=${characteristic?.let { shortUuid(it) }} hex=${copy.toHex()}")
         mainHandler.post {
             val target = characteristic?.let { findCharacteristic(it) }
             if (gatt == null || target == null) {
+                blog("TX fail: no characteristic ${characteristic?.let { shortUuid(it) }}")
                 listener?.onWriteFailure("没有特征 $characteristic")
                 return@post
             }
@@ -453,18 +481,24 @@ class AndroidBleLink(context: Context) : BlePort {
     private fun subscribeNext() {
         val currentGatt = gatt ?: return
         if (subscribeIndex >= subscribeList.size) {
+            cancelSubscribeTimeout()
+            pendingDescriptor = null
+            blog("subscribe: done (${subscribeList.size} characteristics)")
             indicateListener?.onIndicateSuccess()
             return
         }
         val characteristic = subscribeList[subscribeIndex]
+        blog("subscribe[${subscribeIndex}]: cccd write uuid=${shortUuid(characteristic.uuid)}")
         try {
             if (!currentGatt.setCharacteristicNotification(characteristic, true)) {
+                blog("subscribe[${subscribeIndex}]: skip setNotification=false")
                 subscribeIndex++
                 subscribeNext()
                 return
             }
             val descriptor = characteristic.getDescriptor(CCCD)
             if (descriptor == null) {
+                blog("subscribe[${subscribeIndex}]: skip no CCCD")
                 subscribeIndex++
                 subscribeNext()
                 return
@@ -476,6 +510,7 @@ class AndroidBleLink(context: Context) : BlePort {
                 } else {
                     BluetoothGattDescriptor.ENABLE_INDICATION_VALUE
                 }
+            pendingDescriptor = descriptor
             val started = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 currentGatt.writeDescriptor(descriptor, value) ==
                     android.bluetooth.BluetoothStatusCodes.SUCCESS
@@ -484,12 +519,38 @@ class AndroidBleLink(context: Context) : BlePort {
                 currentGatt.writeDescriptor(descriptor)
             }
             if (!started) {
+                pendingDescriptor = null
+                blog("subscribe[${subscribeIndex}]: skip writeDescriptor=false")
                 subscribeIndex++
                 subscribeNext()
+                return
             }
+            // DEC-038 追加：固件静默不回调 onDescriptorWrite 时不许卡死订阅链——
+            // 超时跳过当前特征继续推进，迟到回调靠 pendingDescriptor 身份校验忽略
+            armSubscribeTimeout()
         } catch (ex: SecurityException) {
+            blog("subscribe[${subscribeIndex}]: fail SecurityException")
             indicateListener?.onIndicateFailure("没有蓝牙权限")
         }
+    }
+
+    private fun armSubscribeTimeout() {
+        cancelSubscribeTimeout()
+        val timeout = Runnable {
+            subscribeTimeout = null
+            if (gatt == null) return@Runnable
+            blog("subscribe[${subscribeIndex}]: descriptor timeout (firmware silent), skip ahead")
+            pendingDescriptor = null
+            subscribeIndex++
+            subscribeNext()
+        }
+        subscribeTimeout = timeout
+        mainHandler.postDelayed(timeout, DESCRIPTOR_TIMEOUT_MS)
+    }
+
+    private fun cancelSubscribeTimeout() {
+        subscribeTimeout?.let { mainHandler.removeCallbacks(it) }
+        subscribeTimeout = null
     }
 
     @Suppress("DEPRECATION")
@@ -505,6 +566,7 @@ class AndroidBleLink(context: Context) : BlePort {
                 BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
             }
         val noResponse = writeType == BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
+        blog("TX write: uuid=${shortUuid(request.characteristic.uuid)} len=${request.data.size} noResponse=$noResponse hex=${request.data.toHex()}")
         var ok: Boolean
         try {
             ok = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -518,6 +580,7 @@ class AndroidBleLink(context: Context) : BlePort {
         } catch (ex: SecurityException) {
             writeInFlight = false
             writes.poll()
+            blog("TX fail: SecurityException uuid=${shortUuid(request.characteristic.uuid)}")
             request.listener?.onWriteFailure("没有蓝牙权限")
             return
         }
@@ -525,12 +588,38 @@ class AndroidBleLink(context: Context) : BlePort {
             writeInFlight = false
             writes.poll()
             if (ok) {
+                blog("TX done(noResponse): uuid=${shortUuid(request.characteristic.uuid)}")
                 request.listener?.onWriteSuccess()
             } else {
+                blog("TX fail: writeCharacteristic returned false uuid=${shortUuid(request.characteristic.uuid)}")
                 request.listener?.onWriteFailure("写入失败")
             }
             pumpWrite()
+        } else {
+            // DEC-038 追加：需回写确认的写入（如 2A08 时间）固件可能静默不回调，
+            // 超时按失败推进队列——否则用户信息永远发不出、测量数据永远不来
+            armWriteTimeout()
         }
+    }
+
+    private fun armWriteTimeout() {
+        cancelWriteTimeout()
+        val timeout = Runnable {
+            writeTimeout = null
+            if (!writeInFlight) return@Runnable
+            val request = writes.poll()
+            blog("TX timeout: uuid=${request?.characteristic?.uuid?.let { shortUuid(it) } ?: "?"} (firmware silent), treat as failure")
+            writeInFlight = false
+            request?.listener?.onWriteFailure("写入超时")
+            pumpWrite()
+        }
+        writeTimeout = timeout
+        mainHandler.postDelayed(timeout, WRITE_TIMEOUT_MS)
+    }
+
+    private fun cancelWriteTimeout() {
+        writeTimeout?.let { mainHandler.removeCallbacks(it) }
+        writeTimeout = null
     }
 
     private fun findCharacteristic(uuid: UUID): BluetoothGattCharacteristic? {
@@ -546,7 +635,7 @@ class AndroidBleLink(context: Context) : BlePort {
         @SuppressLint("MissingPermission")
         override fun onConnectionStateChange(bluetoothGatt: BluetoothGatt, status: Int, newState: Int) {
             if (newState == BluetoothProfile.STATE_CONNECTED) {
-                Log.d("BLE_DEBUG", "onConnectionStateChange: CONNECTED status=$status scannedDevice=$scannedDeviceMode")
+                blog("onConnectionStateChange: CONNECTED status=$status scannedDevice=$scannedDeviceMode")
                 // status 非 0 说明链路建立即异常（上游 BLEManager.kt:552 移植）
                 if (status != BluetoothGatt.GATT_SUCCESS) {
                     mainHandler.post { failLink(bluetoothGatt, "连接失败 $status") }
@@ -555,7 +644,7 @@ class AndroidBleLink(context: Context) : BlePort {
                 // 请求高优先级连接（降低延迟、提升稳定性）
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     val prioOk = bluetoothGatt.requestConnectionPriority(BluetoothGatt.CONNECTION_PRIORITY_HIGH)
-                    Log.d("BLE_DEBUG", "requestConnectionPriority(HIGH)=$prioOk")
+                    blog("requestConnectionPriority(HIGH)=$prioOk")
                 }
                 // 尝试设置 1M/2M PHY（更高吞吐、更稳定）
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -564,7 +653,7 @@ class AndroidBleLink(context: Context) : BlePort {
                         1 or 2,  // PHY_LE_1M_MASK | PHY_LE_2M_MASK
                         0, 0
                     )
-                    Log.d("BLE_DEBUG", "setPreferredPhy(1M|2M)=$phyOk")
+                    blog("setPreferredPhy(1M|2M)=$phyOk")
                 }
                 if (scannedDeviceMode) {
                     // 随机地址秤：发现服务可能撞上刚建立的链路，须回到主线程并捕获权限异常（上游 :556-569）
@@ -583,7 +672,7 @@ class AndroidBleLink(context: Context) : BlePort {
                 return
             }
             if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                Log.d("BLE_DEBUG", "onConnectionStateChange: DISCONNECTED status=$status scannedDevice=$scannedDeviceMode")
+                blog("onConnectionStateChange: DISCONNECTED status=$status scannedDevice=$scannedDeviceMode")
                 mainHandler.post {
                     if (gatt !== bluetoothGatt) {
                         try {
@@ -598,7 +687,7 @@ class AndroidBleLink(context: Context) : BlePort {
                         scannedDeviceAttempt < SCAN_DEVICE_ATTEMPTS && gatt === bluetoothGatt
                     ) {
                         scannedDeviceAttempt += 1
-                        Log.d("BLE_DEBUG", "scannedDevice retry attempt=$scannedDeviceAttempt/$SCAN_DEVICE_ATTEMPTS")
+                        blog("scannedDevice retry attempt=$scannedDeviceAttempt/$SCAN_DEVICE_ATTEMPTS")
                         closeGatt()
                         connecting = true
                         scheduleScannedDeviceOpen(connectToken)
@@ -639,16 +728,30 @@ class AndroidBleLink(context: Context) : BlePort {
                     postConnectFail("服务发现失败 $status")
                     return@post
                 }
+                val services = dumpServices(bluetoothGatt)
+                blog("services discovered: count=${bluetoothGatt.services.size}")
+                services.forEach { blog("services: $it") }
                 connectListener?.onConnectSuccess(
                     bluetoothGatt.device.address,
-                    dumpServices(bluetoothGatt),
+                    services,
                 )
             }
         }
 
         @Suppress("DEPRECATION")
         override fun onDescriptorWrite(bluetoothGatt: BluetoothGatt, descriptor: BluetoothGattDescriptor, status: Int) {
+            blog("subscribe ack: uuid=${shortUuid(descriptor.characteristic.uuid)} status=$status")
             mainHandler.post {
+                // DEC-038 追加：超时跳过后迟到的回调、非本链路回调一律忽略（身份校验）
+                if (descriptor !== pendingDescriptor) {
+                    blog("subscribe ack: stale/foreign descriptor ignored uuid=${shortUuid(descriptor.characteristic.uuid)}")
+                    return@post
+                }
+                cancelSubscribeTimeout()
+                pendingDescriptor = null
+                if (status != BluetoothGatt.GATT_SUCCESS) {
+                    blog("subscribe ack failed status=$status, continue chain")
+                }
                 subscribeIndex++
                 subscribeNext()
             }
@@ -675,6 +778,8 @@ class AndroidBleLink(context: Context) : BlePort {
         ) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 dispatchRead(characteristic.uuid, characteristic.value ?: ByteArray(0))
+            } else {
+                blog("RX read fail: uuid=${shortUuid(characteristic.uuid)} status=$status")
             }
         }
 
@@ -686,6 +791,8 @@ class AndroidBleLink(context: Context) : BlePort {
         ) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 dispatchRead(characteristic.uuid, value)
+            } else {
+                blog("RX read fail: uuid=${shortUuid(characteristic.uuid)} status=$status")
             }
         }
 
@@ -702,8 +809,10 @@ class AndroidBleLink(context: Context) : BlePort {
                 ) {
                     return@post
                 }
+                cancelWriteTimeout()
                 writeInFlight = false
                 writes.poll()
+                blog("TX ack: uuid=${shortUuid(characteristic.uuid)} status=$status")
                 if (status == BluetoothGatt.GATT_SUCCESS) {
                     request.listener?.onWriteSuccess()
                 } else {
@@ -716,6 +825,7 @@ class AndroidBleLink(context: Context) : BlePort {
 
     private fun dispatchNotify(uuid: UUID, value: ByteArray) {
         val copy = value.clone()
+        blog("RX notify: uuid=${shortUuid(uuid)} len=${copy.size} hex=${copy.toHex()}")
         mainHandler.post {
             indicateListener?.onCharacteristicChanged(uuid, copy)
         }
@@ -723,6 +833,7 @@ class AndroidBleLink(context: Context) : BlePort {
 
     private fun dispatchRead(uuid: UUID, value: ByteArray) {
         val copy = value.clone()
+        blog("RX read: uuid=${shortUuid(uuid)} len=${copy.size} hex=${copy.toHex()}")
         mainHandler.post {
             indicateListener?.onCharacteristicRead(uuid, copy)
         }
@@ -743,7 +854,7 @@ class AndroidBleLink(context: Context) : BlePort {
     }
 
     private fun postConnectFail(reason: String) {
-        Log.d("BLE_DEBUG", "postConnectFail: $reason")
+        blog("postConnectFail: $reason")
         connectListener?.onConnectFail(reason)
     }
 
@@ -764,6 +875,9 @@ class AndroidBleLink(context: Context) : BlePort {
     }
 
     private fun closeGatt() {
+        cancelSubscribeTimeout()
+        cancelWriteTimeout()
+        pendingDescriptor = null
         writes.clear()
         writeInFlight = false
         subscribeList.clear()
@@ -792,6 +906,14 @@ class AndroidBleLink(context: Context) : BlePort {
         private const val SCAN_DEVICE_FIRST_GAP_MS = 150L
         private const val SCAN_DEVICE_RETRY_GAP_MS = 400L
         private const val SCAN_DEVICE_ATTEMPTS = 3
+
+        /**
+         * DEC-038 追加：CCCD 写入与需回写写入的固件静默兜底。
+         * 部分秤固件不回调 onDescriptorWrite / onCharacteristicWrite，链路会静默卡死——
+         * 超时按「跳过当前项 / 按失败推进」处理，真机实测「唤醒后停在等待态」的第一嫌疑。
+         */
+        private const val DESCRIPTOR_TIMEOUT_MS = 3_000L
+        private const val WRITE_TIMEOUT_MS = 3_000L
     }
 }
 
