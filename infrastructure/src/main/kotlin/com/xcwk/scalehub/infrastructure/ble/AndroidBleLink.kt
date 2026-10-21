@@ -419,13 +419,14 @@ class AndroidBleLink(context: Context) : BlePort {
         mainHandler.post {
             val target = findCharacteristic(characteristic)
             if (gatt == null || target == null) {
-                indicateListener?.onIndicateFailure("没有特征 $characteristic")
+                // DEC-038 组A：读失败走独立通道，不再复用订阅失败语义（否则无电量特征的秤必弹假断开）
+                indicateListener?.onReadFailure("没有特征 $characteristic")
                 return@post
             }
             try {
                 gatt?.readCharacteristic(target)
             } catch (ex: SecurityException) {
-                indicateListener?.onIndicateFailure("没有蓝牙权限")
+                indicateListener?.onReadFailure("没有蓝牙权限")
             }
         }
     }

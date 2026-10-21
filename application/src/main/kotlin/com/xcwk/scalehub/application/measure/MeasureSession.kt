@@ -308,11 +308,21 @@ class MeasureSession(
                 return
             }
             if (phase.linkReady) {
+                // DEC-038 组A兜底：链路其实活着就不弹断开（误报路径降级为提示）
+                if (ble.isConnected()) {
+                    _state.update { it.copy(link = "已连接") }
+                    return
+                }
                 scheduleDisconnectPrompt()
                 return
             }
             _state.update { it.copy(link = "连接中") }
             if (!phase.sealed && secondsLeft > 1) scheduleRetry()
+        }
+
+        /** DEC-038 组A：可选特征读失败只提示，不算链路故障。 */
+        override fun onReadFailure(reason: String) {
+            _state.update { it.copy(notice = reason) }
         }
 
         override fun onCharacteristicChanged(characteristic: UUID, data: ByteArray) {
@@ -471,6 +481,8 @@ class MeasureSession(
         // 先消费确认态：否则落库过程中重复点确认会再起一次落库
         phase = phase.reduce(SessionEvent.ConfirmConsumed)
         val sealed = phase.sealedResult ?: return
+        // DEC-038 组C：已落库的结果不得二次写（确认按钮连点 = 双协程排队）
+        if (sealed.saved) return
         val currentBinding = binding
         val currentMac = currentBinding?.mac
         if (currentBinding == null || currentMac == null || !devices.contains(currentMac)) {
@@ -565,6 +577,8 @@ class MeasureSession(
         cancelTips()
         cancelRetry()
         cancelZero()
+        // DEC-038 组B：链路已死，相位降级——否则 retryConnect 被 linkReady 守卫拦成死按钮
+        phase = phase.reduce(SessionEvent.Downgrade)
         _state.update {
             it.copy(
                 link = "已断开", title = "连接已断开", desc = "请重新连接体脂秤",

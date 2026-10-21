@@ -31,6 +31,9 @@ interface BleIndicateListener {
     fun onIndicateFailure(reason: String)
     fun onCharacteristicChanged(characteristic: UUID, data: ByteArray)
     fun onCharacteristicRead(characteristic: UUID, data: ByteArray)
+
+    /** 读失败≠订阅失败（DEC-038 组A）：可选特征（电量）缺失/读失败不得被当成链路故障弹断开。 */
+    fun onReadFailure(reason: String) {}
 }
 
 interface BleWriteListener {
