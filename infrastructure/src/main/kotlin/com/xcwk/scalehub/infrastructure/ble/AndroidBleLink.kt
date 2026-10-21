@@ -95,6 +95,16 @@ class AndroidBleLink(context: Context) : BlePort {
     private var scanCallback: ScanCallback? = null
     private var scanListener: BleScanListener? = null
 
+    /**
+     * 扫描日志洪泛控制：实测密集环境 ~90 条广播/秒，2 万行缓冲约 3.7 分钟被冲光，
+     * 决定性的 session 行会被淹死。首 [SCAN_LOG_FIRST] 条全量、之后每 [SCAN_LOG_EVERY]
+     * 条抽样，另每 [SCAN_SUMMARY_MS] 落一行计数汇总；判定逻辑（协议标记/绑定命中）
+     * 在 MeasureSession 侧每条必查，不依赖本抽样。
+     */
+    private var scanAdCount = 0
+    private var scanWindowCount = 0
+    private var scanSummary: Runnable? = null
+
     private var gatt: BluetoothGatt? = null
     private var connectListener: BleConnectListener? = null
     private var indicateListener: BleIndicateListener? = null
@@ -158,6 +168,19 @@ class AndroidBleLink(context: Context) : BlePort {
             .setReportDelay(0)
             .build()
         blog("scan() started: mode=LOW_LATENCY")
+        scanAdCount = 0
+        scanWindowCount = 0
+        scanSummary?.let { mainHandler.removeCallbacks(it) }
+        val summary = object : Runnable {
+            override fun run() {
+                if (scanCallback == null) return
+                blog("scan: +$scanWindowCount ads/5s (total=$scanAdCount)")
+                scanWindowCount = 0
+                mainHandler.postDelayed(this, SCAN_SUMMARY_MS)
+            }
+        }
+        scanSummary = summary
+        mainHandler.postDelayed(summary, SCAN_SUMMARY_MS)
         scanCallback = object : ScanCallback() {
             override fun onScanResult(callbackType: Int, result: ScanResult) {
                 val device = result.device
@@ -179,9 +202,14 @@ class AndroidBleLink(context: Context) : BlePort {
                 val copy = record?.bytes?.clone()
                 val finalName = if (name.isEmpty()) "(无名设备)" else name
                 val rssi = result.rssi
-                blog(
-                    "onScanResult: name=$finalName mac=$foundMac rssi=$rssi hex=${copy?.toHex() ?: "null"}",
-                )
+                // 洪泛控制：仅日志抽样，投递给监听器的判定路径每条都走（见字段注释）
+                scanAdCount++
+                scanWindowCount++
+                if (scanAdCount <= SCAN_LOG_FIRST || scanAdCount % SCAN_LOG_EVERY == 0) {
+                    blog(
+                        "onScanResult: name=$finalName mac=$foundMac rssi=$rssi hex=${copy?.toHex() ?: "null"}",
+                    )
+                }
                 mainHandler.post {
                     scanListener?.onDeviceFound(finalName, foundMac, rssi, copy)
                 }
@@ -212,6 +240,9 @@ class AndroidBleLink(context: Context) : BlePort {
                 scanner?.stopScan(current)
             } catch (ignored: Exception) {
             }
+            scanSummary?.let { mainHandler.removeCallbacks(it) }
+            scanSummary = null
+            blog("scan() stopped: total=$scanAdCount ads")
         }
         scanCallback = null
         scanListener?.let { listener ->
@@ -916,6 +947,11 @@ class AndroidBleLink(context: Context) : BlePort {
          */
         private const val DESCRIPTOR_TIMEOUT_MS = 3_000L
         private const val WRITE_TIMEOUT_MS = 3_000L
+
+        /** 扫描日志抽样与汇总节奏（洪泛控制，见 scanAdCount 字段注释）。 */
+        private const val SCAN_LOG_FIRST = 20
+        private const val SCAN_LOG_EVERY = 50
+        private const val SCAN_SUMMARY_MS = 5_000L
     }
 }
 
