@@ -22,7 +22,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import com.xcwk.scalehub.application.ble.BleConnectListener
-import com.xcwk.scalehub.application.ble.BleDebugLog
+import com.xcwk.scalehub.application.debug.DebugLog
 import com.xcwk.scalehub.application.ble.BleIndicateListener
 import com.xcwk.scalehub.application.ble.BlePort
 import com.xcwk.scalehub.application.ble.BleScanListener
@@ -125,7 +125,7 @@ class AndroidBleLink(context: Context) : BlePort {
     /** 调试双写：logcat 保持 BLE_DEBUG tag 不变，同时进应用内悬浮调试面板的环形缓冲。 */
     private fun blog(message: String) {
         Log.d("BLE_DEBUG", message)
-        BleDebugLog.add("ble", message)
+        DebugLog.add("ble", message)
     }
 
     /** 16/32 位标准 UUID 缩写为 0xXXXX，避免面板行过长；非常规 UUID 保持全形。 */

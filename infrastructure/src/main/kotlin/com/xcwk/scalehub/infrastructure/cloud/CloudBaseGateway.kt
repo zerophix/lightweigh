@@ -2,6 +2,7 @@ package com.xcwk.scalehub.infrastructure.cloud
 
 import com.xcwk.scalehub.application.sync.CloudDataPort
 import com.xcwk.scalehub.application.sync.CloudRow
+import com.xcwk.scalehub.application.debug.DebugLog
 import com.xcwk.scalehub.application.sync.CloudSessionPort
 import com.xcwk.scalehub.infrastructure.config.BackendConfig
 import kotlinx.coroutines.Dispatchers
@@ -67,7 +68,10 @@ class CloudBaseGateway(private val session: CloudSessionPort) : CloudDataPort {
         val text = (if (code in 200..299) conn.inputStream else conn.errorStream)
             ?.bufferedReader()?.use { it.readText() }.orEmpty()
         conn.disconnect()
+        DebugLog.add("cloud", "http $method ${url.substringAfter("/v1/")} -> $code")
         code to text
+    }.onFailure {
+        DebugLog.add("cloud", "http $method FAILED: ${it.javaClass.simpleName}: ${it.message}")
     }.getOrNull()
 
     companion object {
