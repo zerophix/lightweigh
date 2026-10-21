@@ -94,7 +94,7 @@ class ReportViewModel(
             initializer {
                 val app = this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as App
                 ReportViewModel(
-                    ReportQuery(app.container.measurementRepository), time, zone,
+                    ReportQuery(app.container.measurementQueryPort), time, zone,
                     isFormalAccount = app.container.isFormalAccount,
                 )
             }

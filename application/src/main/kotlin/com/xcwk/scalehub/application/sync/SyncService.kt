@@ -1,5 +1,7 @@
 package com.xcwk.scalehub.application.sync
 
+import com.xcwk.scalehub.application.query.MeasurementQueryPort
+import com.xcwk.scalehub.application.query.HealthLogQueryPort
 import com.xcwk.scalehub.application.auth.AuthPort
 import com.xcwk.scalehub.domain.model.HealthLog
 import com.xcwk.scalehub.domain.model.MeasureRecord
@@ -42,6 +44,8 @@ class SyncService(
     private val goals: GoalRepository? = null,
     private val measurements: MeasurementRepository,
     private val healthLogs: HealthLogRepository,
+    private val measurementQuery: MeasurementQueryPort,
+    private val healthLogQuery: HealthLogQueryPort,
     private val profileReader: MemberProfileReader,
     private val profileWriter: MemberProfileWriter,
     /** 拉回的数据归属哪个成员（云端按 owner 隔离拉取，落库时必须写回同一归属，组 D）。 */
@@ -144,7 +148,7 @@ class SyncService(
         val mid = memberId()
         // 水位线闸门：只推 > pushedWatermark 的行（M2b 增量推送）
         val watermark = syncState?.get("measurements", mid)?.first ?: 0L
-        val all = measurements.between(watermark + 1, Long.MAX_VALUE)   // from 是 inclusive，+1 排除已推
+        val all = measurementQuery.between(watermark + 1, Long.MAX_VALUE)   // from 是 inclusive，+1 排除已推
         if (all.isEmpty()) return
         val rows = all.map { r ->
             CloudRow(
@@ -174,7 +178,7 @@ class SyncService(
         val mid = memberId()
         // 水位线闸门：只推 > pushedWatermark 的行（M2b 增量推送）
         val watermark = syncState?.get("health_logs", mid)?.first ?: 0L
-        val allLogs = healthLogs.between(watermark + 1, Long.MAX_VALUE)   // from 是 inclusive，+1 排除已推
+        val allLogs = healthLogQuery.between(watermark + 1, Long.MAX_VALUE)   // from 是 inclusive，+1 排除已推
         if (allLogs.isEmpty()) return
         val rows = allLogs.map { log ->
             CloudRow(
@@ -198,7 +202,7 @@ class SyncService(
     }
 
     private suspend fun healthLogRowsForPush(userId: String): List<CloudRow> =
-        healthLogs.recent(Int.MAX_VALUE).map { log ->
+        healthLogQuery.recent(Int.MAX_VALUE).map { log ->
             CloudRow(
                 buildMap {
                     put("owner_id", userId)
@@ -279,7 +283,7 @@ class SyncService(
      * @return 本次合并的最大时间戳（0 = 无有效合并）
      */
     private suspend fun mergeMeasurements(rows: List<CloudRow>): Long {
-        val existing = measurements.between(0L, Long.MAX_VALUE).map { it.time }.toSet()
+        val existing = measurementQuery.between(0L, Long.MAX_VALUE).map { it.time }.toSet()
         var maxTime = 0L
         for (row in rows) {
             val time = (row.fields["measured_at"] as? Number)?.toLong() ?: continue
@@ -310,7 +314,7 @@ class SyncService(
      * @return 本次合并的最大时间戳（0 = 无有效合并）
      */
     private suspend fun mergeHealthLogs(rows: List<CloudRow>): Long {
-        val existing = healthLogs.recent(Int.MAX_VALUE).map { it.time to it.type }.toSet()
+        val existing = healthLogQuery.recent(Int.MAX_VALUE).map { it.time to it.type }.toSet()
         var maxTime = 0L
         for (row in rows) {
             val time = (row.fields["logged_at"] as? Number)?.toLong() ?: continue

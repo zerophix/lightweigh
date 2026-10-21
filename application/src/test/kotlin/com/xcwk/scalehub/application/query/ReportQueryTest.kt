@@ -2,6 +2,7 @@ package com.xcwk.scalehub.application.query
 
 import com.google.common.truth.Truth.assertThat
 import com.xcwk.scalehub.domain.model.MeasureRecord
+import com.xcwk.scalehub.application.query.MeasurementQueryPort
 import com.xcwk.scalehub.domain.repository.MeasurementRepository
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
@@ -11,7 +12,7 @@ import org.junit.Test
  */
 class ReportQueryTest {
 
-    private class FakeRepo(private val rows: List<MeasureRecord>) : MeasurementRepository {
+    private class FakeRepo(private val rows: List<MeasureRecord>) : MeasurementRepository, MeasurementQueryPort {
         override suspend fun save(record: MeasureRecord, memberId: String) = throw UnsupportedOperationException()
         override suspend fun recent(limit: Int) = rows.sortedByDescending { it.time }.take(limit)
         override suspend fun between(fromInc: Long, toExc: Long) =

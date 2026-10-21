@@ -2,6 +2,7 @@ package com.xcwk.scalehub.application.service
 
 import com.google.common.truth.Truth.assertThat
 import com.xcwk.scalehub.domain.model.MeasureRecord
+import com.xcwk.scalehub.application.query.MeasurementQueryPort
 import com.xcwk.scalehub.domain.repository.MeasurementRepository
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runCurrent
@@ -11,7 +12,7 @@ import org.junit.Test
 /** 删除用例（薄封装，行为在仓储——此处钉编排与目标选择）。 */
 class DeleteMeasurementServiceTest {
 
-    private class FakeRepo : MeasurementRepository {
+    private class FakeRepo : MeasurementRepository, MeasurementQueryPort {
         val rows = mutableListOf(
             MeasureRecord(1000L, 70.0, 0.0, -1.0, "", "builtin-1"),
             MeasureRecord(2000L, 71.0, 0.0, -1.0, "", "builtin-1"),

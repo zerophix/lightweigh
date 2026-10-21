@@ -1,7 +1,7 @@
 package com.xcwk.scalehub.application.query
 
 import com.xcwk.scalehub.domain.model.MeasureRecord
-import com.xcwk.scalehub.domain.repository.MeasurementRepository
+import com.xcwk.scalehub.application.query.MeasurementQueryPort
 
 /**
  * query — 体测报告读模型。规则本体在 BodyAnalysis（旧库 BodyMetrics 全套移植），
@@ -31,12 +31,12 @@ data class MeasurementReport(
         get() = if (analysis.score != null && prevScore != null) analysis.score - prevScore else null
 }
 
-class ReportQuery(private val repository: MeasurementRepository) {
+class ReportQuery(private val query: MeasurementQueryPort) {
 
     /** 按测量时间戳取报告；无此记录返回 null。 */
     suspend fun report(time: Long): MeasurementReport? {
-        val record = repository.between(time, time + 1).firstOrNull() ?: return null
-        val prev = repository.between(0L, time).lastOrNull()
+        val record = query.between(time, time + 1).firstOrNull() ?: return null
+        val prev = query.between(0L, time).lastOrNull()
         val analysis = buildBodyAnalysis(
             male = record.male ?: false,
             ageYearsIn = record.ageYears,

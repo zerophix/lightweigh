@@ -5,6 +5,7 @@ import com.xcwk.scalehub.application.query.TrendQuery
 import com.xcwk.scalehub.application.query.TrendRange
 import com.xcwk.scalehub.application.query.TrendSegment
 import com.xcwk.scalehub.domain.model.MeasureRecord
+import com.xcwk.scalehub.application.query.MeasurementQueryPort
 import com.xcwk.scalehub.domain.repository.MeasurementRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -46,7 +47,7 @@ class TrendViewModelTest {
             MeasureRecord(t, weight, 500.0, fat, "AA:BB", "builtin-1")
     }
 
-    private class FakeRepo(private val rows: List<MeasureRecord>) : MeasurementRepository {
+    private class FakeRepo(private val rows: List<MeasureRecord>) : MeasurementRepository, MeasurementQueryPort {
         override suspend fun save(record: MeasureRecord, memberId: String) = throw UnsupportedOperationException()
         override suspend fun recent(limit: Int) = rows.sortedByDescending { it.time }.take(limit)
         override suspend fun between(fromInc: Long, toExc: Long) =

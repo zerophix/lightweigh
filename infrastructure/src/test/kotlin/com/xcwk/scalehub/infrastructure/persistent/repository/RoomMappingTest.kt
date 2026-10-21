@@ -12,7 +12,7 @@ import org.junit.Test
  *
  * 背景：R2 的 toDomain 快照透传因替换锚点不匹配静默 no-op 而未入库，
  * 读路径丢失 male/ageYears/heightCm 三字段直至组 B 才被发现——
- * 本测试经仓储公共 API（save → between）钉住写读两端字段保真，
+ * 本测试经写口（save）与查询实现（RoomMeasurementQuery.between）钉住写读两端字段保真，
  * 再发生单侧映射改动即红。
  */
 class RoomMappingTest {
@@ -49,7 +49,7 @@ class RoomMappingTest {
         assertThat(dao.saved[0].ageYears).isEqualTo(30)
         assertThat(dao.saved[0].heightCm).isEqualTo(175)
 
-        val back = repo.between(0L, Long.MAX_VALUE).single()
+        val back = RoomMeasurementQuery(dao, { "1" }).between(0L, Long.MAX_VALUE).single()
         assertThat(back.time).isEqualTo(record.time)
         assertThat(back.weight).isWithin(1e-9).of(70.0)
         assertThat(back.fat).isWithin(1e-9).of(18.4)
@@ -67,7 +67,7 @@ class RoomMappingTest {
         dao.toReturn = listOf(
             MeasurementPo(1690000000000L, 68.0, 400.0, -1.0, "CC:DD", "builtin-1", null, null, null, "1"),
         )
-        val back = repo.between(0L, Long.MAX_VALUE).single()
+        val back = RoomMeasurementQuery(dao, { "1" }).between(0L, Long.MAX_VALUE).single()
         assertThat(back.male).isNull()
         assertThat(back.ageYears).isNull()
         assertThat(back.heightCm).isNull()

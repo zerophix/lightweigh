@@ -152,7 +152,8 @@ class MineViewModelTest {
     // ---- 健康数据概览卡（原型 profile 页 metric-grid；DEC-026 组 I）----
 
     private class FakeMeasureRepo(rows: List<com.xcwk.scalehub.domain.model.MeasureRecord>) :
-        com.xcwk.scalehub.domain.repository.MeasurementRepository {
+        com.xcwk.scalehub.domain.repository.MeasurementRepository,
+        com.xcwk.scalehub.application.query.MeasurementQueryPort {
         private val data = rows.toMutableList()
         override suspend fun save(record: com.xcwk.scalehub.domain.model.MeasureRecord, memberId: String) { data += record }
         override suspend fun recent(limit: Int) = data.sortedByDescending { it.time }.take(limit)
@@ -161,7 +162,8 @@ class MineViewModelTest {
         override suspend fun delete(time: Long) { data.removeAll { it.time == time } }
     }
 
-    private class FakeLogRepo : com.xcwk.scalehub.domain.repository.HealthLogRepository {
+    private class FakeLogRepo : com.xcwk.scalehub.domain.repository.HealthLogRepository,
+        com.xcwk.scalehub.application.query.HealthLogQueryPort {
         override suspend fun save(log: com.xcwk.scalehub.domain.model.HealthLog, memberId: String) = Unit
         override suspend fun recent(limit: Int) = emptyList<com.xcwk.scalehub.domain.model.HealthLog>()
         override suspend fun between(fromInc: Long, toExc: Long) =

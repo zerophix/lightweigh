@@ -1,11 +1,15 @@
 package com.xcwk.scalehub.infrastructure.persistent.repository
 
+import com.xcwk.scalehub.application.query.HealthLogQueryPort
 import com.xcwk.scalehub.domain.model.HealthLog
 import com.xcwk.scalehub.domain.repository.HealthLogRepository
 import java.util.concurrent.CopyOnWriteArrayList
 
-/** repository 实现 — 内存版（测试/演示）。唯一性 (time, type) 对齐云表约束。 */
-class InMemoryHealthLogRepository : HealthLogRepository {
+/**
+ * repository 实现 — 内存版（测试/演示）。唯一性 (time, type) 对齐云表约束。
+ * 同时实现写口与查询端口（T-016 读写分离，同 InMemoryMeasurementRepository）。
+ */
+class InMemoryHealthLogRepository : HealthLogRepository, HealthLogQueryPort {
     private val rows = CopyOnWriteArrayList<HealthLog>()
 
     /** 各次 save 收到的归属，供测试断言接口确实把 memberId 传到了实现（组 D）。 */

@@ -1,7 +1,6 @@
 package com.xcwk.scalehub.application.query
 
 import com.xcwk.scalehub.domain.model.MeasureRecord
-import com.xcwk.scalehub.domain.repository.MeasurementRepository
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -22,17 +21,17 @@ data class HistoryRow(
 )
 
 class HistoryQuery(
-    private val repository: MeasurementRepository,
+    private val query: MeasurementQueryPort,
     private val zone: ZoneId = ZoneId.systemDefault(),
     private val now: () -> Long = System::currentTimeMillis,
 ) {
-    private val trend = TrendQuery(repository, zone, now)
+    private val trend = TrendQuery(query, zone, now)
 
     suspend fun rows(
         segment: TrendSegment = TrendSegment.ALL_DAY,
         day: LocalDate? = null,
     ): List<HistoryRow> {
-        val filtered = repository.between(0L, Long.MAX_VALUE)
+        val filtered = query.between(0L, Long.MAX_VALUE)
             .filter { trend.inSegment(it.time, segment) }
             .filter { day == null || dateOf(it.time) == day }
             .sortedBy { it.time }
@@ -43,7 +42,7 @@ class HistoryQuery(
 
     /** 按月降序月汇总（时段过滤后，与趋势页同一实现）。 */
     suspend fun monthly(segment: TrendSegment = TrendSegment.ALL_DAY): List<MonthSummary> {
-        val filtered = repository.between(0L, Long.MAX_VALUE)
+        val filtered = query.between(0L, Long.MAX_VALUE)
             .filter { trend.inSegment(it.time, segment) }
         return monthlySummariesOf(filtered, ::dateOf)
     }

@@ -12,7 +12,6 @@ import com.xcwk.scalehub.domain.protocol.ConnectionMode
 import com.xcwk.scalehub.domain.protocol.Protocols
 import com.xcwk.scalehub.domain.protocol.ScaleEvent
 import com.xcwk.scalehub.domain.protocol.ScaleProtocol
-import com.xcwk.scalehub.domain.protocol.chipsea.ChipseaCloudProtocol
 import com.xcwk.scalehub.domain.repository.DeviceRepository
 import com.xcwk.scalehub.domain.repository.MemberProfileReader
 import java.util.UUID

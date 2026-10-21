@@ -4,7 +4,9 @@ import com.google.common.truth.Truth.assertThat
 import com.xcwk.scalehub.domain.model.HealthLog
 import com.xcwk.scalehub.domain.model.MeasureRecord
 import com.xcwk.scalehub.domain.model.MemberProfile
+import com.xcwk.scalehub.application.query.HealthLogQueryPort
 import com.xcwk.scalehub.domain.repository.HealthLogRepository
+import com.xcwk.scalehub.application.query.MeasurementQueryPort
 import com.xcwk.scalehub.domain.repository.MeasurementRepository
 import com.xcwk.scalehub.domain.repository.MemberProfileReader
 import com.xcwk.scalehub.domain.repository.MemberProfileWriter
@@ -77,7 +79,7 @@ class SyncServiceTest {
         override suspend fun sendDeleteCode() = throw UnsupportedOperationException()
     }
 
-    private class FakeMeasureRepo(rows: List<MeasureRecord> = emptyList()) : MeasurementRepository {
+    private class FakeMeasureRepo(rows: List<MeasureRecord> = emptyList()) : MeasurementRepository, MeasurementQueryPort {
         val saved = rows.toMutableList()
         override suspend fun save(record: MeasureRecord, memberId: String) { saved += record }
         override suspend fun recent(limit: Int) = saved.sortedByDescending { it.time }.take(limit)
@@ -86,7 +88,7 @@ class SyncServiceTest {
         override suspend fun delete(time: Long) { saved.removeAll { it.time == time } }
     }
 
-    private class FakeLogRepo(rows: List<HealthLog> = emptyList()) : HealthLogRepository {
+    private class FakeLogRepo(rows: List<HealthLog> = emptyList()) : HealthLogRepository, HealthLogQueryPort {
         val saved = rows.toMutableList()
         override suspend fun save(log: HealthLog, memberId: String) { saved += log }
         override suspend fun recent(limit: Int) = saved.sortedByDescending { it.time }.take(limit)
@@ -119,7 +121,7 @@ class SyncServiceTest {
         measures: FakeMeasureRepo = FakeMeasureRepo(), logs: FakeLogRepo = FakeLogRepo(),
         profile: FakeProfile = FakeProfile(),
         syncState: SyncStatePort? = null,
-    ) = SyncService(session, cloud, auth, devices, null, measures, logs, profile, profile, memberId = { "1" }, syncState = syncState)
+    ) = SyncService(session, cloud, auth, devices, null, measures, logs, measures, logs, profile, profile, memberId = { "1" }, syncState = syncState)
 
     // ---- 游客门 ----
 
@@ -537,9 +539,10 @@ class SyncServiceTest {
         )
         val cloud2 = FakeCloud()
         // 用户 2 的 SyncService 用不同的 memberId
+        val shared1 = FakeLogRepo()
         val service2 = SyncService(
             FakeSession(), cloud2, FakeAuth(), FakeDevices(), null,
-            measures2, FakeLogRepo(), FakeProfile(), FakeProfile(),
+            measures2, shared1, measures2, shared1, FakeProfile(), FakeProfile(),
             memberId = { "2" }, syncState = syncState2,
         )
         service2.push()
@@ -566,16 +569,18 @@ class SyncServiceTest {
         val measuresUser2 = FakeMeasureRepo()
         val cloud = FakeCloud()
         // 用户 1 推送（建立水位线）
+        val shared2 = FakeLogRepo()
         val serviceUser1 = SyncService(
             FakeSession(), cloud, FakeAuth(), FakeDevices(), null,
-            measuresUser1, FakeLogRepo(), FakeProfile(), FakeProfile(),
+            measuresUser1, shared2, measuresUser1, shared2, FakeProfile(), FakeProfile(),
             memberId = { "1" }, syncState = syncState,
         )
         serviceUser1.push()
         // 用户 2 推送（用户 2 无数据，不推任何行）
+        val shared3 = FakeLogRepo()
         val serviceUser2 = SyncService(
             FakeSession(), cloud, FakeAuth(), FakeDevices(), null,
-            measuresUser2, FakeLogRepo(), FakeProfile(), FakeProfile(),
+            measuresUser2, shared3, measuresUser2, shared3, FakeProfile(), FakeProfile(),
             memberId = { "2" }, syncState = syncState,
         )
         serviceUser2.push()
@@ -602,9 +607,10 @@ class SyncServiceTest {
         }
         val measures = FakeMeasureRepo()
         // 当前成员是 "1"，拉取的行应归属到 memberId="1"
+        val shared4 = FakeLogRepo()
         val service = SyncService(
             FakeSession(), cloud, FakeAuth(), FakeDevices(), null,
-            measures, FakeLogRepo(), FakeProfile(), FakeProfile(),
+            measures, shared4, measures, shared4, FakeProfile(), FakeProfile(),
             memberId = { "1" }, syncState = syncState,
         )
         service.restore()
@@ -626,17 +632,19 @@ class SyncServiceTest {
             ),
         )
         val cloud1 = FakeCloud()
+        val shared5 = FakeLogRepo()
         val serviceUser1 = SyncService(
             FakeSession(), cloud1, FakeAuth(), FakeDevices(), null,
-            measuresUser1, FakeLogRepo(), FakeProfile(), FakeProfile(),
+            measuresUser1, shared5, measuresUser1, shared5, FakeProfile(), FakeProfile(),
             memberId = { "1" }, syncState = syncState,
         )
         serviceUser1.push()
         // 用户 1 再次推送（无新数据，watermark 不变）
         val cloud2 = FakeCloud()
+        val shared6 = FakeLogRepo()
         val serviceUser1Again = SyncService(
             FakeSession(), cloud2, FakeAuth(), FakeDevices(), null,
-            measuresUser1, FakeLogRepo(), FakeProfile(), FakeProfile(),
+            measuresUser1, shared6, measuresUser1, shared6, FakeProfile(), FakeProfile(),
             memberId = { "1" }, syncState = syncState,
         )
         serviceUser1Again.push()
@@ -645,9 +653,10 @@ class SyncServiceTest {
         // 切换到用户 2，用户 2 推送（用户 2 无数据）
         val measuresUser2 = FakeMeasureRepo()
         val cloud3 = FakeCloud()
+        val shared7 = FakeLogRepo()
         val serviceUser2 = SyncService(
             FakeSession(), cloud3, FakeAuth(), FakeDevices(), null,
-            measuresUser2, FakeLogRepo(), FakeProfile(), FakeProfile(),
+            measuresUser2, shared7, measuresUser2, shared7, FakeProfile(), FakeProfile(),
             memberId = { "2" }, syncState = syncState,
         )
         serviceUser2.push()
@@ -666,9 +675,10 @@ class SyncServiceTest {
             listOf(MeasureRecord(1000L, 70.0, 500.0, 18.4, "AA", "okok-bia-1", true, 30, 175)),
         )
         val cloud1 = FakeCloud()
+        val shared8 = FakeLogRepo()
         val serviceUser1 = SyncService(
             FakeSession(userId = "user-1"), cloud1, FakeAuth(), FakeDevices(), null,
-            measuresUser1, FakeLogRepo(), FakeProfile(), FakeProfile(),
+            measuresUser1, shared8, measuresUser1, shared8, FakeProfile(), FakeProfile(),
             memberId = { "1" }, syncState = syncState,
         )
         serviceUser1.push()
@@ -677,9 +687,10 @@ class SyncServiceTest {
             listOf(MeasureRecord(2000L, 80.0, 500.0, 25.0, "BB", "okok-bia-1", false, 25, 160)),
         )
         val cloud2 = FakeCloud()
+        val shared9 = FakeLogRepo()
         val serviceUser2 = SyncService(
             FakeSession(userId = "user-2"), cloud2, FakeAuth(), FakeDevices(), null,
-            measuresUser2, FakeLogRepo(), FakeProfile(), FakeProfile(),
+            measuresUser2, shared9, measuresUser2, shared9, FakeProfile(), FakeProfile(),
             memberId = { "2" }, syncState = syncState,
         )
         serviceUser2.push()

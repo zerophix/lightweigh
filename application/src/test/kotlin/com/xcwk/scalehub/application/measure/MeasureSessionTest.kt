@@ -122,7 +122,7 @@ class MeasureSessionTest {
         }
     }
 
-    private class FakeRepo : MeasurementRepository {
+    private class FakeRepo : MeasurementRepository, com.xcwk.scalehub.application.query.MeasurementQueryPort {
         val saved = mutableListOf<MeasureRecord>()
         override suspend fun save(record: MeasureRecord, memberId: String) { saved += record }
         override suspend fun recent(limit: Int) = saved.reversed().take(limit)

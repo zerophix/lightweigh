@@ -6,7 +6,9 @@ import com.xcwk.scalehub.application.DataRefreshBus
 import com.xcwk.scalehub.domain.model.HealthLog
 import com.xcwk.scalehub.domain.model.MeasureRecord
 import com.xcwk.scalehub.domain.model.MemberProfile
+import com.xcwk.scalehub.application.query.HealthLogQueryPort
 import com.xcwk.scalehub.domain.repository.HealthLogRepository
+import com.xcwk.scalehub.application.query.MeasurementQueryPort
 import com.xcwk.scalehub.domain.repository.MeasurementRepository
 import com.xcwk.scalehub.domain.repository.MemberProfileReader
 import com.xcwk.scalehub.domain.repository.MemberProfileWriter
@@ -85,7 +87,7 @@ class FullChainSyncTest {
         override fun restoreAll(devices: List<com.xcwk.scalehub.domain.model.ScaleDevice>) { list = devices }
     }
 
-    private class FakeMeasureRepo(rows: List<MeasureRecord> = emptyList()) : MeasurementRepository {
+    private class FakeMeasureRepo(rows: List<MeasureRecord> = emptyList()) : MeasurementRepository, MeasurementQueryPort {
         val saved = rows.toMutableList()
         override suspend fun save(record: MeasureRecord, memberId: String) { saved += record }
         override suspend fun recent(limit: Int) = saved.sortedByDescending { it.time }.take(limit)
@@ -94,7 +96,7 @@ class FullChainSyncTest {
         override suspend fun delete(time: Long) { saved.removeAll { it.time == time } }
     }
 
-    private class FakeLogRepo(rows: List<HealthLog> = emptyList()) : HealthLogRepository {
+    private class FakeLogRepo(rows: List<HealthLog> = emptyList()) : HealthLogRepository, HealthLogQueryPort {
         val saved = rows.toMutableList()
         override suspend fun save(log: HealthLog, memberId: String) { saved += log }
         override suspend fun recent(limit: Int) = saved.sortedByDescending { it.time }.take(limit)
@@ -138,7 +140,7 @@ class FullChainSyncTest {
         val bus = DataRefreshBus()
         val syncService = SyncService(
             session, cloud, FakeAuth(), FakeDevices(), null,
-            measures, logs, FakeProfile(), FakeProfile(),
+            measures, logs, measures, logs, FakeProfile(), FakeProfile(),
             memberId = { "1" }, syncState = syncState,
         )
         val trigger = SyncTrigger(scope) { syncService.push() }

@@ -2,6 +2,7 @@ package com.xcwk.scalehub.application.query
 
 import com.google.common.truth.Truth.assertThat
 import com.xcwk.scalehub.domain.model.HealthLog
+import com.xcwk.scalehub.application.query.HealthLogQueryPort
 import com.xcwk.scalehub.domain.repository.HealthLogRepository
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
@@ -19,7 +20,7 @@ class HealthLogQueryTest {
             LocalDate.of(2026, mo, d).atTime(h, mi).atZone(ZONE).toInstant().toEpochMilli()
     }
 
-    private class FakeRepo(private val rows: List<HealthLog>) : HealthLogRepository {
+    private class FakeRepo(private val rows: List<HealthLog>) : HealthLogRepository, HealthLogQueryPort {
         override suspend fun save(log: HealthLog, memberId: String) = throw UnsupportedOperationException()
         override suspend fun recent(limit: Int) = rows.sortedByDescending { it.time }.take(limit)
 
