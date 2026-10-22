@@ -72,7 +72,7 @@ bash scripts/bootstrap/bs-install-hooks.sh   # 安装 simplified pre-commit（DE
 
 | 层 | 行为 |
 |----|------|
-| pre-commit | `gov-pre-commit-simplified`：禁 master、可选会话归属、源码时 compile + custom-checks |
+| pre-commit | `gov-pre-commit-simplified`：**多会话守卫**（主共享树+并发会话→强制 worktree，逃生 `ALLOW_MAIN_TREE=1`，DEC-054）、禁 master、可选会话归属、源码时 compile + custom-checks |
 | pre-push | 分支名 + 全量 validate（可被 `--no-verify` 绕过） |
 | Actions | `ci.yml`：push 到 master/main/**特性分支通配**（feat/fix/chore/…）与 **PR**（DEC-049）；文档变更仍可跳过重型构建（DEC-033） |
 | Dependabot | `.github/dependabot.yml`：gradle + github-actions 周更（DEC-049） |

@@ -18,6 +18,46 @@ GIT_DIR=$(git rev-parse --git-dir 2>/dev/null || echo ".git")
 BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
 
 # =============================================================
+# 0. 多会话守卫: 主共享树 + 并发会话 → 强制 worktree（DEC-054）
+#    根因: 所有会话共享 .git，HEAD/配置是全局的，互相覆盖 —— 抢分支、
+#    提交落错分支、core.bare 被误设致 git 不可用。worktree 各有独立
+#    HEAD/工作区（只共享对象库），从结构上免疫。
+#    检测: 在主树(git-dir==git-common-dir) 且 context.jsonl 近 2h 有
+#    >=2 个不同 session-start → 判定并发。逃生口: ALLOW_MAIN_TREE=1。
+# =============================================================
+GD="$(git rev-parse --git-dir 2>/dev/null || echo '')"
+GCD="$(git rev-parse --git-common-dir 2>/dev/null || echo '')"
+if [ -n "$GD" ] && [ "$GD" = "$GCD" ] && [ "${ALLOW_MAIN_TREE:-0}" != "1" ]; then
+  CTX="$ROOT/.cache/context.jsonl"
+  if [ -f "$CTX" ]; then
+    RECENT=$(python3 - "$CTX" <<'PY'
+import json,sys,time,datetime
+ids=set(); now=time.time()
+try:
+    for line in open(sys.argv[1],encoding='utf-8'):
+        line=line.strip()
+        if not line: continue
+        try: e=json.loads(line)
+        except: continue
+        if e.get('type')!='session-start': continue
+        try: t=datetime.datetime.fromisoformat(e.get('ts','').replace('Z','+00:00')).timestamp()
+        except: continue
+        if now-t<=7200: ids.add(e.get('id') or e.get('ts'))
+    print(len(ids))
+except Exception: print(0)
+PY
+)
+    if [ "${RECENT:-0}" -ge 2 ]; then
+      echo "❌ 检测到并发会话（近 2h 有 ${RECENT} 个 session-start），当前在主共享树。"
+      echo "   主树抢 HEAD/配置会导致提交落错分支、core.bare 污染等（DEC-054）。"
+      echo "   请改用隔离 worktree: bash scripts/session/ses-worktree.sh add feat/<topic>"
+      echo "   （确认你是唯一会话时可临时: ALLOW_MAIN_TREE=1 git commit）"
+      exit 1
+    fi
+  fi
+fi
+
+# =============================================================
 # 1. 分支约束: master 只允许 merge
 # =============================================================
 if [ "$BRANCH" = "master" ]; then
