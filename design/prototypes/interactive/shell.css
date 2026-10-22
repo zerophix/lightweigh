@@ -1,0 +1,46 @@
+/* ============ 交互原型外壳（模拟真实软件） ============ */
+/* 复用 theme.css 的屏/弹窗/Toast 样式，此处只加「一次只显示一屏 + 可切换」机制 */
+
+body.interactive {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding: 24px 16px 60px;
+}
+
+/* 顶部流程说明条 */
+.flowbar {
+  width: 402px;
+  max-width: 100%;
+  margin-bottom: 16px;
+}
+.flowbar h1 { font-size: 17px; font-weight: 700; }
+.flowbar p { font-size: 11px; color: var(--sub); margin-top: 4px; line-height: 1.6; }
+.flowbar .nav { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+.flowbar .nav a { font-size: 11px; color: var(--sub); background: var(--white); border: 1px solid var(--divider); border-radius: 100px; padding: 4px 11px; }
+
+/* 设备容器：只承载当前活动屏 */
+.app {
+  position: relative;
+  width: 402px;
+  max-width: 100%;
+}
+
+/* 视图：默认隐藏，.active 显示（一次一屏，模拟真机） */
+.view { display: none; }
+.view.active { display: block; }
+.view > .screen { width: 100%; }
+
+/* 弹窗/底部弹层/Toast：默认隐藏，触发才出现 */
+body.interactive .overlay { display: none; }
+body.interactive .overlay.active { display: flex; }
+body.interactive .toast { display: none; }
+body.interactive .toast.active { display: flex; }
+
+/* 可点击元素给出指针反馈 */
+[data-goto], [data-back], [data-open], [data-close], [data-toast] { cursor: pointer; }
+
+/* 演示提示（可选）：底部浮出当前动作名 */
+.hint-toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: rgba(32,61,55,.9); color:#fff; font-size:12px; padding:9px 16px; border-radius:100px; z-index:99; opacity:0; transition:opacity .2s; pointer-events:none; }
+.hint-toast.show { opacity:1; }

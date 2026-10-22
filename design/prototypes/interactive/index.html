@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>轻衡 · 可交互原型总览</title>
+<link rel="stylesheet" href="../theme.css">
+<style>
+  body{padding:32px 20px 70px;}
+  .wrap{max-width:1100px;margin:0 auto;}
+  .head{margin-bottom:8px;}
+  .head h1{font-size:24px;font-weight:700;}
+  .head p{font-size:13px;color:var(--sub);margin-top:8px;line-height:1.7;max-width:720px;}
+  .stat{display:flex;gap:14px;flex-wrap:wrap;margin:20px 0 28px;}
+  .stat .b{background:var(--white);border:1px solid var(--divider);border-radius:16px;padding:14px 20px;flex:1;min-width:130px;}
+  .stat .b .n{font-family:'Inter';font-size:26px;font-weight:600;color:var(--brand);}
+  .stat .b .k{font-size:11px;color:var(--sub);margin-top:4px;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;}
+  .grid a{background:var(--white);border:1px solid var(--divider);border-radius:16px;padding:20px;display:block;text-decoration:none;color:inherit;}
+  .grid a:hover{border-color:var(--brand);box-shadow:0 2px 12px rgba(37,140,119,.08);}
+  .grid .ct{font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px;}
+  .grid .ct .num{font-family:'Inter';color:var(--brand);}
+  .grid .cd{font-size:11px;color:var(--sub);margin-top:8px;line-height:1.7;}
+  .grid .cn{font-size:11px;color:var(--brand);margin-top:12px;}
+  .note{font-size:11px;color:var(--muted);text-align:center;margin-top:36px;line-height:1.8;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <div class="brand" style="margin-bottom:10px;"><span class="logo"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg></span><span class="word">轻衡</span></div>
+    <h1>可交互原型总览</h1>
+    <p>下面每个流程都<b>像真实软件一样运行</b>：打开只见一屏，点按钮真实跳转、弹窗真弹、表单可输入、Toast 真出、返回可回退。按用户旅程拆分为独立流程文件，共用 <code>app.js</code> 路由。154 屏静态视觉稿（设计基准）见 <a href="../index.html">静态原型总览</a>。</p>
+  </div>
+
+  <div class="stat">
+    <div class="b"><div class="n">9</div><div class="k">可交互流程</div></div>
+    <div class="b"><div class="n">60+</div><div class="k">可点屏</div></div>
+    <div class="b"><div class="n">25+</div><div class="k">弹窗/弹层/Toast</div></div>
+    <div class="b"><div class="n">154</div><div class="k">静态视觉稿（另存）</div></div>
+  </div>
+
+  <div class="grid">
+    <a href="01-login.html"><div class="ct"><span class="num">01</span>登录与首次引导</div><div class="cd">登录主页 → 手机号/微信/邮箱/账密/访客 → 验证码 → 引导年龄性别 → 身高 → 完成</div><div class="cn">11 屏 · 5 种登录方式 + 元数据引导</div></a>
+    <a href="02-onboarding-permission.html"><div class="ct"><span class="num">02</span>启动与权限</div><div class="cd">启动页 → 条款确认 → 权限用途 → 系统授权(模拟) → 授权/被拒引导 → 更新提示</div><div class="cn">5 屏 + 2 弹窗</div></a>
+    <a href="03-measure.html"><div class="ct"><span class="num">03</span>测量流程</div><div class="cd">首页 → 测量前检查 → 准备 → 测量中 → 报告；含取消/蓝牙中断/重复测量弹窗与异常分支</div><div class="cn">5 屏 + 3 弹窗</div></a>
+    <a href="04-device.html"><div class="ct"><span class="num">04</span>设备连接</div><div class="cd">设备页 → 搜索配对 → 成功/失败 → 设备设置 → 解绑；含蓝牙未开/无设备/被占用弹窗</div><div class="cn">5 屏 + 4 弹窗</div></a>
+    <a href="05-history-trend.html"><div class="ct"><span class="num">05</span>历史与趋势</div><div class="cd">记录列表 → 详情 → 对比/编辑；趋势 → 图表 → 指标选择/日期筛选；含删除确认、成员筛选</div><div class="cn">6 屏 + 3 弹层</div></a>
+    <a href="06-ai.html"><div class="ct"><span class="num">06</span>AI 健康助手</div><div class="cd">对话 → 生成中/停止 → 报告解读 → 本周计划 → 授权设置；含发送失败、撤回授权、清空对话</div><div class="cn">6 屏 + 3 弹层</div></a>
+    <a href="07-mine-settings.html"><div class="ct"><span class="num">07</span>我的与设置</div><div class="cd">我的 → 资料/设置/账号/隐私 → 退出、注销全流程（申请→验证→冷静期→结果）</div><div class="cn">9 屏 + 4 弹层</div></a>
+    <a href="08-sync-network-help.html"><div class="ct"><span class="num">08</span>同步 · 网络 · 帮助</div><div class="cd">同步状态 → 失败重试 → 网络/服务不可用；帮助中心 → FAQ → 反馈提交 → 诊断授权</div><div class="cn">10 屏</div></a>
+    <a href="09-components-demo.html"><div class="ct"><span class="num">09</span>交互组件演示</div><div class="cd">Toast、确认/危险/退出弹窗、成员/操作/日期弹层、开关复选、骨架屏、长按菜单</div><div class="cn">3 屏 + 6 弹层 · 组件沙盒</div></a>
+  </div>
+
+  <div class="note">
+    轻衡 · 可交互原型总览 · 复用 theme.css 设计系统（NOTE-20261022-001）<br>
+    路由：app.js（data-goto / data-back / data-open / data-close / data-toast）· 外壳：shell.css<br>
+    静态视觉基准：<a href="../index.html">154 屏原型</a> · 原型统一后进入开发
+  </div>
+</div>
+</body>
+</html>
