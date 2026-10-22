@@ -122,3 +122,23 @@ jobs:
             BASE="${{ github.event.pull_request.base.sha }}"
           fi
           bash scripts/governance/gov-lifecycle-audit.sh --base "$BASE"
+
+  # DEC-052: 黄金向量 / Room schema 变更须 DEC 或显式放行
+  schema-guard:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Schema / golden guard
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+        run: bash scripts/governance/gov-schema-guard.sh --ci --base "${{ github.event.pull_request.base.sha }}"

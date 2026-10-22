@@ -46,6 +46,11 @@ commands:
   path: governance/gov-secrets-scan.sh
   status: stable
   type: sh
+- description: 黄金向量/Room schema 变更守卫（DEC-052）
+  name: gov-schema-guard
+  path: governance/gov-schema-guard.sh
+  status: stable
+  type: sh
 - description: 安装钉死版本 gitleaks 到 scripts/tools（DEC-049）
   name: gov-install-gitleaks
   path: governance/gov-install-gitleaks.sh

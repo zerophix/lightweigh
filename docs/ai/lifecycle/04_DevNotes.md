@@ -371,6 +371,7 @@
 
 | 版本 | 日期 | 变更摘要 |
 |------|------|---------|
+| v82 | 2026-10-22 | DEC-052：schema/golden 守卫（CI PR 评论+默认 fail，接入 local-ci） |
 | v81 | 2026-10-22 | DEC-051：local-ci 落盘证据 + STATUS 健康检查取证（禁 npm 伪构建） |
 | v80 | 2026-10-22 | DEC-050：ses-worktree.sh + hooks 优先 show-toplevel（worktree ROOT） |
 | v79 | 2026-10-22 | DEC-049：特性分支 CI 通配、Dependabot、gov-secrets-scan（gitleaks）接入 local-ci/pre-push |
