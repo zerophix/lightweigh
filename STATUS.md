@@ -1,6 +1,6 @@
 # 项目状态
 
-> 由 generate-status.py 自动生成。最后更新: 2026-10-22T04:09:19Z
+> 由 generate-status.py 自动生成。最后更新: 2026-10-22T04:10:35Z
 > 新 AI 启动时: `cat STATUS.md && bash scripts/session/ses-context-load.sh`
 
 ---
@@ -13,7 +13,7 @@
 | 版本 | 0.1.0 |
 | 文档语言 | zh-CN |
 | Git 分支 | master |
-| 最后提交 | 406faa0 Merge pull request #3 from zerophix/chore/ai-dev-p0-ac-agents-pr-template |
+| 最后提交 | 6283840 Merge pull request #4 from zerophix/chore/dec048-handoff |
 | 文档校验 | 运行: `bash scripts/governance/gov-validate.sh` |
 
 ## AI 交接
@@ -28,7 +28,7 @@
 
 **上下文：**
 
-> 完成: DEC-048：任务 AC schema + GC-task-acceptance；AGENTS 瘦身至 88 行 + GC-coding-conventions；PR 模板；GOV-PROTO-004；已合入 PR #3（406faa0） | 决策: 对齐市场对比三项 P0；无 Pro 用 PR 模板+local-ci 补偿；样本 AC 用 draft/open_questions 避免编造产品行为；校验器放行 PR 模板并跳过本地 design/ 导出
+> 完成: 合入 PR #4 session handoff（inbox/STATUS/metrics） | 决策: session-end 产物需入库，禁止 master 直提交故走 PR #4
 
 **下一步：**
 
@@ -39,11 +39,11 @@
 最近 5 次提交：
 
 ```
+6283840 Merge pull request #4 from zerophix/chore/dec048-handoff
+af17a0b chore(session): handoff after DEC-048 merge
 406faa0 Merge pull request #3 from zerophix/chore/ai-dev-p0-ac-agents-pr-template
 c741dfc docs(governance): add task AC, slim AGENTS, PR checklist
 cf06d84 Merge branch 'chore/defer-branch-protection'
-03c6ebf chore(tasks): defer GitHub Pro; local-ci is merge gate
-9cfc46d Merge branch 'chore/multi-ai-collab-gates'
 ```
 
 ## 工程指标
@@ -79,5 +79,5 @@ cf06d84 Merge branch 'chore/defer-branch-protection'
 
 > 上次 AI session 的经验教训。新 AI 启动时必读。
 
-对齐市场对比三项 P0；无 Pro 用 PR 模板+local-ci 补偿；样本 AC 用 draft/open_questions 避免编造产品行为；校验器放行 PR 模板并跳过本地 design/ 导出
+session-end 产物需入库，禁止 master 直提交故走 PR #4
 
