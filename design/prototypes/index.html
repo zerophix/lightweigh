@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>轻衡 · 全部原型总览 · 现有10 + 登录8 + 待补26</title>
+<link rel="stylesheet" href="theme.css">
+<style>
+  .wrap{max-width:1200px;margin:0 auto;}
+  .stat{display:flex;gap:14px;flex-wrap:wrap;margin:20px 0 30px;}
+  .stat .b{background:var(--white);border:1px solid var(--divider);border-radius:16px;padding:16px 20px;flex:1;min-width:150px;}
+  .stat .b .n{font-family:'Inter';font-size:30px;font-weight:600;color:var(--brand);}
+  .stat .b .k{font-size:11px;color:var(--sub);margin-top:4px;}
+  .tbl{width:100%;border-collapse:collapse;background:var(--white);border-radius:16px;overflow:hidden;font-size:12px;}
+  .tbl th{background:var(--soft);text-align:left;padding:11px 14px;font-size:11px;color:var(--ink);font-weight:700;}
+  .tbl td{padding:10px 14px;border-top:1px solid var(--divider);color:var(--sub);vertical-align:top;}
+  .tbl td b{color:var(--ink);font-weight:500;}
+  .tbl .grp td{background:#fafbf9;font-weight:700;color:var(--ink);}
+  .pill{display:inline-block;font-size:10px;padding:2px 8px;border-radius:100px;}
+  .pill.done{background:var(--soft);color:var(--brand);}
+  .pill.new{background:var(--warn-bg);color:var(--warn-ink);}
+  .cardlinks{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin:14px 0 40px;}
+  .cardlinks a{background:var(--white);border:1px solid var(--divider);border-radius:16px;padding:18px;display:block;}
+  .cardlinks a:hover{border-color:var(--brand);}
+  .cardlinks .ct{font-size:15px;font-weight:700;}
+  .cardlinks .cd{font-size:11px;color:var(--sub);margin-top:6px;line-height:1.6;}
+  .cardlinks .cn{font-family:'Inter';font-size:12px;color:var(--brand);margin-top:10px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div style="padding-top:8px;">
+    <div class="brand" style="margin-bottom:12px;">
+      <span class="logo"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg></span>
+      <span class="word">轻衡</span>
+    </div>
+    <h1 style="font-size:26px;font-weight:700;">全部原型总览 · 页面地图</h1>
+    <p style="font-size:13px;color:var(--sub);margin-top:8px;line-height:1.7;max-width:760px;">
+      基于 Figma 现有 10 页提取的设计体系（NOTE-20261022-001），拆分出全部待补页面并完成 HTML 原型。<br>
+      所有原型统一使用 <b>theme.css</b>：品牌绿 #258C77 · 墨绿文字 #203D37 · 无阴影色层分层 · 402px · 边距 22 / 内容 358。
+    </p>
+  </div>
+
+  <div class="stat">
+    <div class="b"><div class="n">10</div><div class="k">Figma 现有页（设计基准）</div></div>
+    <div class="b"><div class="n">8</div><div class="k">登录 + 首次引导</div></div>
+    <div class="b"><div class="n">146</div><div class="k">补全子页面（含 TODO 全量）</div></div>
+    <div class="b"><div class="n">164</div><div class="k">页面总数</div></div>
+  </div>
+
+  <h2 style="font-size:18px;font-weight:700;margin-bottom:4px;">分区原型</h2>
+  <p style="font-size:12px;color:var(--sub);margin-bottom:2px;">点击进入各分区，每屏含标签与说明。00–03 为核心主流程，04–08 依据 design/page-list-TODO.md 补齐全部缺口。</p>
+  <div class="cardlinks">
+    <a href="00-login.html"><div class="ct">登录 + 首次引导</div><div class="cd">登录主页、手机号、账密、邮箱、微信、访客、年龄性别、身高</div><div class="cn">8 屏 · 00-login.html</div></a>
+    <a href="01-measure-device.html"><div class="ct">测量流程 + 设备</div><div class="cd">测量中、测量异常、首次连接、添加设备、设备设置、测量帮助</div><div class="cn">6 屏 · 01-measure-device.html</div></a>
+    <a href="02-metrics-trend-goal.html"><div class="ct">指标 + 趋势/记录 + 目标</div><div class="cd">全部指标、指标详情、报告列表、指标说明、全部记录、对比、日历、目标</div><div class="cn">8 屏 · 02-metrics-trend-goal.html</div></a>
+    <a href="03-mine-ai-auth.html"><div class="ct">我的/账号 + AI + 登录衍生</div><div class="cd">编辑资料、成员、通用、账号安全、隐私、帮助、关于、AI设置、找回密码、协议</div><div class="cn">12 屏 · 03-mine-ai-auth.html</div></a>
+    <a href="04-onboarding-account-privacy.html"><div class="ct">启动 + 账号生命周期 + 隐私注销</div><div class="cd">启动页、条款确认、权限说明、登录过期、退出、注销全流程、健康数据授权、撤回授权</div><div class="cn">16 屏 · 04-onboarding-account-privacy.html</div></a>
+    <a href="05-home-measure-states.html"><div class="ct">首页状态 + 测量分支</div><div class="cd">首页空态/未连接/同步/异常、成员切换、AI简报、测量准备/稳定/计算/中断/超时/取消/保存失败</div><div class="cn">15 屏 · 05-home-measure-states.html</div></a>
+    <a href="06-history-trend-member.html"><div class="ct">历史 + 趋势选择器 + 成员</div><div class="cd">记录详情、删除确认、空态、导出、指标选择器、自定义日期、数据点、成员编辑/删除/上限</div><div class="cn">15 屏 · 06-history-trend-member.html</div></a>
+    <a href="07-device-ai-plan.html"><div class="ct">设备蓝牙 + AI 状态 + 计划提醒</div><div class="cd">蓝牙异常、配对、断连、电量、AI对话/报告状态、计划采纳/完成/提醒设置、通知权限</div><div class="cn">21 屏 · 07-device-ai-plan.html</div></a>
+    <a href="08-settings-sync-help-components.html"><div class="ct">设置 + 同步网络 + 帮助 + 通用组件</div><div class="cd">设置首页、SDK清单、同步/网络/服务状态、FAQ、反馈结果、诊断授权、骨架屏、组件规范</div><div class="cn">14 屏 · 08-settings-sync-help-components.html</div></a>
+    <a href="09-gap-closure-part1.html"><div class="ct">缺口补齐 Part1 · 启动/首页/测量/历史/指标</div><div class="cd">强制更新、最低版本、隐私限制、验证码错误、目标完成、重复测量、历史编辑、评分说明、多指标对比</div><div class="cn">14 屏 · 09-gap-closure-part1.html</div></a>
+    <a href="10-gap-closure-part2.html"><div class="ct">缺口补齐 Part2 · 设备/成员/AI/计划/同步/帮助/组件</div><div class="cd">解绑/占用/超时、切换刷新、删对话/清空、报告过期、编辑计划/任务、同步失败、通知落地、分享、长按复制</div><div class="cn">24 屏 · 10-gap-closure-part2.html</div></a>
+  </div>
+
+  <h2 style="font-size:18px;font-weight:700;margin:10px 0 12px;">页面地图 · 缺口拆分依据</h2>
+  <p style="font-size:12px;color:var(--sub);margin-bottom:12px;">「来源线索」列即设计稿中的显式入口（带 › / 查看 / 管理 / 忘记 等），是缺口的直接证据。</p>
+  <table class="tbl">
+    <thead><tr><th style="width:80px;">编号</th><th>页面</th><th>来源线索</th><th style="width:70px;">状态</th></tr></thead>
+    <tbody>
+      <tr class="grp"><td colspan="4">登录 + 首次引导（8）</td></tr>
+      <tr><td>屏1-8</td><td><b>登录主页 / 手机号 / 账密 / 邮箱 / 微信 / 访客 / 年龄性别 / 身高</b></td><td>新增需求：5 种登录 + 元数据引导</td><td><span class="pill done">已完成</span></td></tr>
+
+      <tr class="grp"><td colspan="4">测量流程（3）</td></tr>
+      <tr><td>M1</td><td><b>测量中 · 进行中</b></td><td>首页/设备「开始测量」</td><td><span class="pill new">已补</span></td></tr>
+      <tr><td>M2</td><td><b>测量异常 / 失败</b></td><td>测量流程的失败分支</td><td><span class="pill new">已补</span></td></tr>
+      <tr><td>M3</td><td><b>首次连接引导</b></td><td>新设备开箱首测</td><td><span class="pill new">已补</span></td></tr>
+
+      <tr class="grp"><td colspan="4">设备（3）</td></tr>
+      <tr><td>D1</td><td><b>添加设备 · 搜索配对</b></td><td>设备页「添加新设备 ›」</td><td><span class="pill new">已补</span></td></tr>
+      <tr><td>D2</td><td><b>设备设置</b></td><td>设备页「设备设置 ›」</td><td><span class="pill new">已补</span></td></tr>
+      <tr><td>D3</td><td><b>测量帮助</b></td><td>设备页「测量帮助」分区</td><td><span class="pill new">已补</span></td></tr>
+
+      <tr class="grp"><td colspan="4">指标（4）</td></tr>
+      <tr><td>I1</td><td><b>全部指标</b></td><td>首页「全部指标 ›」</td><td><span class="pill new">已补</span></td></tr>
+      <tr><td>I2</td><td><b>指标详情 · 通用模板</b></td><td>指标卡片点击（体重示例）</td><td><span class="pill new">已补</span></td></tr>
+      <tr><td>I3</td><td><b>身体报告列表</b></td><td>首页「查看身体报告 ›」</td><td><span class="pill new">已补</span></td></tr>
+      <tr><td>I4</td><td><b>指标说明 · 名词解释</b></td><td>报告页「指标说明 ›」</td><td><span class="pill new">已补</span></td></tr>
+
+      <tr class="grp"><td colspan="4">趋势 / 记录（3）</td></tr>
+      <tr><td>T1</td><td><b>全部测量记录</b></td><td>趋势页「全部记录 ›」</td><td><span class="pill new">已补</span></td></tr>
+      <tr><td>T2</td><td><b>记录对比</b></td><td>两次测量对照</td><td><span class="pill new">已补</span></td></tr>
+      <tr><td>T3</td><td><b>日历筛选</b></td><td>趋势页右上日历图标</td><td><span class="pill new">已补</span></td></tr>
+
+      <tr class="grp"><td colspan="4">目标（1）</td></tr>
+      <tr><td>G1</td><td><b>体重目标设置</b></td><td>首页/我的「我的体重目标」</td><td><span class="pill new">已补</span></td></tr>
+
+      <tr class="grp"><td colspan="4">我的 / 账号 / 设置（8）</td></tr>
+      <tr><td>P1</td><td><b>编辑个人资料</b></td><td>我的页「编辑个人资料 ›」</td><td><span class="pill new">已补</span></td></tr>
+      <tr><td>P2</td><td><b>添加家庭成员</b></td><td>我的页「添加成员」</td><td><span class="pill new">已补</span></td></tr>
+      <tr><td>P3</td><td><b>家庭成员管理</b></td><td>我的页成员区「管理 ›」</td><td><span class="pill new">已补</span></td></tr>
+      <tr><td>P4</td><td><b>通用设置</b></td><td>我的页「通用设置」</td><td><span class="pill new">已补</span></td></tr>
+      <tr><td>P5</td><td><b>账号与安全</b></td><td>换绑/改密/注销</td><td><span class="pill new">已补</span></td></tr>
+      <tr><td>P6</td><td><b>隐私与数据管理</b></td><td>授权页「我的 › 隐私与数据管理」</td><td><span class="pill new">已补</span></td></tr>
+      <tr><td>P7</td><td><b>帮助与反馈</b></td><td>我的页「帮助与反馈」</td><td><span class="pill new">已补</span></td></tr>
+      <tr><td>P8</td><td><b>关于轻衡</b></td><td>版本/协议/开源许可</td><td><span class="pill new">已补</span></td></tr>
+
+      <tr class="grp"><td colspan="4">AI（2）</td></tr>
+      <tr><td>A1</td><td><b>AI 数据设置</b></td><td>授权页「我的 › 隐私 › AI 数据设置」</td><td><span class="pill new">已补</span></td></tr>
+      <tr><td>A2</td><td><b>AI 助手设置</b></td><td>对话页右上设置图标</td><td><span class="pill new">已补</span></td></tr>
+
+      <tr class="grp"><td colspan="4">登录衍生 / 合规（2）</td></tr>
+      <tr><td>X1</td><td><b>找回 / 重置密码</b></td><td>登录屏3/4「忘记密码?」</td><td><span class="pill new">已补</span></td></tr>
+      <tr><td>X2</td><td><b>用户协议 / 隐私政策</b></td><td>登录屏底部协议链接</td><td><span class="pill new">已补</span></td></tr>
+    </tbody>
+  </table>
+
+  <p style="font-size:11px;color:var(--muted);text-align:center;margin:36px 0 0;line-height:1.8;">
+    轻衡 · 全部原型 44 屏 · 设计基准 NOTE-20261022-001 · Figma <span class="num">FJeYoNpnEiwYcNOGUKPn2W</span><br>
+    原型风格统一确认后，方可进入开发阶段
+  </p>
+</div>
+</body>
+</html>

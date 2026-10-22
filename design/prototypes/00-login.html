@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>轻衡 · 登录与首次引导 · 8 屏原型</title>
+<style>
+  /* ============ 设计 Token（严格提取自 Figma） ============ */
+  :root{
+    --brand:#258C77;        /* 品牌主色 */
+    --ink:#203D37;          /* 深墨绿（文字/深） */
+    --sub:#5D756D;          /* 次级文字 */
+    --muted:#80918B;        /* 弱化文字 */
+    --brand-soft:#E4F2EB;   /* 品牌浅底 */
+    --bg:#F6F8F5;           /* 页面背景 */
+    --white:#FFFFFF;        /* 白卡 */
+    --divider:#E6ECE6;      /* 分隔线/描边 */
+    --stroke:#CEE2D6;       /* 浅绿描边 */
+    --icon-bg:#F0F6F1;      /* 图标底衬 */
+    --seg-bg:#EAF0E9;       /* 分段控件底 */
+    --track:#CFE3D6;        /* 进度轨道 */
+    --warn-bg:#F4EFE4; --warn-ink:#89744B; /* 状态标签 */
+    --switch-off:#DCE5DF;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased;}
+  body{
+    font-family:'Noto Sans SC',-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;
+    background:#e9ece8;color:var(--ink);padding:40px 24px 80px;
+  }
+  .num{font-family:'Inter',sans-serif;}
+
+  /* ============ 页面画板 ============ */
+  .board-head{max-width:1400px;margin:0 auto 8px;}
+  .board-head h1{font-size:26px;font-weight:700;color:var(--ink);}
+  .board-head p{font-size:13px;color:var(--sub);margin-top:6px;line-height:1.6;}
+  .legend{max-width:1400px;margin:18px auto 30px;display:flex;flex-wrap:wrap;gap:10px;}
+  .legend .chip{display:flex;align-items:center;gap:6px;background:var(--white);border:1px solid var(--divider);border-radius:100px;padding:5px 12px 5px 6px;font-size:11px;color:var(--sub);}
+  .legend .sw{width:16px;height:16px;border-radius:5px;}
+
+  .board{max-width:1500px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(402px,1fr));gap:36px;justify-items:center;}
+  .frame-wrap{width:402px;}
+  .frame-label{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:2px;}
+  .frame-label .idx{color:var(--brand);margin-right:6px;}
+  .frame-sub{font-size:11px;color:var(--muted);margin-bottom:12px;}
+
+  /* ============ 手机屏 ============ */
+  .screen{
+    width:402px;background:var(--bg);border-radius:38px;overflow:hidden;
+    border:1px solid #d5dbd5;position:relative;
+  }
+  /* 状态栏 */
+  .statusbar{height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 27px;}
+  .statusbar .time{font-size:14px;font-weight:600;color:var(--ink);}
+  .statusbar .sysicons{display:flex;gap:6px;align-items:center;}
+  .statusbar .sysicons svg{display:block;}
+
+  /* 返回导航 */
+  .navbar{height:56px;display:flex;align-items:center;gap:10px;padding:0 22px;}
+  .navbar .back{width:22px;height:24px;display:flex;align-items:center;}
+  .navbar .title{font-size:21px;font-weight:700;color:var(--ink);flex:1;}
+  .navbar .act{width:20px;height:20px;color:var(--ink);}
+
+  /* 内容区 */
+  .content{padding:12px 22px 20px;display:flex;flex-direction:column;gap:20px;}
+  .content.tight{gap:16px;}
+
+  /* 品牌区（登录主页） */
+  .brand{display:flex;align-items:center;gap:7px;}
+  .brand .logo{width:28px;height:28px;color:var(--brand);}
+  .brand .word{font-size:23px;font-weight:700;color:var(--ink);letter-spacing:1px;}
+
+  /* 标语块 */
+  .hero .h1{font-size:24px;font-weight:700;color:var(--ink);line-height:1.3;}
+  .hero .h2{font-size:12px;color:var(--sub);line-height:1.65;margin-top:10px;}
+  .hero.center{text-align:center;}
+
+  /* 大圆形图标 */
+  .bigicon{width:76px;height:76px;border-radius:100px;background:var(--brand-soft);display:flex;align-items:center;justify-content:center;color:var(--brand);margin:0 auto;}
+  .bigicon.ring{box-shadow:0 0 0 8px rgba(206,226,214,.4);}
+  .bigicon svg{width:36px;height:36px;}
+
+  /* 卡片 */
+  .card{background:var(--white);border-radius:16px;}
+  .card.lg{border-radius:24px;padding:22px;}
+  .card.md{padding:16px;}
+  .card.soft{background:var(--brand-soft);}
+
+  /* 列表行（入口） */
+  .rows{background:var(--white);border-radius:16px;overflow:hidden;}
+  .row{display:flex;align-items:center;gap:12px;padding:15px 16px;}
+  .row + .row{border-top:1px solid var(--divider);}
+  .row .ic{width:38px;height:38px;border-radius:100px;background:var(--icon-bg);display:flex;align-items:center;justify-content:center;color:var(--brand);flex-shrink:0;}
+  .row .ic svg{width:20px;height:20px;}
+  .row .ic.wechat{background:#E8F5E3;color:#07C160;}
+  .row .txt{flex:1;min-width:0;}
+  .row .txt .t{font-size:13px;font-weight:500;color:var(--ink);display:flex;align-items:center;gap:6px;}
+  .row .txt .d{font-size:10px;color:var(--muted);margin-top:3px;}
+  .row .chev{color:var(--muted);flex-shrink:0;}
+  .tag{font-size:10px;font-weight:500;color:var(--brand);background:var(--brand-soft);border-radius:100px;padding:2px 8px;}
+  .tag.warn{color:var(--warn-ink);background:var(--warn-bg);}
+
+  /* 输入框 */
+  .field{background:var(--white);border:1px solid var(--divider);border-radius:14px;height:52px;display:flex;align-items:center;padding:0 14px;gap:10px;}
+  .field .prefix{font-size:14px;color:var(--ink);font-weight:500;padding-right:10px;border-right:1px solid var(--divider);}
+  .field input{border:none;outline:none;flex:1;font-size:14px;color:var(--ink);background:transparent;font-family:inherit;}
+  .field input::placeholder{color:var(--muted);}
+  .field .act-text{font-size:13px;font-weight:500;color:var(--brand);white-space:nowrap;}
+  .field .eye{color:var(--muted);}
+  .field-label{font-size:12px;font-weight:500;color:var(--sub);margin-bottom:8px;padding-left:2px;}
+
+  /* 按钮 */
+  .btn{height:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px;font-weight:700;cursor:pointer;user-select:none;}
+  .btn svg{width:18px;height:18px;}
+  .btn.primary{background:var(--brand);color:#fff;}
+  .btn.secondary{background:var(--white);color:var(--brand);border:1px solid var(--stroke);}
+  .btn.ghost{background:transparent;color:var(--muted);font-weight:400;font-size:11px;height:auto;}
+
+  /* 分段控件 */
+  .seg{background:var(--seg-bg);border-radius:12px;padding:4px;display:flex;}
+  .seg .opt{flex:1;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--muted);font-weight:400;}
+  .seg .opt.on{background:var(--white);color:var(--brand);font-weight:700;}
+
+  /* 协议 */
+  .agree{font-size:10px;color:var(--muted);text-align:center;line-height:1.7;padding:0 20px;}
+  .agree a{color:var(--brand);text-decoration:none;}
+
+  /* 步骤进度 */
+  .steps{display:flex;gap:6px;align-items:center;}
+  .steps .s{height:4px;border-radius:3px;flex:1;background:var(--track);}
+  .steps .s.on{background:var(--brand);}
+  .steps-label{font-size:10px;color:var(--muted);text-align:center;margin-top:6px;}
+
+  /* 信息说明行 */
+  .info-item{display:flex;gap:11px;align-items:flex-start;padding:7px 0;}
+  .info-item .ic{width:34px;height:34px;border-radius:100px;background:var(--icon-bg);display:flex;align-items:center;justify-content:center;color:var(--brand);flex-shrink:0;}
+  .info-item .ic svg{width:18px;height:18px;}
+  .info-item .t{font-size:13px;font-weight:500;color:var(--ink);}
+  .info-item .d{font-size:11px;color:var(--sub);margin-top:3px;line-height:1.5;}
+
+  /* 访客限制项 */
+  .limit{display:flex;align-items:center;gap:10px;padding:9px 0;font-size:12px;color:var(--sub);}
+  .limit svg{width:16px;height:16px;color:var(--muted);flex-shrink:0;}
+
+  /* 身高大数值 */
+  .bignum{display:flex;align-items:baseline;justify-content:center;gap:6px;padding:6px 0 2px;}
+  .bignum .v{font-family:'Inter';font-size:56px;font-weight:500;color:var(--ink);line-height:1;}
+  .bignum .u{font-size:16px;color:var(--sub);font-weight:500;}
+  .slider{height:4px;border-radius:3px;background:var(--track);margin:20px 4px 6px;position:relative;}
+  .slider::after{content:'';position:absolute;left:45%;top:50%;transform:translate(-50%,-50%);width:24px;height:24px;border-radius:100px;background:var(--white);border:1px solid var(--divider);}
+  .slider-scale{display:flex;justify-content:space-between;padding:0 4px;font-size:9px;color:var(--muted);}
+
+  /* 底部安全区 */
+  .homebar{height:24px;display:flex;align-items:center;justify-content:center;}
+  .homebar .bar{width:128px;height:4px;border-radius:4px;background:var(--ink);}
+  .spacer{flex:1;}
+
+  .footer-note{max-width:1400px;margin:50px auto 0;font-size:11px;color:var(--muted);text-align:center;line-height:1.8;}
+</style>
+</head>
+<body>
+
+<div class="board-head">
+  <h1>轻衡 · 登录与首次引导 · 8 屏原型</h1>
+  <p>严格套用现有 10 页设计体系（NOTE-20261022-001）· 无阴影色彩分层 · 深墨绿文字 · 大圆角 · 402px 移动端 · 边距 22 / 内容区 358</p>
+</div>
+
+<div class="legend">
+  <span class="chip"><span class="sw" style="background:#258C77"></span>主色 #258C77</span>
+  <span class="chip"><span class="sw" style="background:#203D37"></span>墨绿 #203D37</span>
+  <span class="chip"><span class="sw" style="background:#E4F2EB"></span>浅底 #E4F2EB</span>
+  <span class="chip"><span class="sw" style="background:#F6F8F5;border:1px solid #e0e0e0"></span>背景 #F6F8F5</span>
+  <span class="chip"><span class="sw" style="background:#80918B"></span>弱化 #80918B</span>
+  <span class="chip">圆角 24 / 16 / 14 / 100</span>
+  <span class="chip">按钮 358×50 r14 · 输入框 358×52 r14</span>
+</div>
+
+<div class="board">
+
+  <!-- ========== 屏 1 · 登录主页 ========== -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">屏 1</span>登录主页</div>
+    <div class="frame-sub">聚合 4 种登录入口 + 访客体验</div>
+    <div class="screen">
+      <div class="statusbar">
+        <span class="time num">9:41</span>
+        <span class="sysicons">
+          <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="0" width="3" height="11" rx="1"/></svg>
+          <svg width="16" height="11" viewBox="0 0 16 11" fill="currentColor"><path d="M8 2.5c2.3 0 4.4.9 6 2.4l-1.4 1.5A6.6 6.6 0 0 0 8 4.5c-1.8 0-3.4.7-4.6 1.9L2 4.9A8.6 8.6 0 0 1 8 2.5Zm0 3.5c1.3 0 2.5.5 3.4 1.4L8 11 4.6 7.4A4.8 4.8 0 0 1 8 6Z"/></svg>
+          <svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x="0.5" y="0.5" width="20" height="11" rx="3" stroke="currentColor" opacity="0.4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/><rect x="22" y="4" width="2" height="4" rx="1" fill="currentColor" opacity="0.5"/></svg>
+        </span>
+      </div>
+
+      <div class="content" style="min-height:760px;">
+        <div class="brand" style="margin-top:8px;">
+          <span class="logo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+          </span>
+          <span class="word">轻衡</span>
+        </div>
+
+        <div class="hero" style="margin-top:20px;">
+          <div class="h1">欢迎回来，<br>轻一点更懂自己。</div>
+          <div class="h2">登录后同步你的测量记录与健康趋势</div>
+        </div>
+
+        <div style="margin-top:8px;">
+          <div class="rows">
+            <div class="row">
+              <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg></span>
+              <span class="txt"><span class="t">手机号登录 <span class="tag">推荐</span></span><span class="d">未注册的号码将自动创建账号</span></span>
+              <span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
+            </div>
+            <div class="row">
+              <span class="ic wechat"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8.5 4C4.9 4 2 6.5 2 9.6c0 1.8 1 3.4 2.6 4.5l-.7 2 2.3-1.2c.7.2 1.5.3 2.3.3h.5a5 5 0 0 1-.2-1.4c0-3 2.9-5.4 6.4-5.4h.5C15.7 5.8 12.5 4 8.5 4Zm-2.4 3.2a.9.9 0 1 1 0 1.8.9.9 0 0 1 0-1.8Zm4.8 0a.9.9 0 1 1 0 1.8.9.9 0 0 1 0-1.8Z"/><path d="M22 14.2c0-2.6-2.6-4.7-5.8-4.7s-5.8 2.1-5.8 4.7 2.6 4.7 5.8 4.7c.7 0 1.3-.1 1.9-.3l1.9 1-.5-1.7c1.5-.9 2.5-2.3 2.5-3.7Zm-7.7-1a.75.75 0 1 1 0 1.5.75.75 0 0 1 0-1.5Zm3.8 0a.75.75 0 1 1 0 1.5.75.75 0 0 1 0-1.5Z"/></svg></span>
+              <span class="txt"><span class="t">微信登录</span><span class="d">使用微信账号快速登录</span></span>
+              <span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
+            </div>
+            <div class="row">
+              <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg></span>
+              <span class="txt"><span class="t">邮箱登录</span><span class="d">通过邮箱地址登录</span></span>
+              <span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
+            </div>
+            <div class="row">
+              <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg></span>
+              <span class="txt"><span class="t">账号密码登录</span><span class="d">使用用户名与密码登录</span></span>
+              <span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:12px;margin-top:4px;">
+          <div class="btn primary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg>
+            手机号登录
+          </div>
+        </div>
+
+        <div class="spacer"></div>
+
+        <div style="text-align:center;">
+          <span style="font-size:11px;color:var(--muted);cursor:pointer;">先逛逛，访客体验 ›</span>
+        </div>
+
+        <div class="agree">登录即代表同意 <a>《用户协议》</a> 与 <a>《隐私政策》</a></div>
+      </div>
+
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- ========== 屏 2 · 手机号登录 ========== -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">屏 2</span>手机号 + 验证码</div>
+    <div class="frame-sub">未注册自动创建账号</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sysicons"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="0" width="3" height="11" rx="1"/></svg><svg width="16" height="11" viewBox="0 0 16 11" fill="currentColor"><path d="M8 2.5c2.3 0 4.4.9 6 2.4l-1.4 1.5A6.6 6.6 0 0 0 8 4.5c-1.8 0-3.4.7-4.6 1.9L2 4.9A8.6 8.6 0 0 1 8 2.5Zm0 3.5c1.3 0 2.5.5 3.4 1.4L8 11 4.6 7.4A4.8 4.8 0 0 1 8 6Z"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x="0.5" y="0.5" width="20" height="11" rx="3" stroke="currentColor" opacity="0.4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/><rect x="22" y="4" width="2" height="4" rx="1" fill="currentColor" opacity="0.5"/></svg></span></div>
+
+      <div class="navbar">
+        <span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2 2 10l8 8"/></svg></span>
+        <span class="title">手机号登录</span>
+      </div>
+
+      <div class="content" style="min-height:700px;">
+        <div class="hero">
+          <div class="h1">输入手机号</div>
+          <div class="h2">未注册的号码将自动创建轻衡账号</div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:16px;margin-top:4px;">
+          <div>
+            <div class="field-label">手机号</div>
+            <div class="field">
+              <span class="prefix num">+86</span>
+              <input type="tel" placeholder="请输入手机号" value="138 0000 0000">
+            </div>
+          </div>
+          <div>
+            <div class="field-label">验证码</div>
+            <div class="field">
+              <input type="text" placeholder="6 位验证码">
+              <span class="act-text">获取验证码</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="spacer"></div>
+
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div class="btn primary">登录 / 注册</div>
+          <div style="text-align:center;font-size:11px;color:var(--muted);">其他方式登录 ›</div>
+        </div>
+
+        <div class="agree">登录即代表同意 <a>《用户协议》</a> 与 <a>《隐私政策》</a></div>
+      </div>
+
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- ========== 屏 3 · 账号密码登录 ========== -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">屏 3</span>账号密码登录</div>
+    <div class="frame-sub">用户名 / 手机号 / 邮箱 + 密码</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sysicons"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="0" width="3" height="11" rx="1"/></svg><svg width="16" height="11" viewBox="0 0 16 11" fill="currentColor"><path d="M8 2.5c2.3 0 4.4.9 6 2.4l-1.4 1.5A6.6 6.6 0 0 0 8 4.5c-1.8 0-3.4.7-4.6 1.9L2 4.9A8.6 8.6 0 0 1 8 2.5Zm0 3.5c1.3 0 2.5.5 3.4 1.4L8 11 4.6 7.4A4.8 4.8 0 0 1 8 6Z"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x="0.5" y="0.5" width="20" height="11" rx="3" stroke="currentColor" opacity="0.4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/><rect x="22" y="4" width="2" height="4" rx="1" fill="currentColor" opacity="0.5"/></svg></span></div>
+
+      <div class="navbar">
+        <span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2 2 10l8 8"/></svg></span>
+        <span class="title">账号密码登录</span>
+      </div>
+
+      <div class="content" style="min-height:700px;">
+        <div class="hero">
+          <div class="h1">登录你的账号</div>
+          <div class="h2">支持用户名、手机号或邮箱</div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:16px;margin-top:4px;">
+          <div>
+            <div class="field-label">账号</div>
+            <div class="field">
+              <input type="text" placeholder="用户名 / 手机号 / 邮箱">
+            </div>
+          </div>
+          <div>
+            <div class="field-label">密码</div>
+            <div class="field">
+              <input type="password" placeholder="请输入密码" value="••••••••">
+              <span class="eye"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></span>
+            </div>
+          </div>
+          <div style="text-align:right;margin-top:-4px;">
+            <span style="font-size:12px;color:var(--brand);cursor:pointer;">忘记密码？</span>
+          </div>
+        </div>
+
+        <div class="spacer"></div>
+
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div class="btn primary">登录</div>
+          <div style="text-align:center;font-size:11px;color:var(--muted);">其他方式登录 ›</div>
+        </div>
+
+        <div class="agree">登录即代表同意 <a>《用户协议》</a> 与 <a>《隐私政策》</a></div>
+      </div>
+
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- ========== 屏 4 · 邮箱登录 ========== -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">屏 4</span>邮箱登录</div>
+    <div class="frame-sub">邮箱地址 + 密码</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sysicons"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="0" width="3" height="11" rx="1"/></svg><svg width="16" height="11" viewBox="0 0 16 11" fill="currentColor"><path d="M8 2.5c2.3 0 4.4.9 6 2.4l-1.4 1.5A6.6 6.6 0 0 0 8 4.5c-1.8 0-3.4.7-4.6 1.9L2 4.9A8.6 8.6 0 0 1 8 2.5Zm0 3.5c1.3 0 2.5.5 3.4 1.4L8 11 4.6 7.4A4.8 4.8 0 0 1 8 6Z"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x="0.5" y="0.5" width="20" height="11" rx="3" stroke="currentColor" opacity="0.4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/><rect x="22" y="4" width="2" height="4" rx="1" fill="currentColor" opacity="0.5"/></svg></span></div>
+
+      <div class="navbar">
+        <span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2 2 10l8 8"/></svg></span>
+        <span class="title">邮箱登录</span>
+      </div>
+
+      <div class="content" style="min-height:700px;">
+        <div class="hero">
+          <div class="h1">用邮箱登录</div>
+          <div class="h2">未注册的邮箱将自动创建账号</div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:16px;margin-top:4px;">
+          <div>
+            <div class="field-label">邮箱地址</div>
+            <div class="field">
+              <input type="email" placeholder="name@example.com" value="linyue@example.com">
+            </div>
+          </div>
+          <div>
+            <div class="field-label">密码</div>
+            <div class="field">
+              <input type="password" placeholder="请输入密码" value="••••••••">
+              <span class="eye"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></span>
+            </div>
+          </div>
+          <div style="text-align:right;margin-top:-4px;">
+            <span style="font-size:12px;color:var(--brand);cursor:pointer;">忘记密码？</span>
+          </div>
+        </div>
+
+        <div class="spacer"></div>
+
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div class="btn primary">登录</div>
+          <div style="text-align:center;font-size:11px;color:var(--muted);">其他方式登录 ›</div>
+        </div>
+
+        <div class="agree">登录即代表同意 <a>《用户协议》</a> 与 <a>《隐私政策》</a></div>
+      </div>
+
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- ========== 屏 5 · 微信授权确认 ========== -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">屏 5</span>微信授权确认</div>
+    <div class="frame-sub">授权范围透明展示</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sysicons"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="0" width="3" height="11" rx="1"/></svg><svg width="16" height="11" viewBox="0 0 16 11" fill="currentColor"><path d="M8 2.5c2.3 0 4.4.9 6 2.4l-1.4 1.5A6.6 6.6 0 0 0 8 4.5c-1.8 0-3.4.7-4.6 1.9L2 4.9A8.6 8.6 0 0 1 8 2.5Zm0 3.5c1.3 0 2.5.5 3.4 1.4L8 11 4.6 7.4A4.8 4.8 0 0 1 8 6Z"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x="0.5" y="0.5" width="20" height="11" rx="3" stroke="currentColor" opacity="0.4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/><rect x="22" y="4" width="2" height="4" rx="1" fill="currentColor" opacity="0.5"/></svg></span></div>
+
+      <div class="navbar">
+        <span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2 2 10l8 8"/></svg></span>
+        <span class="title">微信登录</span>
+      </div>
+
+      <div class="content" style="min-height:700px;">
+        <div class="hero center" style="margin-top:12px;">
+          <div class="bigicon" style="background:#E8F5E3;color:#07C160;">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8.5 4C4.9 4 2 6.5 2 9.6c0 1.8 1 3.4 2.6 4.5l-.7 2 2.3-1.2c.7.2 1.5.3 2.3.3h.5a5 5 0 0 1-.2-1.4c0-3 2.9-5.4 6.4-5.4h.5C15.7 5.8 12.5 4 8.5 4Zm-2.4 3.2a.9.9 0 1 1 0 1.8.9.9 0 0 1 0-1.8Zm4.8 0a.9.9 0 1 1 0 1.8.9.9 0 0 1 0-1.8Z"/><path d="M22 14.2c0-2.6-2.6-4.7-5.8-4.7s-5.8 2.1-5.8 4.7 2.6 4.7 5.8 4.7c.7 0 1.3-.1 1.9-.3l1.9 1-.5-1.7c1.5-.9 2.5-2.3 2.5-3.7Zm-7.7-1a.75.75 0 1 1 0 1.5.75.75 0 0 1 0-1.5Zm3.8 0a.75.75 0 1 1 0 1.5.75.75 0 0 1 0-1.5Z"/></svg>
+          </div>
+          <div class="h1" style="margin-top:22px;">使用微信账号登录</div>
+          <div class="h2">轻衡将向微信申请获取以下信息</div>
+        </div>
+
+        <div class="card lg" style="padding:8px 18px;">
+          <div class="info-item">
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg></span>
+            <div><div class="t">微信昵称</div><div class="d">用于在轻衡中显示你的名字</div></div>
+          </div>
+          <div class="info-item">
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20Z"/><path d="M2 12h20"/></svg></span>
+            <div><div class="t">微信头像</div><div class="d">作为你在轻衡的默认头像</div></div>
+          </div>
+          <div class="info-item" style="border-top:1px solid var(--divider);padding-top:12px;">
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+            <div><div class="t">账号标识（openid）</div><div class="d">用于识别你的账号，保障登录安全</div></div>
+          </div>
+        </div>
+
+        <div class="spacer"></div>
+
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="btn primary">
+            <svg viewBox="0 0 24 24" fill="currentColor" style="width:18px;height:18px;"><path d="M8.5 4C4.9 4 2 6.5 2 9.6c0 1.8 1 3.4 2.6 4.5l-.7 2 2.3-1.2c.7.2 1.5.3 2.3.3h.5a5 5 0 0 1-.2-1.4c0-3 2.9-5.4 6.4-5.4h.5C15.7 5.8 12.5 4 8.5 4Zm7.7 10.2c0-2.6-2.6-4.7-5.8-4.7s-5.8 2.1-5.8 4.7 2.6 4.7 5.8 4.7c.7 0 1.3-.1 1.9-.3l1.9 1-.5-1.7c1.5-.9 2.5-2.3 2.5-3.7Z"/></svg>
+            微信授权登录
+          </div>
+          <div class="btn secondary">使用其他方式</div>
+        </div>
+
+        <div class="agree" style="margin-top:2px;">授权即代表同意 <a>《用户协议》</a> 与 <a>《隐私政策》</a></div>
+      </div>
+
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- ========== 屏 6 · 访客模式确认 ========== -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">屏 6</span>访客模式确认</div>
+    <div class="frame-sub">数据仅存本机，说明限制</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sysicons"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="0" width="3" height="11" rx="1"/></svg><svg width="16" height="11" viewBox="0 0 16 11" fill="currentColor"><path d="M8 2.5c2.3 0 4.4.9 6 2.4l-1.4 1.5A6.6 6.6 0 0 0 8 4.5c-1.8 0-3.4.7-4.6 1.9L2 4.9A8.6 8.6 0 0 1 8 2.5Zm0 3.5c1.3 0 2.5.5 3.4 1.4L8 11 4.6 7.4A4.8 4.8 0 0 1 8 6Z"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x="0.5" y="0.5" width="20" height="11" rx="3" stroke="currentColor" opacity="0.4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/><rect x="22" y="4" width="2" height="4" rx="1" fill="currentColor" opacity="0.5"/></svg></span></div>
+
+      <div class="navbar">
+        <span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2 2 10l8 8"/></svg></span>
+      </div>
+
+      <div class="content" style="min-height:700px;">
+        <div class="hero center" style="margin-top:12px;">
+          <div class="bigicon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+          </div>
+          <div class="h1" style="margin-top:22px;">先逛逛，<br>不用登录</div>
+          <div class="h2">访客模式下你可以先体验核心功能，<br>数据仅保存在本机</div>
+        </div>
+
+        <div class="card lg" style="padding:14px 18px;">
+          <div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:4px;">访客模式的限制</div>
+          <div class="limit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>数据仅存本机，卸载或换设备将丢失</div>
+          <div class="limit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>无法云同步，无法多设备查看</div>
+          <div class="limit" style="border-top:1px solid var(--divider);padding-top:12px;margin-top:4px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>可随时在「我的」中补登录，数据无缝升级</div>
+        </div>
+
+        <div class="spacer"></div>
+
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="btn primary">进入体验</div>
+          <div class="btn secondary">返回登录</div>
+        </div>
+      </div>
+
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- ========== 屏 7 · 首次引导 · 年龄性别 ========== -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">屏 7</span>引导 · 年龄性别</div>
+    <div class="frame-sub">步骤 1/2 · 元数据收集</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sysicons"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="0" width="3" height="11" rx="1"/></svg><svg width="16" height="11" viewBox="0 0 16 11" fill="currentColor"><path d="M8 2.5c2.3 0 4.4.9 6 2.4l-1.4 1.5A6.6 6.6 0 0 0 8 4.5c-1.8 0-3.4.7-4.6 1.9L2 4.9A8.6 8.6 0 0 1 8 2.5Zm0 3.5c1.3 0 2.5.5 3.4 1.4L8 11 4.6 7.4A4.8 4.8 0 0 1 8 6Z"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x="0.5" y="0.5" width="20" height="11" rx="3" stroke="currentColor" opacity="0.4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/><rect x="22" y="4" width="2" height="4" rx="1" fill="currentColor" opacity="0.5"/></svg></span></div>
+
+      <div class="navbar">
+        <span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2 2 10l8 8"/></svg></span>
+        <span class="title" style="font-size:16px;">完善资料</span>
+        <span style="font-size:12px;color:var(--muted);" class="num">1/2</span>
+      </div>
+
+      <div class="content" style="min-height:700px;">
+        <div class="steps"><span class="s on"></span><span class="s"></span></div>
+        <div class="steps-label">第 1 步 · 年龄与性别</div>
+
+        <div class="hero center" style="margin-top:8px;">
+          <div class="bigicon ring">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg>
+          </div>
+          <div class="h1" style="margin-top:20px;">完善资料，<br>让参考更适合你</div>
+          <div class="h2">年龄与性别用于计算 BMI、体脂率<br>的个性化参考区间</div>
+        </div>
+
+        <div class="card lg" style="padding:18px;display:flex;flex-direction:column;gap:18px;">
+          <div>
+            <div class="field-label">年龄</div>
+            <div class="field">
+              <input type="number" placeholder="请输入年龄" value="30" class="num">
+              <span style="font-size:13px;color:var(--sub);">岁</span>
+            </div>
+          </div>
+          <div>
+            <div class="field-label">性别</div>
+            <div class="seg">
+              <span class="opt">男</span>
+              <span class="opt on">女</span>
+              <span class="opt">不告知</span>
+            </div>
+            <div style="font-size:10px;color:var(--muted);margin-top:8px;padding-left:2px;">选择「不告知」将使用通用参考区间</div>
+          </div>
+        </div>
+
+        <div class="spacer"></div>
+
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="btn primary">下一步</div>
+        </div>
+      </div>
+
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- ========== 屏 8 · 首次引导 · 身高 ========== -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">屏 8</span>引导 · 身高</div>
+    <div class="frame-sub">步骤 2/2 · 可跳过</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sysicons"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="0" width="3" height="11" rx="1"/></svg><svg width="16" height="11" viewBox="0 0 16 11" fill="currentColor"><path d="M8 2.5c2.3 0 4.4.9 6 2.4l-1.4 1.5A6.6 6.6 0 0 0 8 4.5c-1.8 0-3.4.7-4.6 1.9L2 4.9A8.6 8.6 0 0 1 8 2.5Zm0 3.5c1.3 0 2.5.5 3.4 1.4L8 11 4.6 7.4A4.8 4.8 0 0 1 8 6Z"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x="0.5" y="0.5" width="20" height="11" rx="3" stroke="currentColor" opacity="0.4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/><rect x="22" y="4" width="2" height="4" rx="1" fill="currentColor" opacity="0.5"/></svg></span></div>
+
+      <div class="navbar">
+        <span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2 2 10l8 8"/></svg></span>
+        <span class="title" style="font-size:16px;">完善资料</span>
+        <span style="font-size:12px;color:var(--muted);" class="num">2/2</span>
+      </div>
+
+      <div class="content" style="min-height:700px;">
+        <div class="steps"><span class="s on"></span><span class="s on"></span></div>
+        <div class="steps-label">第 2 步 · 身高</div>
+
+        <div class="hero center" style="margin-top:8px;">
+          <div class="bigicon ring">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h18v8H3z"/><path d="M7 8v3M11 8v5M15 8v3M19 8v5"/></svg>
+          </div>
+          <div class="h1" style="margin-top:20px;">你的身高是多少？</div>
+          <div class="h2">用于身体成分与 BMI 计算</div>
+        </div>
+
+        <div class="card lg" style="padding:18px;">
+          <div class="bignum">
+            <span class="v num">168</span>
+            <span class="u">cm</span>
+          </div>
+          <div class="slider"></div>
+          <div class="slider-scale num"><span>140</span><span>160</span><span>180</span><span>200</span></div>
+        </div>
+
+        <div class="spacer"></div>
+
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="btn primary">完成，开始使用</div>
+          <div class="btn ghost" style="align-self:center;">稍后在我的里补充</div>
+        </div>
+      </div>
+
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer-note">
+  轻衡 · 登录与首次引导原型 · 8 屏<br>
+  设计基准：NOTE-20261022-001 · Figma <span class="num">FJeYoNpnEiwYcNOGUKPn2W</span> · 无阴影色彩分层 · 402px · 边距 22 / 内容区 358<br>
+  原型风格统一确认后，方可进入开发阶段
+</div>
+
+</body>
+</html>

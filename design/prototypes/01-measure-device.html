@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>轻衡 · 测量流程 + 设备 · 原型</title>
+<link rel="stylesheet" href="theme.css">
+</head>
+<body>
+
+<div class="topbar">
+  <h1>测量流程 + 设备</h1>
+  <div class="nav">
+    <a href="index.html">← 总览</a>
+    <a href="#m">测量流程</a>
+    <a href="#d">设备</a>
+  </div>
+</div>
+
+<!-- ==================== 测量流程 ==================== -->
+<div class="sec" id="m"><h2><span class="dot"></span>测量流程</h2><p>首页「开始测量」触发的完整链路：连接 → 上秤 → 分析 → 结果 / 异常；以及首次开箱引导。</p></div>
+<div class="board">
+
+  <!-- M1 测量中 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">M1</span>测量中 · 进行中</div>
+    <div class="frame-sub">蓝牙连接 → 上秤 → 倒计时 → 分析</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">测量中</span></div>
+      <div class="content">
+        <div class="hero center" style="margin-top:16px;">
+          <div style="width:180px;height:180px;margin:0 auto;position:relative;">
+            <svg width="180" height="180" viewBox="0 0 180 180"><circle cx="90" cy="90" r="78" fill="none" stroke="#CFE3D6" stroke-width="8"/><circle cx="90" cy="90" r="78" fill="none" stroke="#258C77" stroke-width="8" stroke-linecap="round" stroke-dasharray="490" stroke-dashoffset="150" transform="rotate(-90 90 90)"/></svg>
+            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+              <div class="num" style="font-size:44px;font-weight:600;line-height:1;">62.4</div>
+              <div style="font-size:12px;color:var(--sub);margin-top:4px;">正在稳定读数…</div>
+            </div>
+          </div>
+          <div class="h1 sm" style="margin-top:20px;">请保持站姿，不要移动</div>
+          <div class="h2">赤脚站在电极片上，几秒后自动完成</div>
+        </div>
+
+        <div class="card lg" style="padding:8px 18px;">
+          <div class="row" style="padding:12px 0;"><span class="ic soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="tx"><span class="t">已连接 轻衡 S1</span><span class="d">蓝牙信号良好</span></span></div>
+          <div class="row" style="padding:12px 0;"><span class="ic soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="tx"><span class="t">已检测到上秤</span><span class="d">体重读数中</span></span></div>
+          <div class="row" style="padding:12px 0;"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8"/></svg></span><span class="tx"><span class="t">生物电阻抗分析</span><span class="d">测量身体成分中…</span></span></div>
+        </div>
+
+        <div class="spacer"></div>
+        <div class="note" style="text-align:center;">身体成分测量需 5–15 秒，请勿中途下秤</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- M2 测量异常 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">M2</span>测量异常 / 失败</div>
+    <div class="frame-sub">未上秤 · 蓝牙断开 · 数据异常</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">测量未完成</span></div>
+      <div class="content">
+        <div class="hero center" style="margin-top:20px;">
+          <div class="bigicon" style="background:var(--warn-bg);color:var(--warn-ink);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg></div>
+          <div class="h1 sm" style="margin-top:22px;">这次没有测成功</div>
+          <div class="h2">别担心，重新测量即可。<br>常见原因见下方排查。</div>
+        </div>
+
+        <div class="card lg" style="padding:8px 18px;">
+          <div class="row" style="padding:12px 0;"><span class="ic warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg></span><span class="tx"><span class="t">体重读数不稳定</span><span class="d">请站稳、勿移动或说话</span></span></div>
+          <div class="row" style="padding:12px 0;"><span class="ic warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18.36 6.64A9 9 0 1 1 5.64 6.64M12 2v10"/></svg></span><span class="tx"><span class="t">脚底或电极片过湿</span><span class="d">擦干脚底与秤面后再测</span></span></div>
+          <div class="row" style="padding:12px 0;border-top:1px solid var(--divider);"><span class="ic warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18.36 6.64A9 9 0 1 1 5.64 6.64M12 2v10"/></svg></span><span class="tx"><span class="t">蓝牙连接中断</span><span class="d">请保持手机靠近体脂秤</span></span></div>
+        </div>
+
+        <div class="banner warn"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg></span><span class="bt">测量环境需稳定：请勿在地毯、金属台面或强烈抖动时测量。</span></div>
+
+        <div class="spacer"></div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="btn primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.12 2.37A2 2 0 0 0 19.7 2H4.3a2 2 0 0 0-1.42.37 2 2 0 0 0-.68 1.45l1.1 12.5A2 2 0 0 0 5.3 18H7v-2H5.3l-.9-10h15.2l-.9 10H17v2h1.7a2 2 0 0 0 2-1.68l1.1-12.5a2 2 0 0 0-.68-1.45Z"/></svg>重新测量</div>
+          <div class="btn secondary">查看测量帮助</div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- M3 首次连接引导 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">M3</span>首次连接引导</div>
+    <div class="frame-sub">开箱 → 准备 → 首测（3 步）</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">开始使用体脂秤</span></div>
+      <div class="content">
+        <div class="steps"><span class="s on"></span><span class="s"></span><span class="s"></span></div>
+        <div class="hint" style="text-align:center;">第 1 步 · 准备体脂秤</div>
+
+        <div class="hero center" style="margin-top:6px;">
+          <div class="bigicon ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M7 7V5a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v2M8 12h.01M16 12h.01M12 15h.01"/></svg></div>
+          <div class="h1 sm" style="margin-top:20px;">三步，第一次测量</div>
+          <div class="h2">跟着引导，几十秒就能测出第一份报告</div>
+        </div>
+
+        <div class="card lg" style="padding:8px 18px;">
+          <div class="row" style="padding:13px 0;"><span class="ic soft"><span class="num" style="font-weight:700;">1</span></span><span class="tx"><span class="t">取出体脂秤，放在坚硬平整地面</span><span class="d">避免地毯、软垫与金属台面</span></span></div>
+          <div class="row" style="padding:13px 0;"><span class="ic soft"><span class="num" style="font-weight:700;">2</span></span><span class="tx"><span class="t">轻踩唤醒，确认屏幕点亮</span><span class="d">首次使用请装好电池</span></span></div>
+          <div class="row" style="padding:13px 0;"><span class="ic soft"><span class="num" style="font-weight:700;">3</span></span><span class="tx"><span class="t">赤脚上秤，完成蓝牙配对</span><span class="d">保持手机在秤的附近</span></span></div>
+        </div>
+
+        <div class="spacer"></div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="btn primary">下一步：连接设备</div>
+          <div class="btn ghost" style="align-self:center;">我已有账号，直接测量</div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 设备 ==================== -->
+<div class="sec" id="d"><h2><span class="dot"></span>设备</h2><p>设备管理页的三个子页：搜索配对、设备设置、测量帮助。</p></div>
+<div class="board">
+
+  <!-- D1 添加设备 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">D1</span>添加设备 · 搜索配对</div>
+    <div class="frame-sub">BLE 扫描列表 + 连接</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">添加设备</span></div>
+      <div class="content">
+        <div class="banner"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64A9 9 0 1 1 5.64 6.64M12 2v10"/></svg></span><span class="bt">请轻踩体脂秤唤醒，保持手机靠近，正在搜索附近的设备…</span></div>
+
+        <div>
+          <div class="sthead" style="margin-bottom:10px;"><span class="st sm">发现的设备</span><span class="hint num">3 台</span></div>
+          <div class="rows">
+            <div class="row"><span class="ic soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64A9 9 0 1 1 5.64 6.64M12 2v10"/></svg></span><span class="tx"><span class="t">轻衡 S1 <span class="tag">推荐</span></span><span class="d">信号强 · 距离约 0.5m</span></span><span class="btn primary" style="height:32px;padding:0 16px;font-size:12px;border-radius:10px;">连接</span></div>
+            <div class="row"><span class="ic soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64A9 9 0 1 1 5.64 6.64M12 2v10"/></svg></span><span class="tx"><span class="t">轻衡 S1 Pro</span><span class="d">信号中 · 距离约 1.2m</span></span><span class="btn secondary" style="height:32px;padding:0 16px;font-size:12px;border-radius:10px;">连接</span></div>
+            <div class="row"><span class="ic plain"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64A9 9 0 1 1 5.64 6.64M12 2v10"/></svg></span><span class="tx"><span class="t">CHSE-8A2F</span><span class="d">信号弱 · 可能非轻衡设备</span></span><span class="btn secondary disabled" style="height:32px;padding:0 16px;font-size:12px;border-radius:10px;">连接</span></div>
+          </div>
+        </div>
+
+        <div class="spacer"></div>
+        <div style="text-align:center;"><span style="font-size:11px;color:var(--muted);">没找到设备？查看连接排查 ›</span></div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- D2 设备设置 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">D2</span>设备设置</div>
+    <div class="frame-sub">重命名 · 单位 · 固件 · 解绑</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">设备设置</span></div>
+      <div class="content tight">
+        <div class="card soft" style="border-radius:24px;padding:20px;display:flex;align-items:center;gap:14px;">
+          <span class="av" style="width:52px;height:52px;background:var(--white);"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M8 12h.01M16 12h.01M12 15h.01"/></svg></span>
+          <div style="flex:1;"><div style="font-size:16px;font-weight:700;">轻衡 S1 智能体脂秤</div><div style="font-size:11px;color:var(--brand);margin-top:3px;">● 已连接 · 电量 82%</div></div>
+        </div>
+
+        <div class="rows">
+          <div class="row"><span class="tx"><span class="t">设备名称</span></span><span class="val">轻衡 S1</span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+          <div class="row"><span class="tx"><span class="t">体重单位</span></span><span class="val">公斤 (kg)</span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+          <div class="row"><span class="tx"><span class="t">固件版本</span></span><span class="val num">v1.2.0</span><span class="tag">已是最新</span></div>
+        </div>
+
+        <div class="rows">
+          <div class="row"><span class="tx"><span class="t">断开连接</span><span class="d">断开后需重新配对才能测量</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+          <div class="row"><span class="ic danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></span><span class="tx"><span class="t" style="color:var(--danger);">删除设备</span><span class="d">删除后历史数据仍保留</span></span></div>
+        </div>
+
+        <div class="note">删除设备不会删除已同步的测量记录，仅解除配对关系。</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- D3 测量帮助 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">D3</span>测量帮助</div>
+    <div class="frame-sub">姿势 · 注意事项 · 常见问题</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">测量帮助</span></div>
+      <div class="content tight">
+        <div class="card lg pad20">
+          <div class="st" style="margin-bottom:12px;">正确测量姿势</div>
+          <div style="display:flex;gap:14px;align-items:center;">
+            <div style="width:96px;height:96px;border-radius:16px;background:var(--iconbg);display:flex;align-items:center;justify-content:center;color:var(--brand);flex-shrink:0;"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4.5" r="2"/><path d="M12 6.5v6M9 21l1.5-6M14.5 21 13 15M8 10h8"/></svg></div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:8px;">
+              <div style="font-size:12px;color:var(--sub);line-height:1.6;">赤脚站在电极片上，双脚均匀受力，腿部微微分开，手臂自然下垂、勿贴身体。</div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="st sm" style="margin:2px 0 10px 2px;">提高准确度</div>
+          <div class="rows">
+            <div class="row center"><span class="ic soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="tx"><span class="t">固定时段测量</span><span class="d">建议每天同一时间，如晨起后</span></span></div>
+            <div class="row center"><span class="ic soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.7s6 5.3 6 10.3a6 6 0 0 1-12 0c0-5 6-10.3 6-10.3Z"/></svg></span><span class="tx"><span class="t">测量前正常饮水</span><span class="d">避免剧烈运动、进食后立即测量</span></span></div>
+            <div class="row center"><span class="ic soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14Z"/></svg></span><span class="tx"><span class="t">擦干脚底与秤面</span><span class="d">潮湿会影响生物电阻抗读数</span></span></div>
+          </div>
+        </div>
+
+        <div class="banner warn"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg></span><span class="bt">植入电子医疗设备者请勿使用生物电阻抗测量。孕期等特殊人群请先咨询专业人员。</span></div>
+
+        <div class="spacer"></div>
+        <div class="rows"><div class="row center"><span class="tx"><span class="t">还有问题？联系客服</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div></div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">轻衡 · 测量流程 + 设备 · 6 屏<br>theme.css 设计基准 NOTE-20261022-001 · 无阴影色层 · 402px · 边距 22 / 内容 358</div>
+</body>
+</html>

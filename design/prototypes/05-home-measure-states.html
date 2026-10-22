@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>轻衡 · 首页状态 + 测量分支 · 原型</title>
+<link rel="stylesheet" href="theme.css">
+</head>
+<body>
+
+<div class="topbar">
+  <h1>首页状态 + 测量分支</h1>
+  <div class="nav">
+    <a href="index.html">← 总览</a>
+    <a href="#s03">03 首页状态</a>
+    <a href="#s04">04 测量分支</a>
+  </div>
+</div>
+
+<!-- ========== 03 首页与健康概览（状态） ========== -->
+<div class="sec" id="s03"><h2><span class="dot"></span>03 首页与健康概览 · 状态</h2><p>page-list-TODO §03：空数据、未连接、同步中、异常、成员切换、AI 简报详情。正常态见 figma-renders/01。</p></div>
+<div class="board">
+
+  <!-- 03-1 空状态 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">03-1</span>首页 · 无测量数据</div>
+    <div class="frame-sub">首次使用空态</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="content">
+        <div class="brand" style="margin-top:6px;"><span class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg></span><span class="word">轻衡</span></div>
+        <div class="hero" style="margin-top:12px;"><div class="h1 sm">你好，开始记录吧</div><div class="h2">完成第一次测量，就能看到你的身体概览。</div></div>
+        <!-- 空态卡 -->
+        <div class="card lg pad20" style="text-align:center;padding:32px 20px;">
+          <div class="eic" style="width:72px;height:72px;border-radius:100px;background:var(--iconbg);color:var(--brand);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M8 12h.01M16 12h.01M12 15h.01"/></svg></div>
+          <div style="font-size:16px;font-weight:700;">还没有测量数据</div>
+          <div style="font-size:12px;color:var(--sub);line-height:1.7;margin-top:8px;">连接体脂秤并完成第一次测量后，<br>这里会显示你的体重与身体指标。</div>
+        </div>
+        <div class="mgrid" style="opacity:.45;"><div class="mcell" style="height:84px;"></div><div class="mcell" style="height:84px;"></div></div>
+        <div class="spacer"></div>
+        <div class="btn primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>开始第一次测量</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 03-2 设备未连接 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">03-2</span>首页 · 设备未连接</div>
+    <div class="frame-sub">有数据但秤断连</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="content">
+        <div class="brand" style="margin-top:6px;"><span class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg></span><span class="word">轻衡</span></div>
+        <!-- 未连接横幅替换体重大卡顶部 -->
+        <div class="banner warn"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64A9 9 0 1 1 5.64 6.64M12 2v10M2 2l20 20"/></svg></span><span class="bt">体脂秤未连接，暂无法测量。<br><a>重新连接 ›</a></span></div>
+        <div class="card soft" style="border-radius:24px;padding:20px;">
+          <div class="hint">上次更新 10月21日 07:30</div>
+          <div style="display:flex;align-items:baseline;gap:8px;margin-top:6px;"><span class="num" style="font-size:40px;font-weight:600;">62.4</span><span style="font-size:13px;color:var(--sub);">kg</span></div>
+          <div style="font-size:11px;color:var(--sub);margin-top:4px;">数据来自上次测量 · 非实时</div>
+        </div>
+        <div class="mgrid"><div class="mcell"><div class="mh">体脂率</div><div class="mv">28.6<span class="u">%</span></div></div><div class="mcell"><div class="mh">BMI</div><div class="mv">22.1</div></div></div>
+        <!-- 设备条：未连接态 -->
+        <div class="card" style="border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:12px;">
+          <span class="av" style="width:38px;height:38px;background:var(--warn-bg);color:var(--warn-ink);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18.36 6.64A9 9 0 1 1 5.64 6.64M12 2v10M2 2l20 20"/></svg></span>
+          <div style="flex:1;"><div style="font-size:13px;font-weight:500;">轻衡 S1 · 未连接</div><div style="font-size:10px;color:var(--muted);margin-top:2px;">轻踩秤面唤醒后重连</div></div>
+          <span style="font-size:12px;color:var(--brand);font-weight:500;">连接</span>
+        </div>
+        <div class="spacer"></div>
+        <div class="btn secondary disabled">开始测量（需先连接设备）</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 03-3 同步中 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">03-3</span>首页 · 云端同步中</div>
+    <div class="frame-sub">顶部同步状态条</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <!-- 同步状态条 -->
+      <div style="background:var(--soft);padding:8px 22px;display:flex;align-items:center;gap:8px;">
+        <span class="loading-spin" style="width:14px;height:14px;border-width:2px;"></span>
+        <span style="font-size:11px;color:var(--brand);">正在同步 3 条测量记录…</span>
+      </div>
+      <div class="content">
+        <div class="brand" style="margin-top:6px;"><span class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg></span><span class="word">轻衡</span></div>
+        <div class="card soft" style="border-radius:24px;padding:20px;">
+          <div style="display:flex;justify-content:space-between;"><span class="hint">当前体重</span><span class="hint" style="color:var(--brand);">同步中…</span></div>
+          <div style="display:flex;align-items:baseline;gap:8px;margin-top:6px;"><span class="num" style="font-size:40px;font-weight:600;">62.4</span><span style="font-size:13px;color:var(--sub);">kg</span></div>
+          <!-- 待同步标记 -->
+          <div style="display:flex;align-items:center;gap:6px;margin-top:8px;"><span class="tag mut">待同步</span><span style="font-size:10px;color:var(--muted);">本机记录，稍后上传</span></div>
+        </div>
+        <div class="mgrid"><div class="mcell"><div class="mh">体脂率</div><div class="mv">28.6<span class="u">%</span></div></div><div class="mcell"><div class="mh">BMI</div><div class="mv">22.1</div></div></div>
+        <div class="spacer"></div>
+        <div class="note" style="text-align:center;">数据已加密，同步完成后多设备可见</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 03-4 数据异常/刷新失败 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">03-4</span>首页 · 刷新失败</div>
+    <div class="frame-sub">模块加载失败态</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="content">
+        <div class="brand" style="margin-top:6px;"><span class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg></span><span class="word">轻衡</span></div>
+        <!-- 骨架屏示意 -->
+        <div class="card soft" style="border-radius:24px;padding:20px;">
+          <div class="sk line" style="width:40%;height:10px;"></div>
+          <div class="sk line" style="width:60%;height:34px;margin-top:12px;"></div>
+          <div class="sk line" style="width:50%;height:10px;margin-top:12px;"></div>
+        </div>
+        <div class="card lg pad20" style="text-align:center;border:1px dashed var(--stroke);">
+          <div style="width:56px;height:56px;border-radius:100px;background:var(--danger-bg);color:var(--danger);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64A9 9 0 1 1 5.64 6.64M2 2l20 20"/></svg></div>
+          <div style="font-size:15px;font-weight:700;">指标加载失败</div>
+          <div style="font-size:12px;color:var(--sub);margin-top:6px;line-height:1.6;">网络似乎开小差了，<br>请检查连接后重试。</div>
+          <button class="btn secondary" style="margin-top:16px;height:42px;">重新加载</button>
+        </div>
+        <div class="spacer"></div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 03-5 成员切换 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">03-5</span>成员切换</div>
+    <div class="frame-sub">切换后全站数据刷新（底部弹层）</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="content" style="filter:blur(1px);opacity:.5;"><div class="card soft" style="border-radius:24px;height:130px;"></div></div>
+      <div class="overlay sheetmode">
+        <div class="sheet">
+          <div class="grab"></div>
+          <div class="shead"><span class="st">切换成员</span><span class="cancel">取消</span></div>
+          <div class="sbody">
+            <div class="pick"><span class="av" style="width:44px;height:44px;">悦</span><span class="pk-tx"><div style="font-weight:500;">林悦</div><div class="sx">本人 · 女 · 30岁</div></span><span class="radio on"></span></div>
+            <div class="pick"><span class="av" style="width:44px;height:44px;background:var(--iconbg);">妈</span><span class="pk-tx"><div style="font-weight:500;">妈妈</div><div class="sx">家人 · 女 · 58岁</div></span><span class="radio"></span></div>
+            <div class="pick"><span class="av" style="width:44px;height:44px;background:var(--iconbg);">爸</span><span class="pk-tx"><div style="font-weight:500;">爸爸</div><div class="sx">家人 · 男 · 60岁</div></span><span class="radio"></span></div>
+            <div class="pick" style="color:var(--brand);"><span class="sic" style="width:44px;height:44px;border-radius:100px;background:var(--iconbg);color:var(--brand);display:flex;align-items:center;justify-content:center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></span><span class="pk-tx">添加成员</span></div>
+            <div class="hint" style="padding:8px 6px 0;">切换后，首页、记录、趋势、报告与 AI 将显示该成员的数据。</div>
+          </div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 03-6 AI 简报详情 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">03-6</span>AI 健康简报详情</div>
+    <div class="frame-sub">首页简报卡点入</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">AI 健康简报</span></div>
+      <div class="content tight">
+        <div class="hint">分析截止：2026年10月21日 07:30 · 林悦</div>
+        <div class="card soft" style="border-radius:24px;padding:18px;">
+          <div style="font-size:20px;font-weight:700;line-height:1.4;">近 30 天趋势稳健，<br>继续保持你的节奏。</div>
+        </div>
+        <div class="card lg pad18">
+          <div class="st sm" style="margin-bottom:10px;">关键变化</div>
+          <div style="display:flex;gap:10px;">
+            <div style="flex:1;background:var(--iconbg);border-radius:12px;padding:12px;text-align:center;"><div class="num" style="font-size:20px;font-weight:600;color:var(--brand);">−1.6</div><div class="hint" style="margin-top:2px;">体重 kg（30天）</div></div>
+            <div style="flex:1;background:var(--iconbg);border-radius:12px;padding:12px;text-align:center;"><div class="num" style="font-size:20px;font-weight:600;color:var(--brand);">−1.5</div><div class="hint" style="margin-top:2px;">体脂 %（30天）</div></div>
+          </div>
+          <div style="font-size:12px;color:var(--sub);line-height:1.7;margin-top:14px;">林悦，近 30 天体重下降 1.6 kg、体脂率下降 1.5 个百分点，趋势稳健。单次波动不代表脂肪变化，建议持续关注 7 天平均值。</div>
+        </div>
+        <div class="card lg pad18">
+          <div class="st sm" style="margin-bottom:8px;">可执行建议</div>
+          <div style="font-size:12px;color:var(--sub);line-height:1.8;">· 保持均衡饮食，按自身情况安排活动<br>· 测量前保持正常饮水<br>· 尽量固定测量时段，提升可比性</div>
+        </div>
+        <div class="spacer"></div>
+        <div class="btn primary">问 AI 助手</div>
+        <div class="note" style="text-align:center;">AI 建议仅供参考，不作疾病诊断</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 04 测量全流程（分支） ========== -->
+<div class="sec" id="s04"><h2><span class="dot"></span>04 测量全流程 · 分支状态</h2><p>page-list-TODO §04：准备、稳定等待、计算中、蓝牙中断、提前离开、超时、取消、保存失败。主流程见 01-measure-device.html。</p></div>
+<div class="board">
+
+  <!-- 04-1 测量前设备检查 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">04-1</span>测量前设备检查</div>
+    <div class="frame-sub">进入测量的前置确认</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">开始测量</span></div>
+      <div class="content">
+        <div class="hero center" style="margin-top:8px;">
+          <div class="h1 sm">测量前确认</div>
+          <div class="h2">当前测量对象：林悦</div>
+        </div>
+        <div class="rows">
+          <div class="row"><span class="ic soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="tx"><span class="t">设备已连接</span><span class="d">轻衡 S1 · 电量 82%</span></span><span class="tag">就绪</span></div>
+          <div class="row"><span class="ic soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="tx"><span class="t">蓝牙已开启</span><span class="d">信号良好</span></span><span class="tag">就绪</span></div>
+          <div class="row"><span class="ic warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg></span><span class="tx"><span class="t">秤面状态</span><span class="d">请确认秤面干燥、平整放置</span></span><span class="tag warn">待确认</span></div>
+        </div>
+        <div class="banner"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></span><span class="bt">测量对象为「林悦」，测量结果将记入该成员。</span></div>
+        <div class="spacer"></div>
+        <div class="btn primary">确认，开始测量</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 04-2 测量准备说明 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">04-2</span>测量准备说明</div>
+    <div class="frame-sub">站姿/赤脚引导</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">测量准备</span></div>
+      <div class="content">
+        <div class="hero center" style="margin-top:8px;">
+          <div style="width:140px;height:140px;border-radius:100px;background:var(--iconbg);display:flex;align-items:center;justify-content:center;color:var(--brand);margin:0 auto;"><svg width="70" height="70" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4" r="2"/><path d="M12 6v6M9 21l1.5-6M14.5 21 13 15M8 10h8"/></svg></div>
+          <div class="h1 sm" style="margin-top:18px;">赤脚站上体脂秤</div>
+        </div>
+        <div class="card lg" style="padding:8px 18px;">
+          <div class="row" style="padding:12px 0;"><span class="ic soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="tx"><span class="t">双脚踩住四片电极</span></span></div>
+          <div class="row" style="padding:12px 0;"><span class="ic soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="tx"><span class="t">双腿微微分开，手臂自然下垂</span></span></div>
+          <div class="row" style="padding:12px 0;"><span class="ic soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="tx"><span class="t">站稳后保持静止几秒</span></span></div>
+        </div>
+        <div class="spacer"></div>
+        <div class="btn primary">我准备好了</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 04-3 等待体重稳定 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">04-3</span>等待体重稳定</div>
+    <div class="frame-sub">测量中子状态</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">测量中</span></div>
+      <div class="content">
+        <div class="hero center" style="margin-top:24px;">
+          <div style="width:180px;height:180px;position:relative;margin:0 auto;">
+            <svg width="180" height="180" viewBox="0 0 180 180"><circle cx="90" cy="90" r="78" fill="none" stroke="#CFE3D6" stroke-width="8"/><circle cx="90" cy="90" r="78" fill="none" stroke="#258C77" stroke-width="8" stroke-linecap="round" stroke-dasharray="490" stroke-dashoffset="330" transform="rotate(-90 90 90)"/></svg>
+            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+              <div class="num" style="font-size:40px;font-weight:600;line-height:1;opacity:.5;">62.–</div>
+              <div style="font-size:12px;color:var(--sub);margin-top:6px;">等待稳定…</div>
+            </div>
+          </div>
+          <div class="h1 sm" style="margin-top:20px;">请保持站稳</div>
+          <div class="h2">体重读数还在变化，稳定后自动进入下一步</div>
+        </div>
+        <div class="spacer"></div>
+        <div class="note" style="text-align:center;">不要移动或说话，几秒即可</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 04-4 正在计算身体成分 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">04-4</span>正在计算身体成分</div>
+    <div class="frame-sub">BIA 分析中</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">测量中</span></div>
+      <div class="content">
+        <div class="hero center" style="margin-top:20px;">
+          <div style="width:180px;height:180px;position:relative;margin:0 auto;">
+            <svg width="180" height="180" viewBox="0 0 180 180"><circle cx="90" cy="90" r="78" fill="none" stroke="#CFE3D6" stroke-width="8"/><circle cx="90" cy="90" r="78" fill="none" stroke="#258C77" stroke-width="8" stroke-linecap="round" stroke-dasharray="490" stroke-dashoffset="120" transform="rotate(-90 90 90)"/></svg>
+            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+              <div class="num" style="font-size:40px;font-weight:600;line-height:1;">62.4</div>
+              <div style="font-size:12px;color:var(--brand);margin-top:6px;">体重已锁定</div>
+            </div>
+          </div>
+          <div class="h1 sm" style="margin-top:20px;">正在计算身体成分</div>
+          <div class="h2">请勿下秤，生物电阻抗分析中…</div>
+        </div>
+        <div class="card lg" style="padding:8px 18px;">
+          <div class="row" style="padding:11px 0;"><span class="ic soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="tx"><span class="t">体重已锁定</span></span></div>
+          <div class="row" style="padding:11px 0;"><span class="ic"><span class="loading-spin" style="width:20px;height:20px;border-width:2px;"></span></span><span class="tx"><span class="t">身体成分分析中</span></span></div>
+          <div class="row" style="padding:11px 0;opacity:.4;"><span class="ic plain"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg></span><span class="tx"><span class="t">生成报告</span></span></div>
+        </div>
+        <div class="spacer"></div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 04-5 蓝牙中断 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">04-5</span>测量中蓝牙中断</div>
+    <div class="frame-sub">异常分支（弹层）</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="content" style="filter:blur(1px);opacity:.5;"><div style="height:300px;"></div></div>
+      <div class="overlay">
+        <div class="dialog">
+          <div class="dic warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18.36 6.64A9 9 0 1 1 5.64 6.64M12 2v10M2 2l20 20"/></svg></div>
+          <div class="dt">蓝牙连接中断</div>
+          <div class="dd">测量过程中与体脂秤断开了连接，本次数据<b>未保存</b>。请保持手机靠近体脂秤后重试。</div>
+          <div class="dact"><button class="btn secondary">取消</button><button class="btn primary">重新连接</button></div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 04-6 提前离开秤面 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">04-6</span>提前离开秤面</div>
+    <div class="frame-sub">异常分支</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">测量未完成</span></div>
+      <div class="statepage">
+        <div class="sic warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4" r="2"/><path d="M12 6v6M9 21l1.5-6M14.5 21 13 15M8 10h8M2 2l20 20"/></svg></div>
+        <div class="st">检测到你已离开秤面</div>
+        <div class="sd">身体成分测量需要全程站在秤上。<br>本次未采集完整数据，请重新测量。</div>
+        <button class="btn primary">重新测量</button>
+        <button class="btn ghost" style="margin-top:12px;">返回首页</button>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 04-7 测量超时 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">04-7</span>测量超时</div>
+    <div class="frame-sub">长时间未稳定</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">测量超时</span></div>
+      <div class="statepage">
+        <div class="sic warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+        <div class="st">读数一直不稳定</div>
+        <div class="sd">超过 60 秒体重仍未稳定，可能：<br>· 站姿不稳或在移动<br>· 秤放置在柔软/不平地面<br>请调整后重新测量。</div>
+        <button class="btn primary">重新测量</button>
+        <button class="btn ghost" style="margin-top:12px;">查看测量帮助</button>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 04-8 测量取消确认 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">04-8</span>测量取消确认</div>
+    <div class="frame-sub">中途退出（弹层）</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="content" style="filter:blur(1px);opacity:.5;"><div style="height:300px;"></div></div>
+      <div class="overlay">
+        <div class="dialog">
+          <div class="dic warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="dt">取消本次测量？</div>
+          <div class="dd">测量尚未完成，取消后本次数据不会保存。</div>
+          <div class="dact"><button class="btn secondary">继续测量</button><button class="btn danger">取消测量</button></div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 04-9 保存失败 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">04-9</span>结果保存失败</div>
+    <div class="frame-sub">测量成功但保存失败</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">保存失败</span></div>
+      <div class="content">
+        <div class="card soft" style="border-radius:24px;padding:18px;">
+          <div class="hint">本次测量已完成</div>
+          <div style="display:flex;align-items:baseline;gap:8px;margin-top:4px;"><span class="num" style="font-size:36px;font-weight:600;">62.4</span><span style="font-size:13px;color:var(--sub);">kg</span><span style="margin-left:auto;font-size:12px;color:var(--brand);">体脂 28.6%</span></div>
+          <div class="tag warn" style="margin-top:10px;display:inline-block;">未保存</div>
+        </div>
+        <div class="banner warn"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg></span><span class="bt">测量数据已读取，但保存时出错（可能网络中断）。数据暂存在本机，可重试保存，无需重新测量。</span></div>
+        <div class="spacer"></div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="btn primary">重试保存</div>
+          <div class="btn secondary">稍后再说</div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">轻衡 · 首页状态 + 测量分支 · 15 屏<br>依据 design/page-list-TODO.md §03 §04 · theme.css 设计基准 NOTE-20261022-001</div>
+</body>
+</html>
