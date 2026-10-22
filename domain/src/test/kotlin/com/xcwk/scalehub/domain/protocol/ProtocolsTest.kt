@@ -95,4 +95,39 @@ class ProtocolsTest {
         assertThat(match.protocolId).isNotEqualTo(ChipseaCloudProtocol.ID)
         assertThat(match.protocolId).isEqualTo("okok-1")
     }
+
+    /**
+     * 仅厂商数据、无 AD 名称；版本 0x10。
+     * BroadcastInfo 要求自 FF F0 起至少 20 字节，故厂商载荷凑满 20。
+     */
+    private fun hybridChipseaAdvertisementNoName(version: Int): ByteArray {
+        val mfr = ByteArray(20)
+        mfr[0] = 0xFF.toByte()
+        mfr[1] = 0xF0.toByte()
+        mfr[2] = version.toByte()
+        mfr[3] = 0x00
+        mfr[4] = 0x86.toByte()
+        mfr[5] = 0x19
+        val record = ByteArray(1 + 1 + mfr.size)
+        record[0] = (mfr.size + 1).toByte()
+        record[1] = 0xFF.toByte()
+        System.arraycopy(mfr, 0, record, 2, mfr.size)
+        return record
+    }
+
+    @Test
+    fun `match prefers chipsea via deviceName when scanRecord has no AD name`() {
+        val record = hybridChipseaAdvertisementNoName(0x10)
+        val match = Protocols.match(record, "Chipsea_BLE")
+        requireNotNull(match)
+        assertThat(match.protocolId).isEqualTo(ChipseaCloudProtocol.ID)
+    }
+
+    @Test
+    fun `match without deviceName keeps okok for version 0x10 and no AD name`() {
+        val record = hybridChipseaAdvertisementNoName(0x10)
+        val match = Protocols.match(record)
+        requireNotNull(match)
+        assertThat(match.protocolId).isEqualTo("okok-1")
+    }
 }

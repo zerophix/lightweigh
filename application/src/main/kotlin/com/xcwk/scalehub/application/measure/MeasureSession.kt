@@ -222,7 +222,7 @@ class MeasureSession(
                 if (device == null) {
                     // 守卫2（静默路径）：秤广播被协议识别却无绑定设备拥有它 = 绑定缺失/换秤未绑；
                     // 协议无标记则属正常（手机耳机广告）。只在「识别到秤但绑不上」时报一次
-                    val recognized = if (scanRecord != null) Protocols.match(scanRecord) else null
+                    val recognized = if (scanRecord != null) Protocols.match(scanRecord, name) else null
                     if (recognized != null && !scanDebug.unboundLogged) {
                         scanDebug = scanDebug.copy(unboundLogged = true)
                         DebugLog.add(
@@ -233,7 +233,7 @@ class MeasureSession(
                     return
                 }
                 if (!phase.picked) {
-                    val chosen = preferAdvertisedProtocol(device, scanRecord) ?: return
+                    val chosen = preferAdvertisedProtocol(device, scanRecord, name) ?: return
                     phase = phase.reduce(SessionEvent.MarkPicked)
                     useDevice(chosen)
                     _state.update { it.copy(notice = "识别到 ${chosen.name}") }
@@ -270,9 +270,9 @@ class MeasureSession(
     }
 
     /** 广播认出协议后就固定用这一套解析，测量过程中不再改成另一种秤（:367-380）。 */
-    private fun preferAdvertisedProtocol(device: ScaleDevice, scanRecord: ByteArray?): ScaleDevice? {
+    private fun preferAdvertisedProtocol(device: ScaleDevice, scanRecord: ByteArray?, deviceName: String): ScaleDevice? {
         val record = scanRecord ?: return device
-        val recognized = Protocols.match(record) ?: return device
+        val recognized = Protocols.match(record, deviceName) ?: return device
         if (recognized.protocolId == device.protocolId) return device
         // 关键：识别到的协议若是纯广播（无 requiredCharacteristic），保留原 GATT 协议
         // 对应参考项目 MeasureActivity.preferAdvertisedProtocol :355-367

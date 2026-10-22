@@ -45,7 +45,16 @@ public final class ChipseaCloudProtocol implements ScaleProtocol {
 
     @Override
     public ScanMatch match(byte[] scanRecord) {
-        BroadcastField field = readBroadcast(scanRecord);
+        return match(scanRecord, null);
+    }
+
+    /**
+     * 识别广播。deviceName 来自扫描回调的 BluetoothDevice.getName()：
+     * 部分 Chipsea_BLE 秤广播版本是 OKOK 的 0x10，且 AD 里没有 0x09 名称，
+     * 只靠 scanRecord 会误判成 okok-1（见 NOTE-20261021-001 / DEC-056）。
+     */
+    public ScanMatch match(byte[] scanRecord, String deviceName) {
+        BroadcastField field = readBroadcast(scanRecord, deviceName);
         if (field == null) {
             return null;
         }
@@ -54,7 +63,7 @@ public final class ChipseaCloudProtocol implements ScaleProtocol {
 
     @Override
     public ScaleEvent broadcast(byte[] scanRecord) {
-        BroadcastField field = readBroadcast(scanRecord);
+        BroadcastField field = readBroadcast(scanRecord, null);
         if (field == null) {
             return null;
         }
@@ -168,14 +177,14 @@ public final class ChipseaCloudProtocol implements ScaleProtocol {
         return characteristic == null ? "" : characteristic.toString();
     }
 
-    private static BroadcastField readBroadcast(byte[] scanRecord) {
-        int index = marker(scanRecord);
+    private static BroadcastField readBroadcast(byte[] scanRecord, String deviceName) {
+        int index = marker(scanRecord, deviceName);
         if (index < 0) {
             return null;
         }
         int version = scanRecord[index + 2] & 0xFF;
         // forceChipsea: 设备名称包含 "Chipsea"，跳过版本 0x02 检查
-        if (!isChipseaName(scanRecord) && version != BROADCAST_VERSION) {
+        if (!isChipseaName(scanRecord, deviceName) && version != BROADCAST_VERSION) {
             return null;
         }
         int property = scanRecord[index + 3] & 0xFF;
@@ -185,7 +194,7 @@ public final class ChipseaCloudProtocol implements ScaleProtocol {
 
     /** 广播里的 MAC 与当前绑定地址一致时，也算这台秤。地址有正序和反序两种。 */
     public boolean owns(byte[] scanRecord, String mac) {
-        int index = marker(scanRecord);
+        int index = marker(scanRecord, null);
         if (index < 0 || scanRecord.length < index + 20 || mac == null) {
             return false;
         }
@@ -258,11 +267,11 @@ public final class ChipseaCloudProtocol implements ScaleProtocol {
      * 例如外壳，但广播版本 0x10 的 Chipsea_BLE 设备名称包含 "Chipsea"，
      * 应当跳过 OKOK 排除逻辑，仍然识别为芯海云端版 (chipsea-cloud-1)。
      */
-    private static int marker(byte[] data) {
+    private static int marker(byte[] data, String deviceName) {
         if (data == null) {
             return -1;
         }
-        boolean forceChipsea = isChipseaName(data);
+        boolean forceChipsea = isChipseaName(data, deviceName);
         int cursor = 0;
         boolean sawStructure = false;
         while (cursor + 1 < data.length) {
@@ -310,11 +319,15 @@ public final class ChipseaCloudProtocol implements ScaleProtocol {
     }
 
     /**
-     * 从扫描记录中提取设备名称 (AD type 0x09 / 0x08)，
-     * 如果名称包含 "Chipsea" (不区分大小写) 则返回 true。
-     * 用于识别广播版本为 OKOK (0x10) 但 GATT 使用 Chipsea 协议的混合设备。
+     * 名称感知：优先用扫描回调里的 deviceName（BluetoothDevice.getName()），
+     * 否则从扫描记录 AD type 0x09 / 0x08 提取。
+     * 名称包含 "Chipsea"（不区分大小写）则视为芯海混合设备。
      */
-    private static boolean isChipseaName(byte[] data) {
+    private static boolean isChipseaName(byte[] data, String deviceName) {
+        if (deviceName != null && !deviceName.isEmpty()
+                && deviceName.toLowerCase(Locale.ROOT).contains("chipsea")) {
+            return true;
+        }
         if (data == null) {
             return false;
         }

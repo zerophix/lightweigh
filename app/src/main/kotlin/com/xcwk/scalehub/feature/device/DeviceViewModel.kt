@@ -88,7 +88,7 @@ class DeviceViewModel(
 
                 override fun onDeviceFound(name: String, mac: String, rssi: Int, scanRecord: ByteArray?) {
                     if (scanRecord == null) return
-                    val match = Protocols.match(scanRecord)
+                    val match = Protocols.match(scanRecord, name)
                     if (match == null) {
                         // 未被任何协议认出的广播——排障关键证据（v2 与旧库一致的静默丢弃，仅加日志）
                         Log.d(
