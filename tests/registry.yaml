@@ -1,4 +1,8 @@
 commands:
+- description: worktree 守卫检测原语（主树判定 + 并发计数, DEC-054）
+  path: tests/unit/test_worktree_guard.py
+  status: stable
+  type: pytest
 - description: Sanity check
   path: tests/test_sanity.py
   status: stable

@@ -1,6 +1,6 @@
 # 项目状态
 
-> 由 generate-status.py 自动生成。最后更新: 2026-10-22T04:50:34Z
+> 由 generate-status.py 自动生成。最后更新: 2026-10-22T04:51:26Z
 > 新 AI 启动时: `cat STATUS.md && bash scripts/session/ses-context-load.sh`
 
 ---
@@ -9,11 +9,11 @@
 
 | 字段 | 值 |
 |------|-----|
-| 名称 | 轻刻健康 Android（qk-health-v2） |
+| 名称 | 轻衡健康 Android（lightweigh） |
 | 版本 | 0.1.0 |
 | 文档语言 | zh-CN |
-| Git 分支 | chore/test-guard-pr |
-| 最后提交 | fcae111 Merge pull request #20 from zerophix/chore/schema-golden-guard |
+| Git 分支 | master |
+| 最后提交 | 006e912 Merge pull request #21 from zerophix/chore/test-guard-pr |
 | 文档校验 | 运行: `bash scripts/governance/gov-validate.sh` |
 
 ## AI 交接
@@ -28,7 +28,7 @@
 
 **上下文：**
 
-> 完成: DEC-052：schema/golden 守卫 CI+local-ci；已合入 PR #20 | 决策: 改契约资产默认 fail，DEC 或 allow-schema-change 放行；PR 自动评论
+> 完成: DEC-053：test-guard PR 警告；已合入 PR #21 | 决策: 缺测试默认 warn 不红门禁；--strict+allow-no-tests 可选
 
 **下一步：**
 
@@ -39,11 +39,11 @@
 最近 5 次提交：
 
 ```
+006e912 Merge pull request #21 from zerophix/chore/test-guard-pr
+1697243 ci(governance): warn when main changes lack module tests
 fcae111 Merge pull request #20 from zerophix/chore/schema-golden-guard
 3e94a4b ci(governance): guard golden and Room schema changes
 c24865a Merge pull request #19 from zerophix/chore/dec051-handoff
-357c174 chore(session): handoff after DEC-051
-5f20210 Merge pull request #18 from zerophix/chore/status-local-ci-evidence
 ```
 
 ## 工程指标
@@ -72,7 +72,7 @@ c24865a Merge pull request #19 from zerophix/chore/dec051-handoff
 | 检查项 | 状态 | 详情 |
 |-------|------|------|
 | 本地门禁 (gov-local-ci) | 通过 | local-ci PASS @ 2026-10-22T04:50:34Z sha=fcae111 branch=chore/test-guard-pr [gradlew build:ok,gov-validate:ok,gov-custom-checks:ok,gov-secrets-scan:ok,gov-schema-guard:ok,gov-test-guard:ok] |
-| GitHub Actions | 无数据 | gh 不可用或无最近 run |
+| GitHub Actions | 进行中 | ci @ 2026-10-22T04:51:09Z sha=006e912 https://github.com/zerophix/qk-health-v2/actions/runs/39724673260 |
 | 文档校验 | 通过 | 来自 local-ci @ 2026-10-22T04:50:34Z sha=fcae111 |
 | Git 钩子 | 通过 | 安装: bash scripts/bootstrap/bs-install-hooks.sh |
 
@@ -80,5 +80,5 @@ c24865a Merge pull request #19 from zerophix/chore/dec051-handoff
 
 > 上次 AI session 的经验教训。新 AI 启动时必读。
 
-改契约资产默认 fail，DEC 或 allow-schema-change 放行；PR 自动评论
+缺测试默认 warn 不红门禁；--strict+allow-no-tests 可选
 

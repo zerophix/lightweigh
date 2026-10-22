@@ -6,7 +6,7 @@
 # 导航同步: bash scripts/governance/gov-sync-mkdocs.sh
 # =============================================================================
 
-site_name: 轻刻健康 Android（qk-health-v2）
+site_name: 轻衡健康 Android（lightweigh）
 site_description: 蓝牙体脂秤测量的记录、展示与同步 — DDD 分层 Android 工程
 site_author: neking
 
