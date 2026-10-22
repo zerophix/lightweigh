@@ -2,7 +2,7 @@
 # 版本对齐 qk-health-android，便于迁移
 [versions]
 agp = "9.2.1"
-kotlin = "2.2.10"
+kotlin = "2.4.21"
 ksp = "2.3.9"
 coroutines = "1.8.1"
 junit = "4.13.2"
