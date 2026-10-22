@@ -30,6 +30,10 @@ ls -t docs/ai/decisions/ | head -3  # 最近 3 条决策
 # 第 5 步：开始工作
 ```
 
+### 多 AI 并发
+
+详见 [`docs/guides/GC-multi-agent-collab.md`](docs/guides/GC-multi-agent-collab.md)。开始会话：`ses-session-begin.sh`；暂存后：`ses-claim-staged.sh`；合入前：`bash scripts/governance/gov-local-ci.sh`。
+
 ### 接力铁律
 
 1. **必须查收件箱** — 有未读消息时不读直接干活 = 违规
@@ -264,7 +268,7 @@ bash scripts/governance/gov-validate.sh
 | OpenCode | `.opencode/rules.md` | 核心流程蒸馏 |
 | Cursor | `.cursorrules` | 核心流程蒸馏 |
 
-各平台配置均已包含：启动流程、决策流转、文件规范、校验命令、反思要求。
+各平台配置均已包含：启动流程、决策流转、文件规范、校验命令；工程反思为自愿追加（见 GC-engineering-reflections.md）。
 `setup.sh` 安装时自动复制这些文件到目标项目。
 
 > 自 DEC-003 起，协议文件统一为 `AGENTS.md`（跨平台标准名）。
@@ -364,17 +368,21 @@ CI 中 `docs-build` Job 构建站点，`deploy` Job 发布到 GitHub Pages。
 
 ## CI/CD
 
-| Job | 触发条件 | 作用 |
+| Job | 触发条件（以 `.github/workflows/ci.yml` 为准） | 作用 |
 |-----|---------|------|
-| `build-and-guard` | 所有 push/PR | `./gradlew build`：编译 + 单测 + ArchUnit 分层守卫 |
-| `docs-validate` | 所有 push/PR | 运行 gov-validate.sh 全量校验（文档 + 脚本 + 治理测试） |
-| `lifecycle-audit` | PR | 源码变更必须含 DEC + DevNotes（走 gov-lifecycle-audit.sh） |
+| `build-and-guard` | `push` 到 `main`/`master`，以及 **pull_request** | `./gradlew build` + `assembleAndroidTest`（纯文档变更可跳过重型步骤） |
+| `docs-validate` | 同上 | `gov-validate.sh` 全量校验 |
+| `lifecycle-audit` | 同上（push 与 PR 均有） | 源码变更须含 DEC + DevNotes |
 
-pre-push 也增加了硬检查：validate.sh PASS + DEC/DevNotes 审计 + STATUS.md 新鲜度。
-pre-push 可被 `--no-verify` 绕过，但 CI 的 `lifecycle-audit` 不可绕过。
-`lifecycle-audit` 与本地审计共用同一实现：`bash scripts/governance/gov-lifecycle-audit.sh`。
+勘误（2026-10-22 / DEC-045）：
+- 特性分支**裸 push 不触发** CI，需开 PR 或改 workflow；无分支保护时 CI 不阻断合入。
+- **pre-push** 实际只做：分支命名 + 全量 `gov-validate.sh`（**不含** Gradle、**不含**单独的 DEC 审计行；lifecycle-audit 在 CI）。
+- 本机 **pre-commit** = `gov-pre-commit-simplified`（编译 + **gov-custom-checks**），与模板 `gov-pre-commit` 不同；DEC-046。
+- 合并前请跑：`bash scripts/governance/gov-local-ci.sh`（build + validate + custom-checks）。
+- **强制 README 反思门禁已拆除**；工程反思见 `docs/guides/GC-engineering-reflections.md`（自愿）。`docs/ai/constraints` 中 REFLECT-001~003 正文待另 DEC 退役。
 
-自定义 CI：编辑 `.github/workflows/ci.yml` 加入项目的构建/测试步骤。
+pre-push 可被 `--no-verify` 绕过；CI 在开启分支保护并设为 required 后才是硬门禁。
+`lifecycle-audit` 实现：`bash scripts/governance/gov-lifecycle-audit.sh`。
 
 ---
 

@@ -27,7 +27,7 @@
 - 健康日志记录（饮食 / 饮水 / 运动）
 - **云同步（M2 已实现）**：测量记录 / 健康日志 / 档案增量推送，水位线 / 对账 / 幂等
 - **多成员支持**：`memberId` 显式隔离，水位线按 `(tableName, memberId)` 复合主键
-- 蓝牙称重（M3 规划中，`BlePort` 端口已定义）
+- **蓝牙称重（已落地）**：三协议（OKOK GATT / OKOK 广播 / Chipsea 云端）；真机秤已连通；DEC-044 修复 Chipsea 混合广播误识别
 
 ## 技术栈
 
@@ -41,7 +41,7 @@ Kotlin · Jetpack Compose · Room · Coroutines · ArchUnit（架构守卫）
 | ---------------- | ------------------------- | ---------------------------------------- |
 | `domain`         | 纯 JVM（零 Android 依赖，编译期强制） | 协议解析、体成分算法、测量模型、仓储端口                     |
 | `application`    | 纯 JVM                     | 用例编排（`RecordMeasurement`：取档案 → 算体脂 → 落库） |
-| `infrastructure` | Android 库                 | Room 存储、档案存储、（后续：BLE 网关、云同步）             |
+| `infrastructure` | Android 库                 | Room（v7）、BLE 网关、云同步、会话、习惯提醒                 |
 | `app`            | Android 应用                | Compose 界面（UDF 单向数据流）、组合根、ArchUnit 架构守卫  |
 
 ## 快速开始
@@ -67,7 +67,7 @@ Kotlin · Jetpack Compose · Room · Coroutines · ArchUnit（架构守卫）
 qk-health-v2/
 ├── domain/           # 纯 JVM：协议解析、体成分算法、模型、仓储端口
 ├── application/      # 纯 JVM：用例编排
-├── infrastructure/   # Android 库：Room、档案、（BLE / 云同步）
+├── infrastructure/   # Android 库：Room、BLE、云同步、档案、习惯
 ├── app/              # Android 应用：Compose 界面、组合根、架构守卫
 ├── docs/             # 文档（架构 / 指南 / 决策 / 参考）
 ├── tests/            # 治理与集成测试
@@ -106,10 +106,9 @@ bash scripts/governance/gov-validate.sh          # 治理测试
 
 ## 路线图
 
-- **M2**：手机号登录与云端同步（CloudBase，离线保存与上云为两个独立承诺）
-- **M3**：蓝牙称重（三协议接入，连接状态机：显式状态枚举 + 串行写队列 + 断连退避重连）
-- **M4**：完整页面（设备绑定 / 趋势图表 / 体测报告 / 健康日志 / 设置 / 档案编辑）
-- **M5**：8 电极分支算法（分部位阻抗 Z14/Z23 合并与专用系数）
+- **已完成**：云同步与账号（M2）、蓝牙称重三协议与真机连通（M3）、多成员 / 趋势 / 报告 / 习惯 / 设置等主路径页面（M4 主体）
+- **进行中**：以 `.ai/tasks.json` 为准（当前 pending 含新手引导、报告分析 Tab、AI 结构化卡片等，见 T-045+）
+- **后续**：8 电极分支算法等（分部位阻抗专用系数）；开源与分支保护等工程卫生项见近期评审
 
 ## 相关文档
 

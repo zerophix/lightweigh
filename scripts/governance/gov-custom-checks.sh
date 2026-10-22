@@ -81,9 +81,15 @@ fi
 # 源码质量（死 import / 重复实现 / 相似度分叉）
 # 容错：模板项目树内可能没有该脚本（它是项目自有扩展，不在 gov-owned.list）。
 # 跳过时必须留痕——静默跳过会让规则看起来生效而实际空转。
+# 注意：bash 在 if/then 体内忽略 set -e，必须显式传递 python 退出码，
+# 否则 gov-code-check 失败仍会落到下面的 exit 0（历史空转事故，DEC-046）。
 CODE_CHECK="$ROOT/scripts/governance/gov-code-check.py"
 if [ -f "$CODE_CHECK" ]; then
   python3 "$CODE_CHECK"
+  code=$?
+  if [ "$code" -ne 0 ]; then
+    exit "$code"
+  fi
 else
   echo "  (gov-code-check.py 不在树内，跳过源码质量检测)"
 fi

@@ -54,6 +54,9 @@ with open('$SESSION_FILE', 'w') as f:
 " 2>/dev/null
 
 echo "🆔 会话标识: $SESSION_ID"
+echo "  并发提示: 暂存后先 bash scripts/session/ses-claim-staged.sh 再 commit"
+echo "  协议: docs/guides/GC-multi-agent-collab.md"
+
 
 # ---------- 1. 加载上下文缓存 ----------
 if [ -f "$CACHE_SCRIPT" ]; then

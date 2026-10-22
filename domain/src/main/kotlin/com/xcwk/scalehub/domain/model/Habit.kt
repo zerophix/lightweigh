@@ -1,6 +1,5 @@
 package com.xcwk.scalehub.domain.model
 
-import java.time.LocalDate
 
 /**
  * 习惯实体（DEC-043-D：习惯管理页）。

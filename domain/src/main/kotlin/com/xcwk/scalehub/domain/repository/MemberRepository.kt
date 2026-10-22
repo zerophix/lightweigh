@@ -1,7 +1,6 @@
 package com.xcwk.scalehub.domain.repository
 
 import com.xcwk.scalehub.domain.model.Member
-import com.xcwk.scalehub.domain.model.UserUnitPreferences
 
 /**
  * 本机测量用户仓储（旧库 MemberStore 语义切面）。

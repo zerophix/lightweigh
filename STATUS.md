@@ -1,6 +1,6 @@
 # 项目状态
 
-> 由 generate-status.py 自动生成。最后更新: 2026-10-22T00:10:28Z
+> 由 generate-status.py 自动生成。最后更新: 2026-10-22T03:51:15Z
 > 新 AI 启动时: `cat STATUS.md && bash scripts/session/ses-context-load.sh`
 
 ---
@@ -12,8 +12,8 @@
 | 名称 | 轻刻健康 Android（qk-health-v2） |
 | 版本 | 0.1.0 |
 | 文档语言 | zh-CN |
-| Git 分支 | feat/t-043-habit-management |
-| 最后提交 | 21889fc fix: Chipsea_BLE protocol matching for hybrid broadcast version 0x10 |
+| Git 分支 | feat/design-prototypes |
+| 最后提交 | 8ed0d77 docs(governance): sync rule table for removed reflection gate |
 | 文档校验 | 运行: `bash scripts/governance/gov-validate.sh` |
 
 ## AI 交接
@@ -39,33 +39,33 @@
 最近 5 次提交：
 
 ```
+8ed0d77 docs(governance): sync rule table for removed reflection gate
+b344d61 refactor(governance): remove forced README reflection, rewrite README
+6d67806 docs(design): add design system notes and 154-screen prototypes
+aefa7b7 fix: Chipsea_BLE protocol matching + governance fixes
 21889fc fix: Chipsea_BLE protocol matching for hybrid broadcast version 0x10
-a9c0d49 chore: relay T-043 completed, handoff to T-045
-477b977 docs: update DevNotes/DEC-043/reflection + register habit test
-37fc5e6 chore: fix pre-push audit - remove lock file, fix task status
-6156b22 feat(auth): merge email/weChat login and feature screens
 ```
 
 ## 工程指标
 
 | 指标 | 数量 |
 |------|------|
-| 决策日志 (DEC) | 44 |
-| 设计笔记 (NOTE) | 8 |
-| 开发指南 (GC) | 4 |
+| 决策日志 (DEC) | 47 |
+| 设计笔记 (NOTE) | 10 |
+| 开发指南 (GC) | 6 |
 | 技术参考 (REF) | 1 |
 
 最近决策：
 
-- [DEC-044](docs/ai/decisions/DEC-044.md): DEC-044: 修复 Chipsea_BLE 混合广播版本导致的协议识别错误
-- [DEC-043](docs/ai/decisions/DEC-043.md): DEC-043: 对齐参考项目 13 项缺失功能
-- [DEC-042](docs/ai/decisions/DEC-042.md): DEC-042: 测量会话生命周期锚定 overlay
+- [DEC-047](docs/ai/decisions/DEC-047.md): DEC-047: 多 AI 并发协作门禁与反思约束退役
+- [DEC-046](docs/ai/decisions/DEC-046.md): DEC-046: 本地门禁接入 gov-custom-checks 与 gov-local-ci
+- [DEC-045](docs/ai/decisions/DEC-045.md): DEC-045: 文档事实对齐与蒸馏规则统一（授权门禁减负后续）
 
 最近笔记：
 
+- [NOTE-20261022-002](docs/notes/NOTE-20261022-002.md): 轻衡 App 完整页面清单与原型对照
+- [NOTE-20261022-001](docs/notes/NOTE-20261022-001.md): 轻衡 App 设计体系分析与登录原型规范
 - [NOTE-20261021-001](docs/notes/NOTE-20261021-001.md): Chipsea_BLE 体脂秤协议逆向分析 — 完整技术笔记
-- [NOTE-20261017-001](docs/notes/NOTE-20261017-001.md): 参考项目功能移植对照审查
-- [NOTE-20261016-002](docs/notes/NOTE-20261016-002.md): DataRefreshBus 扩展边界
 
 ## 健康检查
 
