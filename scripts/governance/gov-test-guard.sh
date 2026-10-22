@@ -196,7 +196,7 @@ if CI:
                     "Authorization": f"Bearer {token}",
                     "Accept": "application/vnd.github+json",
                     "X-GitHub-Api-Version": "2022-11-28",
-                    "User-Agent": "qk-health-test-guard",
+                    "User-Agent": "lightweigh-test-guard",
                 },
             )
             with urllib.request.urlopen(req, timeout=20) as resp:
@@ -217,7 +217,7 @@ if CI:
                     "Accept": "application/vnd.github+json",
                     "X-GitHub-Api-Version": "2022-11-28",
                     "Content-Type": "application/json",
-                    "User-Agent": "qk-health-test-guard",
+                    "User-Agent": "lightweigh-test-guard",
                 },
             )
             with urllib.request.urlopen(req2, timeout=20) as resp2:
