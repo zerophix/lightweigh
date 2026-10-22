@@ -2,17 +2,17 @@
 #
 # 缺口（DEC-029 组 B）：ci.yml 的 build-and-guard 跑 ./gradlew build（assemble + 单测 + lint）
 # 外加 assembleAndroidTest —— 只【编译】androidTest 源集，从不【执行】。于是
-# infrastructure 的 MigrationTest（v1→v5 全链 schema 运行时校验 + 数据保留）虽已落地
-# 且曾在模拟器实跑通过，却不在任何门禁上，回归无人拦。
+# infrastructure 的 MigrationTest（全链 schema 运行时校验 + 数据保留）虽已落地，
+# 却不在 push/PR 门禁上。
 #
-# 刻意不挂 push/pull_request：模拟器 job 的时长与稳定性风险高，先手动跑通确认，
-# 再考虑纳入门禁。跑顺之后把下面的 schedule 取消注释即得定期兜底。
+# 触发：workflow_dispatch（手动）+ 周 cron（T-017 已启用）。仍不挂 push/PR：
+# 模拟器 job 时长与稳定性风险高，避免烧私有仓 Actions 分钟（DEC-033）。
 name: android-test
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 18 * * 1'   # 每周一 02:00 (UTC+8) 兜底；本地模拟器验证通过后启用 (T-017)
+    - cron: '0 18 * * 1'   # 每周一 02:00 (UTC+8) 兜底（T-017 已启用）
 
 jobs:
   connected-android-test:

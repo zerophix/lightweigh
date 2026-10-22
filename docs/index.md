@@ -1,4 +1,4 @@
-# 轻刻健康 Android（qk-health-v2）
+# 轻衡健康 Android（lightweigh）
 
 > 蓝牙体脂秤测量的记录、展示与同步 — DDD 分层 Android 工程的文档站。
 
@@ -6,7 +6,7 @@
 
 ## 项目概述
 
-qk-health-v2 是轻刻健康 Android 客户端，采用 DDD 分层四模块工程，包坐标 **com.xcwk.scalehub**。
+lightweigh 是轻衡健康 Android 客户端，采用 DDD 分层四模块工程，包坐标 **com.xcwk.scalehub**。
 它由旧库 qk-health-android 混合式重构而来，当前处于 **M1（可运行骨架）完成、M2（云同步与登录）
 待启动**的阶段。本页是文档站入口，向下收录 AI 过程文档与黄金标准文档。
 

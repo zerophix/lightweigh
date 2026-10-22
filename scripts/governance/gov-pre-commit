@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 #
+# DEPRECATED (DEC-047 / DEC-054 ops) — 模板长版 pre-commit，已不再由 bs-install-hooks 安装。
+# 现行钩子: gov-pre-commit-simplified（多会话守卫 + 禁 master + compile + custom-checks）。
+# 保留本文件仅供对照 / 应急回退；勿再 cp 到 .git/hooks/pre-commit。
+# 新改动请改 gov-pre-commit-simplified。
+#
+#
 # Git pre-commit hook — 自动流转 + 分支约束 + 文档校验
 # 由 scripts/governance/gov-install-hooks.sh 安装到 .git/hooks/pre-commit
 #

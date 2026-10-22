@@ -1,6 +1,6 @@
 # 架构设计
 
-> qk-health-v2（轻刻健康 Android 客户端）采用 DDD 分层四模块工程，包坐标 com.xcwk.scalehub；
+> lightweigh（轻衡健康 Android 客户端）采用 DDD 分层四模块工程，包坐标 com.xcwk.scalehub；
 > 依赖方向由编译器与 ArchUnit 双重强制。
 > 覆盖型文档：每次迭代重写，保留核心决策但不保留旧版本。
 

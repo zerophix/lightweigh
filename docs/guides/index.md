@@ -6,7 +6,7 @@
 
 ## 概述
 
-此目录收录轻刻健康 Android（qk-health-v2）的规范文档：既有治理框架自身的接入 / 迁移 /
+此目录收录轻衡健康 Android（lightweigh）的规范文档：既有治理框架自身的接入 / 迁移 /
 决策流转规范，也有 README 结构契约与 AI 编码约定。治理框架源自 ai-project-template。
 
 ---
