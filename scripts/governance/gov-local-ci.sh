@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # scripts/governance/gov-local-ci.sh
-# 合并前本地门禁（项目自有）：Gradle build + gov-validate + gov-custom-checks + secrets-scan + schema-guard
-# DEC-049 secrets；DEC-052 schema-guard；DEC-051 写入 .cache/local-ci-last.json 供 STATUS 取证
+# 合并前本地门禁（项目自有）：Gradle build + gov-validate + gov-custom-checks + secrets-scan + schema-guard + test-guard
+# DEC-049 secrets；DEC-052 schema-guard；DEC-053 test-guard；DEC-051 写入 .cache/local-ci-last.json 供 STATUS 取证
 #
 # 用法:
 #   bash scripts/governance/gov-local-ci.sh
@@ -109,12 +109,14 @@ run_step "gov-secrets-scan" bash scripts/governance/gov-secrets-scan.sh
 S4=$?
 run_step "gov-schema-guard" bash scripts/governance/gov-schema-guard.sh
 S5=$?
+run_step "gov-test-guard" bash scripts/governance/gov-test-guard.sh
+S6=$?
 set -e
 
 echo ""
 echo "=== 汇总 ==="
 echo "  通过: $PASS  失败: $FAIL"
-if [ "$FAIL" -ne 0 ] || [ "$S1$S2$S3$S4$S5" != "00000" ]; then
+if [ "$FAIL" -ne 0 ] || [ "$S1$S2$S3$S4$S5$S6" != "000000" ]; then
   write_result fail
   bash scripts/governance/gov-update-status.sh 2>/dev/null || true
   echo "FAIL gov-local-ci"

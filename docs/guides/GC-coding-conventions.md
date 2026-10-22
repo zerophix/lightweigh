@@ -69,6 +69,8 @@ PR 模板要求：黄金 / schema 变更必须显式说明。
 
 ## 6. 测试期望
 
+门禁提醒（DEC-053）：改某模块 `src/main` 逻辑时，同 PR 宜含该模块 `src/test` 或 `androidTest`；否则 CI 留言警告（默认不失败）。严格模式：`gov-test-guard.sh --strict`，放行标签 `allow-no-tests`。
+
 - 领域 / 用例：JVM 单测优先。
 - UI：ViewModel 单测；ArchUnit 在 `:app` 测试中守分层。
 - 真机 / 仪器：人类验收（tasks 中标注）；AI 不伪称已真机通过。
@@ -89,4 +91,4 @@ PR 模板要求：黄金 / schema 变更必须显式说明。
 
 ## 来源
 
-DEC-048、DEC-052；架构事实来自 lifecycle / DEC-021/045 等。
+DEC-048、DEC-052、DEC-053；架构事实来自 lifecycle / DEC-021/045 等。

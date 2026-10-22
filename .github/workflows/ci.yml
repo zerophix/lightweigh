@@ -142,3 +142,23 @@ jobs:
           PR_BODY: ${{ github.event.pull_request.body }}
           PR_LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
         run: bash scripts/governance/gov-schema-guard.sh --ci --base "${{ github.event.pull_request.base.sha }}"
+
+  # DEC-053: src/main 无同模块测试 → PR 评论警告（默认不红；可 --strict）
+  test-guard:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Missing-tests reminder
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+        run: bash scripts/governance/gov-test-guard.sh --ci --base "${{ github.event.pull_request.base.sha }}"

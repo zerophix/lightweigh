@@ -51,6 +51,11 @@ commands:
   path: governance/gov-schema-guard.sh
   status: stable
   type: sh
+- description: src/main 缺同模块测试提醒（DEC-053）
+  name: gov-test-guard
+  path: governance/gov-test-guard.sh
+  status: stable
+  type: sh
 - description: 安装钉死版本 gitleaks 到 scripts/tools（DEC-049）
   name: gov-install-gitleaks
   path: governance/gov-install-gitleaks.sh
