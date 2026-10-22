@@ -385,10 +385,10 @@ pre-push 可被 `--no-verify` 绕过，但 CI 的 `lifecycle-audit` 不可绕过
 
 | 规则族 | 检查内容 | 级别 |
 |--------|---------|------|
-| R0、R0b~R0f | README 反思非空且新鲜、语言配置、点目录配置、依赖目录位置、根目录文件、隐藏目录白名单 | FAIL |
+| R0、R0b~R0f | git hooks 安装、语言配置、点目录配置、依赖目录位置、根目录文件、隐藏目录白名单 | FAIL |
 | GOV-STRUCT-001~007 | 非 ASCII 文件名、遗弃路径、游离 .md、结构白名单、命名规范、来源标注、内容深度 | FAIL |
 | GOV-STRUCT-019~020 | Emoji 字符检测、语言一致性（按 .language 声明） | FAIL |
-| GOV-README-001~005 | README 结构规范：H1 唯一开头、当前状态收尾、反思首子节、快速开始顺序（缺失为 WARN）、相关文档入口（WARN） | FAIL |
+| GOV-README-001~005 | README 结构规范：H1 唯一开头（硬）、快速开始顺序（缺失为 WARN）、相关文档入口（WARN） | FAIL |
 | GOV-CONTENT-001~005 | 生命周期绑定、指标时效、changelog 非空、决策编号连续、会审报告规范 | FAIL |
 | GOV-CONTENT-008~011 | 项目记忆格式与时效、README 占位符与 Emoji | FAIL |
 | GOV-PROTO-001~003 | 收件箱 48h 未读、session-end 24h 时效、僵尸任务 | FAIL |
