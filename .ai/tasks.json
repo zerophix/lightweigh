@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "updated_at": "2026-10-22T04:51:26Z",
+  "updated_at": "2026-10-22T07:54:34Z",
   "next_action": "在 Android 真机安装 APK 验证",
-  "next_action_why": "人类端到端验收",
+  "next_action_why": "人类端到端验收（沿用既有 next_action）",
   "next_action_confirmed": false,
   "known_risks": [
     "任务无 ready AC 不得开工；in_progress 缺 definition_of_done 会触发 GOV-PROTO-004（DEC-048）。",
@@ -18,7 +18,8 @@
     "旧 hook 副本需 bs-install-hooks 或手工 cp 同步",
     "未跑 local-ci 时 STATUS 显示无证据；generate-status 为模板区分叉",
     "join(labels) 表达式若 Actions 解析失败可回退 GITHUB_EVENT_PATH 读标签",
-    "模块级匹配可能漏同名类级缺口；资源路径已忽略"
+    "模块级匹配可能漏同名类级缺口；资源路径已忽略",
+    "无新增代码风险。模板 clone URL 仍指向 nekings/ai-project-template（上游有意保留）。"
   ],
   "tasks": [
     {
