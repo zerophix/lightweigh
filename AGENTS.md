@@ -57,6 +57,7 @@ ls -t docs/ai/decisions/ | head -3
 bash scripts/governance/gov-validate.sh
 bash scripts/governance/gov-custom-checks.sh
 bash scripts/governance/gov-local-ci.sh
+bash scripts/governance/gov-install-gitleaks.sh  # 可选：安装本地 gitleaks
 bash scripts/governance/gov-next-decision.sh --create
 bash scripts/workflow/wf-promote.sh <target> --decision DEC-XXX
 bash scripts/bootstrap/bs-install-hooks.sh   # 安装 simplified pre-commit（DEC-047）
@@ -73,7 +74,9 @@ bash scripts/bootstrap/bs-install-hooks.sh   # 安装 simplified pre-commit（DE
 |----|------|
 | pre-commit | `gov-pre-commit-simplified`：禁 master、可选会话归属、源码时 compile + custom-checks |
 | pre-push | 分支名 + 全量 validate（可被 `--no-verify` 绕过） |
-| Actions | `ci.yml`：push 到 master/main 与 **PR**；特性分支裸 push 默认不跑 |
+| Actions | `ci.yml`：push 到 master/main/**特性分支通配**（feat/fix/chore/…）与 **PR**（DEC-049）；文档变更仍可跳过重型构建（DEC-033） |
+| Dependabot | `.github/dependabot.yml`：gradle + github-actions 周更（DEC-049） |
+| 密钥扫描 | `gov-secrets-scan.sh`（gitleaks）接入 local-ci / pre-push；缺二进制软警告，有则硬失败 |
 | 分支保护 | **无**（用户不做 Pro）；靠 local-ci + PR 模板纪律补偿 |
 
 ---

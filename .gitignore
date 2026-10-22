@@ -23,3 +23,8 @@ design/prototypes/figma-renders/
 # 多 AI 会话本地态（DEC-047）：勿入库，避免脏树与跨会话噪声
 .ai/current-session.json
 .ai/staged-claims.json
+
+# DEC-049: portable gitleaks binary (checksums committed; install via gov-install-gitleaks.sh)
+scripts/tools/gitleaks
+scripts/tools/gitleaks-*
+!scripts/tools/gitleaks.sha256

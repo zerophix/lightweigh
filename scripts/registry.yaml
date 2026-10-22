@@ -41,6 +41,16 @@ commands:
   path: governance/gov-custom-checks.sh
   status: stable
   type: sh
+- description: 本地密钥扫描（gitleaks，DEC-049）
+  name: gov-secrets-scan
+  path: governance/gov-secrets-scan.sh
+  status: stable
+  type: sh
+- description: 安装钉死版本 gitleaks 到 scripts/tools（DEC-049）
+  name: gov-install-gitleaks
+  path: governance/gov-install-gitleaks.sh
+  status: stable
+  type: sh
 - description: 源码质量检测（守卫负例自证 / 死 import / 跨文件重复实现 / 相似度分叉）
   name: gov-code-check
   path: governance/gov-code-check.py

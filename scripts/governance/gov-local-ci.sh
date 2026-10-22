@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # scripts/governance/gov-local-ci.sh
-# 合并前本地门禁（项目自有）：Gradle build + gov-validate + gov-custom-checks
+# 合并前本地门禁（项目自有）：Gradle build + gov-validate + gov-custom-checks + secrets-scan (DEC-049)
 #
 # 用法:
 #   bash scripts/governance/gov-local-ci.sh
@@ -39,12 +39,14 @@ run_step "gov-validate" bash scripts/governance/gov-validate.sh
 S2=$?
 run_step "gov-custom-checks" bash scripts/governance/gov-custom-checks.sh
 S3=$?
+run_step "gov-secrets-scan" bash scripts/governance/gov-secrets-scan.sh
+S4=$?
 set -e
 
 echo ""
 echo "=== 汇总 ==="
 echo "  通过: $PASS  失败: $FAIL"
-if [ "$FAIL" -ne 0 ] || [ "$S1$S2$S3" != "000" ]; then
+if [ "$FAIL" -ne 0 ] || [ "$S1$S2$S3$S4" != "0000" ]; then
   echo "FAIL gov-local-ci"
   exit 1
 fi

@@ -2,7 +2,7 @@
 
 > 适用：多名 AI（或 AI + 人类）同时推进本仓库。
 > 权威任务板：`.ai/tasks.json`。合入前门禁：`bash scripts/governance/gov-local-ci.sh`。
-> 决策：DEC-047、DEC-048。
+> 决策：DEC-047、DEC-048、DEC-049。
 
 ---
 
@@ -12,7 +12,7 @@
 2. **一 AI 一分支**：分支名 `feat|fix|docs|refactor|chore|test|ci/<topic>`；禁止在 `master` 上直提交（pre-commit 已拦）。
 3. **优先 worktree**：`git worktree add ../qk-health-wt-<topic> -b feat/<topic>`；未验证 worktree 钩子前，也可约定「主树独占 + 其他会话只读」。
 4. **不共享未提交工作**：不要在别人的脏树上继续改；认领文件后再改。
-5. **合入看门禁**：本地 `gov-local-ci.sh` 全绿，再开 PR；远程无分支保护（用户不做 Pro）时，**PR 模板勾选是纪律硬门槛**。
+5. **合入看门禁**：本地 `gov-local-ci.sh` 全绿（含 gitleaks 密钥扫描），再开 PR；特性分支 **push 也会跑 CI**（DEC-049）；远程无分支保护时，**PR 模板勾选是纪律硬门槛**。
 6. **无 AC 不开工**：任务须具备 ready 的 `acceptance`（见 [GC-task-acceptance](GC-task-acceptance.md)）。
 
 ## 2. 会话生命周期
@@ -75,4 +75,4 @@ bash scripts/session/ses-session-end.sh
 
 ## 来源
 
-DEC-047、DEC-048；前序 DEC-045（文档事实）、DEC-046（custom-checks / local-ci）。
+DEC-047、DEC-048、DEC-049；前序 DEC-045（文档事实）、DEC-046（custom-checks / local-ci）。
