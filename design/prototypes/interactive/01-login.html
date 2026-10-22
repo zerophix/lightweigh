@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>轻衡 · 登录与首次引导（可交互流程）</title>
+<link rel="stylesheet" href="../theme.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body class="interactive">
+
+<div class="flowbar">
+  <h1>登录与首次引导 · 可交互原型</h1>
+  <p>点按钮真实跳转 · 弹窗/Toast 真实触发 · 返回可回退。这是「模拟真实软件」的操作版，静态视觉稿见 00-login.html。</p>
+  <div class="nav">
+    <a href="index.html">交互流程总览</a>
+    <a href="../index.html">← 静态原型总览</a>
+  </div>
+</div>
+
+<div class="app">
+
+  <!-- ========== V1 登录主页 ========== -->
+  <div class="view" id="v-home">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="content" style="min-height:760px;">
+        <div class="brand" style="margin-top:8px;"><span class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg></span><span class="word">轻衡</span></div>
+        <div class="hero" style="margin-top:20px;"><div class="h1">欢迎回来，<br>轻一点更懂自己。</div><div class="h2">登录后同步你的测量记录与健康趋势</div></div>
+        <div style="margin-top:8px;">
+          <div class="rows">
+            <div class="row" data-goto="v-phone"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg></span><span class="tx"><span class="t">手机号登录 <span class="tag">推荐</span></span><span class="d">未注册的号码将自动创建账号</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+            <div class="row" data-goto="v-wechat"><span class="ic wechat"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8.5 4C4.9 4 2 6.5 2 9.6c0 1.8 1 3.4 2.6 4.5l-.7 2 2.3-1.2c.7.2 1.5.3 2.3.3h.5a5 5 0 0 1-.2-1.4c0-3 2.9-5.4 6.4-5.4h.5C15.7 5.8 12.5 4 8.5 4Zm-2.4 3.2a.9.9 0 1 1 0 1.8.9.9 0 0 1 0-1.8Zm4.8 0a.9.9 0 1 1 0 1.8.9.9 0 0 1 0-1.8Z"/><path d="M22 14.2c0-2.6-2.6-4.7-5.8-4.7s-5.8 2.1-5.8 4.7 2.6 4.7 5.8 4.7c.7 0 1.3-.1 1.9-.3l1.9 1-.5-1.7c1.5-.9 2.5-2.3 2.5-3.7Z"/></svg></span><span class="tx"><span class="t">微信登录</span><span class="d">使用微信账号快速登录</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+            <div class="row" data-goto="v-email"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg></span><span class="tx"><span class="t">邮箱登录</span><span class="d">通过邮箱地址登录</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+            <div class="row" data-goto="v-password"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg></span><span class="tx"><span class="t">账号密码登录</span><span class="d">使用用户名与密码登录</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px;margin-top:4px;">
+          <div class="btn primary" data-goto="v-phone"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg>手机号登录</div>
+        </div>
+        <div class="spacer"></div>
+        <div style="text-align:center;" data-goto="v-guest"><span style="font-size:11px;color:var(--muted);">先逛逛，访客体验 ›</span></div>
+        <div class="agree">登录即代表同意 <a>《用户协议》</a> 与 <a>《隐私政策》</a></div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- ========== V2 手机号登录 ========== -->
+  <div class="view" id="v-phone">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-back><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">手机号登录</span></div>
+      <div class="content" style="min-height:700px;">
+        <div class="hero"><div class="h1 sm">输入手机号</div><div class="h2">未注册的号码将自动创建轻衡账号</div></div>
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div><div class="lbl">手机号</div><div class="field"><span class="prefix num">+86</span><input type="tel" placeholder="请输入手机号" value="138 0000 0000"></div></div>
+          <div><div class="lbl">验证码</div><div class="field"><input type="text" placeholder="6 位验证码"><span class="act-text" data-goto="v-verify">获取验证码</span></div></div>
+        </div>
+        <div class="spacer"></div>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div class="btn primary" data-goto="v-onboard-age">登录 / 注册</div>
+          <div style="text-align:center;font-size:11px;color:var(--muted);" data-back>其他方式登录 ›</div>
+        </div>
+        <div class="agree">登录即代表同意 <a>《用户协议》</a> 与 <a>《隐私政策》</a></div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- ========== V3 验证码 ========== -->
+  <div class="view" id="v-verify">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-back><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">输入验证码</span></div>
+      <div class="content" style="min-height:700px;">
+        <div class="hero"><div class="h1 sm">输入验证码</div><div class="h2">验证码已发送至 <span class="num">+86 138****0000</span></div></div>
+        <div><div class="lbl">验证码</div><div class="field ok"><input class="num" placeholder="6 位验证码" value="1 2 3 4 5 6"></div></div>
+        <div style="display:flex;justify-content:space-between;"><span class="hint num">重新发送（52s）</span><span style="font-size:11px;color:var(--brand);">收不到验证码？</span></div>
+        <div class="spacer"></div>
+        <div class="btn primary" data-goto="v-onboard-age" data-toast="登录成功">登录</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- ========== V4 账号密码 ========== -->
+  <div class="view" id="v-password">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-back><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">账号密码登录</span></div>
+      <div class="content" style="min-height:700px;">
+        <div class="hero"><div class="h1 sm">登录你的账号</div><div class="h2">支持用户名、手机号或邮箱</div></div>
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div><div class="lbl">账号</div><div class="field"><input placeholder="用户名 / 手机号 / 邮箱"></div></div>
+          <div><div class="lbl">密码</div><div class="field"><input type="password" placeholder="请输入密码" value="••••••••"><span class="eye"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></span></div></div>
+          <div style="text-align:right;" data-goto="v-reset"><span style="font-size:12px;color:var(--brand);">忘记密码？</span></div>
+        </div>
+        <div class="spacer"></div>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div class="btn primary" data-goto="v-onboard-age">登录</div>
+          <div style="text-align:center;font-size:11px;color:var(--muted);" data-back>其他方式登录 ›</div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- ========== V5 邮箱登录 ========== -->
+  <div class="view" id="v-email">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-back><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">邮箱登录</span></div>
+      <div class="content" style="min-height:700px;">
+        <div class="hero"><div class="h1 sm">用邮箱登录</div><div class="h2">未注册的邮箱将自动创建账号</div></div>
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div><div class="lbl">邮箱地址</div><div class="field"><input type="email" placeholder="name@example.com" value="linyue@example.com"></div></div>
+          <div><div class="lbl">密码</div><div class="field"><input type="password" placeholder="请输入密码" value="••••••••"></div></div>
+        </div>
+        <div class="spacer"></div>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div class="btn primary" data-goto="v-onboard-age">登录</div>
+          <div style="text-align:center;font-size:11px;color:var(--muted);" data-back>其他方式登录 ›</div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- ========== V6 微信授权 ========== -->
+  <div class="view" id="v-wechat">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-back><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">微信登录</span></div>
+      <div class="content" style="min-height:700px;">
+        <div class="hero center" style="margin-top:12px;">
+          <div class="bigicon" style="background:#E8F5E3;color:#07C160;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8.5 4C4.9 4 2 6.5 2 9.6c0 1.8 1 3.4 2.6 4.5l-.7 2 2.3-1.2c.7.2 1.5.3 2.3.3h.5a5 5 0 0 1-.2-1.4c0-3 2.9-5.4 6.4-5.4h.5C15.7 5.8 12.5 4 8.5 4Zm7.7 10.2c0-2.6-2.6-4.7-5.8-4.7s-5.8 2.1-5.8 4.7 2.6 4.7 5.8 4.7c.7 0 1.3-.1 1.9-.3l1.9 1-.5-1.7c1.5-.9 2.5-2.3 2.5-3.7Z"/></svg></div>
+          <div class="h1" style="margin-top:22px;">使用微信账号登录</div>
+          <div class="h2">轻衡将获得你的微信昵称与头像</div>
+        </div>
+        <div class="card lg" style="padding:8px 18px;">
+          <div class="row" style="padding:12px 0;"><span class="tx"><span class="t">微信昵称</span><span class="d">用于在轻衡中显示你的名字</span></span><span class="chk on"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg></span></div>
+          <div class="row" style="padding:12px 0;"><span class="tx"><span class="t">微信头像</span><span class="d">作为你在轻衡的默认头像</span></span><span class="chk on"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg></span></div>
+        </div>
+        <div class="spacer"></div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="btn primary" data-goto="v-onboard-age" data-toast="微信登录成功">微信授权登录</div>
+          <div class="btn secondary" data-back>使用其他方式</div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- ========== V7 访客确认 ========== -->
+  <div class="view" id="v-guest">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-back><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span></div>
+      <div class="content" style="min-height:700px;">
+        <div class="hero center" style="margin-top:12px;">
+          <div class="bigicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg></div>
+          <div class="h1" style="margin-top:22px;">先逛逛，<br>不用登录</div>
+          <div class="h2">访客模式下数据仅保存在本机，更换设备将丢失</div>
+        </div>
+        <div class="card lg" style="padding:14px 18px;">
+          <div class="limit"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>数据仅存本机，卸载或换设备将丢失</div>
+          <div class="limit"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>无法云同步，无法多设备查看</div>
+        </div>
+        <div class="spacer"></div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="btn primary" data-goto="v-guest-done" data-toast="已进入访客模式">进入体验</div>
+          <div class="btn secondary" data-back>返回登录</div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- ========== 访客落地 ========== -->
+  <div class="view" id="v-guest-done">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="content" style="min-height:740px;">
+        <div class="brand" style="margin-top:8px;"><span class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg></span><span class="word">轻衡</span><span class="tag mut" style="margin-left:auto;">访客</span></div>
+        <div class="card lg pad20" style="text-align:center;margin-top:20px;padding:32px 20px;">
+          <div class="hint">（演示：访客落地首页占位）</div>
+          <div style="font-size:15px;font-weight:700;margin-top:8px;">你正在以访客身份浏览</div>
+          <div style="font-size:12px;color:var(--sub);margin-top:6px;line-height:1.6;">登录后可同步数据、连接设备、<br>使用 AI 健康助手。</div>
+        </div>
+        <div class="spacer"></div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="btn primary" data-goto="v-home" data-toast="已退出访客，返回登录">登录 / 注册</div>
+          <div class="btn ghost" style="align-self:center;" data-goto="v-home">← 重新走一遍登录流程</div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- ========== V8 找回密码 ========== -->
+  <div class="view" id="v-reset">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-back><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">重置密码</span></div>
+      <div class="content" style="min-height:700px;">
+        <div class="hero"><div class="h1 sm">设置新密码</div><div class="h2">为账号 <span class="num">138****0000</span> 重置密码</div></div>
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div><div class="lbl">验证码</div><div class="field"><input placeholder="6 位验证码"><span class="act num">58s 后重发</span></div></div>
+          <div><div class="lbl">新密码</div><div class="field"><input type="password" value="••••••••"></div></div>
+          <div><div class="lbl">确认新密码</div><div class="field"><input type="password" value="••••••••"></div></div>
+        </div>
+        <div class="spacer"></div>
+        <div class="btn primary" data-goto="v-home" data-toast="密码已重置，请重新登录">确认重置</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- ========== V9 引导·年龄性别 ========== -->
+  <div class="view" id="v-onboard-age">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-back><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm" style="font-size:16px;">完善资料</span><span style="font-size:12px;color:var(--muted);" class="num">1/2</span></div>
+      <div class="content" style="min-height:700px;">
+        <div class="steps"><span class="s on"></span><span class="s"></span></div>
+        <div class="hint" style="text-align:center;">第 1 步 · 年龄与性别</div>
+        <div class="hero center" style="margin-top:8px;">
+          <div class="bigicon ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg></div>
+          <div class="h1 sm" style="margin-top:20px;">完善资料，<br>让参考更适合你</div>
+          <div class="h2">年龄与性别用于计算 BMI、体脂率的个性化参考区间</div>
+        </div>
+        <div class="card lg" style="padding:18px;display:flex;flex-direction:column;gap:18px;">
+          <div><div class="lbl">年龄</div><div class="field"><input class="num" value="30"><span class="unit">岁</span></div></div>
+          <div><div class="lbl">性别</div><div class="seg"><span class="opt">男</span><span class="opt on">女</span><span class="opt">不告知</span></div></div>
+        </div>
+        <div class="spacer"></div>
+        <div class="btn primary" data-goto="v-onboard-height">下一步</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- ========== V10 引导·身高 ========== -->
+  <div class="view" id="v-onboard-height">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-back><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm" style="font-size:16px;">完善资料</span><span style="font-size:12px;color:var(--muted);" class="num">2/2</span></div>
+      <div class="content" style="min-height:700px;">
+        <div class="steps"><span class="s on"></span><span class="s on"></span></div>
+        <div class="hint" style="text-align:center;">第 2 步 · 身高</div>
+        <div class="hero center" style="margin-top:8px;">
+          <div class="bigicon ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h18v8H3z"/><path d="M7 8v3M11 8v5M15 8v3M19 8v5"/></svg></div>
+          <div class="h1 sm" style="margin-top:20px;">你的身高是多少？</div>
+          <div class="h2">用于身体成分与 BMI 计算</div>
+        </div>
+        <div class="card lg" style="padding:18px;">
+          <div style="display:flex;align-items:baseline;justify-content:center;gap:6px;"><span class="num" style="font-size:56px;font-weight:600;line-height:1;">168</span><span style="font-size:16px;color:var(--sub);">cm</span></div>
+        </div>
+        <div class="spacer"></div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="btn primary" data-goto="v-done" data-toast="资料已保存，欢迎使用轻衡">完成，开始使用</div>
+          <div class="btn ghost" style="align-self:center;" data-goto="v-done">稍后在我的里补充</div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- ========== V11 完成 ========== -->
+  <div class="view" id="v-done">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="statepage">
+        <div class="sic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+        <div class="st">登录成功，欢迎回来</div>
+        <div class="sd">资料已完善，现在可以连接体脂秤<br>开始第一次测量了。</div>
+        <button class="btn primary" data-goto="v-home" data-toast="已回到登录页（演示结束）">重新走一遍流程</button>
+        <button class="btn ghost" style="margin-top:12px;" data-goto="v-home">回到登录主页</button>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="flowbar" style="margin-top:20px;text-align:center;">
+  <p>轻衡 · 登录与首次引导交互原型 · 11 屏 · 复用 theme.css 设计系统<br>所有流程共用 <code>app.js</code> 路由：data-goto / data-back / data-open / data-toast</p>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

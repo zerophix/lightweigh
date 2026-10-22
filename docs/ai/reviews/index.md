@@ -23,6 +23,8 @@ type: index
 
 | 日期 | 主题 | 报告 | 发现数 | Critical | 修复率 |
 |------|------|------|--------|----------|--------|
+| 2026-10-22 | gov-scripts-audit | [grokbot__20261022_112830](20261022_gov-scripts-audit/grokbot__20261022_112830.md) | 12 项（High 4 / Medium 5 / Low 3） | 0 | 0/12，新发现待处理（钩子双轨、code-check 双缺失）；含对 10-21 审计的 10-22 更正 |
+| 2026-10-22 | ai-dev-fit | [grokbot__20261022_113000](20261022_ai-dev-fit/grokbot__20261022_113000.md) | 9 项（High 4 / Medium 3 / Low 2） | 0 | 文档对齐与蒸馏规则已由 DEC-045 落地；剩余 P0：CI code-check、开源/分支保护 |
 | 2026-10-21 | process-weight | [grokbot__20261021_105035](20261021_process-weight/grokbot__20261021_105035.md) | 10 项（High 3 / Medium 4 / Low 3） | 0 | 0/10，新发现待处理（流程减负三阶段方案） |
 | 2026-10-21 | m2-prereq | [conclusion](20261021_m2-prereq-checklist/conclusion.md) | 9 项（Critical 3 / High 3 / Medium 3） | 3 | 待处理（M2 开工前置清单） |
 | 2026-10-20 | ai-dev-readiness | [grokbot__20261020_211733](20261020_ai-dev-readiness/grokbot__20261020_211733.md) | 11 项（High 3 / Medium 5 / Low 3） | 0 | 0/11，新发现待处理（P0：F-001 收口未提交改动） |
@@ -34,12 +36,12 @@ type: index
 
 | 维度 | 值 |
 |------|-----|
-| 总评审次数 | 6 |
-| 总发现数 | 70（10 + 9 + 11 + 10 + 22 + 8），其中 ddd-architecture 的 F-010 经三轮核验撤回，有效发现 69 |
-| 已修复 | 25（template-review 19 + ddd-architecture 6：F-001~F-006）；另有 3 项评估后不采纳（F-007/008/009，理由入 DEC-034 组 E/F）、1 项撤回（F-010） |
-| 新发现待处理 | **30**（process-weight 10 + ai-dev-readiness 11 + m2-prereq 9） |
-| 整体修复率 | **36.2%**（25/69，按有效发现计）；ddd-architecture 一项评审已 100% 关闭 |
-| 最新进展 | 2026-10-21 基于 DEC-034 收口后代码完成 M2 前置条件核验：架构地基已闭环（DataRefreshBus/OkokBia/memberId/工厂/Clock 全修），剩余硬缺口集中在同步水位线、多成员隔离测试、全链路端到端测试、分支保护、AppContainer 端口化、文档对齐 |
+| 总评审次数 | 8 |
+| 总发现数 | 91（12 + 9 + 10 + 9 + 11 + 10 + 22 + 8），其中 ddd-architecture 的 F-010 经三轮核验撤回，有效发现 90 |
+| 已修复 | 25（template-review 19 + ddd-architecture 6：F-001~F-006）；另有 3 项评估后不采纳（F-007/008/009）、1 项撤回（F-010）；**DEC-045 关闭 ai-dev-fit 文档/蒸馏两项阻塞**（未计入上列历史「已修复」基数，避免与分项报告口径纠缠） |
+| 新发现待处理 | **约 49**（gov-scripts-audit 12 + ai-dev-fit 余项 + process-weight 10 + ai-dev-readiness 11 + m2-prereq 9；部分与前序重叠） |
+| 整体修复率 | 历史口径约 **36%**（25/69）；ddd-architecture 一项已 100% 关闭 |
+| 最新进展 | 2026-10-22 DEC-045：文档事实对齐（BLE/云已落地）、蒸馏规则取消强制反思、治理脚本审计与 AI 适配度评审入库；剩余人类项：推远程、开源/分支保护、CI 挂 code-check、钉死 simplified hook 安装 |
 
 > **口径说明**：该报告初版统计为 `critical: 2`，但 F-002 已于二轮核验降级为 Medium
 > （`SyncTrigger` 属 P0 产品决策的显式实现），三轮核验同步更正为 1 项 Critical。

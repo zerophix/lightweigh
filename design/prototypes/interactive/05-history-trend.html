@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>轻衡 · 历史与趋势（可交互）</title>
+<link rel="stylesheet" href="../theme.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body class="interactive">
+<div class="flowbar">
+  <h1>历史与趋势 · 可交互原型</h1>
+  <p>记录列表 → 详情 → 对比/编辑；趋势 → 图表 → 指标选择/日期筛选；含删除确认、成员筛选弹层。</p>
+  <div class="nav"><a href="index.html">交互总览</a><a href="../index.html">← 静态总览</a></div>
+</div>
+<div class="app">
+
+  <!-- 记录列表 -->
+  <div class="view" id="v-history">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-goto="v-trend"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">全部记录</span><span class="lnk" data-open="sheet-member">筛选</span></div>
+      <div class="content tight">
+        <div class="hint">共 128 条 · <span data-open="sheet-member" style="color:var(--brand);">林悦 ▾</span></div>
+        <div class="rows">
+          <div class="row" data-goto="v-detail"><span class="tx"><span class="t num">今天 07:30</span><span class="d">体脂 28.6% · BMI 22.1</span></span><span class="num" style="font-weight:600;">62.4</span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+          <div class="row" data-goto="v-detail"><span class="tx"><span class="t num">昨天 07:28</span><span class="d">体脂 28.8% · BMI 22.2</span></span><span class="num" style="font-weight:600;">62.7</span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+          <div class="row" data-goto="v-detail"><span class="tx"><span class="t num">10/19 07:22</span><span class="d">体脂 28.9% · BMI 22.2</span></span><span class="num" style="font-weight:600;">62.8</span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+          <div class="row" data-open="dlg-delete"><span class="tx"><span class="t num">10/18 07:20</span><span class="d">体脂 29.0% · 长按删除示例</span></span><span class="num" style="font-weight:600;">62.9</span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+        </div>
+        <div style="text-align:center;padding:16px 0;" data-toast="已加载更多记录"><span style="font-size:12px;color:var(--brand);">加载更多</span></div>
+        <div class="spacer"></div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+      <!-- 删除确认 -->
+      <div class="overlay" id="dlg-delete">
+        <div class="dialog"><div class="dic dgr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div><div class="dt">删除这条记录？</div><div class="dd">删除后本地与云端同步移除，7 天内可恢复。</div><div class="dact"><button class="btn secondary" data-close>取消</button><button class="btn danger" data-close data-toast="已删除 · 撤销">删除</button></div></div>
+      </div>
+      <!-- 成员筛选 -->
+      <div class="overlay sheetmode" id="sheet-member">
+        <div class="sheet"><div class="grab"></div><div class="shead"><span class="st">按成员筛选</span><span class="cancel" data-close>取消</span></div><div class="sbody">
+          <div class="pick" data-close data-toast="已筛选：全部成员"><span class="pk-tx">全部成员</span><span class="radio"></span></div>
+          <div class="pick" data-close data-toast="已筛选：林悦"><span class="av" style="width:36px;height:36px;">悦</span><span class="pk-tx">林悦</span><span class="radio on"></span></div>
+          <div class="pick" data-close data-toast="已筛选：妈妈"><span class="av" style="width:36px;height:36px;background:var(--iconbg);">妈</span><span class="pk-tx">妈妈</span><span class="radio"></span></div>
+        </div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 记录详情 -->
+  <div class="view" id="v-detail">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-back><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">测量详情</span><span class="lnk" data-goto="v-edit">编辑</span></div>
+      <div class="content tight">
+        <div class="card soft" style="border-radius:24px;padding:20px;">
+          <div class="hint">林悦 · 10月21日 07:30 · 已同步</div>
+          <div style="display:flex;align-items:baseline;gap:8px;margin-top:6px;"><span class="num" style="font-size:44px;font-weight:600;">62.4</span><span style="font-size:14px;color:var(--sub);">kg</span><span style="margin-left:auto;font-size:12px;color:var(--brand);">↓0.3</span></div>
+        </div>
+        <div class="mgrid">
+          <div class="mcell"><div class="mh">体脂率</div><div class="mv">28.6<span class="u">%</span></div><div class="ms">↓0.2</div></div>
+          <div class="mcell"><div class="mh">肌肉量</div><div class="mv">42.3<span class="u">kg</span></div><div class="ms">↑0.1</div></div>
+        </div>
+        <div class="rows"><div class="row"><span class="tx"><span class="t">身体评分</span></span><span class="num" style="font-size:20px;font-weight:600;color:var(--brand);">86</span><span class="val">分</span></div></div>
+        <div class="spacer"></div>
+        <div class="btnrow"><button class="btn secondary" data-goto="v-compare">与上次对比</button><button class="btn primary" data-goto="v-metric-detail">查看指标详情</button></div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 记录对比 -->
+  <div class="view" id="v-compare">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-back><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">记录对比</span></div>
+      <div class="content tight">
+        <div class="card soft" style="border-radius:16px;padding:12px 16px;"><div style="display:flex;justify-content:space-between;font-size:12px;font-weight:500;"><span>10月21日</span><span style="color:var(--muted);">对比</span><span>10月20日</span></div></div>
+        <div class="card lg pad18" style="padding:8px 18px;">
+          <div class="row" style="padding:13px 0;"><span class="tx"><span class="t">体重</span></span><span style="display:flex;gap:10px;align-items:center;"><span class="num" style="font-weight:600;">62.4</span><span style="color:var(--brand);font-size:12px;">↓0.3</span><span class="num" style="color:var(--muted);">62.7</span></span></div>
+          <div class="row" style="padding:13px 0;"><span class="tx"><span class="t">体脂率</span></span><span style="display:flex;gap:10px;align-items:center;"><span class="num" style="font-weight:600;">28.6</span><span style="color:var(--brand);font-size:12px;">↓0.2</span><span class="num" style="color:var(--muted);">28.8</span></span></div>
+          <div class="row" style="padding:13px 0;"><span class="tx"><span class="t">肌肉量</span></span><span style="display:flex;gap:10px;align-items:center;"><span class="num" style="font-weight:600;">42.3</span><span style="color:var(--brand);font-size:12px;">↑0.1</span><span class="num" style="color:var(--muted);">42.2</span></span></div>
+        </div>
+        <div class="banner"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></span><span class="bt">两次测量时段接近，数据可比性较好。</span></div>
+        <div class="spacer"></div>
+        <div class="btn secondary" data-back>返回详情</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 编辑记录 -->
+  <div class="view" id="v-edit">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-back><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">编辑记录</span></div>
+      <div class="content tight">
+        <div class="card soft" style="border-radius:16px;padding:12px 16px;display:flex;align-items:center;"><span style="font-size:12px;color:var(--sub);">测量数值不可修改</span><span class="num" style="margin-left:auto;font-weight:600;">62.4 kg</span></div>
+        <div class="card lg pad18" style="display:flex;flex-direction:column;gap:16px;">
+          <div><div class="lbl">测量时间</div><div class="field"><input class="num" value="2026-10-21 07:30"></div></div>
+          <div><div class="lbl">备注（可选）</div><div class="field area" style="min-height:70px;"><span class="fake">晨起、空腹、排便后测量</span></div></div>
+        </div>
+        <div class="banner"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></span><span class="bt">仅时间与备注可编辑，数值来自设备保证真实。</span></div>
+        <div class="spacer"></div>
+        <div class="btn primary" data-back data-toast="已保存修改">保存修改</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 趋势分析 -->
+  <div class="view" id="v-trend">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="content tight">
+        <div class="hero"><div class="h1 sm">看见每一步改变</div><div class="h2">林悦 · 09/21 — 10/21</div></div>
+        <div class="seg"><span class="opt">周</span><span class="opt on">月</span><span class="opt">年</span></div>
+        <div class="card lg pad20" data-goto="v-metric-detail">
+          <div class="sthead" style="margin-bottom:8px;"><span class="st sm" data-open="sheet-metric">体重 ▾</span><span class="more">近30天 ›</span></div>
+          <svg class="chart-ph" height="120" viewBox="0 0 300 120" preserveAspectRatio="none"><line x1="0" y1="30" x2="300" y2="30" stroke="#E6ECE6"/><line x1="0" y1="60" x2="300" y2="60" stroke="#E6ECE6"/><line x1="0" y1="90" x2="300" y2="90" stroke="#E6ECE6"/><path d="M0 40 C40 35 60 55 90 52 C120 49 140 68 170 62 C200 56 220 78 250 72 C270 68 285 80 300 76" fill="none" stroke="#258C77" stroke-width="2.5" stroke-linecap="round"/><circle cx="300" cy="76" r="3.5" fill="#258C77"/></svg>
+        </div>
+        <div class="rows"><div class="row" data-open="sheet-date"><span class="tx"><span class="t">时间范围</span></span><span class="val">近30天</span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+        <div class="row" data-goto="v-history"><span class="tx"><span class="t">全部测量记录</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div></div>
+        <div class="spacer"></div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+      <!-- 指标选择 -->
+      <div class="overlay sheetmode" id="sheet-metric">
+        <div class="sheet"><div class="grab"></div><div class="shead"><span class="st">选择指标</span><span class="cancel" data-close>取消</span></div><div class="sbody">
+          <div class="pick" data-close data-toast="已切换：体重"><span class="pk-tx">体重</span><span class="radio on"></span></div>
+          <div class="pick" data-close data-toast="已切换：体脂率"><span class="pk-tx">体脂率</span><span class="radio"></span></div>
+          <div class="pick" data-close data-toast="已切换：BMI"><span class="pk-tx">BMI</span><span class="radio"></span></div>
+          <div class="pick" data-close data-toast="已切换：肌肉量"><span class="pk-tx">肌肉量</span><span class="radio"></span></div>
+        </div></div>
+      </div>
+      <!-- 日期筛选 -->
+      <div class="overlay sheetmode" id="sheet-date">
+        <div class="sheet"><div class="grab"></div><div class="shead"><span class="st">时间范围</span><span class="cancel" data-close>取消</span></div><div class="sbody">
+          <div class="pick" data-close data-toast="已切换：近7天"><span class="pk-tx">近 7 天</span><span class="radio"></span></div>
+          <div class="pick" data-close data-toast="已切换：近30天"><span class="pk-tx">近 30 天</span><span class="radio on"></span></div>
+          <div class="pick" data-close data-toast="已切换：近一年"><span class="pk-tx">近一年</span><span class="radio"></span></div>
+          <div class="pick" data-close data-toast="自定义范围（演示）"><span class="pk-tx">自定义…</span><span class="radio"></span></div>
+        </div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 指标详情 -->
+  <div class="view" id="v-metric-detail">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-back><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">体重</span></div>
+      <div class="content tight">
+        <div class="card lg pad20">
+          <div class="hint">10月21日 07:30 · 本次测量</div>
+          <div style="display:flex;align-items:baseline;gap:10px;margin-top:8px;"><span class="num" style="font-size:40px;font-weight:600;">62.4</span><span style="font-size:14px;color:var(--sub);">kg</span><span style="margin-left:auto;font-size:12px;color:var(--brand);">↓0.3</span></div>
+          <div style="font-size:12px;color:var(--sub);line-height:1.6;margin-top:12px;">体重是基础指标，建议结合体脂率、肌肉量一起看。</div>
+          <div style="margin-top:14px;"><div class="hint" style="margin-bottom:6px;">健康参考范围 · 女 20–39 岁</div>
+            <div style="display:flex;gap:3px;"><div style="flex:2;height:8px;border-radius:3px 0 0 3px;background:var(--track);"></div><div style="flex:3;height:8px;background:var(--brand);"></div><div style="flex:2;height:8px;border-radius:0 3px 3px 0;background:var(--track);"></div></div>
+          </div>
+        </div>
+        <div class="card lg pad20"><div class="sthead" style="margin-bottom:8px;"><span class="st sm">历史变化</span></div>
+          <svg class="chart-ph" height="110" viewBox="0 0 300 110" preserveAspectRatio="none"><line x1="0" y1="27" x2="300" y2="27" stroke="#E6ECE6"/><line x1="0" y1="55" x2="300" y2="55" stroke="#E6ECE6"/><line x1="0" y1="83" x2="300" y2="83" stroke="#E6ECE6"/><path d="M0 35 C40 32 70 52 100 48 C140 42 170 64 210 58 C250 52 280 72 300 68" fill="none" stroke="#258C77" stroke-width="2.5" stroke-linecap="round"/></svg>
+        </div>
+        <div class="note">范围与建议仅供一般参考，不作医疗诊断。</div>
+        <div class="spacer"></div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+</div>
+<div class="flowbar" style="margin-top:20px;text-align:center;"><p>轻衡 · 历史与趋势交互原型 · 6 屏 + 3 弹层</p></div>
+<script src="app.js"></script>
+</body>
+</html>

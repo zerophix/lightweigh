@@ -41,27 +41,8 @@ def check_readme_structure() -> None:
            if re.match(r"^##\s+\S", ln) and not ln.startswith("### ")]
     h2_names = [name for _, name in h2s]
 
-    # 002: 当前状态必须存在、唯一、且为最后一个二级章节
-    if h2_names.count("当前状态") == 0:
-        fail("GOV-README-002: 缺少「## 当前状态」章节"); return
-    if h2_names.count("当前状态") > 1:
-        fail("GOV-README-002:「## 当前状态」章节出现多次，必须唯一"); return
-    if h2_names[-1] != "当前状态":
-        trailing = h2_names[h2_names.index("当前状态") + 1:]
-        fail(f"GOV-README-002:「## 当前状态」必须是最后一个二级章节，其后还有: {trailing}"); return
-
-    # 003: 反思必须是当前状态节内第一个三级子节
-    status_idx = h2s[h2_names.index("当前状态")][0]
-    subsections = []
-    for ln in visible[status_idx + 1:]:
-        if re.match(r"^##\s+\S", ln):
-            break
-        m = re.match(r"^###\s+(\S.*)$", ln)
-        if m and not ln.startswith("#### "):
-            subsections.append(m.group(1).strip())
-    if not subsections or subsections[0] != "反思":
-        first = subsections[0] if subsections else "(无三级子节)"
-        fail(f"GOV-README-003:「### 反思」必须是「## 当前状态」的第一个三级子节，当前首个子节: {first}"); return
+    # 002/003 已移除：README 改用标准结构，不再强制「## 当前状态」节与「### 反思」子节。
+    # 实时状态见 STATUS.md（自动生成）；工程反思迁至 docs/guides/GC-engineering-reflections.md（自愿追加）。
 
     # 004: 快速开始必须先于 目录结构/架构/核心功能; 缺失为 WARN
     if "快速开始" in h2_names:
@@ -80,75 +61,9 @@ def check_readme_structure() -> None:
 
 
 def check_status() -> None:
-    print("\n--- R0: README.md 当前状态校验 ---")
-    readme_path = ROOT / "README.md"
-    if not readme_path.is_file():
-        fail("README.md 不存在"); return
-    text = readme_path.read_text(encoding="utf-8", errors="replace")
-    lessons_match = re.search(r"## 当前状态\n\n(.*?)(?=\n##[^#]|\Z)", text, re.DOTALL)
-    if not lessons_match:
-        fail("README.md 缺少 ## 当前状态 节（含 ## 反思 子节）。AI 必须通过 context-cache.sh save handoff lessons=... 写入经验教训"); return
-    status_content = lessons_match.group(1).strip()
-    refl_match = re.search(r"### 反思\n\n(.*?)(?=\n###[^#]|\Z)", status_content, re.DOTALL)
-    if not refl_match:
-        fail("README.md 当前状态节缺少 ### 反思 子节"); return
-    lessons_content = refl_match.group(1).strip()
-    lessons_clean = re.sub(r'^>.*$', '', lessons_content, flags=re.MULTILINE).strip()
-    if not lessons_clean:
-        fail("README.md 反思节为空"); return
-    placeholders = ["暂无反思", "（暂无", "待补充", "TODO"]
-    for ph in placeholders:
-        if ph in lessons_clean:
-            fail(f"README.md 反思节含占位符「{ph}」，必须写真实经验教训"); return
-    if len(lessons_clean) < 50:
-        fail(f"README.md 反思节仅 {len(lessons_clean)} 字（<50），必须写 >=50 字的真实经验教训"); return
-    signal_words = ["错", "坑", "教训", "问题", "避免", "下次应", "下次要", "本来应该", "本应", "不应该", "不该", "失误", "漏了", "忘了", "浪费", "绕路", "重做", "不完善", "改进", "学到了", "学到"]
-    has_signal = any(w in lessons_clean for w in signal_words)
-    if not has_signal:
-        fail("README.md 反思节缺少反思信号词（如「错」「坑」「教训」「问题」「学到了」），必须说明本次具体学到了什么或哪里做得不好"); return
-    try:
-        # 复用检测是提交时机（pre-commit）的门禁：工作区有未提交改动时，
-        # 反思不得与 HEAD 相同；工作区干净时（pre-push/CI/事后校验）提交已落地，
-        # 工作区必然等于 HEAD，此时比对 HEAD 与 HEAD~1——最近一次提交必须刷新了反思。
-        # 固定比对 HEAD 会让干净树上的所有校验 100% 误报（DEC-004）。
-        porcelain = subprocess.run(
-            ["git", "-C", str(ROOT), "status", "--porcelain", "--", "README.md"],
-            capture_output=True, text=True, timeout=5).stdout.strip()
-        base = "HEAD" if porcelain else "HEAD~1"
-        last_readme = subprocess.run(["git", "-C", str(ROOT), "show", f"{base}:README.md"], capture_output=True, text=True, timeout=5).stdout
-        last_full = re.search(r"## 当前状态\n\n(.*?)(?=\n##[^#]|\Z)", last_readme, re.DOTALL)
-        if last_full:
-            last_refl = re.search(r"### 反思\n\n(.*?)(?=\n###[^#]|\Z)", last_full.group(1), re.DOTALL)
-            if last_refl:
-                last_clean = re.sub(r'^>.*$', '', last_refl.group(1), flags=re.MULTILINE).strip()
-                if last_clean and lessons_clean.strip() == last_clean.strip():
-                    fail("反思内容与上一次提交完全相同。必须写新的经验教训，不能复用旧反思"); return
-    except Exception: pass
-    try:
-        session_ts = None; handoff_ts = None; session_ai = None; handoff_ai = None
-        if MEMORY_FILE.is_file():
-            with open(MEMORY_FILE) as _f:
-                for _line in _f:
-                    _line = _line.strip()
-                    if not _line: continue
-                    try: _entry = json.loads(_line)
-                    except json.JSONDecodeError: continue
-                    if _entry.get("type") == "session-start" and session_ts is None:
-                        session_ts = _entry.get("ts", "")
-                        session_ai = _entry.get("ai", "")
-                    if _entry.get("type") == "handoff" and _entry.get("lessons"):
-                        handoff_ts = _entry.get("ts", "")
-                        handoff_ai = _entry.get("ai", "")
-        if session_ts and handoff_ts and handoff_ts < session_ts:
-            fail("反思内容来自上一 session（handoff 时间 < session 启动时间）"); return
-        # 干净 checkout 适配 (DEC-008): 记忆文件不入库, 缺失时跳过,
-        # 与 GOV-CONTENT-008 的 [SKIP] 先例对齐; 文件存在但无 handoff 仍 FAIL
-        if not MEMORY_FILE.is_file():
-            print("  [INFO] context.jsonl 不存在，跳过 handoff 新鲜度检查（干净 checkout 场景，DEC-008）")
-        elif handoff_ts is None:
-            fail("未找到 handoff 反思记录"); return
-    except Exception: pass
-    print(f"  [PASS] README.md 当前状态节含有效反思（{len(lessons_clean)} 字，含反思信号，时效性确认）")
+    print("\n--- R0: git hooks 安装校验 ---")
+    # 反思已迁至 docs/guides/GC-engineering-reflections.md（自愿追加，不再强制、不阻塞推送）。
+    # README 改用标准结构，不再要求「当前状态/反思」节；实时状态见 STATUS.md。
     hooks_missing = []
     for hook in ("pre-commit", "commit-msg", "pre-push"):
         if not (ROOT / ".git" / "hooks" / hook).is_file():

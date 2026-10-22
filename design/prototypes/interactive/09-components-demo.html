@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>轻衡 · 交互组件演示（可交互）</title>
+<link rel="stylesheet" href="../theme.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body class="interactive">
+<div class="flowbar">
+  <h1>交互组件演示 · 可交互原型</h1>
+  <p>点击触发各类组件：Toast、确认弹窗、底部弹层、开关/复选、骨架屏、长按菜单、日期选择器。</p>
+  <div class="nav"><a href="index.html">交互总览</a><a href="../index.html">← 静态总览</a></div>
+</div>
+<div class="app">
+
+  <!-- 组件沙盒首页 -->
+  <div class="view" id="v-demo">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="title sm" style="padding-left:0;">组件演示</span></div>
+      <div class="content tight">
+        <div class="lbl">Toast 轻提示</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <span class="btn soft" style="height:40px;padding:0 16px;font-size:12px;border-radius:10px;" data-toast="操作成功">成功</span>
+          <span class="btn soft" style="height:40px;padding:0 16px;font-size:12px;border-radius:10px;" data-toast="已复制到剪贴板">纯文字</span>
+          <span class="btn soft" style="height:40px;padding:0 16px;font-size:12px;border-radius:10px;" data-toast="已删除 · 撤销">带撤销</span>
+        </div>
+
+        <div class="lbl" style="margin-top:8px;">确认弹窗</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <span class="btn secondary" style="height:40px;padding:0 16px;font-size:12px;border-radius:10px;" data-open="dlg-confirm">通用确认</span>
+          <span class="btn secondary" style="height:40px;padding:0 16px;font-size:12px;border-radius:10px;" data-open="dlg-delete">危险删除</span>
+          <span class="btn secondary" style="height:40px;padding:0 16px;font-size:12px;border-radius:10px;" data-open="dlg-exit">退出确认</span>
+        </div>
+
+        <div class="lbl" style="margin-top:8px;">底部弹层</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <span class="btn secondary" style="height:40px;padding:0 16px;font-size:12px;border-radius:10px;" data-open="sheet-member">成员选择</span>
+          <span class="btn secondary" style="height:40px;padding:0 16px;font-size:12px;border-radius:10px;" data-open="sheet-action">操作菜单</span>
+          <span class="btn secondary" style="height:40px;padding:0 16px;font-size:12px;border-radius:10px;" data-open="sheet-date">日期选择</span>
+        </div>
+
+        <div class="lbl" style="margin-top:8px;">开关 / 复选</div>
+        <div class="rows">
+          <div class="row"><span class="tx"><span class="t">自动同步</span></span><span class="sw on" data-toast="已开启"><span class="knob"></span></span></div>
+          <div class="row"><span class="tx"><span class="t">语音提示</span></span><span class="sw" data-toast="已开启"><span class="knob"></span></span></div>
+          <div class="row"><span class="tx"><span class="t">同意条款</span></span><span class="chk on"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg></span></div>
+        </div>
+
+        <div class="lbl" style="margin-top:8px;">加载骨架 / 长按菜单</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <span class="btn secondary" style="height:40px;padding:0 16px;font-size:12px;border-radius:10px;" data-goto="v-skeleton">骨架屏</span>
+          <span class="btn secondary" style="height:40px;padding:0 16px;font-size:12px;border-radius:10px;" data-goto="v-longpress">长按/复制/展开</span>
+        </div>
+        <div class="spacer"></div>
+        <div class="note">所有组件复用 theme.css，与 154 屏静态稿同一套视觉。</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+
+      <!-- 通用确认 -->
+      <div class="overlay" id="dlg-confirm">
+        <div class="dialog"><div class="dic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></div><div class="dt">确认操作？</div><div class="dd">这是一条通用确认弹窗，双按钮布局。</div><div class="dact"><button class="btn secondary" data-close>取消</button><button class="btn primary" data-close data-toast="已确认">确认</button></div></div>
+      </div>
+      <!-- 危险删除 -->
+      <div class="overlay" id="dlg-delete">
+        <div class="dialog"><div class="dic dgr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div><div class="dt">确认删除？</div><div class="dd">危险操作用红色按钮，说明不可恢复后果。</div><div class="dact"><button class="btn secondary" data-close>取消</button><button class="btn danger" data-close data-toast="已删除">删除</button></div></div>
+      </div>
+      <!-- 退出确认 -->
+      <div class="overlay" id="dlg-exit">
+        <div class="dialog"><div class="dic warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg></div><div class="dt">放弃未保存的修改？</div><div class="dd">你有 2 处修改尚未保存。</div><div class="dact"><button class="btn secondary" data-close>继续编辑</button><button class="btn danger" data-close data-toast="已放弃修改">放弃</button></div></div>
+      </div>
+      <!-- 成员选择 -->
+      <div class="overlay sheetmode" id="sheet-member">
+        <div class="sheet"><div class="grab"></div><div class="shead"><span class="st">选择成员</span><span class="cancel" data-close>取消</span></div><div class="sbody">
+          <div class="pick" data-close data-toast="已选：林悦"><span class="av" style="width:36px;height:36px;">悦</span><span class="pk-tx">林悦</span><span class="radio on"></span></div>
+          <div class="pick" data-close data-toast="已选：妈妈"><span class="av" style="width:36px;height:36px;background:var(--iconbg);">妈</span><span class="pk-tx">妈妈</span><span class="radio"></span></div>
+          <div class="pick" data-close data-toast="已选：爸爸"><span class="av" style="width:36px;height:36px;background:var(--iconbg);">爸</span><span class="pk-tx">爸爸</span><span class="radio"></span></div>
+        </div></div>
+      </div>
+      <!-- 操作菜单 -->
+      <div class="overlay sheetmode" id="sheet-action">
+        <div class="sheet"><div class="grab"></div><div class="shead"><span class="st">记录操作</span></div><div class="sbody">
+          <div class="sheet-item" data-close data-toast="已重命名"><span class="sic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg></span><div><div>重命名</div></div></div>
+          <div class="sheet-item" data-close data-toast="已导出"><span class="sic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg></span><div><div>导出</div></div></div>
+          <div class="sheet-item dgr" data-close data-toast="已删除"><span class="sic dgr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></span><div><div>删除</div></div></div>
+        </div></div>
+      </div>
+      <!-- 日期选择 -->
+      <div class="overlay sheetmode" id="sheet-date">
+        <div class="sheet"><div class="grab"></div><div class="shead"><span class="cancel" data-close>取消</span><span class="st">选择日期</span><span style="color:var(--brand);font-size:13px;font-weight:500;" data-close data-toast="已选：10月21日">确定</span></div><div class="sbody">
+          <div style="display:flex;gap:16px;justify-content:center;padding:6px 0 10px;">
+            <div class="wheel" style="flex:1;max-width:120px;"><div class="band"></div><div class="list"><span class="it num">19</span><span class="it near num">20</span><span class="it on num">21</span><span class="it near num">22</span><span class="it num">23</span></div></div>
+            <div class="wheel" style="flex:1;max-width:120px;"><div class="band"></div><div class="list"><span class="it num">06</span><span class="it near num">07</span><span class="it on num">07</span><span class="it near num">08</span><span class="it num">09</span></div></div>
+          </div>
+          <div class="hint" style="text-align:center;padding-bottom:8px;">日 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 时</div>
+        </div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 骨架屏 -->
+  <div class="view" id="v-skeleton">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-back><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">骨架屏加载</span></div>
+      <div class="content tight">
+        <div class="hint">内容加载时保持布局稳定，避免跳动</div>
+        <div class="card soft" style="border-radius:24px;padding:20px;"><div class="sk line" style="width:35%;height:10px;"></div><div class="sk line" style="width:55%;height:34px;margin-top:12px;"></div><div class="sk line" style="width:40%;height:10px;margin-top:12px;"></div></div>
+        <div class="card" style="border-radius:16px;padding:6px 16px;">
+          <div style="display:flex;gap:12px;align-items:center;padding:12px 0;"><div class="sk circle" style="width:38px;height:38px;"></div><div style="flex:1;"><div class="sk line" style="width:50%;margin:4px 0;"></div><div class="sk line" style="width:70%;height:8px;margin:4px 0;"></div></div></div>
+          <div style="display:flex;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--divider);"><div class="sk circle" style="width:38px;height:38px;"></div><div style="flex:1;"><div class="sk line" style="width:45%;margin:4px 0;"></div><div class="sk line" style="width:65%;height:8px;margin:4px 0;"></div></div></div>
+        </div>
+        <div class="card lg pad20"><div class="sk card" style="height:110px;"></div></div>
+        <div class="spacer"></div>
+        <div class="btn primary" data-back>返回组件演示</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 长按/复制/展开 -->
+  <div class="view" id="v-longpress">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-back><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">长按 / 复制 / 展开</span></div>
+      <div class="content tight" style="gap:16px;">
+        <div>
+          <div class="lbl">长按弹出菜单</div>
+          <div class="card" style="border-radius:16px;padding:14px 16px;">
+            <div style="position:relative;font-size:12px;color:var(--sub);line-height:1.7;"><span style="background:rgba(37,140,119,.18);border-radius:3px;">体脂率</span>是脂肪重量占体重的比例，比单看体重更能反映身体成分。
+              <div style="position:absolute;top:-40px;left:0;background:var(--ink);border-radius:10px;padding:5px 4px;display:flex;gap:2px;">
+                <span style="color:#fff;font-size:11px;padding:3px 10px;" data-toast="已复制">复制</span><span style="width:1px;background:rgba(255,255,255,.2);"></span><span style="color:#fff;font-size:11px;padding:3px 10px;" data-toast="已分享">分享</span><span style="width:1px;background:rgba(255,255,255,.2);"></span><span style="color:#fff;font-size:11px;padding:3px 10px;" data-toast="已全选">全选</span>
+              </div>
+            </div>
+          </div>
+          <div class="hint" style="margin-top:6px;">长按选中后弹出黑色菜单条；选区高亮为品牌色</div>
+        </div>
+        <div class="divider"></div>
+        <div>
+          <div class="lbl">长文展开 / 收起</div>
+          <div class="card" style="border-radius:16px;padding:14px 16px;">
+            <div style="font-size:12px;color:var(--sub);line-height:1.7;">林悦，近 30 天体重下降 1.6 kg、体脂率下降 1.5 个百分点，趋势稳健。单次波动不代表脂肪变化，建议持续关注 7 天平均值。保持均衡饮食，按自身情况安排活动…<span style="color:var(--brand);" data-toast="已展开全文">展开</span></div>
+          </div>
+        </div>
+        <div class="spacer"></div>
+        <div class="btn primary" data-back>返回组件演示</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+</div>
+<div class="flowbar" style="margin-top:20px;text-align:center;"><p>轻衡 · 交互组件演示 · 3 屏 + 6 弹层</p></div>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>轻衡 · 设备蓝牙/AI状态/计划提醒 · 原型</title>
+<link rel="stylesheet" href="theme.css">
+</head>
+<body>
+
+<div class="topbar">
+  <h1>设备蓝牙 + AI 状态 + 计划提醒</h1>
+  <div class="nav">
+    <a href="index.html">← 总览</a>
+    <a href="#s07">07 设备蓝牙</a>
+    <a href="#s09">09 AI 状态</a>
+    <a href="#s10">10 计划提醒</a>
+  </div>
+</div>
+
+<!-- ========== 07 设备蓝牙异常 ========== -->
+<div class="sec" id="s07"><h2><span class="dot"></span>07 设备管理与蓝牙 · 异常状态</h2><p>page-list-TODO §07：蓝牙未开、权限拒绝、配对中、成功、失败、无设备、断连、电量低。列表/搜索/设置见 01-measure-device.html。</p></div>
+<div class="board">
+
+  <!-- 07-1 蓝牙未开启 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">07-1</span>蓝牙未开启</div>
+    <div class="frame-sub">引导去开启</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">添加设备</span></div>
+      <div class="content">
+        <div class="statepage" style="padding:20px;">
+          <div class="sic warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64A9 9 0 1 1 5.64 6.64M12 2v10M2 2l20 20"/></svg></div>
+          <div class="st">蓝牙未开启</div>
+          <div class="sd">连接体脂秤需要开启蓝牙。<br>开启后会自动搜索附近设备。</div>
+          <button class="btn primary">开启蓝牙</button>
+        </div>
+        <div class="spacer"></div>
+        <div class="note" style="text-align:center;">开启蓝牙可能会略微增加耗电</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 07-2 权限被拒绝 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">07-2</span>附近设备权限被拒</div>
+    <div class="frame-sub">Android 12+ 权限</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">添加设备</span></div>
+      <div class="content">
+        <div class="statepage" style="padding:20px;">
+          <div class="sic warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a5 5 0 0 1 5 5v3H7V7a5 5 0 0 1 5-5Z"/><rect x="4" y="10" width="16" height="11" rx="2M2 2l20 20"/></svg></div>
+          <div class="st">需要「附近设备」权限</div>
+          <div class="sd">Android 12 及以上需要此权限才能搜索体脂秤。<br>我们只用它发现设备，不会读取位置。</div>
+          <button class="btn primary">前往授权</button>
+          <button class="btn ghost" style="margin-top:12px;">手动输入设备号连接</button>
+        </div>
+        <div class="spacer"></div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 07-3 配对中 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">07-3</span>设备配对中</div>
+    <div class="frame-sub">连接过程</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">连接设备</span></div>
+      <div class="content">
+        <div class="hero center" style="margin-top:24px;">
+          <div style="width:150px;height:150px;position:relative;margin:0 auto;">
+            <div style="position:absolute;inset:0;border-radius:100px;background:var(--soft);animation:pulse 1.5s ease infinite;"></div>
+            <div style="position:absolute;inset:20px;border-radius:100px;background:var(--white);display:flex;align-items:center;justify-content:center;color:var(--brand);"><svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M8 12h.01M16 12h.01M12 15h.01"/></svg></div>
+          </div>
+          <div class="h1 sm" style="margin-top:24px;">正在连接 轻衡 S1…</div>
+          <div class="h2">请保持手机靠近体脂秤，轻踩秤面唤醒</div>
+        </div>
+        <style>@keyframes pulse{0%,100%{transform:scale(1);opacity:.6}50%{transform:scale(1.08);opacity:.3}}</style>
+        <div class="card lg" style="padding:8px 18px;">
+          <div class="row" style="padding:11px 0;"><span class="ic soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="tx"><span class="t">已发现设备</span></span></div>
+          <div class="row" style="padding:11px 0;"><span class="ic"><span class="loading-spin" style="width:20px;height:20px;border-width:2px;"></span></span><span class="tx"><span class="t">建立蓝牙连接…</span></span></div>
+          <div class="row" style="padding:11px 0;opacity:.4;"><span class="ic plain"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg></span><span class="tx"><span class="t">同步设备信息</span></span></div>
+        </div>
+        <div class="spacer"></div>
+        <div class="btn ghost" style="align-self:center;">取消连接</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 07-4 连接成功 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">07-4</span>连接成功</div>
+    <div class="frame-sub">配对完成</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span></div>
+      <div class="statepage">
+        <div class="sic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+        <div class="st">连接成功</div>
+        <div class="sd">「轻衡 S1 智能体脂秤」已连接。<br>现在可以开始第一次测量了。</div>
+        <button class="btn primary">开始测量</button>
+        <button class="btn ghost" style="margin-top:12px;">返回设备管理</button>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 07-5 连接失败 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">07-5</span>连接失败与重试</div>
+    <div class="frame-sub">配对失败</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">连接设备</span></div>
+      <div class="statepage">
+        <div class="sic err"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64A9 9 0 1 1 5.64 6.64M12 2v10M2 2l20 20"/></svg></div>
+        <div class="st">连接失败</div>
+        <div class="sd">未能连接到「轻衡 S1」。<br>请确认：<br>· 体脂秤已轻踩唤醒（屏幕点亮）<br>· 手机距离秤 1 米以内<br>· 秤未连接其他手机</div>
+        <button class="btn primary">重新搜索</button>
+        <button class="btn ghost" style="margin-top:12px;">查看连接排查</button>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 07-6 无可用设备 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">07-6</span>搜索不到设备</div>
+    <div class="frame-sub">搜索结果为空</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">添加设备</span><span class="lnk">重新搜索</span></div>
+      <div class="content">
+        <div class="banner"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></span><span class="bt">正在搜索附近设备…已持续 15 秒</span></div>
+        <div class="statepage" style="padding:20px;">
+          <div class="sic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></div>
+          <div class="st">没有发现设备</div>
+          <div class="sd">请确认：<br>· 体脂秤已轻踩唤醒<br>· 附近没有其他手机在连接它<br>然后点击重新搜索。</div>
+          <button class="btn primary">重新搜索</button>
+        </div>
+        <div class="spacer"></div>
+        <div style="text-align:center;"><span style="font-size:11px;color:var(--muted);">还是找不到？查看兼容型号 ›</span></div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 07-7 设备断连 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">07-7</span>设备断连</div>
+    <div class="frame-sub">已连接设备掉线</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">设备管理</span></div>
+      <div class="content tight">
+        <div class="banner warn"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18.36 6.64A9 9 0 1 1 5.64 6.64M2 2l20 20"/></svg></span><span class="bt">与「轻衡 S1」的连接已断开。<br><a>重新连接 ›</a></span></div>
+        <div class="card soft" style="border-radius:24px;padding:20px;text-align:center;">
+          <span class="av" style="width:56px;height:56px;background:var(--white);margin:0 auto;"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M2 2l20 20"/></svg></span>
+          <div style="font-size:15px;font-weight:700;margin-top:12px;">轻衡 S1 · 未连接</div>
+          <div style="font-size:11px;color:var(--sub);margin-top:4px;">上次同步：今天 07:30 · 数据已保存</div>
+          <button class="btn primary" style="margin-top:16px;">重新连接</button>
+        </div>
+        <div class="rows">
+          <div class="row"><span class="tx"><span class="t">断开原因</span></span><span class="val">超出蓝牙范围</span></div>
+          <div class="row"><span class="tx"><span class="t">固件版本</span></span><span class="val num">v1.2.0</span></div>
+        </div>
+        <div class="note">断连不影响已保存的记录。将手机靠近体脂秤并轻踩唤醒即可重连。</div>
+        <div class="spacer"></div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 07-8 电量低 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">07-8</span>设备电量低</div>
+    <div class="frame-sub">提醒更换电池</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">设备管理</span></div>
+      <div class="content tight">
+        <!-- 电量条示意 -->
+        <div class="card soft" style="border-radius:24px;padding:20px;">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <span class="av" style="width:48px;height:48px;background:var(--white);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M8 12h.01M16 12h.01"/></svg></span>
+            <div style="flex:1;"><div style="font-size:15px;font-weight:700;">轻衡 S1 智能体脂秤</div>
+              <div style="display:flex;align-items:center;gap:6px;margin-top:6px;"><span class="num" style="font-size:12px;color:var(--warn-ink);">电量 9%</span>
+                <span style="flex:1;height:6px;border-radius:3px;background:var(--white);overflow:hidden;"><span style="display:block;width:9%;height:100%;background:var(--warn-ink);border-radius:3px;"></span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="banner warn"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg></span><span class="bt">电量过低可能导致测量中断或数据不准。<br>建议尽快更换 4 节 AAA 电池。</span></div>
+        <div class="rows">
+          <div class="row center"><span class="tx"><span class="t">查看更换电池图解</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+        </div>
+        <div class="spacer"></div>
+        <div class="btn secondary">我知道了</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 09 AI 状态 ========== -->
+<div class="sec" id="s09"><h2><span class="dot"></span>09 AI 助手与报告 · 状态</h2><p>page-list-TODO §09：对话历史、生成中、停止、发送失败、空白输入、报告生成中/失败、数据不足。对话/报告/授权见 figma-renders 与 03-mine-ai-auth.html。</p></div>
+<div class="board">
+
+  <!-- 09-1 对话历史列表 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">09-1</span>对话历史列表</div>
+    <div class="frame-sub">过往对话管理</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">历史对话</span></div>
+      <div class="content tight">
+        <div class="rows">
+          <div class="row" style="align-items:flex-start;"><span class="ic soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg></span><span class="tx"><span class="t">体脂率下降是减脂吗？</span><span class="d">今天 09:41 · 3 条消息</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+          <div class="row" style="align-items:flex-start;"><span class="ic soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg></span><span class="tx"><span class="t">BMI 22.1 算标准吗？</span><span class="d">昨天 21:10 · 5 条消息</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+          <div class="row" style="align-items:flex-start;"><span class="ic soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg></span><span class="tx"><span class="t">晚上测量准不准？</span><span class="d">10月19日 · 2 条消息</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+          <div class="row" style="align-items:flex-start;"><span class="ic soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg></span><span class="tx"><span class="t">如何提高肌肉量？</span><span class="d">10月17日 · 6 条消息</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+        </div>
+        <div class="spacer"></div>
+        <div style="display:flex;gap:12px;">
+          <button class="btn secondary" style="flex:1;">清空全部</button>
+          <button class="btn primary" style="flex:1;">新对话</button>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 09-2 生成中 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">09-2</span>AI 生成中 / 停止</div>
+    <div class="frame-sub">流式回答中</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">AI 健康助手</span></div>
+      <div class="content tight">
+        <!-- 用户消息 -->
+        <div style="display:flex;justify-content:flex-end;"><div style="background:var(--soft);border-radius:18px 6px 18px 18px;padding:12px 15px;max-width:290px;font-size:13px;">这次体重下降，说明减脂有效吗？</div></div>
+        <!-- AI 生成中 -->
+        <div>
+          <div style="display:flex;align-items:center;gap:7px;margin-bottom:8px;"><span style="width:22px;height:22px;border-radius:6px;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 9 9l-7 3 7 3 3 7 3-7 7-3-7-3Z"/></svg></span><span style="font-size:12px;font-weight:700;">轻衡 AI</span><span style="font-size:11px;color:var(--muted);">正在分析你的测量记录…</span></div>
+          <div style="background:var(--white);border-radius:6px 24px 24px 24px;padding:18px;display:flex;flex-direction:column;gap:8px;">
+            <div class="sk line" style="width:90%;"></div>
+            <div class="sk line" style="width:75%;"></div>
+            <div class="sk line" style="width:82%;"></div>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:6px;">
+              <span class="loading-spin" style="width:16px;height:16px;border-width:2px;"></span>
+              <span class="hint">生成中…</span>
+            </div>
+          </div>
+        </div>
+        <div class="spacer"></div>
+        <!-- 停止生成 -->
+        <div style="display:flex;justify-content:center;">
+          <span style="display:flex;align-items:center;gap:6px;background:var(--white);border:1px solid var(--divider);border-radius:100px;padding:8px 16px;font-size:12px;color:var(--sub);"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>停止生成</span>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 09-3 发送失败 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">09-3</span>发送失败重发</div>
+    <div class="frame-sub">网络中断</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">AI 健康助手</span></div>
+      <div class="content tight">
+        <div style="display:flex;justify-content:flex-end;"><div style="background:var(--soft);border-radius:18px 6px 18px 18px;padding:12px 15px;max-width:290px;font-size:13px;">睡眠不好会影响体脂吗？</div></div>
+        <!-- 失败态用户消息 -->
+        <div>
+          <div style="display:flex;justify-content:flex-end;align-items:center;gap:8px;">
+            <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--danger);"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>发送失败</span>
+            <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--brand);"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>重发</span>
+          </div>
+          <div style="display:flex;justify-content:flex-end;margin-top:6px;"><div style="background:var(--white);border:1px dashed var(--stroke);border-radius:18px 6px 18px 18px;padding:12px 15px;max-width:290px;font-size:13px;opacity:.6;">睡眠不好会影响体脂吗？</div></div>
+        </div>
+        <div class="banner warn"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.36 6.64A9 9 0 1 1 5.64 6.64M2 2l20 20"/></svg></span><span class="bt">网络连接已断开，恢复后可重发。</span></div>
+        <div class="spacer"></div>
+        <div class="field"><span class="fake ph">继续聊聊你的健康问题…</span><span style="width:36px;height:36px;border-radius:100px;background:var(--iconbg);color:var(--brand);display:flex;align-items:center;justify-content:center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></span></div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 09-4 空白输入提示 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">09-4</span>空白/超长输入</div>
+    <div class="frame-sub">输入校验</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">AI 健康助手</span></div>
+      <div class="content tight">
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+          <span style="background:var(--white);border:1px solid var(--divider);border-radius:100px;padding:7px 14px;font-size:12px;color:var(--brand);">怎样测量更可比？</span>
+          <span style="background:var(--white);border:1px solid var(--divider);border-radius:100px;padding:7px 14px;font-size:12px;color:var(--brand);">体脂率可靠吗？</span>
+        </div>
+        <div class="spacer"></div>
+        <!-- 超长输入错误态 -->
+        <div>
+          <div class="field err" style="min-height:64px;align-items:flex-start;padding-top:12px;">
+            <span class="fake" style="line-height:1.6;color:var(--ink);font-size:13px;">最近感觉很累，体重也在波动，早上起来没精神，晚上又睡不好，白天工作压力大，饮食也不规律，想知道是不是减脂太快了，还是身体出了什么问题，需要不需要去医院检查一下，另外我还想问问关于运动和饮食怎么调整……</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:6px;">
+            <span class="errtext" style="margin:0;">内容过长，请精简后再发送（最多 500 字）</span>
+            <span class="hint num">512/500</span>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;margin-top:8px;">
+          <span style="width:38px;height:38px;border-radius:100px;background:var(--track);color:#fff;display:flex;align-items:center;justify-content:center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></span>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 09-5 报告生成中 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">09-5</span>AI 报告生成中</div>
+    <div class="frame-sub">分析加载</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">AI 报告解读</span></div>
+      <div class="content tight">
+        <div class="hero center" style="margin-top:20px;">
+          <div class="loading-spin" style="width:40px;height:40px;border-width:3px;margin:0 auto;"></div>
+          <div class="h1 sm" style="margin-top:20px;">正在解读你的报告</div>
+          <div class="h2">AI 正结合你的测量记录与历史趋势分析…<br>约需 10–20 秒</div>
+        </div>
+        <div class="card lg pad18" style="opacity:.6;">
+          <div class="sk line" style="width:60%;height:16px;"></div>
+          <div class="sk line" style="width:90%;"></div>
+          <div class="sk line" style="width:80%;"></div>
+          <div class="sk card" style="height:70px;margin-top:12px;"></div>
+        </div>
+        <div class="spacer"></div>
+        <div class="btn ghost" style="align-self:center;">取消生成</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 09-6 数据不足 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">09-6</span>数据不足无法分析</div>
+    <div class="frame-sub">记录太少</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">AI 报告解读</span></div>
+      <div class="content">
+        <div class="statepage" style="padding:20px;">
+          <div class="sic warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18M8 17V12M13 17V9M18 17v-3"/></svg></div>
+          <div class="st">数据还不足以解读</div>
+          <div class="sd">生成可靠的分析需要至少 <b>3 次</b>测量记录，<br>你目前只有 1 次。<br>再测几次，AI 才能给出有参考价值的解读。</div>
+          <button class="btn primary">去测量</button>
+          <button class="btn ghost" style="margin-top:12px;">了解为什么需要多次测量</button>
+        </div>
+        <div class="spacer"></div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 09-7 报告生成失败 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">09-7</span>报告生成失败</div>
+    <div class="frame-sub">服务异常</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">AI 报告解读</span></div>
+      <div class="statepage">
+        <div class="sic err"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg></div>
+        <div class="st">解读生成失败</div>
+        <div class="sd">AI 服务暂时开小差了，<br>你的测量数据不受影响。<br>请稍后重试。</div>
+        <button class="btn primary">重新生成</button>
+        <button class="btn ghost" style="margin-top:12px;">先看原始数据</button>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 10 本周行动计划与提醒 ========== -->
+<div class="sec" id="s10"><h2><span class="dot"></span>10 本周行动计划与提醒</h2><p>page-list-TODO §10：计划详情、采纳后、任务完成、空计划、提醒设置、通知权限。待确认态见 figma-renders/10。</p></div>
+<div class="board">
+
+  <!-- 10-1 已采纳计划 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">10-1</span>已采纳的计划</div>
+    <div class="frame-sub">采纳后状态</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">本周行动计划</span></div>
+      <div class="content tight">
+        <div class="card soft" style="border-radius:24px;padding:18px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;"><span class="tag">已采纳</span><span style="font-size:11px;color:var(--sub);">10月21日生效</span></div>
+          <div style="font-size:20px;font-weight:700;line-height:1.4;margin-top:10px;">本周 1/3 已完成，<br>继续保持。</div>
+          <div class="pbar" style="margin-top:12px;background:var(--white);"><div class="fill" style="width:33%;"></div></div>
+        </div>
+        <div class="rows">
+          <div class="row" style="align-items:flex-start;"><span class="chk on"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="tx"><span class="t" style="text-decoration:line-through;color:var(--muted);">轻松散步 20 分钟</span><span class="d">已完成 · 10月21日</span></span></div>
+          <div class="row" style="align-items:flex-start;"><span class="chk"></span><span class="tx"><span class="t">固定时段测量体重</span><span class="d">建议任选 3 晚 · 手动记录</span></span></div>
+          <div class="row" style="align-items:flex-start;"><span class="chk"></span><span class="tx"><span class="t">记录睡眠感受</span><span class="d">建议任选 3 晚 · 手动记录</span></span></div>
+        </div>
+        <div class="note">计划为建议草案，经你确认后生效，不承诺效果。可随时调整或取消。</div>
+        <div class="spacer"></div>
+        <div class="btn secondary">调整本周计划</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 10-2 任务完成反馈 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">10-2</span>任务完成反馈</div>
+    <div class="frame-sub">打勾成功（Toast）</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">本周行动计划</span></div>
+      <div class="content tight">
+        <div class="card soft" style="border-radius:24px;padding:18px;">
+          <div style="font-size:20px;font-weight:700;">2/3 已完成</div>
+          <div class="pbar" style="margin-top:10px;background:var(--white);"><div class="fill" style="width:66%;"></div></div>
+        </div>
+        <div class="rows">
+          <div class="row"><span class="chk on"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="tx"><span class="t" style="text-decoration:line-through;color:var(--muted);">轻松散步 20 分钟</span></span></div>
+          <div class="row"><span class="chk on"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="tx"><span class="t" style="text-decoration:line-through;color:var(--muted);">固定时段测量体重</span></span></div>
+          <div class="row"><span class="chk"></span><span class="tx"><span class="t">记录睡眠感受</span><span class="d">还差这 1 项就全部完成</span></span></div>
+        </div>
+        <div class="banner"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2 9 9l-7 3 7 3 3 7 3-7 7-3-7-3Z"/></svg></span><span class="bt">太棒了，这周已经完成 2 项。坚持记录本身就有价值。</span></div>
+        <div class="spacer"></div>
+      </div>
+      <div class="toast"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg>已完成 · 撤销</div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 10-3 空计划 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">10-3</span>无行动计划</div>
+    <div class="frame-sub">空态</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">本周行动计划</span></div>
+      <div class="statepage">
+        <div class="sic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M9 16l2 2 4-4"/></svg></div>
+        <div class="st">本周还没有计划</div>
+        <div class="sd">AI 可以根据你的测量趋势，<br>生成一份轻松可行的每周小目标。</div>
+        <button class="btn primary">生成本周计划</button>
+        <button class="btn ghost" style="margin-top:12px;">了解计划如何生成</button>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 10-4 提醒设置 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">10-4</span>测量提醒设置</div>
+    <div class="frame-sub">提醒开关与频率</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">测量提醒</span></div>
+      <div class="content tight">
+        <div class="rows">
+          <div class="row"><span class="tx"><span class="t">开启测量提醒</span><span class="d">每天固定时间提醒你测量</span></span><span class="sw on"><span class="knob"></span></span></div>
+        </div>
+        <div class="rows">
+          <div class="row"><span class="tx"><span class="t">提醒时间</span></span><span class="val num">每天 07:30</span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+          <div class="row"><span class="tx"><span class="t">提醒频率</span></span><span class="val">每天</span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+          <div class="row"><span class="tx"><span class="t">提醒周末也响</span></span><span class="sw on"><span class="knob"></span></span></div>
+        </div>
+        <div class="banner"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="bt">固定时段测量，数据可比性更好。</span></div>
+        <div class="spacer"></div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 10-5 提醒时间选择 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">10-5</span>提醒时间选择</div>
+    <div class="frame-sub">滚轮时间选择（底部弹层）</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="content" style="filter:blur(1px);opacity:.5;"><div class="rows" style="height:220px;"></div></div>
+      <div class="overlay sheetmode">
+        <div class="sheet">
+          <div class="grab"></div>
+          <div class="shead"><span class="cancel">取消</span><span class="st">提醒时间</span><span style="color:var(--brand);font-size:13px;font-weight:500;">确定</span></div>
+          <div class="sbody">
+            <!-- 双列滚轮 -->
+            <div style="display:flex;gap:16px;justify-content:center;padding:6px 0 10px;">
+              <div class="wheel" style="flex:1;max-width:120px;">
+                <div class="band"></div>
+                <div class="list">
+                  <span class="it">06</span><span class="it near">07</span><span class="it on">07</span><span class="it near">08</span><span class="it">09</span>
+                </div>
+              </div>
+              <div class="wheel" style="flex:1;max-width:120px;">
+                <div class="band"></div>
+                <div class="list">
+                  <span class="it">15</span><span class="it near">30</span><span class="it on">30</span><span class="it near">45</span><span class="it">55</span>
+                </div>
+              </div>
+            </div>
+            <div class="hint" style="text-align:center;padding-bottom:8px;">时 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 分</div>
+          </div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 10-6 通知权限说明 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">10-6</span>通知权限说明</div>
+    <div class="frame-sub">开启提醒前预说明</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span></div>
+      <div class="content">
+        <div class="hero center" style="margin-top:16px;">
+          <div class="bigicon ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg></div>
+          <div class="h1 sm" style="margin-top:20px;">开启测量提醒</div>
+          <div class="h2">我们只在你设定的时间提醒一次，<br>不会发送任何营销通知。</div>
+        </div>
+        <!-- 通知预览 -->
+        <div class="card" style="border-radius:16px;padding:14px;display:flex;gap:12px;align-items:flex-start;">
+          <span style="width:34px;height:34px;border-radius:9px;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/></svg></span>
+          <div style="flex:1;"><div style="font-size:12px;font-weight:500;">该测量啦 · 轻衡</div><div style="font-size:11px;color:var(--sub);margin-top:3px;line-height:1.5;">早上好，固定时间测量让趋势更准。轻踩秤面即可开始。</div><div class="hint num" style="margin-top:4px;">现在</div></div>
+        </div>
+        <div class="note">点击「开启」后，系统会请求通知权限。你可以拒绝，之后可在设置中重新开启。</div>
+        <div class="spacer"></div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="btn primary">开启提醒</div>
+          <div class="btn ghost" style="align-self:center;">暂不开启</div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">轻衡 · 设备蓝牙 + AI 状态 + 计划提醒 · 20 屏<br>依据 design/page-list-TODO.md §07 §09 §10 · theme.css 设计基准 NOTE-20261022-001</div>
+</body>
+</html>

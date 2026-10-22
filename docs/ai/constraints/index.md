@@ -30,13 +30,16 @@
 | FLOW-001 | AI 不能直接修改 PRD/架构 | 所有 AI |
 | FLOW-002 | 决策日志必须追加写 | AI + 人类 |
 
-## 反思质量约束
+## 反思质量约束（已退役 — DEC-047）
 
-| 规则ID | 描述 | 违反后果 |
-|--------|------|---------|
-| REFLECT-001 | 每次提交必须包含反思（lessons），通过 context-cache.sh save handoff lessons=... 写入 | 提交被拦截 |
-| REFLECT-002 | 反思内容 ≥50 字，含信号词（错/坑/教训/避免/本应 等） | R0 校验 FAIL |
-| REFLECT-003 | 反思不能与上次提交相同（禁止复用旧反思） | R0 校验 FAIL |
+| 规则ID | 状态 | 说明 |
+|--------|------|------|
+| REFLECT-001 | **已退役** | 强制 handoff lessons 不再作为提交拦截条件 |
+| REFLECT-002 | **已退役** | ≥50 字 / 信号词门禁已随 README 反思校验拆除（b344d61） |
+| REFLECT-003 | **已退役** | 「不可复用旧反思」门禁已拆除 |
+
+工程反思改为**自愿追加**：有真实教训时写入 [`docs/guides/GC-engineering-reflections.md`](../guides/GC-engineering-reflections.md)；无则不写。
+会话结束仍建议写 handoff（context / next / key_files）；`lessons` 可选。
 
 ## 文件命名约束
 

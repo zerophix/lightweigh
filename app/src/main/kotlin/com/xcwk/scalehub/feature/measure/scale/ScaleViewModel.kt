@@ -8,7 +8,6 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.xcwk.scalehub.App
 import com.xcwk.scalehub.application.ble.BlePort
 import com.xcwk.scalehub.application.debug.DebugLog
-import com.xcwk.scalehub.application.format.QkFormat
 import com.xcwk.scalehub.application.measure.MeasureSession
 import com.xcwk.scalehub.application.measure.MeasureState
 import com.xcwk.scalehub.application.service.RecordMeasurementService
@@ -20,8 +19,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 /**

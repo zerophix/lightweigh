@@ -8,20 +8,25 @@
 
 ## 1. 系统上下文
 
-轻刻健康是一款配合蓝牙体脂秤使用的单进程 Android 应用。当前唯一已落地的外部依赖是本机
-Room/SQLite 存储；蓝牙称重（M3）与云端同步（M2）是已规划但尚未接入的出站端口。App 不对外
-提供被调用接口，是纯粹的调用方。
+轻刻健康是一款配合蓝牙体脂秤使用的单进程 Android 应用。当前已落地的外部依赖：
+
+- **本机 Room/SQLite**（`AppDatabase` version **7**，schema 快照 1~7 入库）
+- **蓝牙称重**（`BlePort` ← `AndroidBleLink`；协议 `okok-1` / `okok-broadcast-1` / `chipsea-cloud-1`；用户确认真机秤可用；DEC-044 修复 Chipsea 混合广播版本误识别）
+- **云端同步与账号**（CloudBase 网关、水位线/对账/幂等；手机号/邮箱/微信登录入口已接线）
+- **习惯提醒**（Room 习惯表 + WorkManager 调度）
+
+App 不对外提供被调用接口，是纯粹的调用方。组合根 `AppContainer`（位于 `App.kt`）对外只暴露端口与用例，不泄漏 infrastructure 具体类型（DEC-035）。
 
 ```
-┌───────────────┐   BLE 称重(M3)   ┌────────────────────┐
-│  蓝牙体脂秤    │◄────────────────►│                    │
-└───────────────┘                  │                    │
-┌───────────────┐   云同步(M2)     │    轻刻健康 App     │
-│  云端账号体系  │◄────────────────►│  com.xcwk.scalehub │
-└───────────────┘                  │                    │
-┌───────────────┐   Room(已实现)   │                    │
-│  本地 SQLite   │◄────────────────►│                    │
-└───────────────┘                  └────────────────────┘
+┌───────────────┐   BLE 称重(已落地)  ┌────────────────────┐
+│  蓝牙体脂秤    │◄──────────────────►│                    │
+└───────────────┘                    │                    │
+┌───────────────┐   云同步(已落地)    │    轻刻健康 App     │
+│  云端账号体系  │◄──────────────────►│  com.xcwk.scalehub │
+└───────────────┘                    │                    │
+┌───────────────┐   Room v7           │                    │
+│  本地 SQLite   │◄──────────────────►│                    │
+└───────────────┘                    └────────────────────┘
 ```
 
 ## 2. 分层架构
@@ -31,7 +36,7 @@ Room/SQLite 存储；蓝牙称重（M3）与云端同步（M2）是已规划但�
         │  :app  (Android application)                  │
         │  ├── App / AppContainer   组合根(唯一装配点)   │
         │  ├── feature/measure       Compose + ViewModel 四件套│
-        │  └── trigger               BLE/后台预留落点          │
+        │  └── feature/* + blePort   称重/设备/习惯/登录等     │
         └───────────────────┬──────────────────────────┘
                             │ 依赖(向下)
         ┌───────────────────▼────────────┐   ┌────────────────────────────┐
@@ -55,10 +60,10 @@ Room/SQLite 存储；蓝牙称重（M3）与云端同步（M2）是已规划但�
 
 | 模块 | 类型 | 职责 | 关键内容 |
 |------|------|------|---------|
-| :domain | 纯 JVM | 领域内核：模型、协议解析、体成分算法、端口 | 28 个源文件（`src/main` 下 `*.kt` + `*.java`）：model 4 / protocol 17 / algorithm 4 / repository 2 / types 1 |
-| :application | 纯 JVM | 用例编排（写 command + 读 query） | RecordMeasurementService、MeasurementQuery |
-| :infrastructure | Android 库 | 端口实现层（Room / SharedPreferences） | AppDatabase、MeasurementDao/Po、两个仓储实现、ProfileStore |
-| :app | Android 应用 | 组合根 + feature UI 层 + 架构守卫测试 | App/AppContainer、feature/measure 四件套、ArchitectureTest |
+| :domain | 纯 JVM | 领域内核：模型、协议解析、体成分算法、端口 | 28 个源文件（`src/main` 下 `*.kt` + `*.java`）：model 4 / protocol 17 / algorithm 4 / repository 2 / types 1（含 `Clock`） |
+| :application | 纯 JVM | 用例编排（写 command + 读 query）+ 同步编排 | RecordMeasurementService、MeasurementQuery、SyncService（294 行，水位线/对账/幂等）、SyncTrigger、SyncOnLocalWrites、DataRefreshBus（`DataChange` sealed 事件） |
+| :infrastructure | Android 库 | 端口实现层（Room / SharedPreferences / CloudBase） | AppDatabase（v6，含 `sync_state` 表）、MeasurementDao/Po、两个仓储实现、ProfileStore、CloudBaseGateway（93 行，GET/POST/DELETE + 分块 40 + Prefer: merge-duplicates）、RoomSyncStateRepository |
+| :app | Android 应用 | 组合根 + feature UI 层 + 架构守卫测试 | App/AppContainer（全端口类型暴露）、feature/measure 四件套、ArchitectureTest（14 条规则，含 `appcontainer公开属性不得暴露infra具体类型`） |
 
 `:domain` 是内核，不依赖任何其他模块；`:infrastructure` 实现 `:domain` 定义的端口，构成依赖倒置。
 
@@ -74,8 +79,8 @@ Room/SQLite 存储；蓝牙称重（M3）与云端同步（M2）是已规划但�
 
 ### ArchUnit 守卫
 
-`app/src/test/.../ArchitectureTest.kt` 以 6 条依赖规则守住跨模块方向、"UI 不绕过用例"
-与存储 SDK 隔离（T-006 上锁，DEC-021 task A）：
+`app/src/test/.../ArchitectureTest.kt` 以 14 条依赖规则守住跨模块方向、"UI 不绕过用例"
+与存储 SDK 隔离（T-006 上锁，DEC-021 task A；T-014 补 `appcontainer公开属性不得暴露infra具体类型` 负例）：
 
 ```
 :domain ◄── :application ◄── :app
@@ -179,8 +184,9 @@ M4 按垂直切片推进：一次一个页面四件套，过「预览 + ViewMode
 
 | 版本 | 日期 | 变更摘要 |
 |------|------|---------|
+| v4 | 2026-10-22 | 系统上下文改为已落地事实：BLE/云/习惯/Room v7；组合根端口化（DEC-035/044/045） |
 | v3 | 2026-10-16 | 新增 §6 UI 架构立约（DEC-021）：UDF/四件套/读模型/设计系统/垂直切片 |
 | v2 | 2026-10-16 | 重写为轻刻健康真实分层架构（四模块 DDD） |
 | v1 | 2026-07-10 | 初始架构：模板协作协议框架定义 |
 
-## 来源: ai/decisions/DEC-019（四模块分层定稿）, DEC-021（UI 架构立约与 T-006 上锁）
+## 来源: ai/decisions/DEC-045

@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>轻衡 · 缺口补齐 Part2（设备/成员/AI/计划/隐私/同步/帮助/组件）· 原型</title>
+<link rel="stylesheet" href="theme.css">
+</head>
+<body>
+
+<div class="topbar">
+  <h1>缺口补齐 Part 2 · 设备/成员/AI/计划/隐私/同步/帮助/组件</h1>
+  <div class="nav">
+    <a href="index.html">← 总览</a>
+    <a href="#d">设备/成员</a>
+    <a href="#a">AI/计划/隐私</a>
+    <a href="#s">同步/帮助/组件</a>
+  </div>
+</div>
+
+<!-- ===== §07 §08 设备/成员 残留 ===== -->
+<div class="sec" id="d"><h2><span class="dot"></span>§07 §08 残留</h2><p>复核缺口：设备解绑确认、配对超时、设备被占用；切换刷新态、成员无设备、资料保存失败。</p></div>
+<div class="board">
+
+  <!-- 设备解绑确认 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">P2-1</span>设备解绑确认</div>
+    <div class="frame-sub">§07 删除设备（弹层）</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="content" style="filter:blur(1px);opacity:.5;"><div class="rows" style="height:250px;"></div></div>
+      <div class="overlay">
+        <div class="dialog">
+          <div class="dic dgr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div>
+          <div class="dt">解绑「轻衡 S1」？</div>
+          <div class="dd">解绑后：<br>· 需重新配对才能测量<br>· <b>已同步的测量记录不受影响</b><br>· 未同步的记录将保留在本机</div>
+          <div class="dact"><button class="btn secondary">取消</button><button class="btn danger">解绑</button></div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 配对超时 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">P2-2</span>配对超时</div>
+    <div class="frame-sub">§07 连接超时</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">连接设备</span></div>
+      <div class="statepage">
+        <div class="sic warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2M9 2h6"/></svg></div>
+        <div class="st">配对超时</div>
+        <div class="sd">30 秒内未能与「轻衡 S1」建立连接。<br>请轻踩秤面唤醒屏幕后重试，<br>或确认秤未连接其他手机。</div>
+        <button class="btn primary">重新配对</button>
+        <button class="btn ghost" style="margin-top:12px;">查看连接排查</button>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 设备被占用 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">P2-3</span>设备被其他手机占用</div>
+    <div class="frame-sub">§07 单连接冲突（弹层）</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="content" style="filter:blur(1px);opacity:.5;"><div class="rows" style="height:250px;"></div></div>
+      <div class="overlay">
+        <div class="dialog">
+          <div class="dic warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M2 2l20 20"/></svg></div>
+          <div class="dt">设备正被其他手机使用</div>
+          <div class="dd">「轻衡 S1」一次只能连接一台手机。<br>请在另一台手机上断开连接，<br>或轻踩秤面使其进入配对模式。</div>
+          <div class="dact"><button class="btn secondary">知道了</button><button class="btn primary">重新搜索</button></div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 切换成员刷新态 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">P2-4</span>切换成员后刷新</div>
+    <div class="frame-sub">§08 数据范围切换中</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <!-- 切换后顶部提示 + 骨架 -->
+      <div style="background:var(--soft);padding:8px 22px;display:flex;align-items:center;gap:8px;">
+        <span class="loading-spin" style="width:14px;height:14px;border-width:2px;"></span>
+        <span style="font-size:11px;color:var(--brand);">已切换到「妈妈」，正在加载她的数据…</span>
+      </div>
+      <div class="content">
+        <div class="brand" style="margin-top:6px;"><span class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg></span><span class="word">轻衡</span><span class="av" style="width:32px;height:32px;font-size:13px;margin-left:auto;background:var(--iconbg);">妈</span></div>
+        <div class="card soft" style="border-radius:24px;padding:20px;">
+          <div class="sk line" style="width:35%;height:10px;"></div>
+          <div class="sk line" style="width:55%;height:34px;margin-top:12px;"></div>
+        </div>
+        <div class="mgrid"><div class="mcell sk card" style="height:84px;"></div><div class="mcell sk card" style="height:84px;"></div></div>
+        <div class="card sk card" style="height:70px;"></div>
+        <div class="note" style="text-align:center;">切换成员后，首页、记录、趋势、报告与 AI 上下文均切换为该成员数据</div>
+        <div class="spacer"></div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 成员无设备 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">P2-5</span>成员未关联设备</div>
+    <div class="frame-sub">§08 成员维度无设备</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">设备管理</span></div>
+      <div class="content">
+        <div class="card soft" style="border-radius:16px;padding:12px 16px;display:flex;align-items:center;gap:12px;">
+          <span class="av" style="width:40px;height:40px;background:var(--white);">妈</span>
+          <div style="flex:1;"><div style="font-size:13px;font-weight:500;">当前查看：妈妈</div><div style="font-size:10px;color:var(--sub);margin-top:2px;">设备可全家共用，数据自动归当前成员</div></div>
+        </div>
+        <div class="statepage" style="padding:20px;">
+          <div class="sic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M8 12h.01M16 12h.01M2 2l20 20"/></svg></div>
+          <div class="st">还没有为妈妈测量过</div>
+          <div class="sd">同一台体脂秤可为全家测量。<br>妈妈上秤测量一次，数据会自动归到她名下。</div>
+          <button class="btn primary">为妈妈测量</button>
+          <button class="btn ghost" style="margin-top:12px;">了解多人如何共用一台秤</button>
+        </div>
+        <div class="spacer"></div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 资料保存失败 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">P2-6</span>成员资料保存失败</div>
+    <div class="frame-sub">§08 保存异常（弹层）</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="content" style="filter:blur(1px);opacity:.5;"><div class="card lg pad18" style="height:260px;"></div></div>
+      <div class="overlay">
+        <div class="dialog">
+          <div class="dic dgr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg></div>
+          <div class="dt">资料保存失败</div>
+          <div class="dd">成员资料未能保存，<br>你填写的内容<b>仍保留在本页</b>。<br>请检查网络后重试。</div>
+          <div class="dact"><button class="btn secondary">稍后</button><button class="btn primary">重试保存</button></div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== §09 §10 §12 AI/计划/隐私 残留 ===== -->
+<div class="sec" id="a"><h2><span class="dot"></span>§09 §10 §12 残留</h2><p>复核缺口：删单条/清空对话、报告过期、未授权咨询、编辑计划/任务、任务跳过、撤回后状态。</p></div>
+<div class="board">
+
+  <!-- 删除单条对话 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">P2-7</span>删除单条对话</div>
+    <div class="frame-sub">§09 长按操作（底部弹层）</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="content" style="filter:blur(1px);opacity:.5;"><div class="rows" style="height:250px;"></div></div>
+      <div class="overlay sheetmode">
+        <div class="sheet">
+          <div class="grab"></div>
+          <div class="shead"><span class="st">体脂率下降是减脂吗？</span></div>
+          <div class="sbody">
+            <div class="sheet-item"><span class="sic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg></span><div><div>重命名对话</div><div class="sx">便于以后查找</div></div></div>
+            <div class="sheet-item"><span class="sic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg></span><div><div>导出这段对话</div></div></div>
+            <div class="sheet-item dgr"><span class="sic dgr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></span><div><div>删除这段对话</div><div class="sx">删除后不可恢复</div></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 清空对话确认 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">P2-8</span>清空对话历史确认</div>
+    <div class="frame-sub">§09 批量删除（弹层）</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="content" style="filter:blur(1px);opacity:.5;"><div class="rows" style="height:250px;"></div></div>
+      <div class="overlay">
+        <div class="dialog">
+          <div class="dic dgr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div>
+          <div class="dt">清空全部对话？</div>
+          <div class="dd">将删除 <b>23 段</b>历史对话，<b>不可恢复</b>。<br>你的健康数据与报告不受影响。</div>
+          <div class="dact"><button class="btn secondary">取消</button><button class="btn danger">全部清空</button></div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 报告过期重新分析 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">P2-9</span>报告过期/重新分析</div>
+    <div class="frame-sub">§09 数据更新提示</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">AI 报告解读</span></div>
+      <div class="content tight">
+        <div class="banner warn"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></span><span class="bt">你有 <b>2 条新测量记录</b>，本报告基于旧数据。<br><a>重新分析 ›</a></span></div>
+        <div class="card soft" style="border-radius:24px;padding:18px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;"><span class="tag mut">旧报告</span><span style="font-size:11px;color:var(--sub);">基于 10月20日数据</span></div>
+          <div style="font-size:20px;font-weight:700;line-height:1.4;margin-top:10px;">近 30 天体重<br>下降 1.4 kg。</div>
+        </div>
+        <div class="card lg pad18">
+          <div class="st sm" style="margin-bottom:8px;">重新分析后将更新</div>
+          <div class="hint" style="line-height:1.9;">· 纳入 10月21日最新测量<br>· 更新体重/体脂趋势结论<br>· 重新生成可执行建议</div>
+        </div>
+        <div class="note">旧报告会保留在历史中，不会被覆盖。你可对比新旧结论。</div>
+        <div class="spacer"></div>
+        <div class="btn primary">用最新数据重新分析</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 未授权一般咨询 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">P2-10</span>未授权·一般咨询入口</div>
+    <div class="frame-sub">§09 不用个人数据也能问</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">AI 健康助手</span><span class="lnk">开启个性化</span></div>
+      <div class="content tight">
+        <div class="banner"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span><span class="bt">未开启个性化分析，AI <b>不使用你的健康数据</b>，仅提供通用健康知识。</span></div>
+        <div class="card soft" style="border-radius:16px;padding:14px 16px;display:flex;gap:12px;align-items:center;">
+          <span class="av" style="width:36px;height:36px;background:var(--white);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 8v4M12 16h.01"/><circle cx="12" cy="12" r="9"/></svg></span>
+          <div style="flex:1;font-size:12px;color:var(--sub);line-height:1.5;">开启后可获得结合你测量数据的解读</div>
+          <span style="font-size:12px;color:var(--brand);font-weight:500;">去开启</span>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+          <span style="background:var(--white);border:1px solid var(--divider);border-radius:100px;padding:7px 14px;font-size:12px;color:var(--brand);">BMI 22.1 正常吗？</span>
+          <span style="background:var(--white);border:1px solid var(--divider);border-radius:100px;padding:7px 14px;font-size:12px;color:var(--brand);">体脂率怎么看？</span>
+          <span style="background:var(--white);border:1px solid var(--divider);border-radius:100px;padding:7px 14px;font-size:12px;color:var(--brand);">如何健康减脂？</span>
+        </div>
+        <div class="card" style="border-radius:18px 6px 18px 18px;padding:16px;">
+          <div style="font-size:12px;color:var(--sub);line-height:1.7;">通用健康问题都可以问我，比如指标含义、测量方法、健康常识。<br><br><b style="color:var(--ink);">提示：</b>要获得针对你数据的解读，请先开启个性化分析。</div>
+        </div>
+        <div class="spacer"></div>
+        <div class="field"><span class="fake ph">问问健康知识，如「BMI 怎么算」…</span><span style="width:36px;height:36px;border-radius:100px;background:var(--iconbg);color:var(--brand);display:flex;align-items:center;justify-content:center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></span></div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 编辑计划 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">P2-11</span>编辑本周计划</div>
+    <div class="frame-sub">§10 勾选任务项</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">编辑计划</span></div>
+      <div class="content tight">
+        <div class="hint">勾选想保留的任务（已选 3/5）</div>
+        <div class="rows">
+          <div class="row"><span class="chk on"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="tx"><span class="t">轻松散步 20 分钟</span><span class="d">建议每周 3 次</span></span></div>
+          <div class="row"><span class="chk on"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="tx"><span class="t">固定时段测量体重</span><span class="d">建议任选 3 晚</span></span></div>
+          <div class="row"><span class="chk on"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="tx"><span class="t">记录睡眠感受</span><span class="d">建议任选 3 晚</span></span></div>
+          <div class="row"><span class="chk"></span><span class="tx"><span class="t">减少含糖饮料</span><span class="d">建议每日提醒</span></span></div>
+          <div class="row"><span class="chk"></span><span class="tx"><span class="t">拉伸放松 10 分钟</span><span class="d">建议睡前进行</span></span></div>
+        </div>
+        <div class="note">计划为建议，经你确认后生效。可自由增减，不影响其他功能。</div>
+        <div class="spacer"></div>
+        <div class="btn primary">保存修改（3 项）</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 编辑单项任务 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">P2-12</span>编辑单项任务</div>
+    <div class="frame-sub">§10 频次/时间</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">编辑任务</span></div>
+      <div class="content tight">
+        <div class="card soft" style="border-radius:16px;padding:14px 16px;">
+          <div style="font-size:15px;font-weight:700;">轻松散步 20 分钟</div>
+          <div style="font-size:11px;color:var(--sub);margin-top:4px;">若身体条件允许，可从舒适的散步开始，不适时停止。</div>
+        </div>
+        <div class="card lg pad18" style="display:flex;flex-direction:column;gap:16px;">
+          <div><div class="lbl">每周频次</div><div class="seg"><span class="opt">1 次</span><span class="opt">2 次</span><span class="opt on">3 次</span><span class="opt">5 次</span></div></div>
+          <div>
+            <div class="lbl">提醒时间</div>
+            <div class="field"><input class="num" value="19:00"><span class="unit">每天</span></div>
+          </div>
+          <div>
+            <div class="lbl">单次时长</div>
+            <div class="seg"><span class="opt">10 分钟</span><span class="opt on">20 分钟</span><span class="opt">30 分钟</span></div>
+          </div>
+        </div>
+        <div class="note">调整频次与时长后，AI 会据此优化后续建议。</div>
+        <div class="spacer"></div>
+        <div style="display:flex;gap:12px;">
+          <button class="btn secondary" style="flex:1;color:var(--danger);border-color:var(--danger-bg);">移除任务</button>
+          <button class="btn primary" style="flex:1;">保存</button>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 任务跳过/取消 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">P2-13</span>任务跳过/取消</div>
+    <div class="frame-sub">§10 不做此项（弹层）</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="content" style="filter:blur(1px);opacity:.5;"><div class="rows" style="height:250px;"></div></div>
+      <div class="overlay sheetmode">
+        <div class="sheet">
+          <div class="grab"></div>
+          <div class="shead"><span class="st">「轻松散步」怎么处理？</span></div>
+          <div class="sbody">
+            <div class="sheet-item"><span class="sic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 2v20M2 12h20"/></svg></span><div><div>本次跳过</div><div class="sx">本周任务保留，下次继续</div></div></div>
+            <div class="sheet-item"><span class="sic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></span><div><div>换一个任务</div><div class="sx">让 AI 重新推荐</div></div></div>
+            <div class="sheet-item dgr"><span class="sic dgr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></span><div><div>从本周计划移除</div><div class="sx">不再显示此任务</div></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 撤回授权后功能状态 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">P2-14</span>撤回授权后状态</div>
+    <div class="frame-sub">§12 功能降级</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">AI 数据设置</span></div>
+      <div class="content tight">
+        <div class="card soft" style="border-radius:16px;padding:14px 16px;display:flex;gap:12px;align-items:center;">
+          <span class="av" style="width:40px;height:40px;background:var(--white);color:var(--muted);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4M2 2l20 20"/></svg></span>
+          <div style="flex:1;"><div style="font-size:13px;font-weight:500;">个性化分析已关闭</div><div style="font-size:10px;color:var(--sub);margin-top:2px;">撤回时间：2026年10月22日</div></div>
+          <span style="font-size:12px;color:var(--brand);">重新开启</span>
+        </div>
+        <div>
+          <div class="lbl">受影响的功能</div>
+          <div class="rows">
+            <div class="row" style="align-items:flex-start;"><span class="ic warn" style="width:32px;height:32px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.36 6.64A9 9 0 1 1 5.64 6.64M2 2l20 20"/></svg></span><span class="tx"><span class="t">AI 报告解读</span><span class="d">已停止，历史报告保留但不再更新</span></span></div>
+            <div class="row" style="align-items:flex-start;"><span class="ic warn" style="width:32px;height:32px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.36 6.64A9 9 0 1 1 5.64 6.64M2 2l20 20"/></svg></span><span class="tx"><span class="t">个性化趋势分析</span><span class="d">已关闭，仅显示基础图表</span></span></div>
+            <div class="row" style="align-items:flex-start;"><span class="ic warn" style="width:32px;height:32px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.36 6.64A9 9 0 1 1 5.64 6.64M2 2l20 20"/></svg></span><span class="tx"><span class="t">每周行动建议</span><span class="d">已停止生成</span></span></div>
+            <div class="row" style="align-items:flex-start;"><span class="ic soft" style="width:32px;height:32px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="tx"><span class="t">测量与记录</span><span class="d">不受影响，继续正常使用</span></span></div>
+          </div>
+        </div>
+        <div class="note">重新开启授权后，AI 将基于最新数据恢复分析，历史对话不会找回。</div>
+        <div class="spacer"></div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== §13 §14 §15 同步/帮助/组件 残留 ===== -->
+<div class="sec" id="s"><h2><span class="dot"></span>§13 §14 §15 残留</h2><p>复核缺口：同步失败、反馈失败、连接指南、故障排查、隐私问题、通知落地/被拒、全屏加载、分享、长按复制。</p></div>
+<div class="board">
+
+  <!-- 同步失败 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">P2-15</span>同步失败与重试</div>
+    <div class="frame-sub">§13 单条上传失败</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">数据同步</span></div>
+      <div class="content tight">
+        <div class="banner warn"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg></span><span class="bt">1 条记录同步失败，其余 <b>127 条</b>已同步。</span></div>
+        <div class="card" style="border-radius:16px;overflow:hidden;">
+          <div class="row" style="align-items:flex-start;"><span class="tx"><span class="t num">10/21 07:30 · 62.4 kg</span><span class="d" style="color:var(--danger);">上传失败 · 网络中断</span></span><span style="font-size:12px;color:var(--brand);">重试</span></div>
+          <div class="row" style="align-items:flex-start;opacity:.5;"><span class="tx"><span class="t num">10/20 07:28 · 62.7 kg</span><span class="d">已同步</span></span><span style="color:var(--brand);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg></span></div>
+        </div>
+        <div class="banner"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span><span class="bt">失败记录已存在本机，<b>不会丢失</b>，恢复网络后自动重试。</span></div>
+        <div class="spacer"></div>
+        <div class="btn primary">立即重试全部</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 反馈失败 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">P2-16</span>反馈提交失败</div>
+    <div class="frame-sub">§14 提交异常</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">意见反馈</span></div>
+      <div class="statepage">
+        <div class="sic err"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg></div>
+        <div class="st">反馈提交失败</div>
+        <div class="sd">网络开小差了，反馈<b>未发送</b>。<br>你填写的内容已保留，<br>恢复网络后可重新提交。</div>
+        <button class="btn primary">重新提交</button>
+        <button class="btn ghost" style="margin-top:12px;">复制反馈内容</button>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 连接指南 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">P2-17</span>体脂秤连接指南</div>
+    <div class="frame-sub">§14 分步图解</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">连接指南</span></div>
+      <div class="content tight">
+        <div class="card lg" style="padding:8px 18px;">
+          <div class="row" style="padding:13px 0;"><span class="ic soft"><span class="num" style="font-weight:700;">1</span></span><span class="tx"><span class="t">确认手机蓝牙已开启</span><span class="d">下拉快捷栏打开蓝牙</span></span></div>
+          <div class="row" style="padding:13px 0;"><span class="ic soft"><span class="num" style="font-weight:700;">2</span></span><span class="tx"><span class="t">轻踩体脂秤唤醒</span><span class="d">屏幕点亮即进入可连接状态</span></span></div>
+          <div class="row" style="padding:13px 0;"><span class="ic soft"><span class="num" style="font-weight:700;">3</span></span><span class="tx"><span class="t">手机靠近秤（1 米内）</span><span class="d">避免距离过远信号弱</span></span></div>
+          <div class="row" style="padding:13px 0;"><span class="ic soft"><span class="num" style="font-weight:700;">4</span></span><span class="tx"><span class="t">在 App 内点击「搜索设备」</span><span class="d">发现后点击连接即可配对</span></span></div>
+        </div>
+        <div class="banner"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></span><span class="bt">首次配对成功后，之后轻踩唤醒即自动重连，无需重复操作。</span></div>
+        <div class="spacer"></div>
+        <div class="btn primary">我试试</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 故障排查流程 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">P2-18</span>设备故障排查</div>
+    <div class="frame-sub">§14 引导式排查</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">故障排查</span></div>
+      <div class="content tight">
+        <div class="hero"><div class="h1 sm">哪里出了问题？</div><div class="h2">选择你遇到的情况，逐步排查</div></div>
+        <div class="rows">
+          <div class="row center"><span class="ic warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18.36 6.64A9 9 0 1 1 5.64 6.64M2 2l20 20"/></svg></span><span class="tx"><span class="t">搜不到体脂秤</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+          <div class="row center"><span class="ic warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18M8 17V9M13 17V5"/></svg></span><span class="tx"><span class="t">测量数据不准</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+          <div class="row center"><span class="ic warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M8 12h.01M16 12h.01"/></svg></span><span class="tx"><span class="t">屏幕不亮 / 无法开机</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+          <div class="row center"><span class="ic warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3v18M18 3v18M6 8h12M6 16h12"/></svg></span><span class="tx"><span class="t">数据没有同步</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+          <div class="row center"><span class="ic warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg></span><span class="tx"><span class="t">其他异常</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+        </div>
+        <div class="spacer"></div>
+        <div class="btn secondary">以上都不是，联系客服</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 隐私问题说明 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">P2-19</span>隐私相关问题说明</div>
+    <div class="frame-sub">§14 数据安全答疑</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">隐私与数据安全</span></div>
+      <div class="content tight">
+        <div class="card soft" style="border-radius:16px;padding:14px 16px;display:flex;gap:12px;align-items:center;">
+          <span class="av" style="width:40px;height:40px;background:var(--white);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+          <div style="font-size:12px;color:var(--sub);line-height:1.6;">你的健康数据<b>加密存储</b>，<br>我们绝不会出售或用于广告。</div>
+        </div>
+        <div class="rows">
+          <div class="row" style="align-items:flex-start;"><span class="tx"><span class="t">数据存在哪里？</span><span class="d">本机加密 + 云端端到端加密，密钥仅你持有</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+          <div class="row" style="align-items:flex-start;"><span class="tx"><span class="t">谁能看到我的数据？</span><span class="d">仅你本人，客服也无法查看明文</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+          <div class="row" style="align-items:flex-start;"><span class="tx"><span class="t">如何导出或删除？</span><span class="d">在「隐私与数据管理」中随时操作</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+          <div class="row" style="align-items:flex-start;"><span class="tx"><span class="t">家人会看到我的数据吗？</span><span class="d">家庭成员数据相互独立，默认不互通</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+        </div>
+        <div class="spacer"></div>
+        <div class="btn secondary">查看完整隐私政策</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 通知落地页 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">P2-20</span>点击通知落地页</div>
+    <div class="frame-sub">§15 通知跳转目标</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">7:30</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <!-- 顶部通知条示意（点击后进入） -->
+      <div style="background:var(--white);margin:6px 12px;border-radius:14px;padding:12px;display:flex;gap:10px;align-items:flex-start;box-shadow:0 1px 4px rgba(0,0,0,.06);">
+        <span style="width:30px;height:30px;border-radius:8px;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/></svg></span>
+        <div style="flex:1;"><div style="font-size:11px;font-weight:500;">该测量啦 · 轻衡</div><div style="font-size:11px;color:var(--sub);margin-top:2px;">固定时间测量让趋势更准，轻踩秤面即可开始。</div></div>
+        <span class="hint">现在</span>
+      </div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">开始测量</span></div>
+      <div class="content">
+        <div class="hero center" style="margin-top:12px;">
+          <div class="bigicon ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M8 12h.01M16 12h.01M12 15h.01"/></svg></div>
+          <div class="h1 sm" style="margin-top:18px;">早上好，林悦</div>
+          <div class="h2">今天还没测量，赤脚上秤记录一次吧</div>
+        </div>
+        <div class="card lg pad20" style="text-align:center;">
+          <div class="hint">上次测量</div>
+          <div class="num" style="font-size:28px;font-weight:600;margin-top:4px;">62.4 kg</div>
+          <div class="hint" style="margin-top:2px;">10月20日 07:28 · 已 1 天</div>
+        </div>
+        <div class="spacer"></div>
+        <div class="btn primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>开始测量</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 通知权限被拒 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">P2-21</span>通知权限被拒提示</div>
+    <div class="frame-sub">§15 拒绝后引导</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">测量提醒</span></div>
+      <div class="content tight">
+        <div class="rows">
+          <div class="row"><span class="tx"><span class="t">开启测量提醒</span><span class="d">提醒已设置为每天 07:30</span></span><span class="sw on"><span class="knob"></span></span></div>
+        </div>
+        <div class="banner warn"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0M2 2l20 20"/></svg></span><span class="bt">系统通知权限已关闭，<b>提醒不会弹出</b>。<br>需在系统设置中重新开启。</span></div>
+        <div class="card lg" style="padding:8px 18px;">
+          <div class="row" style="padding:12px 0;"><span class="tx"><span class="t">前往系统设置</span><span class="d">设置 › 通知 › 轻衡 › 开启</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+          <div class="row" style="padding:12px 0;"><span class="tx"><span class="t">关闭测量提醒</span><span class="d">不开启通知，也不再尝试提醒</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+        </div>
+        <div class="note">即使关闭提醒，测量与记录功能完全不受影响。</div>
+        <div class="spacer"></div>
+        <div class="btn primary">去系统设置开启</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 全屏加载 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">P2-22</span>全屏加载状态</div>
+    <div class="frame-sub">§15 首次进入/大数据量</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="statepage">
+        <div class="loading-spin" style="width:44px;height:44px;"></div>
+        <div class="st" style="margin-top:24px;">正在加载你的健康数据…</div>
+        <div class="sd">首次登录需同步全部记录，<br>可能需要几秒钟。</div>
+        <div class="hint" style="margin-top:20px;">已加载 128 / 128 条</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 分享面板 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">P2-23</span>分享面板</div>
+    <div class="frame-sub">§15 分享前说明（底部弹层）</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="content" style="filter:blur(1px);opacity:.5;"><div class="card" style="border-radius:24px;height:240px;"></div></div>
+      <div class="overlay sheetmode">
+        <div class="sheet">
+          <div class="grab"></div>
+          <div class="sbody">
+            <div style="text-align:center;padding:8px 18px 4px;">
+              <div style="font-size:16px;font-weight:700;">分享身体报告</div>
+              <div style="font-size:11px;color:var(--warn-ink);background:var(--warn-bg);border-radius:10px;padding:8px 12px;margin-top:10px;line-height:1.6;">分享图片将<b>包含你的姓名与测量数据</b>，请确认后再分享。</div>
+            </div>
+            <div style="display:flex;gap:16px;justify-content:center;padding:16px 0 8px;">
+              <div style="text-align:center;"><div style="width:52px;height:52px;border-radius:14px;background:#07C160;color:#fff;display:flex;align-items:center;justify-content:center;margin:0 auto;"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M8.5 4C4.9 4 2 6.5 2 9.6c0 1.8 1 3.4 2.6 4.5l-.7 2 2.3-1.2c.7.2 1.5.3 2.3.3h.5a5 5 0 0 1-.2-1.4c0-3 2.9-5.4 6.4-5.4h.5C15.7 5.8 12.5 4 8.5 4Z"/></svg></div><div class="hint" style="margin-top:4px;">微信</div></div>
+              <div style="text-align:center;"><div style="width:52px;height:52px;border-radius:14px;background:var(--iconbg);color:var(--brand);display:flex;align-items:center;justify-content:center;margin:0 auto;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13"/></svg></div><div class="hint" style="margin-top:4px;">保存图片</div></div>
+              <div style="text-align:center;"><div style="width:52px;height:52px;border-radius:14px;background:var(--iconbg);color:var(--brand);display:flex;align-items:center;justify-content:center;margin:0 auto;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg></div><div class="hint" style="margin-top:4px;">复制链接</div></div>
+            </div>
+            <div style="padding:10px 4px 0;"><button class="btn soft">取消</button></div>
+          </div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 长按/复制/展开 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">P2-24</span>长按/复制/展开</div>
+    <div class="frame-sub">§15 辅助交互反馈</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">交互反馈规范</span></div>
+      <div class="content tight" style="gap:16px;">
+        <!-- 长按菜单 -->
+        <div>
+          <div class="lbl">长按弹出菜单</div>
+          <div class="card" style="border-radius:16px;padding:14px 16px;">
+            <div style="font-size:13px;font-weight:500;">体脂率是脂肪重量占体重的比例…</div>
+            <!-- 长按高亮 + 浮动菜单 -->
+            <div style="position:relative;">
+              <span style="background:rgba(37,140,119,.18);border-radius:3px;">体脂率</span>是脂肪重量占体重的比例，比单看体重更能反映身体成分。
+              <div style="position:absolute;top:-40px;left:0;background:var(--ink);border-radius:10px;padding:5px 4px;display:flex;gap:2px;">
+                <span style="color:#fff;font-size:11px;padding:3px 10px;">复制</span>
+                <span style="width:1px;background:rgba(255,255,255,.2);"></span>
+                <span style="color:#fff;font-size:11px;padding:3px 10px;">分享</span>
+                <span style="width:1px;background:rgba(255,255,255,.2);"></span>
+                <span style="color:#fff;font-size:11px;padding:3px 10px;">全选</span>
+              </div>
+            </div>
+          </div>
+          <div class="hint" style="margin-top:6px;">长按文字选中后弹出黑色菜单条；选区高亮为品牌色@18%</div>
+        </div>
+        <div class="divider"></div>
+        <!-- 展开/收起 -->
+        <div>
+          <div class="lbl">长文展开 / 收起</div>
+          <div class="card" style="border-radius:16px;padding:14px 16px;">
+            <div style="font-size:12px;color:var(--sub);line-height:1.7;">林悦，近 30 天体重下降 1.6 kg、体脂率下降 1.5 个百分点，趋势稳健。单次波动不代表脂肪变化，建议持续关注 7 天平均值。保持均衡饮食，按自身情况安排活动；测量前保持正常饮水，并尽量固定测量时段…<span style="color:var(--brand);">展开</span></div>
+          </div>
+          <div class="hint" style="margin-top:6px;">超出 3 行折叠，末尾显示品牌色「展开」；展开后变「收起」</div>
+        </div>
+        <div class="divider"></div>
+        <!-- 复制成功 -->
+        <div>
+          <div class="lbl">复制成功反馈</div>
+          <div style="display:flex;gap:10px;">
+            <span style="background:rgba(32,61,55,.92);color:#fff;font-size:11px;padding:8px 14px;border-radius:100px;display:flex;gap:5px;align-items:center;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>已复制到剪贴板</span>
+          </div>
+        </div>
+        <div class="spacer"></div>
+        <div class="note">长按、复制、展开等辅助交互需有明确的视觉反馈，避免用户无感知操作。</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">轻衡 · 缺口补齐 Part2 · 24 屏<br>依据 design/page-list-TODO.md 复核缺口 §07 §08 §09 §10 §12 §13 §14 §15</div>
+</body>
+</html>

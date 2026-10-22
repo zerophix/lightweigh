@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>轻衡 · 启动与权限（可交互）</title>
+<link rel="stylesheet" href="../theme.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body class="interactive">
+<div class="flowbar">
+  <h1>启动与权限 · 可交互原型</h1>
+  <p>启动页 → 条款确认 → 权限用途 → 系统授权（模拟）→ 授权/被拒引导 → 更新提示。</p>
+  <div class="nav"><a href="index.html">交互总览</a><a href="../index.html">← 静态总览</a></div>
+</div>
+<div class="app">
+
+  <!-- 启动页 -->
+  <div class="view" id="v-splash">
+    <div class="screen">
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg);">
+        <div style="width:88px;height:88px;border-radius:24px;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg></div>
+        <div style="font-size:28px;font-weight:700;margin-top:22px;letter-spacing:2px;">轻衡</div>
+        <div style="font-size:12px;color:var(--sub);margin-top:8px;">让健康，轻一点。</div>
+      </div>
+      <div style="text-align:center;padding:0 0 30px;" data-goto="v-terms"><span style="font-size:12px;color:var(--brand);">点击进入 ›</span></div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 条款确认 -->
+  <div class="view" id="v-terms">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="content">
+        <div class="hero center" style="margin-top:20px;">
+          <div class="bigicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a5 5 0 0 1 5 5v3H7V7a5 5 0 0 1 5-5Z"/><rect x="4" y="10" width="16" height="11" rx="2"/></svg></div>
+          <div class="h1" style="margin-top:22px;">你的健康数据，<br>由你做主</div>
+          <div class="h2">开始前，请阅读并同意以下条款。</div>
+        </div>
+        <div class="rows">
+          <div class="row center"><span class="chk on"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="tx"><span class="t">我已阅读并同意 <a>《用户协议》</a></span></span></div>
+          <div class="row center"><span class="chk on"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="tx"><span class="t">我已阅读并同意 <a>《隐私政策》</a></span></span></div>
+        </div>
+        <div class="banner"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span><span class="bt">未同意前，我们不会收集任何个人数据。</span></div>
+        <div class="spacer"></div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="btn primary" data-goto="v-permissions">同意并继续</div>
+          <div class="btn ghost" style="align-self:center;" data-toast="不同意则退出应用（演示）">不同意，退出应用</div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 权限用途说明 -->
+  <div class="view" id="v-permissions">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="content">
+        <div class="hero center" style="margin-top:10px;">
+          <div class="bigicon ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64A9 9 0 1 1 5.64 6.64M12 2v10"/></svg></div>
+          <div class="h1" style="margin-top:20px;">需要几项权限，<br>把体脂秤连起来</div>
+          <div class="h2">只用于连接设备与提醒测量。</div>
+        </div>
+        <div class="card lg" style="padding:8px 18px;">
+          <div class="row" style="padding:13px 0;"><span class="ic soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64A9 9 0 1 1 5.64 6.64M12 2v10"/></svg></span><span class="tx"><span class="t">蓝牙</span><span class="d">用于搜索并连接体脂秤</span></span></div>
+          <div class="row" style="padding:13px 0;"><span class="ic soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20Z"/></svg></span><span class="tx"><span class="t">附近设备</span><span class="d">Android 12+ 发现体脂秤所需</span></span></div>
+          <div class="row" style="padding:13px 0;"><span class="ic soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg></span><span class="tx"><span class="t">通知</span><span class="d">可选，用于测量提醒</span></span></div>
+        </div>
+        <div class="spacer"></div>
+        <div class="btn primary" data-open="dlg-sys">继续（触发系统授权）</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+      <!-- 系统授权弹窗（原型模拟，非伪造系统 UI，仅示意选择） -->
+      <div class="overlay" id="dlg-sys">
+        <div class="dialog">
+          <div class="dt" style="font-size:14px;">允许「轻衡」使用蓝牙？</div>
+          <div class="dd">（系统弹窗位置示意，实际由系统绘制）</div>
+          <div class="dact" style="flex-direction:column;">
+            <button class="btn primary" style="width:100%;" data-close data-goto="v-granted" data-toast="蓝牙权限已允许">允许</button>
+            <button class="btn secondary" style="width:100%;" data-close data-goto="v-denied">拒绝</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 授权成功 -->
+  <div class="view" id="v-granted">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="statepage">
+        <div class="sic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+        <div class="st">权限已就绪</div>
+        <div class="sd">现在可以连接体脂秤了。<br>（演示流程结束，返回起点）</div>
+        <button class="btn primary" data-goto="v-splash" data-toast="已回到启动页">重新走一遍</button>
+        <button class="btn ghost" style="margin-top:12px;" data-open="dlg-update">看更新提示弹窗</button>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+      <div class="overlay" id="dlg-update">
+        <div class="dialog">
+          <div class="dic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg></div>
+          <div class="dt">发现新版本 v0.2.0</div>
+          <div class="dd">新增身体评分、优化蓝牙稳定性。</div>
+          <div class="dact"><button class="btn secondary" data-close>稍后</button><button class="btn primary" data-close data-toast="开始更新（演示）">立即更新</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 权限被拒引导 -->
+  <div class="view" id="v-denied">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="content">
+        <div class="hero center" style="margin-top:16px;">
+          <div class="bigicon" style="background:var(--warn-bg);color:var(--warn-ink);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18.36 6.64A9 9 0 1 1 5.64 6.64M12 2v10M2 2l20 20"/></svg></div>
+          <div class="h1 sm" style="margin-top:20px;">需要蓝牙权限<br>才能连接体脂秤</div>
+          <div class="h2">你拒绝了蓝牙权限，暂时无法连接设备。</div>
+        </div>
+        <div class="card lg" style="padding:14px 18px;">
+          <div style="font-size:12px;font-weight:700;margin-bottom:8px;">开启方法</div>
+          <div class="limit"><span class="num" style="width:20px;height:20px;border-radius:100px;background:var(--soft);color:var(--brand);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;">1</span>点击下方「去设置开启」</div>
+          <div class="limit"><span class="num" style="width:20px;height:20px;border-radius:100px;background:var(--soft);color:var(--brand);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;">2</span>设置 › 应用 › 轻衡 › 权限 › 蓝牙</div>
+        </div>
+        <div class="spacer"></div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="btn primary" data-goto="v-granted" data-toast="已从设置返回，权限已开启">去设置开启</div>
+          <div class="btn ghost" style="align-self:center;" data-goto="v-splash">暂不连接</div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+</div>
+<div class="flowbar" style="margin-top:20px;text-align:center;"><p>轻衡 · 启动与权限交互原型 · 5 屏 + 2 弹窗</p></div>
+<script src="app.js"></script>
+</body>
+</html>

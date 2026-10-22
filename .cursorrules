@@ -1,9 +1,10 @@
 # Cursor Rules — AI 协作协议
 
 ## 启动
-- `cat STATUS.md` — 项目全景 + AI 交接 + 反思 + 健康检查
+- `cat STATUS.md` — 项目全景 + AI 交接（自动生成，勿手改）
 - `bash scripts/session/ses-context-load.sh` — AI 上下文记忆
 - 阅读 `docs/ai/constraints/index.md` — 行为边界
+- **事实交叉验证**：架构/README 与 `.ai/tasks.json`、近期 DEC 对照；任务以 tasks.json 为准
 
 ## 决策流转（6 阶段）
 
@@ -13,9 +14,10 @@ NOTE（未定型） → DEC（追加写） → lifecycle（覆盖型）
 ```
 
 - 创建 DEC: `bash scripts/governance/gov-next-decision.sh --create`（自动编号 + 原子锁）
-- 晋升: `bash scripts/governance/gov-sync-standards.sh --dec DEC-XXX`
-- 校验: `bash scripts/governance/gov-validate.sh`（0 FAIL 才能提交）
+- 晋升: `bash scripts/workflow/wf-promote.sh <target> --decision DEC-XXX`
+- 校验: `bash scripts/governance/gov-validate.sh`（0 FAIL 才能推送）
 - 决策日志只追加，不覆盖，不删除
+- 黄金标准（`docs/architecture/` 等）不可直接编辑，须 lifecycle → promote
 
 ## 文件规范
 
@@ -29,27 +31,27 @@ NOTE（未定型） → DEC（追加写） → lifecycle（覆盖型）
 
 **严禁:** old/legacy/vN 路径，v1/v2/bak/backup/copy 后缀
 
-## 校验
+## 校验与本机钩子
+
 ```bash
 bash scripts/governance/gov-validate.sh       # 全量严格校验（规则族见 AGENTS.md 速查表）
-bash scripts/governance/gov-validate.sh --fix # 自动修复
 ```
-所有违规是 FAIL，无 WARN。提交前 0 违规。
 
-## 反思
-每次 session 结束必须写经验教训：
-```bash
-bash scripts/session/ses-context-cache.sh save handoff \
-  from="cursor" to="*" \
-  context="做了什么" \
-  next="下一步该做什么" \
-  key_files="改了哪些文件" \
-  lessons="真实反思（≥50字，含错/坑/教训/避免/本应等信号词，不重用旧内容）"
-```
-反思是硬约束（R0），不写# 无法提交。
+- 本机 **pre-commit** = `scripts/governance/gov-pre-commit-simplified`（已同步到 `.git/hooks/pre-commit`）：
+  master 禁直提交、可选会话归属；源码变更时 compileKotlin **并**跑 `gov-custom-checks.sh`（含 gov-code-check）。
+  **不是** 模板长版；勿用未改过的 `bs-install-hooks` 覆盖。
+- 合并前本地门禁：`bash scripts/governance/gov-local-ci.sh`（`./gradlew build` + validate + custom-checks）。
+- pre-push：分支命名 + 全量 `gov-validate.sh`（可被 `--no-verify` 绕过；远程 CI 另议）。
+
+## 工程反思（自愿）
+
+强制 README 反思门禁已拆除（不再阻塞提交/推送）。
+有真实教训时追加到 [`docs/guides/GC-engineering-reflections.md`](docs/guides/GC-engineering-reflections.md)；无则不写。
+会话结束仍建议写 handoff（context/next/key_files）；`lessons` 可选。
 
 ## 参考
 - `AGENTS.md` — 完整协议
 - `docs/guides/GC-decision-flow.md` — 决策流转规范
 - `docs/ai/guides/workflow.md` — 10 步生命周期
-- `docs/ai/guides/consensus.md` — 多 AI 共识
+- `.ai/tasks.json` — 权威任务板
+- `docs/guides/GC-multi-agent-collab.md` — 多 AI 并发（begin/claim/local-ci）

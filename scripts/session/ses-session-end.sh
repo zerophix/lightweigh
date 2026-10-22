@@ -221,12 +221,28 @@ echo -e "${BOLD}========================================${NC}"
   echo "    2. 必须向人类确认下一步方向"
   echo "    3. 确认后继续：bash scripts/workflow/wf-task-board.sh confirm"
 
-# ── 8. 清理会话标识（保留 staged-claims 供下一会话审计）──
+# ── 8. 清理会话标识，并剔除本会话 claims（DEC-047）──
 SESSION_FILE="$ROOT/.ai/current-session.json"
+CLAIM_FILE="$ROOT/.ai/staged-claims.json"
 if [ -f "$SESSION_FILE" ]; then
+  python3 - "$SESSION_FILE" "$CLAIM_FILE" <<"PY"
+import json, sys
+from pathlib import Path
+sf, cf = Path(sys.argv[1]), Path(sys.argv[2])
+try:
+    sid = json.loads(sf.read_text(encoding="utf-8")).get("session_id", "")
+except Exception:
+    sid = ""
+if sid and cf.is_file():
+    d = json.loads(cf.read_text(encoding="utf-8") or "{}")
+    kept = {k: v for k, v in d.items() if v != sid}
+    cf.write_text(json.dumps(kept, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print(f" 已清理本会话 claims: {sid} 剩余 {len(kept)} 条")
+PY
   echo " 清理会话标识: $SESSION_FILE"
   rm -f "$SESSION_FILE"
 fi
+
 }
 
 case "${1:-}" in

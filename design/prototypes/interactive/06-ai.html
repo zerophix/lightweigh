@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>轻衡 · AI 助手（可交互）</title>
+<link rel="stylesheet" href="../theme.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body class="interactive">
+<div class="flowbar">
+  <h1>AI 健康助手 · 可交互原型</h1>
+  <p>对话 → 生成中/停止 → 报告解读 → 本周计划 → 授权设置；含发送失败、撤回授权、清空对话弹层。</p>
+  <div class="nav"><a href="index.html">交互总览</a><a href="../index.html">← 静态总览</a></div>
+</div>
+<div class="app">
+
+  <!-- AI 对话（新问题） -->
+  <div class="view" id="v-chat">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-goto="v-report"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">AI 健康助手</span><span class="lnk" data-goto="v-auth">设置</span></div>
+      <div class="content tight">
+        <div class="card soft" style="border-radius:16px;padding:10px 16px;display:flex;gap:12px;align-items:center;">
+          <span class="av" style="width:32px;height:32px;background:var(--white);">悦</span>
+          <div style="flex:1;font-size:11px;color:var(--sub);">林悦 · 仅本人数据 · 女 30岁 168cm</div>
+          <span class="tag">已授权</span>
+        </div>
+        <div style="display:flex;justify-content:flex-end;"><div style="background:var(--soft);border-radius:18px 6px 18px 18px;padding:12px 15px;max-width:290px;font-size:13px;">这次体重下降，说明减脂有效吗？</div></div>
+        <div style="display:flex;align-items:center;gap:7px;margin-bottom:8px;"><span style="width:22px;height:22px;border-radius:6px;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 9 9l-7 3 7 3 3 7 3-7 7-3-7-3Z"/></svg></span><span style="font-size:12px;font-weight:700;">轻衡 AI</span><span style="font-size:11px;color:var(--muted);">结合已授权的测量记录</span></div>
+        <div class="card" style="border-radius:6px 24px 24px 24px;padding:18px;">
+          <div style="font-size:20px;font-weight:700;line-height:1.4;">30天的变化值得关注，<br>但一次下降还不能下结论。</div>
+          <div style="font-size:12px;color:var(--sub);line-height:1.7;margin-top:12px;">30天两项读数均下降，方向一致；但体脂率是估算值，不能把单次变化当作真实脂肪增减。</div>
+          <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;" data-goto="v-plan"><span style="background:var(--soft);border-radius:100px;padding:7px 14px;font-size:12px;color:var(--brand);">查看本周计划 ›</span></div>
+        </div>
+        <div class="spacer"></div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+          <span style="background:var(--white);border:1px solid var(--divider);border-radius:100px;padding:7px 14px;font-size:12px;color:var(--brand);" data-goto="v-generating">怎样测量更可比？</span>
+          <span style="background:var(--white);border:1px solid var(--divider);border-radius:100px;padding:7px 14px;font-size:12px;color:var(--brand);" data-goto="v-failed">模拟发送失败</span>
+        </div>
+        <div class="field" data-goto="v-generating"><span class="fake ph">继续聊聊你的健康问题…</span><span style="width:36px;height:36px;border-radius:100px;background:var(--iconbg);color:var(--brand);display:flex;align-items:center;justify-content:center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></span></div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 生成中 -->
+  <div class="view" id="v-generating">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-back><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">AI 健康助手</span></div>
+      <div class="content tight">
+        <div style="display:flex;justify-content:flex-end;"><div style="background:var(--soft);border-radius:18px 6px 18px 18px;padding:12px 15px;max-width:290px;font-size:13px;">怎样测量更可比？</div></div>
+        <div>
+          <div style="display:flex;align-items:center;gap:7px;margin-bottom:8px;"><span style="width:22px;height:22px;border-radius:6px;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 9 9l-7 3 7 3 3 7 3-7 7-3-7-3Z"/></svg></span><span style="font-size:12px;font-weight:700;">轻衡 AI</span><span style="font-size:11px;color:var(--muted);">正在分析…</span></div>
+          <div class="card" style="border-radius:6px 24px 24px 24px;padding:18px;display:flex;flex-direction:column;gap:8px;">
+            <div class="sk line" style="width:90%;"></div><div class="sk line" style="width:75%;"></div><div class="sk line" style="width:82%;"></div>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:6px;"><span class="loading-spin" style="width:16px;height:16px;border-width:2px;"></span><span class="hint">生成中…</span></div>
+          </div>
+        </div>
+        <div class="spacer"></div>
+        <div style="display:flex;justify-content:center;"><span style="display:flex;align-items:center;gap:6px;background:var(--white);border:1px solid var(--divider);border-radius:100px;padding:8px 16px;font-size:12px;color:var(--sub);" data-goto="v-chat" data-toast="已停止生成"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>停止生成</span></div>
+        <div class="hint" style="text-align:center;margin-top:6px;" data-goto="v-chat">（或等待自动完成 → ）</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 发送失败 -->
+  <div class="view" id="v-failed">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-back><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">AI 健康助手</span></div>
+      <div class="content tight">
+        <div style="display:flex;justify-content:flex-end;align-items:center;gap:8px;"><span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--danger);"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>发送失败</span><span style="font-size:11px;color:var(--brand);" data-goto="v-generating">重发</span></div>
+        <div style="display:flex;justify-content:flex-end;margin-top:6px;"><div style="background:var(--white);border:1px dashed var(--stroke);border-radius:18px 6px 18px 18px;padding:12px 15px;max-width:290px;font-size:13px;opacity:.6;">睡眠不好会影响体脂吗？</div></div>
+        <div class="banner warn"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.36 6.64A9 9 0 1 1 5.64 6.64M2 2l20 20"/></svg></span><span class="bt">网络连接已断开，恢复后可重发。</span></div>
+        <div class="spacer"></div>
+        <div class="field"><span class="fake ph">继续聊聊你的健康问题…</span></div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 报告解读 -->
+  <div class="view" id="v-report">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-goto="v-chat"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">AI 报告解读</span></div>
+      <div class="content tight">
+        <div class="card soft" style="border-radius:24px;padding:18px;"><div style="font-size:22px;font-weight:700;line-height:1.4;">两项读数小幅下降，<br>不等于脂肪减少。</div></div>
+        <div class="card lg pad18"><div style="font-size:13px;color:var(--sub);line-height:1.7;">单次体重、体脂率会受水分、进食和测量时段影响。建议保持正常饮水，先积累连续记录再看长期趋势。</div></div>
+        <div class="banner warn" data-open="dlg-withdraw"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span><span class="bt">演示：撤回授权后此功能停止 →</span></div>
+        <div class="spacer"></div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="btn primary" data-goto="v-plan">查看本周计划</div>
+          <div class="btn secondary" data-goto="v-chat">继续向 AI 提问</div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+      <div class="overlay" id="dlg-withdraw">
+        <div class="sheetmode"><div class="sheet"><div class="grab"></div><div class="sbody"><div style="text-align:center;padding:8px 18px 4px;"><div style="font-size:16px;font-weight:700;">撤回个性化分析授权？</div><div style="font-size:12px;color:var(--sub);line-height:1.7;margin-top:8px;">撤回后 AI 不再使用你的健康数据，仍可一般咨询。</div></div><div style="padding:16px 4px 0;display:flex;flex-direction:column;gap:10px;"><button class="btn secondary" style="color:var(--danger);border-color:var(--danger-bg);" data-close data-goto="v-unauth" data-toast="已撤回授权">确认撤回</button><button class="btn soft" data-close>保持开启</button></div></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 撤回后状态 -->
+  <div class="view" id="v-unauth">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-goto="v-chat"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">AI 健康助手</span><span class="lnk" data-goto="v-auth">设置</span></div>
+      <div class="content tight">
+        <div class="banner"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span><span class="bt">未开启个性化分析，AI 仅提供通用健康知识。</span></div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+          <span style="background:var(--white);border:1px solid var(--divider);border-radius:100px;padding:7px 14px;font-size:12px;color:var(--brand);" data-goto="v-chat">BMI 22.1 正常吗？</span>
+          <span style="background:var(--white);border:1px solid var(--divider);border-radius:100px;padding:7px 14px;font-size:12px;color:var(--brand);" data-goto="v-chat">体脂率怎么看？</span>
+        </div>
+        <div class="card" style="border-radius:18px 6px 18px 18px;padding:16px;"><div style="font-size:12px;color:var(--sub);line-height:1.7;">通用健康问题都可以问我。要获得针对你数据的解读，请先开启个性化分析。</div></div>
+        <div class="spacer"></div>
+        <div class="btn primary" data-goto="v-auth">去开启个性化</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 本周计划 -->
+  <div class="view" id="v-plan">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-goto="v-report"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">本周行动计划</span></div>
+      <div class="content tight">
+        <div class="card soft" style="border-radius:24px;padding:18px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;"><span class="tag">已采纳</span><span style="font-size:11px;color:var(--sub);">10月21日生效</span></div>
+          <div style="font-size:20px;font-weight:700;line-height:1.4;margin-top:10px;">本周 1/3 已完成，继续保持。</div>
+          <div class="pbar" style="margin-top:12px;background:var(--white);"><div class="fill" style="width:33%;"></div></div>
+        </div>
+        <div class="rows">
+          <div class="row" data-toast="已标记完成 · 撤销"><span class="chk on"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="tx"><span class="t" style="text-decoration:line-through;color:var(--muted);">轻松散步 20 分钟</span><span class="d">已完成 · 10月21日</span></span></div>
+          <div class="row" data-toast="已标记完成 · 撤销"><span class="chk"></span><span class="tx"><span class="t">固定时段测量体重</span><span class="d">建议任选 3 晚</span></span></div>
+          <div class="row" data-open="dlg-skip"><span class="chk"></span><span class="tx"><span class="t">记录睡眠感受</span><span class="d">长按跳过示例</span></span></div>
+        </div>
+        <div class="note">计划为建议，经你确认后生效，不承诺效果。</div>
+        <div class="spacer"></div>
+        <div class="btn secondary" data-toast="进入计划编辑（演示）">调整本周计划</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+      <div class="overlay" id="dlg-skip">
+        <div class="sheet"><div class="grab"></div><div class="shead"><span class="st">「记录睡眠」怎么处理？</span></div><div class="sbody">
+          <div class="sheet-item" data-close data-toast="本次已跳过"><span class="sic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2v20M2 12h20"/></svg></span><div><div>本次跳过</div><div class="sx">本周任务保留</div></div></div>
+          <div class="sheet-item" data-close data-toast="已换一个任务"><span class="sic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></span><div><div>换一个任务</div></div></div>
+          <div class="sheet-item dgr" data-close data-toast="已从计划移除"><span class="sic dgr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></span><div><div>从本周计划移除</div></div></div>
+        </div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI 授权设置 -->
+  <div class="view" id="v-auth">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-goto="v-chat"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">AI 数据设置</span></div>
+      <div class="content tight">
+        <div class="card soft" style="border-radius:16px;padding:14px 16px;display:flex;gap:12px;align-items:center;">
+          <span class="av" style="width:40px;height:40px;background:var(--white);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2a5 5 0 0 1 5 5v3H7V7a5 5 0 0 1 5-5Z"/><rect x="4" y="10" width="16" height="11" rx="2"/></svg></span>
+          <div style="flex:1;"><div style="font-size:13px;font-weight:500;">个性化分析已开启</div><div style="font-size:10px;color:var(--sub);margin-top:2px;">2026年10月21日授权</div></div>
+        </div>
+        <div class="rows">
+          <div class="row"><span class="tx"><span class="t">使用测量记录</span></span><span class="sw on"><span class="knob"></span></span></div>
+          <div class="row"><span class="tx"><span class="t">使用基本资料</span></span><span class="sw on"><span class="knob"></span></span></div>
+          <div class="row"><span class="tx"><span class="t">使用个人目标</span></span><span class="sw on"><span class="knob"></span></span></div>
+        </div>
+        <div class="rows">
+          <div class="row" data-toast="已删除全部 AI 对话"><span class="tx"><span class="t">删除全部 AI 对话</span></span></div>
+          <div class="row" data-open="sheet-withdraw2"><span class="tx"><span class="t" style="color:var(--danger);">撤回全部授权</span><span class="d">关闭后仍可一般咨询</span></span></div>
+        </div>
+        <div class="note">关闭后 AI 不使用你的个人健康数据。</div>
+        <div class="spacer"></div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+      <div class="overlay sheetmode" id="sheet-withdraw2">
+        <div class="sheet"><div class="grab"></div><div class="sbody"><div style="text-align:center;padding:8px 18px 4px;"><div style="font-size:16px;font-weight:700;">撤回全部授权？</div><div style="font-size:12px;color:var(--sub);line-height:1.7;margin-top:8px;">AI 报告、趋势分析、行动建议将停止。</div></div><div style="padding:16px 4px 0;display:flex;flex-direction:column;gap:10px;"><button class="btn secondary" style="color:var(--danger);border-color:var(--danger-bg);" data-close data-goto="v-unauth" data-toast="已撤回全部授权">确认撤回</button><button class="btn soft" data-close>保持开启</button></div></div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<div class="flowbar" style="margin-top:20px;text-align:center;"><p>轻衡 · AI 健康助手交互原型 · 6 屏 + 3 弹层</p></div>
+<script src="app.js"></script>
+</body>
+</html>

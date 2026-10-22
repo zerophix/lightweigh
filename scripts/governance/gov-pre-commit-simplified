@@ -1,10 +1,19 @@
 #!/usr/bin/env bash
 #
-# Git pre-commit hook — 精简版（只留必要治理）
-# 检查: 分支约束 + 会话归属 + 编译 + 测试
+# Git pre-commit hook — 精简版（项目自有）
+# 检查: 分支约束 + 会话归属 + 编译 + gov-custom-checks（含 gov-code-check）
 # 跳过: git commit --no-verify
+# 安装: cp scripts/governance/gov-pre-commit-simplified .git/hooks/pre-commit
+#       （勿用会装回模板长版的 bs-install-hooks.sh，直至其改指向本文件）
+
+set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+# 从 .git/hooks 安装时 dirname 为 .git/hooks → ../.. 仍是仓库根
+if [ ! -f "$ROOT/scripts/governance/gov-custom-checks.sh" ]; then
+  ROOT="$(git rev-parse --show-toplevel 2>/dev/null || echo "$ROOT")"
+fi
+cd "$ROOT"
 GIT_DIR=$(git rev-parse --git-dir 2>/dev/null || echo ".git")
 BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
 
@@ -56,16 +65,33 @@ except: print('')
 fi
 
 # =============================================================
-# 3. 编译检查（只在有源码变更时）
+# 3. 源码变更？→ 编译 + custom-checks（含 gov-code-check）
 # =============================================================
-SRC_CHANGED=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.(kt|java)$' | head -1)
+STAGED=$(git diff --cached --name-only --diff-filter=ACMR || true)
+SRC_CHANGED=$(echo "$STAGED" | grep -E '^(domain|application|infrastructure|app)/.*\.(kt|java)$' || true)
+# 治理脚本自身变更也跑 custom-checks（避免改检查器时漏自检）；仍要求与源码相关时才编译
+GOV_CHANGED=$(echo "$STAGED" | grep -E '^scripts/governance/(gov-custom-checks\.sh|gov-code-check\.py|gov-pre-commit-simplified)$' || true)
+
 if [ -n "$SRC_CHANGED" ]; then
   echo "  检测到源码变更，运行编译检查..."
-  if ! ./gradlew :domain:compileKotlin :application:compileKotlin :infrastructure:compileDebugKotlin :app:compileDebugKotlin -q 2>/dev/null; then
+  if ! ./gradlew :domain:compileKotlin :application:compileKotlin :infrastructure:compileDebugKotlin :app:compileDebugKotlin -q; then
     echo "❌ 编译失败，请修复后再提交"
     exit 1
   fi
   echo "  ✓ 编译通过"
+fi
+
+if [ -n "$SRC_CHANGED" ] || [ -n "$GOV_CHANGED" ]; then
+  echo "  运行 gov-custom-checks（含 gov-code-check）..."
+  if [ ! -f "$ROOT/scripts/governance/gov-custom-checks.sh" ]; then
+    echo "❌ 缺少 scripts/governance/gov-custom-checks.sh"
+    exit 1
+  fi
+  if ! bash "$ROOT/scripts/governance/gov-custom-checks.sh"; then
+    echo "❌ gov-custom-checks 失败，提交被拒绝"
+    exit 1
+  fi
+  echo "  ✓ custom-checks 通过"
 fi
 
 echo "✓ pre-commit 检查通过"

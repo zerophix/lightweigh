@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>轻衡 · 启动/账号生命周期/隐私注销 · 原型</title>
+<link rel="stylesheet" href="theme.css">
+</head>
+<body>
+
+<div class="topbar">
+  <h1>启动 + 账号生命周期 + 隐私/注销</h1>
+  <div class="nav">
+    <a href="index.html">← 总览</a>
+    <a href="#s01">01 启动/首次</a>
+    <a href="#s02">02 账号</a>
+    <a href="#s12">12 隐私/注销</a>
+  </div>
+</div>
+
+<!-- ========== 01 启动与首次使用 ========== -->
+<div class="sec" id="s01"><h2><span class="dot"></span>01 启动与首次使用</h2><p>page-list-TODO §01：启动页、条款首确认、权限用途说明、拒绝引导、更新提示。</p></div>
+<div class="board">
+
+  <!-- 01-1 启动页 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">01-1</span>启动页 / 品牌页</div>
+    <div class="frame-sub">首次安装与再次启动</div>
+    <div class="screen">
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg);">
+        <div style="width:88px;height:88px;border-radius:24px;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg></div>
+        <div style="font-size:28px;font-weight:700;margin-top:22px;letter-spacing:2px;">轻衡</div>
+        <div style="font-size:12px;color:var(--sub);margin-top:8px;">让健康，轻一点。</div>
+        <div class="loading-spin" style="margin-top:40px;"></div>
+        <div class="hint" style="margin-top:14px;">正在加载…</div>
+      </div>
+      <div style="text-align:center;padding:0 0 30px;"><span class="hint num">版本 0.1.0</span></div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 01-2 条款首确认 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">01-2</span>服务条款首次确认</div>
+    <div class="frame-sub">进入前必须同意</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="content">
+        <div class="hero center" style="margin-top:20px;">
+          <div class="bigicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a5 5 0 0 1 5 5v3H7V7a5 5 0 0 1 5-5Z"/><rect x="4" y="10" width="16" height="11" rx="2"/></svg></div>
+          <div class="h1" style="margin-top:22px;">你的健康数据，<br>由你做主</div>
+          <div class="h2">轻衡重视你的隐私。开始前，请阅读并同意以下条款。</div>
+        </div>
+
+        <div class="rows">
+          <div class="row center"><span class="chk on"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="tx"><span class="t">我已阅读并同意 <a>《用户协议》</a></span></span></div>
+          <div class="row center"><span class="chk on"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="tx"><span class="t">我已阅读并同意 <a>《隐私政策》</a></span></span></div>
+          <div class="row center"><span class="chk"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="tx"><span class="t">接收产品更新与健康资讯 <span class="tag mut">可选</span></span></span></div>
+        </div>
+
+        <div class="banner"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span><span class="bt">健康数据将加密存储，你可随时导出或删除。未同意前，我们不会收集任何个人数据。</span></div>
+
+        <div class="spacer"></div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="btn primary">同意并继续</div>
+          <div class="btn ghost" style="align-self:center;">不同意，退出应用</div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 01-3 权限用途说明 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">01-3</span>权限用途说明</div>
+    <div class="frame-sub">系统弹窗前的预说明</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span></div>
+      <div class="content">
+        <div class="hero center" style="margin-top:10px;">
+          <div class="bigicon ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64A9 9 0 1 1 5.64 6.64M12 2v10"/></svg></div>
+          <div class="h1" style="margin-top:20px;">需要几项权限，<br>把体脂秤连起来</div>
+          <div class="h2">下面这些权限只用于连接设备与提醒你测量，不会用于其他用途。</div>
+        </div>
+
+        <div class="card lg" style="padding:8px 18px;">
+          <div class="row" style="padding:13px 0;"><span class="ic soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64A9 9 0 1 1 5.64 6.64M12 2v10"/></svg></span><span class="tx"><span class="t">蓝牙</span><span class="d">用于搜索并连接你的体脂秤</span></span></div>
+          <div class="row" style="padding:13px 0;"><span class="ic soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20Z"/><circle cx="12" cy="12" r="10"/></svg></span><span class="tx"><span class="t">附近设备</span><span class="d">Android 12+ 需此权限才能发现体脂秤</span></span></div>
+          <div class="row" style="padding:13px 0;"><span class="ic soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg></span><span class="tx"><span class="t">通知</span><span class="d">可选，用于测量提醒（可随时关闭）</span></span></div>
+        </div>
+
+        <div class="note">点击「继续」后，系统会弹出对应的权限请求。你可以拒绝任意一项，核心功能不受影响。</div>
+
+        <div class="spacer"></div>
+        <div class="btn primary">继续</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 01-4 权限被拒绝引导 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">01-4</span>权限被拒绝引导</div>
+    <div class="frame-sub">拒绝后恢复路径</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span></div>
+      <div class="content">
+        <div class="hero center" style="margin-top:16px;">
+          <div class="bigicon" style="background:var(--warn-bg);color:var(--warn-ink);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64A9 9 0 1 1 5.64 6.64M12 2v10M2 2l20 20"/></svg></div>
+          <div class="h1 sm" style="margin-top:20px;">需要蓝牙权限<br>才能连接体脂秤</div>
+          <div class="h2">你刚才拒绝了蓝牙权限，暂时无法搜索和连接设备。<br>开启后即可正常使用。</div>
+        </div>
+
+        <div class="card lg" style="padding:14px 18px;">
+          <div style="font-size:12px;font-weight:700;margin-bottom:8px;">开启方法</div>
+          <div class="limit"><span class="num" style="width:20px;height:20px;border-radius:100px;background:var(--soft);color:var(--brand);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;">1</span>点击下方「去设置开启」</div>
+          <div class="limit"><span class="num" style="width:20px;height:20px;border-radius:100px;background:var(--soft);color:var(--brand);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;">2</span>在设置中找到「权限」→「蓝牙」</div>
+          <div class="limit"><span class="num" style="width:20px;height:20px;border-radius:100px;background:var(--soft);color:var(--brand);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;">3</span>开启「允许」后返回本页</div>
+        </div>
+
+        <div class="spacer"></div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="btn primary">去设置开启</div>
+          <div class="btn ghost" style="align-self:center;">暂不连接，先看看</div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 01-5 更新提示 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">01-5</span>应用更新提示</div>
+    <div class="frame-sub">非强制（弹层）</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <!-- 背景：首页简化 -->
+      <div class="content" style="filter:blur(1px);opacity:.5;">
+        <div class="card soft" style="border-radius:24px;height:120px;"></div>
+        <div class="mgrid"><div class="mcell" style="height:90px;"></div><div class="mcell" style="height:90px;"></div></div>
+      </div>
+      <!-- 弹层 -->
+      <div class="overlay">
+        <div class="dialog">
+          <div class="dic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg></div>
+          <div class="dt">发现新版本 v0.2.0</div>
+          <div class="dd" style="text-align:left;">本次更新：<br>· 新增身体评分与趋势对比<br>· 优化蓝牙连接稳定性<br>· 修复部分机型测量异常</div>
+          <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px;"><span class="chk on" style="width:16px;height:16px;border-radius:5px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="hint">Wi-Fi 下自动下载</span></div>
+          <div class="dact"><button class="btn secondary">稍后</button><button class="btn primary">立即更新</button></div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 02 账号与身份管理 ========== -->
+<div class="sec" id="s02"><h2><span class="dot"></span>02 账号与身份管理（生命周期）</h2><p>page-list-TODO §02：登录过期、退出、多设备异常、注销全流程（申请→说明验证→处理中→结果）。登录/验证码等见 00-login.html。</p></div>
+<div class="board">
+
+  <!-- 02-1 登录过期 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">02-1</span>登录过期 / 重新登录</div>
+    <div class="frame-sub">会话失效（弹层）</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="content" style="filter:blur(1px);opacity:.5;">
+        <div class="card soft" style="border-radius:24px;height:120px;"></div>
+        <div class="rows" style="height:180px;"></div>
+      </div>
+      <div class="overlay">
+        <div class="dialog">
+          <div class="dic warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+          <div class="dt">登录已过期</div>
+          <div class="dd">为保护你的数据安全，登录状态已失效。重新登录后可继续同步健康数据，本地记录不会丢失。</div>
+          <div class="dact"><button class="btn secondary">稍后</button><button class="btn primary">重新登录</button></div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 02-2 退出登录确认 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">02-2</span>退出登录确认</div>
+    <div class="frame-sub">底部弹层</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="content" style="filter:blur(1px);opacity:.5;">
+        <div class="rows" style="height:260px;"></div>
+      </div>
+      <div class="overlay sheetmode">
+        <div class="sheet">
+          <div class="grab"></div>
+          <div class="sbody">
+            <div style="text-align:center;padding:8px 20px 4px;">
+              <div style="font-size:16px;font-weight:700;">退出登录？</div>
+              <div style="font-size:12px;color:var(--sub);line-height:1.7;margin-top:8px;">退出后本地数据仍保留，下次登录可继续同步。<br>未同步的记录将保留至重新登录。</div>
+            </div>
+            <div style="padding:16px 4px 0;display:flex;flex-direction:column;gap:10px;">
+              <button class="btn secondary" style="color:var(--danger);border-color:var(--danger-bg);">退出登录</button>
+              <button class="btn soft">取消</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 02-3 多设备异常 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">02-3</span>多设备登录异常</div>
+    <div class="frame-sub">异地/顶号提示（弹层）</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="content" style="filter:blur(1px);opacity:.5;"><div class="rows" style="height:240px;"></div></div>
+      <div class="overlay">
+        <div class="dialog">
+          <div class="dic warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg></div>
+          <div class="dt">账号已在其他设备登录</div>
+          <div class="dd">你的账号于 <b class="num">10月22日 09:12</b> 在「iPhone 15 Pro」登录。如果不是本人操作，请立即修改密码。</div>
+          <div class="dact"><button class="btn secondary">是我的</button><button class="btn danger">不是我，改密码</button></div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 02-4 注销申请 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">02-4</span>账号注销申请</div>
+    <div class="frame-sub">注销入口 + 原因</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">注销账号</span></div>
+      <div class="content">
+        <div class="hero">
+          <div class="h1 sm">注销前，请了解</div>
+          <div class="h2">注销是不可逆操作。请确认你已了解以下影响。</div>
+        </div>
+        <div class="rows">
+          <div class="row" style="align-items:flex-start;"><span class="ic danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></span><span class="tx"><span class="t">全部测量记录将删除</span><span class="d">本地与云端记录均不可恢复</span></span></div>
+          <div class="row" style="align-items:flex-start;"><span class="ic danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></span><span class="tx"><span class="t">AI 对话与报告将清空</span><span class="d">历史对话无法找回</span></span></div>
+          <div class="row" style="align-items:flex-start;"><span class="ic danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></span><span class="tx"><span class="t">家庭成员关联将解除</span><span class="d">成员数据同步删除</span></span></div>
+          <div class="row" style="align-items:flex-start;"><span class="ic warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg></span><span class="tx"><span class="t">建议先导出数据</span><span class="d">在「隐私与数据管理」中导出备份</span></span></div>
+        </div>
+        <div class="spacer"></div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="btn primary">我已了解，下一步</div>
+          <div class="btn ghost" style="align-self:center;">再想想，先不注销</div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 02-5 身份验证 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">02-5</span>注销身份验证</div>
+    <div class="frame-sub">短信验证确认本人</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">身份验证</span></div>
+      <div class="content">
+        <div class="hero"><div class="h1 sm">验证是你本人</div><div class="h2">为保障账号安全，注销需通过短信验证。<br>验证码将发送至 <span class="num">138****0000</span></div></div>
+        <div>
+          <div class="lbl">验证码</div>
+          <div class="field"><input placeholder="6 位验证码" class="num"><span class="act num">58s 后重发</span></div>
+        </div>
+        <div class="banner warn"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg></span><span class="bt">验证通过后账号将进入注销流程，7 天冷静期内登录可撤销注销。</span></div>
+        <div class="spacer"></div>
+        <div class="btn danger">确认注销</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 02-6 注销处理中 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">02-6</span>注销处理中</div>
+    <div class="frame-sub">冷静期 / 处理状态</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">注销申请已提交</span></div>
+      <div class="content">
+        <div class="hero center" style="margin-top:16px;">
+          <div class="bigicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+          <div class="h1 sm" style="margin-top:20px;">注销申请处理中</div>
+          <div class="h2">账号已进入 <b>7 天冷静期</b>。<br>期间登录可撤销注销，到期后数据将永久删除。</div>
+        </div>
+        <div class="card lg pad20">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><span style="font-size:13px;font-weight:500;">剩余冷静期</span><span class="num" style="font-size:18px;font-weight:600;color:var(--brand);">6天 14时</span></div>
+          <div class="pbar"><div class="fill" style="width:8%;"></div></div>
+          <div class="hint" style="margin-top:10px;">申请时间：2026年10月22日 09:20<br>预计永久删除：2026年10月29日 09:20</div>
+        </div>
+        <div class="banner"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></span><span class="bt">冷静期内，你的数据仍受保护且不会被使用。到期前我们不会删除。</span></div>
+        <div class="spacer"></div>
+        <div class="btn primary">撤销注销，恢复账号</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 02-7 注销结果 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">02-7</span>注销结果</div>
+    <div class="frame-sub">成功 / 失败两态</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="statepage">
+        <div class="sic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+        <div class="st">账号已注销</div>
+        <div class="sd">你的账号与相关数据已按规则删除。感谢你曾使用轻衡，祝你健康。</div>
+        <button class="btn primary">返回登录</button>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 02-8 注销失败 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">02-8</span>注销失败</div>
+    <div class="frame-sub">可恢复处理</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="statepage">
+        <div class="sic err"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg></div>
+        <div class="st">注销未完成</div>
+        <div class="sd">注销过程中出现问题，你的账号<b>仍保持正常</b>，数据未受影响。请稍后重试或联系客服。</div>
+        <button class="btn primary">重试</button>
+        <button class="btn ghost" style="margin-top:12px;">联系客服</button>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 12 隐私、数据管理 ========== -->
+<div class="sec" id="s12"><h2><span class="dot"></span>12 隐私、数据管理（补充）</h2><p>page-list-TODO §12：健康数据单独授权、撤回授权确认、数据删除/保留规则。协议/隐私/AI设置见 03-mine-ai-auth.html。</p></div>
+<div class="board">
+
+  <!-- 12-1 健康数据单独授权 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">12-1</span>健康数据单独授权</div>
+    <div class="frame-sub">敏感数据二次同意</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">健康数据授权</span></div>
+      <div class="content">
+        <div class="hero center" style="margin-top:8px;">
+          <div class="bigicon ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.5-1.5 2-3.5 2-5a7 7 0 0 0-14 0c0 1.5.5 3.5 2 5l5 6Z"/><path d="M12 8v6"/></svg></div>
+          <div class="h1 sm" style="margin-top:18px;">健康数据属于敏感信息</div>
+          <div class="h2">我们需要你的单独同意，才会处理以下数据。</div>
+        </div>
+        <div class="card lg" style="padding:8px 18px;">
+          <div class="row" style="padding:12px 0;"><span class="tx"><span class="t">身体成分数据</span><span class="d">体重、体脂率、肌肉量等测量结果</span></span><span class="chk on"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg></span></div>
+          <div class="row" style="padding:12px 0;"><span class="tx"><span class="t">健康档案信息</span><span class="d">年龄、性别、身高</span></span><span class="chk on"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg></span></div>
+          <div class="row" style="padding:12px 0;"><span class="tx"><span class="t">云端同步</span><span class="d">加密上传，多设备查看</span></span><span class="chk"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg></span></div>
+        </div>
+        <div class="note">不同步时数据仅保存在本机，卸载将丢失。你可随时在「隐私与数据管理」中调整。</div>
+        <div class="spacer"></div>
+        <div style="display:flex;flex-direction:column;gap:12px;"><div class="btn primary">同意并继续</div><div class="btn secondary">仅本机，暂不同步</div></div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 12-2 撤回授权确认 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">12-2</span>撤回授权确认</div>
+    <div class="frame-sub">撤回 AI 授权（弹层）</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="content" style="filter:blur(1px);opacity:.5;"><div class="rows" style="height:260px;"></div></div>
+      <div class="overlay sheetmode">
+        <div class="sheet">
+          <div class="grab"></div>
+          <div class="sbody">
+            <div style="text-align:center;padding:8px 18px 4px;">
+              <div style="font-size:16px;font-weight:700;">撤回个性化分析授权？</div>
+              <div style="font-size:12px;color:var(--sub);line-height:1.7;margin-top:8px;">撤回后 AI 将<b>不再使用你的健康数据</b>：<br>· 已生成的报告解读将停止更新<br>· 将无法进行个性化趋势分析<br>· 仍可进行一般健康咨询</div>
+            </div>
+            <div style="padding:16px 4px 0;display:flex;flex-direction:column;gap:10px;">
+              <button class="btn secondary" style="color:var(--danger);border-color:var(--danger-bg);">确认撤回</button>
+              <button class="btn soft">保持开启</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 12-3 数据删除/保留规则 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">12-3</span>数据删除 / 保留规则</div>
+    <div class="frame-sub">四类操作区分说明</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">数据删除与保留</span></div>
+      <div class="content tight">
+        <div class="banner"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></span><span class="bt">以下四种操作范围不同，请按需选择，避免误删。</span></div>
+        <div class="rows">
+          <div class="row" style="align-items:flex-start;"><span class="ic soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></span><span class="tx"><span class="t">删除单条测量记录</span><span class="d">仅删这一条，本地与云端同步删除</span></span></div>
+          <div class="row" style="align-items:flex-start;"><span class="ic soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg></span><span class="tx"><span class="t">删除单段 AI 对话</span><span class="d">仅删该段对话，不影响报告</span></span></div>
+          <div class="row" style="align-items:flex-start;"><span class="ic soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 8v4M12 16h.01"/><circle cx="12" cy="12" r="9"/></svg></span><span class="tx"><span class="t">清空全部 AI 对话</span><span class="d">清空对话历史，健康数据保留</span></span></div>
+          <div class="row" style="align-items:flex-start;"><span class="ic danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></span><span class="tx"><span class="t" style="color:var(--danger);">注销账号</span><span class="d">永久删除全部数据，不可恢复</span></span></div>
+        </div>
+        <div class="card lg pad18">
+          <div class="st sm" style="margin-bottom:8px;">保留规则</div>
+          <div class="hint" style="line-height:1.8;">· 删除的记录保留 7 天可恢复，之后从云端彻底清除<br>· 注销后数据保留 7 天冷静期，期间可撤销<br>· 冷静期结束后 30 天内，备份中的残余数据将被覆盖</div>
+        </div>
+        <div class="spacer"></div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">轻衡 · 启动 + 账号生命周期 + 隐私/注销 · 15 屏<br>依据 design/page-list-TODO.md §01 §02 §12 · theme.css 设计基准 NOTE-20261022-001</div>
+</body>
+</html>

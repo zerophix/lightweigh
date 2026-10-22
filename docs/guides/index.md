@@ -19,6 +19,7 @@
 | [已有项目迁移](GC-existing-project-porting.md) | 存量项目 | 将协作模式逐步移植到已有项目中，分阶段采纳而不破坏现有结构 |
 | [决策流转规范](GC-decision-flow.md) | 所有 AI 助手 | 从设计笔记→决策日志→生命周期→晋升→黄金标准的全链路规范 |
 | [README 结构规范](GC-readme-structure.md) | 所有 AI 助手 | README 目录层次标准：机读层结构契约（GOV-README 校验）+ 手读层标准大纲与反例 |
+| [多 AI 并发协作](GC-multi-agent-collab.md) | 多会话 / 多代理 | 一写者原则、worktree/分支、会话 claim、gov-local-ci、冲突处理（DEC-047） |
 
 ---
 
@@ -27,5 +28,6 @@
 - **新用户**：先读 GC-new-project-setup.md 完成项目初始化
 - **迁移用户**：读 GC-existing-project-porting.md 了解分阶段迁移策略
 - **所有 AI**：每次启动必须读 GC-decision-flow.md，理解决策如何流转
+- **多会话并发**：先读 GC-multi-agent-collab.md，再 begin / claim
 
-## 来源: ai/decisions/DEC-014
+## 来源: ai/decisions/DEC-047

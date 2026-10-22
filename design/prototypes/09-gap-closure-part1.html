@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>轻衡 · 缺口补齐 Part1（启动/首页/测量/历史/指标/账号）· 原型</title>
+<link rel="stylesheet" href="theme.css">
+</head>
+<body>
+
+<div class="topbar">
+  <h1>缺口补齐 Part 1 · 启动/首页/测量/历史/指标/账号</h1>
+  <div class="nav">
+    <a href="index.html">← 总览</a>
+    <a href="#g1">启动/账号</a>
+    <a href="#g2">首页/测量</a>
+    <a href="#g3">历史/指标</a>
+  </div>
+</div>
+
+<!-- ===== 启动 + 账号残留 ===== -->
+<div class="sec" id="g1"><h2><span class="dot"></span>§01 §02 残留</h2><p>page-list-TODO 复核缺口：强制更新、最低版本、未同意隐私限制、验证码错误、健康数据使用说明。</p></div>
+<div class="board">
+
+  <!-- 强制更新 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">G1-1</span>强制更新提示</div>
+    <div class="frame-sub">§01 低版本不可跳过</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="content" style="filter:blur(1px);opacity:.5;"><div class="card soft" style="border-radius:24px;height:150px;"></div></div>
+      <div class="overlay">
+        <div class="dialog">
+          <div class="dic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg></div>
+          <div class="dt">需要更新到新版本</div>
+          <div class="dd">当前版本 <b class="num">v0.1.0</b> 已停止服务，<br>为保障数据安全需更新至 <b class="num">v0.2.0</b>。<br>请更新后继续使用。</div>
+          <div class="dact" style="flex-direction:column;"><button class="btn primary" style="width:100%;">立即更新</button></div>
+          <div class="hint" style="margin-top:10px;">更新包约 28 MB，Wi-Fi 下建议自动下载</div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 最低版本不满足 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">G1-2</span>最低版本不满足</div>
+    <div class="frame-sub">§01 系统版本过低</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span></div>
+      <div class="statepage">
+        <div class="sic warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M12 18h.01M9 6l6 6-6 6"/></svg></div>
+        <div class="st">系统版本过低</div>
+        <div class="sd">轻衡需要 Android 8.0 及以上才能运行，<br>当前系统版本过低。<br>请升级系统后再使用。</div>
+        <button class="btn primary">查看升级方法</button>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 未同意隐私限制态 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">G1-3</span>未同意隐私时限制态</div>
+    <div class="frame-sub">§01 功能锁定</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">设备管理</span></div>
+      <div class="content">
+        <div class="banner warn"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span><span class="bt">需先同意《隐私政策》才能使用设备连接与数据功能。</span></div>
+        <div class="statepage" style="padding:20px;opacity:.5;">
+          <div class="sic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M8 12h.01M16 12h.01"/></svg></div>
+          <div class="st">功能暂不可用</div>
+          <div class="sd">为保护你的权益，需完成隐私政策确认后<br>才能连接设备、保存测量数据。</div>
+          <button class="btn primary">去同意隐私政策</button>
+        </div>
+        <div class="spacer"></div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 验证码错误 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">G1-4</span>验证码错误提示</div>
+    <div class="frame-sub">§02 输入校验</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">手机号登录</span></div>
+      <div class="content">
+        <div class="hero"><div class="h1 sm">输入验证码</div><div class="h2">验证码已发送至 <span class="num">+86 138****0000</span></div></div>
+        <div>
+          <div class="lbl">验证码</div>
+          <div class="field err"><input class="num" value="1 2 3 4 5 6"><span style="color:var(--danger);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg></span></div>
+          <div class="errtext">验证码错误，还可尝试 4 次</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:2px;">
+          <span class="hint num">重新发送（52s）</span>
+          <span style="font-size:11px;color:var(--brand);">收不到验证码？</span>
+        </div>
+        <div class="banner warn"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg></span><span class="bt">验证码 5 次错误后需等待 10 分钟再试。</span></div>
+        <div class="spacer"></div>
+        <div class="btn primary disabled">登录</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 健康数据使用说明 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">G1-5</span>健康数据使用说明</div>
+    <div class="frame-sub">§12 数据处理透明</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">健康数据使用说明</span></div>
+      <div class="content tight">
+        <div class="card soft" style="border-radius:16px;padding:14px 16px;display:flex;gap:12px;align-items:center;">
+          <span class="av" style="width:40px;height:40px;background:var(--white);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+          <div style="font-size:12px;color:var(--sub);line-height:1.6;">你的健康数据<b>加密存储</b>，我们<b>不会</b>用于广告或对外共享。</div>
+        </div>
+        <div class="rows">
+          <div class="row" style="align-items:flex-start;"><span class="tx"><span class="t">收集哪些数据</span><span class="d">测量结果（体重/体脂等）、健康档案（年龄/性别/身高）、目标</span></span></div>
+          <div class="row" style="align-items:flex-start;"><span class="tx"><span class="t">如何使用</span><span class="d">生成趋势分析、身体报告、AI 解读与行动建议</span></span></div>
+          <div class="row" style="align-items:flex-start;"><span class="tx"><span class="t">存储位置</span><span class="d">本机加密 + 云端端到端加密（可选同步）</span></span></div>
+          <div class="row" style="align-items:flex-start;"><span class="tx"><span class="t">谁能看到</span><span class="d">仅你本人；家庭成员数据相互独立</span></span></div>
+          <div class="row" style="align-items:flex-start;"><span class="tx"><span class="t">保留多久</span><span class="d">账号存续期保留；删除/注销后按规则清除</span></span></div>
+        </div>
+        <div class="banner"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></span><span class="bt">健康数据属敏感个人信息，处理规则详见《隐私政策》。</span></div>
+        <div class="spacer"></div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 首页 + 测量残留 ===== -->
+<div class="sec" id="g2"><h2><span class="dot"></span>§03 §04 残留</h2><p>page-list-TODO 复核缺口：目标完成反馈、重复测量处理、设备返回无效数据。</p></div>
+<div class="board">
+
+  <!-- 目标完成反馈 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">G2-1</span>目标完成反馈</div>
+    <div class="frame-sub">§03 达成庆祝</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">目标达成</span></div>
+      <div class="content">
+        <div class="hero center" style="margin-top:20px;">
+          <div class="bigicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 6-6"/></svg></div>
+          <div class="h1" style="margin-top:20px;">恭喜，达成体重目标！</div>
+          <div class="h2">从 65.2 kg 到 58.0 kg，<br>你减重 7.2 kg，用时 84 天。</div>
+        </div>
+        <div class="card lg pad20" style="text-align:center;">
+          <div style="display:flex;justify-content:center;gap:24px;">
+            <div><div class="num" style="font-size:24px;font-weight:600;color:var(--brand);">58.0</div><div class="hint">目标 kg</div></div>
+            <div><div class="num" style="font-size:24px;font-weight:600;">57.9</div><div class="hint">当前 kg</div></div>
+            <div><div class="num" style="font-size:24px;font-weight:600;color:var(--brand);">84</div><div class="hint">天数</div></div>
+          </div>
+        </div>
+        <div class="banner"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1Z"/><path d="M4 22v-7"/></svg></span><span class="bt">可以设定新目标，或维持当前体重巩固成果。</span></div>
+        <div class="spacer"></div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="btn primary">设定新目标</div>
+          <div class="btn secondary">维持当前体重</div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 重复测量处理 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">G2-2</span>重复测量处理</div>
+    <div class="frame-sub">§04 短时间多次（弹层）</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="content" style="filter:blur(1px);opacity:.5;"><div class="card soft" style="border-radius:24px;height:150px;"></div></div>
+      <div class="overlay">
+        <div class="dialog">
+          <div class="dic warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+          <div class="dt">3 分钟内重复测量</div>
+          <div class="dd">你刚刚已在 07:30 测量过（62.4 kg）。<br>本次读数 62.5 kg。请选择处理方式。</div>
+          <div class="dact" style="flex-direction:column;">
+            <button class="btn primary" style="width:100%;">替换上次记录</button>
+            <button class="btn secondary" style="width:100%;">保留为新记录</button>
+            <button class="btn ghost" style="align-self:center;">放弃本次测量</button>
+          </div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 设备返回无效数据 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">G2-3</span>设备返回无效数据</div>
+    <div class="frame-sub">§04 读数异常</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">数据异常</span></div>
+      <div class="statepage">
+        <div class="sic err"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18M8 17V9M13 17V5M18 17v-6M2 2l20 20"/></svg></div>
+        <div class="st">设备返回的数据无效</div>
+        <div class="sd">本次读数超出合理范围，<br>可能是电极接触不良或干扰。<br>该数据<b>未保存</b>。</div>
+        <button class="btn primary">重新测量</button>
+        <button class="btn ghost" style="margin-top:12px;">反馈此问题</button>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 历史 + 指标残留 ===== -->
+<div class="sec" id="g3"><h2><span class="dot"></span>§05 §06 残留</h2><p>page-list-TODO 复核缺口：历史编辑、删除失败、导出结果、身体评分说明、数据点异常、多指标对比。</p></div>
+<div class="board">
+
+  <!-- 历史记录编辑 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">G3-1</span>历史记录编辑</div>
+    <div class="frame-sub">§05 仅改备注/时间</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">编辑记录</span></div>
+      <div class="content tight">
+        <div class="card soft" style="border-radius:16px;padding:12px 16px;display:flex;align-items:center;gap:10px;">
+          <span style="font-size:12px;color:var(--sub);">测量数值由设备产生，<b>不可修改</b></span>
+          <span class="num" style="margin-left:auto;font-size:15px;font-weight:600;">62.4 kg</span>
+        </div>
+        <div class="card lg pad18" style="display:flex;flex-direction:column;gap:16px;">
+          <div><div class="lbl">测量时间</div><div class="field"><input class="num" value="2026-10-21 07:30"></div></div>
+          <div><div class="lbl">备注（可选）</div><div class="field area" style="min-height:70px;"><span class="fake">晨起、空腹、排便后测量</span></div></div>
+        </div>
+        <div class="banner"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></span><span class="bt">仅时间与备注可编辑；体重、体脂数值来自设备，无法手动更改以保证数据真实。</span></div>
+        <div class="spacer"></div>
+        <div class="btn primary">保存修改</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 删除记录失败 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">G3-2</span>删除记录失败</div>
+    <div class="frame-sub">§05 删除异常（弹层）</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="content" style="filter:blur(1px);opacity:.5;"><div class="rows" style="height:260px;"></div></div>
+      <div class="overlay">
+        <div class="dialog">
+          <div class="dic dgr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg></div>
+          <div class="dt">删除失败</div>
+          <div class="dd">云端删除超时，该记录<b>仍保留</b>。<br>可能是网络不稳定，可重试或稍后处理。</div>
+          <div class="dact"><button class="btn secondary">稍后</button><button class="btn primary">重试删除</button></div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 导出结果 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">G3-3</span>导出结果</div>
+    <div class="frame-sub">§05 成功/失败</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">导出结果</span></div>
+      <div class="content">
+        <div class="card soft" style="border-radius:24px;padding:20px;display:flex;align-items:center;gap:14px;">
+          <span class="av" style="width:48px;height:48px;background:var(--white);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg></span>
+          <div style="flex:1;"><div style="font-size:14px;font-weight:700;">健康数据_20261022.csv</div><div style="font-size:11px;color:var(--sub);margin-top:3px;">128 条记录 · 42 KB</div></div>
+          <span class="tag">已生成</span>
+        </div>
+        <div class="banner"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span><span class="bt">下载链接已发送至你的邮箱，<b>24 小时内有效</b>，请尽快下载。</span></div>
+        <!-- 失败态 -->
+        <div class="card lg pad18" style="border:1px dashed var(--stroke);">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span style="color:var(--danger);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg></span>
+            <div style="flex:1;"><div style="font-size:13px;font-weight:500;">上次导出失败</div><div style="font-size:10px;color:var(--muted);margin-top:2px;">10月20日 · 邮箱发送超时</div></div>
+            <span style="font-size:12px;color:var(--brand);">重试</span>
+          </div>
+        </div>
+        <div class="spacer"></div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="btn primary">下载文件</div>
+          <div class="btn secondary">重新生成导出包</div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 身体评分说明 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">G3-4</span>身体评分说明</div>
+    <div class="frame-sub">§06 评分规则</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">身体评分</span></div>
+      <div class="content tight">
+        <div class="card lg pad20" style="text-align:center;">
+          <div class="num" style="font-size:56px;font-weight:600;color:var(--brand);line-height:1;">86</div>
+          <div class="hint" style="margin-top:6px;">本次评分 · 属于「良好」区间</div>
+          <div style="display:flex;gap:3px;margin-top:16px;">
+            <div style="flex:1;height:8px;border-radius:3px 0 0 3px;background:var(--track);"></div>
+            <div style="flex:1;height:8px;background:var(--brand);"></div>
+            <div style="flex:1;height:8px;border-radius:0 3px 3px 0;background:var(--track);"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:6px;" class="hint num"><span>需改善</span><span>良好 80–90</span><span>优秀</span></div>
+        </div>
+        <div class="card lg pad18">
+          <div class="st sm" style="margin-bottom:10px;">评分如何得出</div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;align-items:center;gap:10px;"><span style="width:8px;height:8px;border-radius:100px;background:var(--brand);"></span><span style="flex:1;font-size:12px;">体脂率是否在参考区间</span><span class="num hint">30%</span></div>
+            <div style="display:flex;align-items:center;gap:10px;"><span style="width:8px;height:8px;border-radius:100px;background:var(--brand);"></span><span style="flex:1;font-size:12px;">BMI 是否标准</span><span class="num hint">25%</span></div>
+            <div style="display:flex;align-items:center;gap:10px;"><span style="width:8px;height:8px;border-radius:100px;background:var(--brand);"></span><span style="flex:1;font-size:12px;">肌肉量与水分率</span><span class="num hint">25%</span></div>
+            <div style="display:flex;align-items:center;gap:10px;"><span style="width:8px;height:8px;border-radius:100px;background:var(--brand);"></span><span style="flex:1;font-size:12px;">内脏脂肪等级</span><span class="num hint">20%</span></div>
+          </div>
+        </div>
+        <div class="note">评分为估算参考，非医疗诊断。关注长期变化比单次分数更有意义。</div>
+        <div class="spacer"></div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 数据点缺失/异常值 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">G3-5</span>数据点缺失/异常值</div>
+    <div class="frame-sub">§06 图表标注</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">体重趋势</span></div>
+      <div class="content tight">
+        <div class="card lg pad20">
+          <div class="sthead" style="margin-bottom:8px;"><span class="st sm">体重</span><span class="more">近30天 ›</span></div>
+          <svg class="chart-ph" height="130" viewBox="0 0 300 130" preserveAspectRatio="none"><line x1="0" y1="32" x2="300" y2="32" stroke="#E6ECE6"/><line x1="0" y1="65" x2="300" y2="65" stroke="#E6ECE6"/><line x1="0" y1="98" x2="300" y2="98" stroke="#E6ECE6"/><path d="M0 40 C40 36 60 55 90 52" fill="none" stroke="#258C77" stroke-width="2.5" stroke-linecap="round"/><path d="M130 48 C160 44 180 62 210 58 C240 54 260 74 300 70" fill="none" stroke="#258C77" stroke-width="2.5" stroke-linecap="round"/><line x1="90" y1="0" x2="130" y2="130" stroke="#CFE3D6" stroke-dasharray="4 4"/><circle cx="90" cy="52" r="5" fill="#fff" stroke="#C0564B" stroke-width="2.5"/><circle cx="210" cy="58" r="5" fill="#fff" stroke="#258C77" stroke-width="3"/></svg>
+          <div style="display:flex;justify-content:space-between;margin-top:4px;" class="hint num"><span>09/21</span><span>10/01</span><span>10/11</span><span>10/21</span></div>
+        </div>
+        <div class="rows">
+          <div class="row" style="align-items:flex-start;"><span class="ic danger" style="width:32px;height:32px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg></span><span class="tx"><span class="t">10/01 数据异常已剔除</span><span class="d">读数 68.9kg 超出合理范围，未计入趋势</span></span></div>
+          <div class="row" style="align-items:flex-start;"><span class="ic warn" style="width:32px;height:32px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4M17 12h4M12 3v4M12 17v4"/></svg></span><span class="tx"><span class="t">10/05–10/08 缺少数据</span><span class="d">该时段无测量记录，曲线为估算衔接</span></span></div>
+        </div>
+        <div class="note">异常值与缺测时段会以虚线/空心点标注，不影响整体趋势判断。</div>
+        <div class="spacer"></div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 多指标趋势对比 -->
+  <div class="frame-wrap">
+    <div class="frame-label"><span class="idx">G3-6</span>多指标趋势对比</div>
+    <div class="frame-sub">§06 体重 vs 体脂</div>
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">趋势对比</span><span class="lnk">选择指标</span></div>
+      <div class="content tight">
+        <!-- 图例 -->
+        <div style="display:flex;gap:16px;align-items:center;">
+          <span style="display:flex;align-items:center;gap:6px;font-size:12px;"><span style="width:12px;height:3px;border-radius:2px;background:var(--brand);"></span>体重 kg</span>
+          <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--warn-ink);"><span style="width:12px;height:3px;border-radius:2px;background:var(--warn-ink);"></span>体脂率 %</span>
+          <span class="seg" style="margin-left:auto;padding:2px;"><span class="opt on" style="height:24px;font-size:11px;">双轴</span><span class="opt" style="height:24px;font-size:11px;">归一</span></span>
+        </div>
+        <div class="card lg pad20">
+          <svg class="chart-ph" height="150" viewBox="0 0 300 150" preserveAspectRatio="none"><line x1="0" y1="37" x2="300" y2="37" stroke="#E6ECE6"/><line x1="0" y1="75" x2="300" y2="75" stroke="#E6ECE6"/><line x1="0" y1="113" x2="300" y2="113" stroke="#E6ECE6"/><path d="M0 45 C40 40 70 60 100 56 C140 50 170 72 210 66 C250 60 280 80 300 76" fill="none" stroke="#258C77" stroke-width="2.5" stroke-linecap="round"/><path d="M0 60 C40 58 70 72 100 70 C140 68 170 88 210 84 C250 80 280 100 300 96" fill="none" stroke="#89744B" stroke-width="2.5" stroke-dasharray="5 4" stroke-linecap="round"/></svg>
+          <div style="display:flex;justify-content:space-between;margin-top:4px;" class="hint num"><span>09/21</span><span>10/01</span><span>10/11</span><span>10/21</span></div>
+        </div>
+        <div class="banner"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></span><span class="bt">30 天内体重与体脂率同步下降，方向一致，说明变化较健康。</span></div>
+        <div class="card lg pad18">
+          <div style="display:flex;gap:12px;">
+            <div style="flex:1;"><div class="hint">体重变化</div><div class="num" style="font-size:18px;font-weight:600;color:var(--brand);">−1.6 kg</div></div>
+            <div style="flex:1;border-left:1px solid var(--divider);padding-left:12px;"><div class="hint">体脂率变化</div><div class="num" style="font-size:18px;font-weight:600;color:var(--warn-ink);">−1.5 %</div></div>
+          </div>
+        </div>
+        <div class="spacer"></div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">轻衡 · 缺口补齐 Part1 · 14 屏<br>依据 design/page-list-TODO.md 复核缺口 §01 §02 §03 §04 §05 §06 §12</div>
+</body>
+</html>
