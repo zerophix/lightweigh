@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+# DEPRECATED (DEC-054 ops) — 精简校验实验脚本，非现行门禁。
+# 现行校验: bash scripts/governance/gov-validate.sh（local-ci / pre-push / CI docs-validate）。
+# 保留仅供对照；勿在 hooks 或 CI 中重新启用。
+#
 # 精简验证 — 只检查必要项
 # 用法: gov-validate-simplified.sh [--fast]
 

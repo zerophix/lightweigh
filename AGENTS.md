@@ -76,7 +76,7 @@ bash scripts/bootstrap/bs-install-hooks.sh   # 安装 simplified pre-commit（DE
 | pre-push | 分支名 + 全量 validate（可被 `--no-verify` 绕过） |
 | Actions | `ci.yml`：push 到 master/main/**特性分支通配**（feat/fix/chore/…）与 **PR**（DEC-049）；文档变更仍可跳过重型构建（DEC-033） |
 | Dependabot | `.github/dependabot.yml`：gradle + github-actions 周更（DEC-049） |
-| 密钥扫描 | `gov-secrets-scan.sh`（gitleaks）接入 local-ci / pre-push；缺二进制软警告，有则硬失败 |
+| 密钥扫描 | `gov-secrets-scan.sh`（gitleaks）接入 local-ci / pre-push / CI `secrets-scan` job；本地缺二进制软警告，有则硬失败 |
 | STATUS 证据 | `gov-local-ci` 写入 `.cache/local-ci-last.json`，`STATUS.md` 健康检查读取（DEC-051）；可选 `gh run` |
 | Schema 守卫 | 改 `golden/` 或 `infrastructure/schemas/` 须 DEC 或 `allow-schema-change`（DEC-052；CI+local-ci） |
 | 测试提醒 | `src/main` 无同模块 `src/test|androidTest` 时 PR 评论警告（DEC-053；默认不红，`--strict`+`allow-no-tests`） |

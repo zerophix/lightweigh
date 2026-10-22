@@ -16,6 +16,22 @@ _DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT="$(cd "$_DIR/../.." && pwd)"
 cd "$ROOT"
 
+# Dependabot / 纯依赖 bump：不要求 DEC+DevNotes（依赖变更非产品语义）
+# CI 可设 LIFECYCLE_AUDIT_SKIP=1；或 actor/标签识别
+if [ "${LIFECYCLE_AUDIT_SKIP:-0}" = "1" ]; then
+  echo "  [PASS] lifecycle-audit 已跳过（LIFECYCLE_AUDIT_SKIP=1）"
+  exit 0
+fi
+ACTOR="${GITHUB_ACTOR:-}"
+if [ "$ACTOR" = "dependabot[bot]" ] || [ "$ACTOR" = "dependabot" ]; then
+  echo "  [PASS] Dependabot 提交，跳过生命周期审计（DEC-054 ops）"
+  exit 0
+fi
+if echo "${PR_LABELS:-}" | tr ',' '\n' | grep -qx 'dependencies'; then
+  echo "  [PASS] PR 含 dependencies 标签，跳过生命周期审计（DEC-054 ops）"
+  exit 0
+fi
+
 BASE="HEAD~1"
 if [ "${1:-}" = "--base" ] && [ -n "${2:-}" ]; then
   BASE="$2"

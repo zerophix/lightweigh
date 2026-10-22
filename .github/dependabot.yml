@@ -1,4 +1,5 @@
 # DEC-049 — 私有仓可用；无需 GitHub Pro / 公开
+# DEC-054 ops follow-up: ignore major Kotlin / AGP（失败构建烧 Actions 分钟）
 version: 2
 updates:
   - package-ecosystem: gradle
@@ -12,6 +13,22 @@ updates:
     commit-message:
       prefix: chore
       include: scope
+    ignore:
+      # libs.versions.toml keys（Dependabot PR 标题 bump kotlin / agp）
+      - dependency-name: "kotlin"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "agp"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "org.jetbrains.kotlin.android"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "org.jetbrains.kotlin.jvm"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "org.jetbrains.kotlin.plugin.compose"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "com.android.application"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "com.android.library"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: github-actions
     directory: /

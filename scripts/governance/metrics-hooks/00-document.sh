@@ -86,7 +86,7 @@ NOW=$(date +%Y-%m-%d)
 cat << METRICSEOF
 # 指标
 
-> 轻刻健康 Android（qk-health-v2）的量化指标，数值实时计算、随代码自动更新。
+> 轻衡健康 Android（lightweigh）的量化指标，数值实时计算、随代码自动更新。
 > 覆盖型文档：由 gov-update-metrics.sh 重写（本地化钩子 metrics-hooks/00-document.sh）。
 
 ---

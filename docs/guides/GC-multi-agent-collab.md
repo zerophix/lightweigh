@@ -2,7 +2,7 @@
 
 > 适用：多名 AI（或 AI + 人类）同时推进本仓库。
 > 权威任务板：`.ai/tasks.json`。合入前门禁：`bash scripts/governance/gov-local-ci.sh`。
-> 决策：DEC-047、DEC-048、DEC-049、DEC-050。
+> 决策：DEC-047、DEC-048、DEC-049、DEC-050、DEC-054。
 
 ---
 
@@ -10,7 +10,7 @@
 
 1. **一写者原则**：同一 git 工作树同一时刻只允许一个会话写入源码/文档。
 2. **一 AI 一分支**：分支名 `feat|fix|docs|refactor|chore|test|ci/<topic>`；禁止在 `master` 上直提交（pre-commit 已拦）。
-3. **优先 worktree**：`bash scripts/session/ses-worktree.sh add feat/<topic>`（默认 `../qk-health-v2-<topic>`；`--in-repo` 用 `.worktrees/`）。hooks 已优先 `show-toplevel`（DEC-050）。
+3. **优先 worktree**：`bash scripts/session/ses-worktree.sh add feat/<topic>`（默认 `../lightweigh-<topic>`；`--in-repo` 用 `.worktrees/`）。hooks 已优先 `show-toplevel`（DEC-050）。
 4. **不共享未提交工作**：不要在别人的脏树上继续改；认领文件后再改。
 5. **合入看门禁**：本地 `gov-local-ci.sh` 全绿（含 gitleaks 密钥扫描），再开 PR；特性分支 **push 也会跑 CI**（DEC-049）；远程无分支保护时，**PR 模板勾选是纪律硬门槛**。
 6. **无 AC 不开工**：任务须具备 ready 的 `acceptance`（见 [GC-task-acceptance](GC-task-acceptance.md)）。
@@ -81,11 +81,11 @@ bash scripts/session/ses-worktree.sh add feat/my-topic
 bash scripts/session/ses-worktree.sh add fix/ble-scan --in-repo
 bash scripts/session/ses-worktree.sh list
 bash scripts/session/ses-worktree.sh doctor          # 确认 hooks ROOT=本树
-bash scripts/session/ses-worktree.sh remove ../qk-health-v2-my-topic
+bash scripts/session/ses-worktree.sh remove ../lightweigh-my-topic
 ```
 
 创建后按脚本打印的 begin → claim → local-ci → push 顺序工作。
 
 ## 来源
 
-DEC-047、DEC-048、DEC-049、DEC-050；前序 DEC-045（文档事实）、DEC-046（custom-checks / local-ci）。
+DEC-047、DEC-048、DEC-049、DEC-050、DEC-054；前序 DEC-045（文档事实）、DEC-046（custom-checks / local-ci）。

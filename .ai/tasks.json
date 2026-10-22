@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-10-22T04:43:10Z",
+  "updated_at": "2026-10-22T04:51:26Z",
   "next_action": "在 Android 真机安装 APK 验证",
   "next_action_why": "人类端到端验收",
   "next_action_confirmed": false,
@@ -16,7 +16,9 @@
     "无",
     "gov-pre-push/gov_validate_status 为模板区分叉，upgrade 后须重检；allowlist 过宽会漏报",
     "旧 hook 副本需 bs-install-hooks 或手工 cp 同步",
-    "未跑 local-ci 时 STATUS 显示无证据；generate-status 为模板区分叉"
+    "未跑 local-ci 时 STATUS 显示无证据；generate-status 为模板区分叉",
+    "join(labels) 表达式若 Actions 解析失败可回退 GITHUB_EVENT_PATH 读标签",
+    "模块级匹配可能漏同名类级缺口；资源路径已忽略"
   ],
   "tasks": [
     {

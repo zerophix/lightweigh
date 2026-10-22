@@ -117,7 +117,7 @@
 - [ ] M2 SyncGateway 云同步与登录（含 CloudBase 防腐层）
 - [ ] M3 ScaleGateway BLE 称重接入（三协议解析器已在 domain 就绪）
 - [ ] 档案编辑 writer 与生日月日精度
-- [ ] `settings.gradle.kts` 的 rootProject.name 是否随产品统一命名（当前仍为 qk-health-v2）
+- [ ] `settings.gradle.kts` 的 rootProject.name 已随产品统一为 lightweigh（见 settings.gradle.kts / DEC-054 ops）
 - [ ] 评估 wrapper 发行版由 `-all` 改为 `-bin`（体积约六成，腾讯镜像 `-all` 叶节点未缓存易超时）
 
 ## 4. 关键发现
