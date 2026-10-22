@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "updated_at": "2026-10-22T12:05:41+08:00",
+  "updated_at": "2026-10-22T04:09:19Z",
   "next_action": "在 Android 真机安装 APK 验证",
-  "next_action_why": "端到端验证确认修复有效, 踏秤获取锁定结果",
+  "next_action_why": "端到端验证确认修复有效，踏秤获取锁定结果（人类项）",
   "next_action_confirmed": false,
   "known_risks": [
     "任务无 ready AC 不得开工；in_progress 缺 definition_of_done 会触发 GOV-PROTO-004（DEC-048）。",
@@ -11,7 +11,8 @@
     "无 GitHub Pro / 无分支保护：合入靠 `gov-local-ci.sh` + PR 模板勾选（DEC-048）。simplified pre-commit 已含 custom-checks；bs-install-hooks 优先装 simplified（DEC-047）。",
     "墙钟协议门禁：GOV-PROTO-001/002（inbox 48h / handoff 24h）仍可拦 pre-push 与 CI，与代码无关。",
     "CI 镜像分流依赖 CI=true：第三方 CI 未设该变量可能重踩阿里云 502（见 DEC-031/032）。",
-    "真机 BLE：用户已确认真机秤可用；DEC-044 已修 Chipsea 混合广播误识别。残余：新协议/机型回归、android-test 周跑设备链、以及 tasks 中人类验收步骤（如安装 APK 验证）仍须人类执行。"
+    "真机 BLE：用户已确认真机秤可用；DEC-044 已修 Chipsea 混合广播误识别。残余：新协议/机型回归、android-test 周跑设备链、以及 tasks 中人类验收步骤（如安装 APK 验证）仍须人类执行。",
+    "模板拥有区 modules 分叉，gov-upgrade 可能覆盖；T-045/T-046 与已 done 任务可能重叠须人类确认；无分支保护仍可 --no-verify 直推"
   ],
   "tasks": [
     {
