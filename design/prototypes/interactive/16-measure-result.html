@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>轻衡 · 测量结果与报告（可交互）</title>
+<link rel="stylesheet" href="../theme.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body class="interactive">
+<div class="flowbar">
+  <h1>测量结果与报告 · 可交互原型</h1>
+  <p>测量完成 → 身体成分报告 → AI 解读 → 分享/导出预览。补全 Figma E01/E02/E12/E13 缺口。</p>
+  <div class="nav"><a href="index.html">交互总览</a><a href="03-measure.html">测量主流程</a><a href="../index.html">← 静态总览</a></div>
+</div>
+<div class="app">
+
+  <!-- 测量完成首页（枢纽） -->
+  <div class="view" id="v-result">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="content" style="min-height:760px;overflow-y:auto;">
+        <div style="display:flex;align-items:center;gap:6px;color:var(--brand);font-size:11px;margin-top:2px;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 6-6"/></svg>
+          测量完成 · 林悦 · 10月21日 07:30
+        </div>
+
+        <!-- 体重大卡 -->
+        <div class="card soft" style="border-radius:24px;padding:22px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span class="hint">本次体重</span>
+            <span class="hint" style="color:var(--brand);">↓ 0.3 kg 较上次</span>
+          </div>
+          <div style="display:flex;align-items:baseline;gap:8px;margin-top:8px;">
+            <span class="num" style="font-size:48px;font-weight:600;">62.4</span>
+            <span style="font-size:15px;color:var(--sub);">kg</span>
+          </div>
+          <div style="display:flex;gap:16px;margin-top:16px;">
+            <div style="flex:1;text-align:center;">
+              <div class="num" style="font-size:22px;font-weight:600;color:var(--brand);">86</div>
+              <div class="hint" style="margin-top:2px;">身体评分</div>
+            </div>
+            <div style="width:1px;background:var(--stroke);"></div>
+            <div style="flex:1;text-align:center;">
+              <div class="num" style="font-size:22px;font-weight:600;">28.6<span style="font-size:12px;color:var(--muted);">%</span></div>
+              <div class="hint" style="margin-top:2px;">体脂率</div>
+            </div>
+            <div style="width:1px;background:var(--stroke);"></div>
+            <div style="flex:1;text-align:center;">
+              <div class="num" style="font-size:22px;font-weight:600;">22.1</div>
+              <div class="hint" style="margin-top:2px;">BMI</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI 解读入口 -->
+        <div class="card" style="border-radius:16px;padding:14px 16px;display:flex;gap:12px;align-items:center;cursor:pointer;" data-goto="v-ai-report">
+          <span style="width:38px;height:38px;border-radius:12px;background:var(--iconbg);color:var(--brand);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 9 9l-7 3 7 3 3 7 3-7 7-3-7-3Z"/></svg></span>
+          <div style="flex:1;"><div style="font-size:13px;font-weight:500;">AI 解读本次变化</div><div class="hint" style="margin-top:2px;">结合 30 天趋势，解读这次测量</div></div>
+          <span style="color:var(--muted);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span>
+        </div>
+
+        <!-- 指标网格 -->
+        <div class="lbl" style="margin-top:4px;">身体成分</div>
+        <div class="mgrid">
+          <div class="mcell"><div class="mh">体脂率</div><div class="mv">28.6<span class="u">%</span></div><div class="ms">↓0.2 较上次</div></div>
+          <div class="mcell"><div class="mh">肌肉量</div><div class="mv">42.3<span class="u">kg</span></div><div class="ms">↑0.1 较上次</div></div>
+          <div class="mcell"><div class="mh">水分率</div><div class="mv">53.2<span class="u">%</span></div><div class="ms">↑0.3 较上次</div></div>
+          <div class="mcell"><div class="mh">内脏脂肪</div><div class="mv">7</div><div class="ms">标准范围</div></div>
+          <div class="mcell"><div class="mh">基础代谢</div><div class="mv">1320<span class="u">kcal</span></div><div class="ms">标准范围</div></div>
+          <div class="mcell"><div class="mh">骨量</div><div class="mv">2.8<span class="u">kg</span></div><div class="ms">标准范围</div></div>
+        </div>
+
+        <div class="note">身体评分及指标由体脂秤估算，仅供健康管理参考，不作为医疗诊断依据。</div>
+        <div class="spacer"></div>
+        <div style="display:flex;gap:12px;">
+          <button class="btn secondary" style="flex:1;" data-goto="v-share"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>分享</button>
+          <button class="btn secondary" style="flex:1;" data-goto="v-export"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>导出</button>
+          <button class="btn primary" style="flex:1;" data-goto="v-done" data-toast="已保存并返回首页">完成</button>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- AI 报告解读 -->
+  <div class="view" id="v-ai-report">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-goto="v-result"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">AI 报告解读</span></div>
+      <div class="content tight" style="overflow-y:auto;">
+        <div class="card soft" style="border-radius:24px;padding:18px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+            <span style="width:28px;height:28px;border-radius:8px;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 9 9l-7 3 7 3 3 7 3-7 7-3-7-3Z"/></svg></span>
+            <span style="font-size:13px;font-weight:700;">轻衡 AI</span>
+            <span style="font-size:11px;color:var(--muted);">结合已授权的测量记录</span>
+          </div>
+          <div style="font-size:22px;font-weight:700;line-height:1.4;">两项读数小幅下降，<br>不等于脂肪减少。</div>
+          <div style="font-size:11px;color:var(--sub);margin-top:8px;">10月21日 07:30 · 对比上次 10月20日</div>
+        </div>
+        <div class="card lg pad18">
+          <div style="font-size:13px;color:var(--sub);line-height:1.7;">单次体重、体脂率会受水分、进食和测量时段影响。体脂率由体脂秤估算，不能把这次下降直接当作减脂效果。建议保持正常饮水，尽量在相近时段测量，先积累连续记录再看长期趋势。</div>
+        </div>
+        <div class="card lg pad18">
+          <div class="st sm" style="margin-bottom:10px;">接下来做什么</div>
+          <div style="font-size:12px;color:var(--sub);line-height:1.8;">· 保持均衡饮食，按自身情况安排活动<br>· 测量前保持正常饮水<br>· 尽量固定测量时段，提升可比性</div>
+        </div>
+        <div class="note">AI 建议仅供健康管理参考，不作疾病诊断。</div>
+        <div class="spacer"></div>
+        <button class="btn primary" data-goto="v-result">返回报告</button>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 分享预览（Figma E12） -->
+  <div class="view" id="v-share">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-goto="v-result"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">分享报告</span></div>
+      <div class="content tight" style="overflow-y:auto;">
+        <div class="banner warn"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg></span><span class="bt">分享图片将<b>包含你的姓名与测量数据</b>，请确认后再分享。</span></div>
+        <!-- 分享卡片预览 -->
+        <div style="border-radius:20px;overflow:hidden;border:1px solid var(--divider);background:var(--white);">
+          <div style="background:linear-gradient(135deg,#258C77,#1a6b58);padding:24px 20px;color:#fff;">
+            <div style="font-size:11px;opacity:.8;">轻衡健康 · 身体成分报告</div>
+            <div style="font-size:20px;font-weight:700;margin-top:6px;">林悦 · 10月21日</div>
+            <div style="display:flex;align-items:baseline;gap:6px;margin-top:12px;">
+              <span class="num" style="font-size:40px;font-weight:600;">62.4</span>
+              <span style="font-size:13px;opacity:.8;">kg</span>
+              <span style="margin-left:auto;font-size:12px;background:rgba(255,255,255,.2);padding:4px 10px;border-radius:100px;">↓0.3 较上次</span>
+            </div>
+          </div>
+          <div style="padding:16px 20px;">
+            <div style="display:flex;gap:12px;">
+              <div style="flex:1;text-align:center;"><div class="num" style="font-size:20px;font-weight:600;color:var(--brand);">86</div><div class="hint" style="margin-top:2px;">评分</div></div>
+              <div style="flex:1;text-align:center;"><div class="num" style="font-size:20px;font-weight:600;">28.6%</div><div class="hint" style="margin-top:2px;">体脂</div></div>
+              <div style="flex:1;text-align:center;"><div class="num" style="font-size:20px;font-weight:600;">22.1</div><div class="hint" style="margin-top:2px;">BMI</div></div>
+              <div style="flex:1;text-align:center;"><div class="num" style="font-size:20px;font-weight:600;">42.3</div><div class="hint" style="margin-top:2px;">肌肉kg</div></div>
+            </div>
+            <div style="text-align:center;margin-top:12px;font-size:10px;color:var(--muted);">轻衡 · 让健康轻一点</div>
+          </div>
+        </div>
+        <!-- 分享渠道 -->
+        <div class="lbl" style="margin-top:8px;">分享到</div>
+        <div style="display:flex;gap:16px;justify-content:center;padding:8px 0;">
+          <div style="text-align:center;cursor:pointer;" data-toast="已分享到微信"><div style="width:52px;height:52px;border-radius:14px;background:#07C160;color:#fff;display:flex;align-items:center;justify-content:center;margin:0 auto;"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M8.5 4C4.9 4 2 6.5 2 9.6c0 1.8 1 3.4 2.6 4.5l-.7 2 2.3-1.2c.7.2 1.5.3 2.3.3h.5a5 5 0 0 1-.2-1.4c0-3 2.9-5.4 6.4-5.4h.5C15.7 5.8 12.5 4 8.5 4Z"/></svg></div><div class="hint" style="margin-top:4px;">微信</div></div>
+          <div style="text-align:center;cursor:pointer;" data-toast="已分享到朋友圈"><div style="width:52px;height:52px;border-radius:14px;background:#07C160;color:#fff;display:flex;align-items:center;justify-content:center;margin:0 auto;"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="9"/></svg></div><div class="hint" style="margin-top:4px;">朋友圈</div></div>
+          <div style="text-align:center;cursor:pointer;" data-toast="已保存到相册"><div style="width:52px;height:52px;border-radius:14px;background:var(--iconbg);color:var(--brand);display:flex;align-items:center;justify-content:center;margin:0 auto;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13"/></svg></div><div class="hint" style="margin-top:4px;">保存图片</div></div>
+          <div style="text-align:center;cursor:pointer;" data-toast="已复制链接"><div style="width:52px;height:52px;border-radius:14px;background:var(--iconbg);color:var(--brand);display:flex;align-items:center;justify-content:center;margin:0 auto;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg></div><div class="hint" style="margin-top:4px;">复制链接</div></div>
+        </div>
+        <div class="spacer"></div>
+        <button class="btn secondary" data-goto="v-result">取消</button>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 导出预览（Figma E13） -->
+  <div class="view" id="v-export">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-goto="v-result"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">导出报告</span></div>
+      <div class="content tight" style="overflow-y:auto;">
+        <div class="lbl">导出格式</div>
+        <div class="seg"><span class="opt on">CSV</span><span class="opt">PDF</span><span class="opt">图片</span></div>
+        <div class="lbl" style="margin-top:8px;">导出范围</div>
+        <div class="rows">
+          <div class="row"><span class="tx"><span class="t">本次测量</span><span class="d">10月21日 07:30</span></span><span class="radio on"></span></div>
+          <div class="row"><span class="tx"><span class="t">近 30 天</span><span class="d">09/21 — 10/21 · 20 次</span></span><span class="radio"></span></div>
+          <div class="row"><span class="tx"><span class="t">全部记录</span><span class="d">128 次</span></span><span class="radio"></span></div>
+        </div>
+        <div class="lbl" style="margin-top:8px;">包含字段</div>
+        <div class="card lg pad18" style="padding:12px 18px;">
+          <div class="hint" style="line-height:2;">测量时间 · 体重 · 体脂率 · BMI · 肌肉量<br>水分率 · 内脏脂肪 · 基础代谢 · 骨量 · 身体评分</div>
+        </div>
+        <div class="banner"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span><span class="bt">导出文件通过加密链接发送到邮箱，<b>24 小时内有效</b>。</span></div>
+        <div class="spacer"></div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <button class="btn primary" data-goto="v-export-done" data-toast="导出文件已生成">生成导出文件</button>
+          <button class="btn secondary" data-goto="v-result">取消</button>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 导出成功 -->
+  <div class="view" id="v-export-done">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="statepage">
+        <div class="sic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+        <div class="st">导出成功</div>
+        <div class="sd">文件已生成，加密链接已发送至邮箱<br><b class="num">linyue@example.com</b><br>24 小时内有效，请尽快下载。</div>
+        <button class="btn primary" data-goto="v-result">返回报告</button>
+        <button class="btn ghost" style="margin-top:12px;" data-toast="已重新发送到邮箱">重新发送到邮箱</button>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 完成页 -->
+  <div class="view" id="v-done">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="statepage">
+        <div class="sic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+        <div class="st">测量已保存</div>
+        <div class="sd">数据已同步到云端，可在「历史记录」中查看。</div>
+        <button class="btn primary" data-goto="v-result">查看报告</button>
+        <button class="btn ghost" style="margin-top:12px;" data-goto="v-result">回到首页（演示结束）</button>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+</div>
+<div class="flowbar" style="margin-top:20px;text-align:center;"><p>轻衡 · 测量结果与报告交互原型 · 5 屏（补 Figma E01/E02/E12/E13 缺口）</p></div>
+<script src="app.js"></script>
+</body>
+</html>

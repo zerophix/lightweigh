@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>轻衡 · AI 总结与成员权限（可交互）</title>
+<link rel="stylesheet" href="../theme.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body class="interactive">
+<div class="flowbar">
+  <h1>AI 总结与成员权限 · 可交互原型</h1>
+  <p>AI 周总结 → 成员详情/权限。补 Figma D05 + B04 缺口。</p>
+  <div class="nav"><a href="index.html">交互总览</a><a href="../index.html">← 静态总览</a></div>
+</div>
+<div class="app">
+
+  <!-- AI 周总结（Figma D05） -->
+  <div class="view" id="v-weekly">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-goto="v-member-detail"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">AI 周总结</span></div>
+      <div class="content tight" style="overflow-y:auto;">
+        <div class="hint">林悦 · 2026年10月14日 — 10月20日</div>
+        <div class="card soft" style="border-radius:24px;padding:18px;">
+          <div style="font-size:20px;font-weight:700;line-height:1.4;">本周体重下降 0.4 kg，<br>趋势稳健，继续保持。</div>
+        </div>
+        <div class="card lg pad18">
+          <div class="st sm" style="margin-bottom:10px;">关键变化</div>
+          <div style="display:flex;gap:10px;">
+            <div style="flex:1;background:var(--iconbg);border-radius:12px;padding:12px;text-align:center;"><div class="num" style="font-size:20px;font-weight:600;color:var(--brand);">−0.4</div><div class="hint" style="margin-top:2px;">体重 kg</div></div>
+            <div style="flex:1;background:var(--iconbg);border-radius:12px;padding:12px;text-align:center;"><div class="num" style="font-size:20px;font-weight:600;color:var(--brand);">−0.3</div><div class="hint" style="margin-top:2px;">体脂 %</div></div>
+            <div style="flex:1;background:var(--iconbg);border-radius:12px;padding:12px;text-align:center;"><div class="num" style="font-size:20px;font-weight:600;">5/7</div><div class="hint" style="margin-top:2px;">测量天数</div></div>
+          </div>
+          <div style="font-size:12px;color:var(--sub);line-height:1.7;margin-top:14px;">本周体重从 62.8 kg 下降到 62.4 kg，体脂率从 28.9% 降到 28.6%。两项指标均呈下降趋势，方向与你的减重目标一致。</div>
+        </div>
+        <div class="card lg pad18">
+          <div class="st sm" style="margin-bottom:10px;">本周亮点</div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--brand);flex-shrink:0;margin-top:2px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg></span><span style="font-size:12px;color:var(--sub);line-height:1.6;">坚持每天同一时段测量，数据可比性好</span></div>
+            <div style="display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--brand);flex-shrink:0;margin-top:2px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg></span><span style="font-size:12px;color:var(--sub);line-height:1.6;">肌肉量保持稳定，减重主要来自脂肪</span></div>
+            <div style="display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--brand);flex-shrink:0;margin-top:2px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg></span><span style="font-size:12px;color:var(--sub);line-height:1.6;">水分率正常，体脂估算可信度较高</span></div>
+          </div>
+        </div>
+        <div class="card lg pad18">
+          <div class="st sm" style="margin-bottom:10px;">下周建议</div>
+          <div style="font-size:12px;color:var(--sub);line-height:1.8;">· 继续保持每天 7:30 左右测量<br>· 增加 1 次力量训练，维持肌肉量<br>· 注意控制晚餐碳水摄入</div>
+        </div>
+        <div class="note">AI 周总结基于已授权的测量记录生成，仅供参考。</div>
+        <div class="spacer"></div>
+        <div style="display:flex;gap:12px;">
+          <button class="btn secondary" style="flex:1;" data-toast="已生成下周计划">生成下周计划</button>
+          <button class="btn primary" style="flex:1;" data-goto="v-member-detail">返回</button>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 成员详情与权限（Figma B04） -->
+  <div class="view" id="v-member-detail">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-goto="v-weekly"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">成员详情</span><span class="lnk" data-toast="进入编辑资料">编辑</span></div>
+      <div class="content tight" style="overflow-y:auto;">
+        <div class="card soft" style="border-radius:24px;padding:20px;display:flex;gap:14px;align-items:center;">
+          <span class="av" style="width:56px;height:56px;font-size:20px;background:var(--white);">悦</span>
+          <div style="flex:1;"><div style="font-size:16px;font-weight:700;">林悦</div><div style="font-size:11px;color:var(--sub);margin-top:3px;">本人 · 女 · 30岁 · 168cm</div></div>
+          <span class="tag">当前</span>
+        </div>
+
+        <div class="lbl" style="margin-top:4px;">权限管理</div>
+        <div class="rows">
+          <div class="row"><span class="tx"><span class="t">查看测量记录</span><span class="d">允许查看该成员的全部记录</span></span><span class="sw on"><span class="knob"></span></span></div>
+          <div class="row"><span class="tx"><span class="t">编辑测量记录</span><span class="d">允许修改备注和时间</span></span><span class="sw on"><span class="knob"></span></span></div>
+          <div class="row"><span class="tx"><span class="t">删除测量记录</span><span class="d">允许删除该成员的记录</span></span><span class="sw"><span class="knob"></span></span></div>
+          <div class="row"><span class="tx"><span class="t">查看 AI 报告</span><span class="d">允许 AI 使用该成员数据</span></span><span class="sw on"><span class="knob"></span></span></div>
+          <div class="row"><span class="tx"><span class="t">管理健康目标</span><span class="d">允许修改体重目标</span></span><span class="sw on"><span class="knob"></span></span></div>
+        </div>
+
+        <div class="lbl" style="margin-top:4px;">数据概览</div>
+        <div class="card lg pad20" style="padding:16px;">
+          <div class="stats">
+            <div class="st3"><div class="v">128</div><div class="k">测量次数</div></div>
+            <div class="st3"><div class="v">65.2</div><div class="k">起始 kg</div></div>
+            <div class="st3"><div class="v" style="color:var(--brand);">62.4</div><div class="k">当前 kg</div></div>
+          </div>
+          <div class="pbar" style="margin-top:12px;"><div class="fill" style="width:39%;"></div></div>
+          <div style="display:flex;justify-content:space-between;margin-top:6px;" class="hint"><span style="color:var(--brand);">已减 2.8 kg</span><span>目标 58.0 kg · 39%</span></div>
+        </div>
+
+        <div class="lbl" style="margin-top:4px;">关联设备</div>
+        <div class="rows">
+          <div class="row"><span class="ic soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M8 12h.01M16 12h.01"/></svg></span><span class="tx"><span class="t">轻衡 S1</span><span class="d">● 已连接 · 电量 82%</span></span><span class="val brand">断开</span></div>
+        </div>
+
+        <div class="note">权限变更立即生效，不影响已保存的历史记录。</div>
+        <div class="spacer"></div>
+        <div style="display:flex;gap:12px;">
+          <button class="btn secondary" style="flex:1;" data-goto="v-weekly">查看 AI 周总结</button>
+          <button class="btn primary" style="flex:1;" data-toast="权限已保存">保存权限</button>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+</div>
+<div class="flowbar" style="margin-top:20px;text-align:center;"><p>轻衡 · AI 总结与成员权限交互原型 · 2 屏（补 Figma D05 + B04 缺口）</p></div>
+<script src="app.js"></script>
+</body>
+</html>
