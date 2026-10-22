@@ -1,0 +1,18 @@
+# gitleaks config — DEC-049
+# 继承官方默认规则；仅收窄路径与已知误报。
+
+title = "qk-health-v2"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "构建产物、本地工具、会话噪声（非密钥）"
+paths = [
+  '''(?i)(^|/)(build|dists|outputs|generated|\.gradle|\.gradle-user|node_modules|\.cache|design|scripts/tools)(/|$)''',
+  '''(?i)\.ai/(staged-claims|current-session)\.json$''',
+  '''(?i)gradle/wrapper/gradle-wrapper\.jar$''',
+]
+regexes = [
+  '''ses-[0-9]{8}-[0-9]{6}-[a-f0-9]{8,}''',
+]

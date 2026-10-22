@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Git pre-push hook — 分支命名 + 校验必须 PASS
+# Git pre-push hook — 分支命名 + 校验必须 PASS + 密钥扫描（DEC-049）
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -20,11 +20,11 @@ if ! echo "$BRANCH" | grep -qE "$TRUNK_PATTERN" && \
   echo "   临时跳过: git push --no-verify"
   exit 1
 fi
-echo "  [1/2] 分支命名: ✅ $BRANCH"
+echo "  [1/3] 分支命名: ✅ $BRANCH"
 
 # validate.sh 必须 PASS — 以退出码判定，不耦合具体输出文案（DEC-005）
 FAILED=0
-echo -n "  [2/2] 文档校验: "
+echo -n "  [2/3] 文档校验: "
 if [ -f "$VALIDATE_SCRIPT" ]; then
   if OUTPUT=$(bash "$VALIDATE_SCRIPT" 2>&1); then
     echo "✅"
@@ -35,6 +35,22 @@ if [ -f "$VALIDATE_SCRIPT" ]; then
   fi
 else
   echo "⚠️  validate.sh 不存在，跳过"
+fi
+
+# 密钥扫描（DEC-049）：二进制存在则硬失败；缺失则软警告
+SECRETS_SCRIPT="$ROOT/scripts/governance/gov-secrets-scan.sh"
+echo -n "  [3/3] 密钥扫描: "
+if [ -f "$SECRETS_SCRIPT" ]; then
+  if OUTPUT=$(bash "$SECRETS_SCRIPT" 2>&1); then
+    echo "✅"
+    echo "$OUTPUT" | grep -E '软警告|未找到 gitleaks|PASS' || true
+  else
+    echo "❌"
+    echo "$OUTPUT" | tail -40
+    FAILED=1
+  fi
+else
+  echo "⚠️  gov-secrets-scan.sh 不存在，跳过"
 fi
 
 echo ""

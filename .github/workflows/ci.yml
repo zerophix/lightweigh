@@ -3,7 +3,16 @@ name: ci
 
 on:
   push:
-    branches: [main, master]
+    branches:
+      - main
+      - master
+      - 'feat/**'
+      - 'fix/**'
+      - 'chore/**'
+      - 'docs/**'
+      - 'refactor/**'
+      - 'test/**'
+      - 'ci/**'
   pull_request:
 
 # 特性分支上的新推送作废上一轮未跑完的 run：避免多轮并行各烧十来分钟
