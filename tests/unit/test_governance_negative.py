@@ -196,17 +196,12 @@ def test_r0_clean_tree_changed_reflection_passes(tmp_path, monkeypatch):
     assert _r0_check(tmp_path, monkeypatch) == []
 
 
-def test_r0_clean_tree_reused_reflection_fails(tmp_path, monkeypatch):
-    """R0(DEC-004): 干净树上最近提交复用旧反思必须 FAIL。"""
+def test_r0_reflection_reuse_no_longer_blocked(tmp_path, monkeypatch):
+    """反思已迁至治理文档并取消强制: R0 不再因复用反思而 FAIL。"""
     _git_init(tmp_path)
-    _git_commit(tmp_path, "c1",
-                "第一次教训：教训是不要把会随规则增减变化的数字写死在多个文件里，"
-                "数字在几处复制就一定会在几处漂移，只能指向单一事实源。")
-    _git_commit(tmp_path, "c2",
-                "第一次教训：教训是不要把会随规则增减变化的数字写死在多个文件里，"
-                "数字在几处复制就一定会在几处漂移，只能指向单一事实源。")
-    errors = _r0_check(tmp_path, monkeypatch)
-    assert any("上一次提交完全相同" in e for e in errors), errors
+    _git_commit(tmp_path, "c1", "内容A")
+    _git_commit(tmp_path, "c2", "内容A")
+    assert _r0_check(tmp_path, monkeypatch) == []
 
 
 def test_validate_output_contract_has_summary_line():
@@ -274,20 +269,20 @@ def test_readme001_duplicate_h1(tmp_path, monkeypatch):
     assert any("GOV-README-001" in e for e in errors), errors
 
 
-def test_readme002_status_not_last(tmp_path, monkeypatch):
-    """GOV-README-002: 「当前状态」之后仍有二级章节必须 FAIL。"""
+def test_readme002_status_rule_removed(tmp_path, monkeypatch):
+    """GOV-README-002 已移除: README 不再强制「当前状态」末位，标准结构不报错。"""
     body = _COMPLIANT + "\n## AI 协作\n\n接力规则。\n"
     errors = _readme_check(tmp_path, monkeypatch, body)
-    assert any("GOV-README-002" in e for e in errors), errors
+    assert not any("GOV-README-002" in e for e in errors), errors
 
 
-def test_readme003_reflection_not_first(tmp_path, monkeypatch):
-    """GOV-README-003: 「### 反思」不在状态节首位必须 FAIL。"""
+def test_readme003_reflection_rule_removed(tmp_path, monkeypatch):
+    """GOV-README-003 已移除: 不再强制「### 反思」为首子节，任意子节顺序不报错。"""
     body = _COMPLIANT.replace(
         "## 当前状态\n\n### 反思",
         "## 当前状态\n\n### 项目快照\n\n快照数据\n\n### 反思")
     errors = _readme_check(tmp_path, monkeypatch, body)
-    assert any("GOV-README-003" in e for e in errors), errors
+    assert not any("GOV-README-003" in e for e in errors), errors
 
 
 def test_readme004_quickstart_after_architecture(tmp_path, monkeypatch):
@@ -382,11 +377,11 @@ def test_r0_missing_memory_file_skips_handoff(tmp_path, monkeypatch):
     assert errors == [], errors
 
 
-def test_r0_memory_without_handoff_fails(tmp_path, monkeypatch):
-    """DEC-008 组A: 文件存在但无 handoff 记录必须仍 FAIL。"""
+def test_r0_memory_handoff_check_removed(tmp_path, monkeypatch):
+    """反思迁移后取消强制: R0 不再因缺少 handoff 记录而 FAIL。"""
     memory = '{"type": "session-start", "ts": "2026-10-14T00:00:00Z", "ai": "t"}\n'
     errors = _r0_env_check(tmp_path, monkeypatch, memory=memory, ci=True)
-    assert any("未找到 handoff" in e for e in errors), errors
+    assert not any("未找到 handoff" in e for e in errors), errors
 
 
 def test_r0_hooks_check_fails_outside_ci(tmp_path, monkeypatch):
