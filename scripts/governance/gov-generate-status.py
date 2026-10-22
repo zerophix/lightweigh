@@ -11,6 +11,7 @@ import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Optional
 
 ROOT = Path(__file__).resolve().parents[2]
 CACHE_FILE = ROOT / ".cache" / "context.jsonl"
@@ -45,6 +46,94 @@ def git(*args: str) -> str:
         ).stdout.strip()
     except Exception:
         return ""
+
+
+LOCAL_CI_EVIDENCE = ROOT / ".cache" / "local-ci-last.json"
+
+
+def read_local_ci_evidence() -> Optional[dict]:
+    """读取 gov-local-ci 落盘的机读结果（DEC-051）。"""
+    if not LOCAL_CI_EVIDENCE.is_file():
+        return None
+    try:
+        data = json.loads(LOCAL_CI_EVIDENCE.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return None
+    if not isinstance(data, dict) or data.get("schema_version") != 1:
+        return None
+    if data.get("source") != "gov-local-ci":
+        return None
+    return data
+
+
+def read_actions_evidence(branch: str) -> Optional[dict]:
+    """可选：gh run list 最近一次 Actions（无 Pro 时仍可读；失败则忽略）。"""
+    if not branch or branch in ("HEAD", "unknown", "(initializing)"):
+        return None
+    try:
+        r = subprocess.run(
+            [
+                "gh", "run", "list",
+                "--branch", branch,
+                "--limit", "1",
+                "--json", "conclusion,status,displayTitle,url,headSha,updatedAt,databaseId,name,workflowName",
+            ],
+            cwd=str(ROOT),
+            capture_output=True,
+            text=True,
+            timeout=12,
+        )
+    except (FileNotFoundError, subprocess.TimeoutExpired, OSError):
+        return None
+    if r.returncode != 0 or not r.stdout.strip():
+        return None
+    try:
+        rows = json.loads(r.stdout)
+    except json.JSONDecodeError:
+        return None
+    if not rows:
+        return None
+    return rows[0]
+
+
+def format_local_ci_row(ev: Optional[dict]) -> tuple:
+    """返回 (状态中文, 详情)。"""
+    if not ev:
+        return "无证据", "尚无 `.cache/local-ci-last.json` — 请运行 `bash scripts/governance/gov-local-ci.sh`"
+    result = ev.get("result", "?")
+    sha = str(ev.get("git_sha", ""))[:7]
+    finished = ev.get("finished_at", "?")
+    branch = ev.get("branch", "?")
+    steps = ev.get("steps") or []
+    step_summary = ",".join(
+        f"{s.get('name', '?')}:{'ok' if s.get('ok') else 'fail'}" for s in steps
+    ) or "no-steps"
+    if result == "pass":
+        return "通过", f"local-ci PASS @ {finished} sha={sha} branch={branch} [{step_summary}]"
+    if result == "fail":
+        return "失败", f"local-ci FAIL @ {finished} sha={sha} branch={branch} [{step_summary}]"
+    return "未知", f"local-ci result={result} @ {finished} sha={sha}"
+
+
+def format_actions_row(run: Optional[dict]) -> tuple:
+    if not run:
+        return "无数据", "gh 不可用或无最近 run"
+    conclusion = (run.get("conclusion") or run.get("status") or "?").lower()
+    title = run.get("workflowName") or run.get("name") or run.get("displayTitle") or "Actions"
+    sha = str(run.get("headSha") or "")[:7]
+    when = run.get("updatedAt") or "?"
+    url = run.get("url") or ""
+    detail = f"{title} @ {when} sha={sha}"
+    if url:
+        detail += f" {url}"
+    if conclusion in ("success",):
+        return "通过", detail
+    if conclusion in ("failure", "cancelled", "timed_out", "startup_failure"):
+        return "失败", detail
+    if conclusion in ("in_progress", "queued", "pending", "waiting", "requested"):
+        return "进行中", detail
+    return conclusion or "未知", detail
+
 
 
 def read_cache() -> dict:
@@ -180,21 +269,12 @@ def main():
         if m:
             lang = m.group(1)
 
-    # Build (默认跳过，仅 --check-build 时执行)
-    build = "跳过"
-    build_detail = "skipped"
-    if check_build and (ROOT / "package.json").is_file():
-        try:
-            r = subprocess.run(["npm", "run", "build"], cwd=str(ROOT), capture_output=True, timeout=30)
-            if r.returncode != 0:
-                build = "失败"
-                build_detail = "fail"
-            else:
-                build = "通过"
-                build_detail = "pass"
-        except Exception:
-            build = "跳过"
-            build_detail = "skipped"
+    # 构建/门禁证据（DEC-051）：优先读 local-ci 落盘结果；绝不对本 Android 仓跑 npm build
+    _ = check_build  # 保留 CLI 兼容；不再触发 npm
+    local_ci_ev = read_local_ci_evidence()
+    build, build_detail = format_local_ci_row(local_ci_ev)
+    actions_run = read_actions_evidence(branch)
+    actions_status, actions_detail = format_actions_row(actions_run)
 
     # Hooks status
     hooks = "通过"
@@ -318,9 +398,22 @@ def main():
     lines.append("")
     lines.append("| 检查项 | 状态 | 详情 |")
     lines.append("|-------|------|------|")
-    lines.append(f"| 构建 | {build} | {build_detail} |")
+    lines.append(f"| 本地门禁 (gov-local-ci) | {build} | {build_detail} |")
+    lines.append(f"| GitHub Actions | {actions_status} | {actions_detail} |")
     validate_ok = (ROOT / "scripts" / "governance" / "gov-validate.sh").is_file()
-    lines.append(f"| 文档校验 | {'就绪' if validate_ok else '缺失'} | {'运行: bash scripts/governance/gov-validate.sh' if validate_ok else '校验脚本未安装'} |")
+    # 若 local-ci 证据含 validate 步骤，标注实测结果
+    validate_detail = "运行: bash scripts/governance/gov-validate.sh"
+    validate_label = "就绪" if validate_ok else "缺失"
+    if local_ci_ev:
+        for s in local_ci_ev.get("steps") or []:
+            if s.get("name") == "gov-validate":
+                validate_label = "通过" if s.get("ok") else "失败"
+                validate_detail = (
+                    f"来自 local-ci @ {local_ci_ev.get('finished_at', '?')} "
+                    f"sha={str(local_ci_ev.get('git_sha', ''))[:7]}"
+                )
+                break
+    lines.append(f"| 文档校验 | {validate_label} | {validate_detail} |")
     lines.append(f"| Git 钩子 | {hooks} | 安装: bash scripts/bootstrap/bs-install-hooks.sh |")
     lines.append("")
 

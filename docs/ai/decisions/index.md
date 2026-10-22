@@ -9,6 +9,7 @@
 
 | 编号 | 标题 | 日期 | 来源 |
 |------|------|------|------|
+| [DEC-051](DEC-051.md) | DEC-051: STATUS 门禁证据来自 local-ci / Actions | 2026-10-22 | 市场对比「STATUS 证据」+ 用户请求 |
 | [DEC-050](DEC-050.md) | DEC-050: Worktree 脚本与 hooks 工作树 ROOT | 2026-10-22 | 市场对比 P1 worktree + 用户请求 |
 | [DEC-049](DEC-049.md) | DEC-049: 特性分支 CI、Dependabot、本地密钥扫描 | 2026-10-22 | 市场对比 P1 + 用户「可以」 |
 | [DEC-048](DEC-048.md) | DEC-048: AI 开发 P0 — 任务 AC、短 AGENTS、PR 合入清单 | 2026-10-22 | `/workspace/review/ai-dev-market-compare-20261022.md` + 用户授权 |

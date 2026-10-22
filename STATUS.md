@@ -1,6 +1,6 @@
 # 项目状态
 
-> 由 generate-status.py 自动生成。最后更新: 2026-10-22T04:38:15Z
+> 由 generate-status.py 自动生成。最后更新: 2026-10-22T04:42:11Z
 > 新 AI 启动时: `cat STATUS.md && bash scripts/session/ses-context-load.sh`
 
 ---
@@ -12,8 +12,8 @@
 | 名称 | 轻刻健康 Android（qk-health-v2） |
 | 版本 | 0.1.0 |
 | 文档语言 | zh-CN |
-| Git 分支 | master |
-| 最后提交 | b5adac7 Merge pull request #15 from zerophix/chore/ses-worktree |
+| Git 分支 | chore/status-local-ci-evidence |
+| 最后提交 | e0b2d31 Merge pull request #16 from zerophix/chore/dec050-handoff |
 | 文档校验 | 运行: `bash scripts/governance/gov-validate.sh` |
 
 ## AI 交接
@@ -39,27 +39,27 @@
 最近 5 次提交：
 
 ```
+e0b2d31 Merge pull request #16 from zerophix/chore/dec050-handoff
+1f7906e chore(session): handoff after DEC-050
 b5adac7 Merge pull request #15 from zerophix/chore/ses-worktree
 6411fed feat(session): add ses-worktree and fix hook ROOT for worktrees
 f5002af Merge pull request #11 from zerophix/chore/dec049-handoff
-ab19b70 chore(session): handoff after DEC-049 merge
-4c3a19f Merge pull request #6 from zerophix/chore/ci-dependabot-gitleaks
 ```
 
 ## 工程指标
 
 | 指标 | 数量 |
 |------|------|
-| 决策日志 (DEC) | 50 |
+| 决策日志 (DEC) | 51 |
 | 设计笔记 (NOTE) | 10 |
 | 开发指南 (GC) | 8 |
 | 技术参考 (REF) | 1 |
 
 最近决策：
 
+- [DEC-051](docs/ai/decisions/DEC-051.md): DEC-051: STATUS 门禁证据来自 local-ci / Actions
 - [DEC-050](docs/ai/decisions/DEC-050.md): DEC-050: Worktree 脚本与 hooks 工作树 ROOT
 - [DEC-049](docs/ai/decisions/DEC-049.md): DEC-049: 特性分支 CI、Dependabot、本地密钥扫描
-- [DEC-048](docs/ai/decisions/DEC-048.md): DEC-048: AI 开发 P0 — 任务 AC、短 AGENTS、PR 合入清单
 
 最近笔记：
 
@@ -71,8 +71,9 @@ ab19b70 chore(session): handoff after DEC-049 merge
 
 | 检查项 | 状态 | 详情 |
 |-------|------|------|
-| 构建 | 跳过 | skipped |
-| 文档校验 | 就绪 | 运行: bash scripts/governance/gov-validate.sh |
+| 本地门禁 (gov-local-ci) | 通过 | local-ci PASS @ 2026-10-22T04:42:10Z sha=e0b2d31 branch=chore/status-local-ci-evidence [gradlew build:ok,gov-validate:ok,gov-custom-checks:ok,gov-secrets-scan:ok] |
+| GitHub Actions | 无数据 | gh 不可用或无最近 run |
+| 文档校验 | 通过 | 来自 local-ci @ 2026-10-22T04:42:10Z sha=e0b2d31 |
 | Git 钩子 | 通过 | 安装: bash scripts/bootstrap/bs-install-hooks.sh |
 
 ## 反思
