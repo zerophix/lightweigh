@@ -37,6 +37,8 @@ SKIP_DIRS = {
     ".mypy_cache", ".eggs", "egg-info", ".claude",
     # Android/Gradle 工程产物（gitignore 内，不属治理对象）
     "build", "dists", "outputs", "generated", "tmp",
+    # 本地设计导出（已 gitignore；中文文件名，不属治理对象）— DEC-048
+    "design",
 }
 
 from .gov_emoji import EMOJI_RE, contains_emoji, strip_emoji

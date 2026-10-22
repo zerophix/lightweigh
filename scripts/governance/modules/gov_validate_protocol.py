@@ -79,6 +79,26 @@ def check_protocol() -> None:
                 fail(f"GOV-PROTO-003: 存在僵尸任务（in_progress 超过 24 小时）: {', '.join(zombie)}")
             else:
                 print("  [PASS] 无僵尸任务")
+
+            print()
+            print("--- GOV-PROTO-004: in_progress 任务须有 AC DoD ---")
+            missing_ac = []
+            for t in tasks:
+                if t.get("status") != "in_progress":
+                    continue
+                acc = t.get("acceptance") or {}
+                dod = acc.get("definition_of_done")
+                ok = isinstance(dod, list) and any(str(x).strip() for x in dod)
+                if not ok:
+                    missing_ac.append(t.get("id", "?"))
+            if missing_ac:
+                fail(
+                    "GOV-PROTO-004: in_progress 任务缺少非空 acceptance.definition_of_done: "
+                    + ", ".join(missing_ac)
+                    + "（见 docs/guides/GC-task-acceptance.md / DEC-048）"
+                )
+            else:
+                print("  [PASS] in_progress 任务 AC DoD 检查通过（或无 in_progress）")
         except (json.JSONDecodeError, Exception):
             pass
 

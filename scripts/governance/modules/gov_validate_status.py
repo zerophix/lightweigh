@@ -225,9 +225,23 @@ def check_hidden_dirs() -> None:
 
     gh = ROOT / ".github"
     if gh.is_dir():
+        # workflows 必有；PR 模板 / Dependabot / CODEOWNERS 为常见 GitHub 元数据（DEC-048）
+        ALLOWED_GITHUB = {
+            "workflows",
+            "PULL_REQUEST_TEMPLATE.md",
+            "pull_request_template.md",
+            "PULL_REQUEST_TEMPLATE",
+            "ISSUE_TEMPLATE",
+            "CODEOWNERS",
+            "dependabot.yml",
+            "CODE_OF_CONDUCT.md",
+            "CONTRIBUTING.md",
+        }
         for f in gh.iterdir():
-            if f.name != "workflows":
-                fail(f".github/{f.name}: 不在白名单（仅允许 workflows/）")
+            if f.name not in ALLOWED_GITHUB:
+                fail(
+                    f".github/{f.name}: 不在白名单（允许 workflows/ 与 PR 模板等；见 DEC-048）"
+                )
                 ISSUES += 1
 
     if ISSUES == 0:

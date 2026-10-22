@@ -9,6 +9,7 @@
 
 | 编号 | 标题 | 日期 | 来源 |
 |------|------|------|------|
+| [DEC-048](DEC-048.md) | DEC-048: AI 开发 P0 — 任务 AC、短 AGENTS、PR 合入清单 | 2026-10-22 | `/workspace/review/ai-dev-market-compare-20261022.md` + 用户授权 |
 | [DEC-047](DEC-047.md) | DEC-047: 多 AI 并发协作门禁与反思约束退役 | 2026-10-22 | 用户推进多 AI 并发与扎实开发；DEC-045/046 后续 |
 | [DEC-046](DEC-046.md) | DEC-046: 本地门禁接入 gov-custom-checks 与 gov-local-ci | 2026-10-22 | 用户「stop talking, just do it」+ DEC-045 评审 P0 |
 | [DEC-045](DEC-045.md) | DEC-045: 文档事实对齐与蒸馏规则统一（授权门禁减负后续） | 2026-10-22 | 用户授权 P0 文档对齐 + 蒸馏规则统一 + 评审入库；前序 20261022 AI 适配度再评估 |

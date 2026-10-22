@@ -371,6 +371,7 @@
 
 | 版本 | 日期 | 变更摘要 |
 |------|------|---------|
+| v78 | 2026-10-22 | DEC-048：任务 AC schema + GC-task-acceptance；AGENTS 瘦身 + GC-coding-conventions；PR 合入模板；GOV-PROTO-004 |
 | v80 | 2026-10-22 | DEC-047 多 AI 并发协议 + 钉死 simplified hook 安装 + 退役 REFLECT；gov-local-ci 已验证 PASS |
 | v79 | 2026-10-22 | 清理 17 条 GOV-CODE-001 死 import（gov-code-check --fix），使 custom-checks 可绿 |
 | v78 | 2026-10-22 | DEC-046 精简 pre-commit 接入 custom-checks；新增 gov-local-ci.sh；修复 custom-checks 退出码空转 |

@@ -1,54 +1,52 @@
 # Cline Rules — AI 协作协议（继承 AGENTS.md）
 
-## 启动流程
+## 启动
 
 ```bash
-cat STATUS.md                      # 项目全景（AI 交接/指标；勿手改）
-bash scripts/session/ses-context-load.sh  # 加载 AI 上下文记忆
-# 任务与风险以权威任务板为准：
+cat STATUS.md
+bash scripts/session/ses-context-load.sh
 python3 -c "import json;print(json.load(open('.ai/tasks.json'))['next_action'])"
-ls -t docs/ai/decisions/ | head -3 # 最近决策
+ls -t docs/ai/decisions/ | head -3
 ```
 
-## 决策流转（6 阶段）
+编码前确认任务 `acceptance` ready（`docs/guides/GC-task-acceptance.md`）。
+
+## 决策流转
 
 ```
-NOTE（未定型） → DEC（追加写） → lifecycle（覆盖型）
-  → wf-promote.sh → golden standards → gov-validate.sh → commit
+NOTE → DEC → lifecycle → wf-promote.sh → golden → gov-validate.sh → commit
 ```
 
-- 决策日志用 `bash scripts/governance/gov-next-decision.sh --create`（自动编号 + 原子锁）
-- 架构/黄金标准：先改 `docs/ai/lifecycle/02_Architecture.md`，再 promote；禁止直改 `docs/architecture/`
-- DEC 只追加不覆盖不删除
+- `bash scripts/governance/gov-next-decision.sh --create`
+- 禁止直改 `docs/architecture/`；先 lifecycle 再 promote
 
-## 文档命名规则
+## 文档命名
 
-| 目录 | 格式 | 示例 |
-|------|------|------|
-| `docs/guides/` | `GC-{slug}.md` | `GC-coding-conventions.md` |
-| `docs/reference/` | `REF-{slug}.md` | `REF-api-spec.md` |
-| `docs/archive/` | `ARCH-{slug}.md` | `ARCH-v0.9-docs.md` |
-| `docs/notes/` | `NOTE-YYYYMMDD-NNN.md` | `NOTE-20260706-001.md` |
-| `docs/ai/decisions/` | `DEC-XXX.md` | `DEC-001.md` |
+| 目录 | 格式 |
+|------|------|
+| `docs/guides/` | `GC-{slug}.md` |
+| `docs/notes/` | `NOTE-YYYYMMDD-NNN.md` |
+| `docs/ai/decisions/` | `DEC-XXX.md` |
 
-**严禁：** 创建 `v1`/`v2`/`_bak`/`backup`/`copy` 后缀的文件。用 git 管理版本。
+**严禁：** v1/v2/_bak/backup/copy 后缀。
 
-## 校验与本机钩子
+## 校验与合入
 
 ```bash
-bash scripts/governance/gov-validate.sh       # 全量严格校验
+bash scripts/governance/gov-validate.sh
+bash scripts/governance/gov-local-ci.sh
 ```
 
-- 本机 pre-commit = `gov-pre-commit-simplified`（编译检查 + 可选会话归属），不是模板长版叙事。
-- 提交前关注编译与 validate；不要为「凑 README 反思」改文件。
+- pre-commit = simplified（compile + custom-checks）
+- PR 使用仓库模板勾选 local-ci / AC（DEC-048）
+- 编码约定：`docs/guides/GC-coding-conventions.md`
 
 ## 工程反思（自愿）
 
-强制反思门禁已拆除。有教训时追加 `docs/guides/GC-engineering-reflections.md`。
-会话结束建议 handoff；`lessons` 字段可选，不再要求 ≥50 字信号词。
+强制反思已拆除。教训追加 `docs/guides/GC-engineering-reflections.md`。
 
 ## 参考
 
-- `AGENTS.md` — 完整协作协议
-- `docs/guides/GC-decision-flow.md` — 决策流转完整说明
-- `.ai/tasks.json` — 权威任务板
+- `AGENTS.md` — 精炼协议
+- `docs/guides/GC-decision-flow.md` / `GC-multi-agent-collab.md` / `GC-task-acceptance.md`
+- `.ai/tasks.json`
