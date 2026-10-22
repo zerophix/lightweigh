@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "updated_at": "2026-10-21T12:52:19Z",
-  "next_action": "T-045: P0-5 新手引导3步补全（资料表单/单位选择器/真实绑定流）",
-  "next_action_why": "P0-5 是下一个 P0 缺失功能，T-043 习惯管理页已完成, T-044 密码登录已由 ai-session-b 完成",
+  "updated_at": "2026-10-22T00:10:28Z",
+  "next_action": "在 Android 真机安装 APK 验证",
+  "next_action_why": "端到端验证确认修复有效, 踏秤获取锁定结果",
   "next_action_confirmed": false,
   "known_risks": [
     "G1 阻断: 工具链WIP(3文件)仍未提交, 测试均为 HEAD+WIP 口径",
