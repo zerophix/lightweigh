@@ -1,6 +1,6 @@
 # 项目状态
 
-> 由 generate-status.py 自动生成。最后更新: 2026-10-22T04:43:10Z
+> 由 generate-status.py 自动生成。最后更新: 2026-10-22T04:46:45Z
 > 新 AI 启动时: `cat STATUS.md && bash scripts/session/ses-context-load.sh`
 
 ---
@@ -12,8 +12,8 @@
 | 名称 | 轻刻健康 Android（qk-health-v2） |
 | 版本 | 0.1.0 |
 | 文档语言 | zh-CN |
-| Git 分支 | master |
-| 最后提交 | 5f20210 Merge pull request #18 from zerophix/chore/status-local-ci-evidence |
+| Git 分支 | chore/schema-golden-guard |
+| 最后提交 | c24865a Merge pull request #19 from zerophix/chore/dec051-handoff |
 | 文档校验 | 运行: `bash scripts/governance/gov-validate.sh` |
 
 ## AI 交接
@@ -39,27 +39,27 @@
 最近 5 次提交：
 
 ```
+c24865a Merge pull request #19 from zerophix/chore/dec051-handoff
+357c174 chore(session): handoff after DEC-051
 5f20210 Merge pull request #18 from zerophix/chore/status-local-ci-evidence
 4083fc9 feat(governance): STATUS health from local-ci evidence
 e0b2d31 Merge pull request #16 from zerophix/chore/dec050-handoff
-1f7906e chore(session): handoff after DEC-050
-b5adac7 Merge pull request #15 from zerophix/chore/ses-worktree
 ```
 
 ## 工程指标
 
 | 指标 | 数量 |
 |------|------|
-| 决策日志 (DEC) | 51 |
+| 决策日志 (DEC) | 52 |
 | 设计笔记 (NOTE) | 10 |
 | 开发指南 (GC) | 8 |
 | 技术参考 (REF) | 1 |
 
 最近决策：
 
+- [DEC-052](docs/ai/decisions/DEC-052.md): DEC-052: 黄金向量 / Room schema 变更守卫
 - [DEC-051](docs/ai/decisions/DEC-051.md): DEC-051: STATUS 门禁证据来自 local-ci / Actions
 - [DEC-050](docs/ai/decisions/DEC-050.md): DEC-050: Worktree 脚本与 hooks 工作树 ROOT
-- [DEC-049](docs/ai/decisions/DEC-049.md): DEC-049: 特性分支 CI、Dependabot、本地密钥扫描
 
 最近笔记：
 
@@ -71,9 +71,9 @@ b5adac7 Merge pull request #15 from zerophix/chore/ses-worktree
 
 | 检查项 | 状态 | 详情 |
 |-------|------|------|
-| 本地门禁 (gov-local-ci) | 通过 | local-ci PASS @ 2026-10-22T04:42:10Z sha=e0b2d31 branch=chore/status-local-ci-evidence [gradlew build:ok,gov-validate:ok,gov-custom-checks:ok,gov-secrets-scan:ok] |
-| GitHub Actions | 进行中 | ci @ 2026-10-22T04:42:54Z sha=5f20210 https://github.com/zerophix/qk-health-v2/actions/runs/39723907573 |
-| 文档校验 | 通过 | 来自 local-ci @ 2026-10-22T04:42:10Z sha=e0b2d31 |
+| 本地门禁 (gov-local-ci) | 通过 | local-ci PASS @ 2026-10-22T04:46:45Z sha=c24865a branch=chore/schema-golden-guard [gradlew build:ok,gov-validate:ok,gov-custom-checks:ok,gov-secrets-scan:ok,gov-schema-guard:ok] |
+| GitHub Actions | 无数据 | gh 不可用或无最近 run |
+| 文档校验 | 通过 | 来自 local-ci @ 2026-10-22T04:46:45Z sha=c24865a |
 | Git 钩子 | 通过 | 安装: bash scripts/bootstrap/bs-install-hooks.sh |
 
 ## 反思

@@ -65,6 +65,7 @@ UI 不直访问 Room / SDK；经 ViewModel → application/domain 端口。
 | 协议帧 / 算法 | `domain` 协议与算法包 | 先红测再改；禁止删断言凑绿 |
 
 PR 模板要求：黄金 / schema 变更必须显式说明。
+门禁：`gov-schema-guard.sh`（local-ci + PR Actions，DEC-052）；放行=同 diff 含 DEC、或标签/正文 `allow-schema-change` / `DEC-xxx`。
 
 ## 6. 测试期望
 
@@ -88,4 +89,4 @@ PR 模板要求：黄金 / schema 变更必须显式说明。
 
 ## 来源
 
-DEC-048；架构事实来自 lifecycle / DEC-021/045 等。
+DEC-048、DEC-052；架构事实来自 lifecycle / DEC-021/045 等。
