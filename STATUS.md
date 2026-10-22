@@ -1,6 +1,6 @@
 # 项目状态
 
-> 由 generate-status.py 自动生成。最后更新: 2026-10-22T04:42:11Z
+> 由 generate-status.py 自动生成。最后更新: 2026-10-22T04:43:10Z
 > 新 AI 启动时: `cat STATUS.md && bash scripts/session/ses-context-load.sh`
 
 ---
@@ -12,8 +12,8 @@
 | 名称 | 轻刻健康 Android（qk-health-v2） |
 | 版本 | 0.1.0 |
 | 文档语言 | zh-CN |
-| Git 分支 | chore/status-local-ci-evidence |
-| 最后提交 | e0b2d31 Merge pull request #16 from zerophix/chore/dec050-handoff |
+| Git 分支 | master |
+| 最后提交 | 5f20210 Merge pull request #18 from zerophix/chore/status-local-ci-evidence |
 | 文档校验 | 运行: `bash scripts/governance/gov-validate.sh` |
 
 ## AI 交接
@@ -28,7 +28,7 @@
 
 **上下文：**
 
-> 完成: DEC-050：ses-worktree.sh + hooks show-toplevel；已合入 PR #15 | 决策: 共享 hooks 在 worktree 须用 show-toplevel；包装脚本降低误用
+> 完成: DEC-051：STATUS 读 local-ci 证据；已合入 PR #18 | 决策: 无 Pro 下 local-ci 落盘为权威门禁证据；禁 npm 伪构建
 
 **下一步：**
 
@@ -39,11 +39,11 @@
 最近 5 次提交：
 
 ```
+5f20210 Merge pull request #18 from zerophix/chore/status-local-ci-evidence
+4083fc9 feat(governance): STATUS health from local-ci evidence
 e0b2d31 Merge pull request #16 from zerophix/chore/dec050-handoff
 1f7906e chore(session): handoff after DEC-050
 b5adac7 Merge pull request #15 from zerophix/chore/ses-worktree
-6411fed feat(session): add ses-worktree and fix hook ROOT for worktrees
-f5002af Merge pull request #11 from zerophix/chore/dec049-handoff
 ```
 
 ## 工程指标
@@ -72,7 +72,7 @@ f5002af Merge pull request #11 from zerophix/chore/dec049-handoff
 | 检查项 | 状态 | 详情 |
 |-------|------|------|
 | 本地门禁 (gov-local-ci) | 通过 | local-ci PASS @ 2026-10-22T04:42:10Z sha=e0b2d31 branch=chore/status-local-ci-evidence [gradlew build:ok,gov-validate:ok,gov-custom-checks:ok,gov-secrets-scan:ok] |
-| GitHub Actions | 无数据 | gh 不可用或无最近 run |
+| GitHub Actions | 进行中 | ci @ 2026-10-22T04:42:54Z sha=5f20210 https://github.com/zerophix/qk-health-v2/actions/runs/39723907573 |
 | 文档校验 | 通过 | 来自 local-ci @ 2026-10-22T04:42:10Z sha=e0b2d31 |
 | Git 钩子 | 通过 | 安装: bash scripts/bootstrap/bs-install-hooks.sh |
 
@@ -80,5 +80,5 @@ f5002af Merge pull request #11 from zerophix/chore/dec049-handoff
 
 > 上次 AI session 的经验教训。新 AI 启动时必读。
 
-共享 hooks 在 worktree 须用 show-toplevel；包装脚本降低误用
+无 Pro 下 local-ci 落盘为权威门禁证据；禁 npm 伪构建
 
