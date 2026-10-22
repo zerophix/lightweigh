@@ -1,6 +1,6 @@
 # 项目状态
 
-> 由 generate-status.py 自动生成。最后更新: 2026-10-22T07:42:23Z
+> 由 generate-status.py 自动生成。最后更新: 2026-10-22T07:42:25Z
 > 新 AI 启动时: `cat STATUS.md && bash scripts/session/ses-context-load.sh`
 
 ---
@@ -13,7 +13,7 @@
 | 版本 | 0.1.0 |
 | 文档语言 | zh-CN |
 | Git 分支 | chore/ops-debt-p0-p1 |
-| 最后提交 | 37ba91c chore(ops): clear PROTO inbox debt, Dependabot majors, DEC-054 docs |
+| 最后提交 | 3dc6a30 chore(ops): clear PROTO inbox debt, Dependabot majors, DEC-054 docs |
 | 文档校验 | 运行: `bash scripts/governance/gov-validate.sh` |
 
 ## AI 交接
@@ -39,7 +39,7 @@
 最近 5 次提交：
 
 ```
-37ba91c chore(ops): clear PROTO inbox debt, Dependabot majors, DEC-054 docs
+3dc6a30 chore(ops): clear PROTO inbox debt, Dependabot majors, DEC-054 docs
 0105016 Merge pull request #22 from zerophix/chore/worktree-guard
 11107a4 feat(governance): add worktree guard to pre-commit (DEC-054)
 aa27c35 chore(brand): rename repo to lightweigh, unify brand name
@@ -71,9 +71,9 @@ aa27c35 chore(brand): rename repo to lightweigh, unify brand name
 
 | 检查项 | 状态 | 详情 |
 |-------|------|------|
-| 本地门禁 (gov-local-ci) | 通过 | local-ci PASS @ 2026-10-22T07:42:23Z sha=37ba91c branch=chore/ops-debt-p0-p1 [gradlew build:ok,gov-validate:ok,gov-custom-checks:ok,gov-secrets-scan:ok,gov-schema-guard:ok,gov-test-guard:ok] |
+| 本地门禁 (gov-local-ci) | 通过 | local-ci PASS @ 2026-10-22T07:42:25Z sha=3dc6a30 branch=chore/ops-debt-p0-p1 [gradlew build:ok,gov-validate:ok,gov-custom-checks:ok,gov-secrets-scan:ok,gov-schema-guard:ok,gov-test-guard:ok] |
 | GitHub Actions | 无数据 | gh 不可用或无最近 run |
-| 文档校验 | 通过 | 来自 local-ci @ 2026-10-22T07:42:23Z sha=37ba91c |
+| 文档校验 | 通过 | 来自 local-ci @ 2026-10-22T07:42:25Z sha=3dc6a30 |
 | Git 钩子 | 通过 | 安装: bash scripts/bootstrap/bs-install-hooks.sh |
 
 ## 反思
