@@ -25,5 +25,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "qk-health-v2"
+rootProject.name = "lightweigh"
 include(":domain", ":application", ":infrastructure", ":app")

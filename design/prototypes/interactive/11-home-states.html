@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>轻衡 · 首页状态（可交互）</title>
+<link rel="stylesheet" href="../theme.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body class="interactive">
+<div class="flowbar">
+  <h1>首页状态 · 可交互原型</h1>
+  <p>以首页为枢纽，触发各种真实状态：空数据、设备未连接、云端同步、刷新失败、成员切换、AI 简报、目标完成。</p>
+  <div class="nav"><a href="index.html">交互总览</a><a href="../index.html">← 静态总览</a></div>
+</div>
+<div class="app">
+
+  <!-- 首页正常（枢纽） -->
+  <div class="view" id="v-home">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="content" style="min-height:740px;">
+        <div class="brand" style="margin-top:6px;"><span class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg></span><span class="word">轻衡</span><span class="av" style="width:32px;height:32px;font-size:13px;margin-left:auto;" data-open="sheet-member">悦</span></div>
+        <div class="hero" style="margin-top:8px;"><div class="h1 sm">早上好，林悦。</div><div class="h2">轻一点，更懂自己。</div></div>
+        <div class="card soft" style="border-radius:24px;padding:20px;" data-goto="v-brief">
+          <div class="hint">当前体重 · 10月21日 07:30</div>
+          <div style="display:flex;align-items:baseline;gap:8px;margin-top:6px;"><span class="num" style="font-size:40px;font-weight:600;">62.4</span><span style="font-size:13px;color:var(--sub);">kg</span><span style="margin-left:auto;font-size:12px;color:var(--brand);">↓0.3</span></div>
+          <div style="font-size:11px;color:var(--muted);margin-top:8px;">向 58.0 kg 靠近 · 已减 2.8 kg</div>
+          <div class="pbar" style="margin-top:8px;background:var(--white);"><div class="fill" style="width:39%;"></div></div>
+        </div>
+        <div class="mgrid"><div class="mcell"><div class="mh">体脂率</div><div class="mv">28.6<span class="u">%</span></div></div><div class="mcell"><div class="mh">BMI</div><div class="mv">22.1</div></div></div>
+        <!-- 状态分支触发 -->
+        <div class="lbl">触发各种状态（演示）</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+          <span class="btn secondary" style="height:36px;padding:0 14px;font-size:11px;border-radius:9px;" data-goto="v-empty">空数据</span>
+          <span class="btn secondary" style="height:36px;padding:0 14px;font-size:11px;border-radius:9px;" data-goto="v-unconn">设备未连接</span>
+          <span class="btn secondary" style="height:36px;padding:0 14px;font-size:11px;border-radius:9px;" data-goto="v-syncing">云端同步中</span>
+          <span class="btn secondary" style="height:36px;padding:0 14px;font-size:11px;border-radius:9px;" data-goto="v-error">刷新失败</span>
+          <span class="btn secondary" style="height:36px;padding:0 14px;font-size:11px;border-radius:9px;" data-goto="v-goaldone">目标完成</span>
+        </div>
+        <div class="spacer"></div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+      <div class="overlay sheetmode" id="sheet-member">
+        <div class="sheet"><div class="grab"></div><div class="shead"><span class="st">切换成员</span><span class="cancel" data-close>取消</span></div><div class="sbody">
+          <div class="pick" data-close data-toast="已切换到林悦"><span class="av" style="width:36px;height:36px;">悦</span><span class="pk-tx">林悦</span><span class="radio on"></span></div>
+          <div class="pick" data-close data-goto="v-switching"><span class="av" style="width:36px;height:36px;background:var(--iconbg);">妈</span><span class="pk-tx">妈妈</span><span class="radio"></span></div>
+          <div class="pick" data-close data-goto="v-switching"><span class="av" style="width:36px;height:36px;background:var(--iconbg);">爸</span><span class="pk-tx">爸爸</span><span class="radio"></span></div>
+        </div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 空数据 -->
+  <div class="view" id="v-empty">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="content" style="min-height:740px;">
+        <div class="brand" style="margin-top:6px;"><span class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg></span><span class="word">轻衡</span></div>
+        <div class="hero" style="margin-top:12px;"><div class="h1 sm">你好，开始记录吧</div><div class="h2">完成第一次测量，就能看到身体概览。</div></div>
+        <div class="card lg pad20" style="text-align:center;padding:32px 20px;">
+          <div style="width:72px;height:72px;border-radius:100px;background:var(--iconbg);color:var(--brand);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M8 12h.01M16 12h.01"/></svg></div>
+          <div style="font-size:16px;font-weight:700;">还没有测量数据</div>
+          <div style="font-size:12px;color:var(--sub);margin-top:8px;line-height:1.7;">连接体脂秤并完成第一次测量后，<br>这里会显示你的体重与指标。</div>
+        </div>
+        <div class="spacer"></div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div class="btn primary" data-goto="v-home" data-toast="去测量（演示返回正常首页）">开始第一次测量</div>
+          <div class="btn ghost" style="align-self:center;" data-goto="v-home">← 返回正常首页</div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 设备未连接 -->
+  <div class="view" id="v-unconn">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="content" style="min-height:740px;">
+        <div class="brand" style="margin-top:6px;"><span class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg></span><span class="word">轻衡</span></div>
+        <div class="banner warn"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18.36 6.64A9 9 0 1 1 5.64 6.64M2 2l20 20"/></svg></span><span class="bt">体脂秤未连接，暂无法测量。<br><span style="color:var(--brand);" data-goto="v-home" data-toast="已重新连接">重新连接 ›</span></span></div>
+        <div class="card soft" style="border-radius:24px;padding:20px;">
+          <div class="hint">上次更新 10月21日 07:30 · 非实时</div>
+          <div style="display:flex;align-items:baseline;gap:8px;margin-top:6px;"><span class="num" style="font-size:40px;font-weight:600;opacity:.6;">62.4</span><span style="font-size:13px;color:var(--sub);">kg</span></div>
+        </div>
+        <div class="card" style="border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:12px;">
+          <span class="av" style="width:38px;height:38px;background:var(--warn-bg);color:var(--warn-ink);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18.36 6.64A9 9 0 1 1 5.64 6.64M2 2l20 20"/></svg></span>
+          <div style="flex:1;"><div style="font-size:13px;font-weight:500;">轻衡 S1 · 未连接</div><div style="font-size:10px;color:var(--muted);margin-top:2px;">轻踩秤面唤醒后重连</div></div>
+          <span style="font-size:12px;color:var(--brand);" data-goto="v-home" data-toast="已连接">连接</span>
+        </div>
+        <div class="spacer"></div>
+        <div class="btn secondary disabled">开始测量（需先连接设备）</div>
+        <div class="btn ghost" style="align-self:center;margin-top:8px;" data-goto="v-home">← 返回正常首页</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 云端同步中 -->
+  <div class="view" id="v-syncing">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div style="background:var(--soft);padding:8px 22px;display:flex;align-items:center;gap:8px;"><span class="loading-spin" style="width:14px;height:14px;border-width:2px;"></span><span style="font-size:11px;color:var(--brand);">正在同步 3 条测量记录…</span></div>
+      <div class="content" style="min-height:700px;">
+        <div class="brand" style="margin-top:6px;"><span class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg></span><span class="word">轻衡</span></div>
+        <div class="card soft" style="border-radius:24px;padding:20px;">
+          <div style="display:flex;justify-content:space-between;"><span class="hint">当前体重</span><span class="hint" style="color:var(--brand);">同步中…</span></div>
+          <div style="display:flex;align-items:baseline;gap:8px;margin-top:6px;"><span class="num" style="font-size:40px;font-weight:600;">62.4</span><span style="font-size:13px;color:var(--sub);">kg</span></div>
+          <div style="display:flex;align-items:center;gap:6px;margin-top:8px;"><span class="tag mut">待同步</span><span style="font-size:10px;color:var(--muted);">本机记录，稍后上传</span></div>
+        </div>
+        <div class="spacer"></div>
+        <div class="note" style="text-align:center;" data-goto="v-home" data-toast="已全部同步">（演示）点击返回，视为同步完成 →</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 刷新失败 -->
+  <div class="view" id="v-error">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="content" style="min-height:740px;">
+        <div class="brand" style="margin-top:6px;"><span class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg></span><span class="word">轻衡</span></div>
+        <div class="card soft" style="border-radius:24px;padding:20px;"><div class="sk line" style="width:40%;height:10px;"></div><div class="sk line" style="width:60%;height:34px;margin-top:12px;"></div></div>
+        <div class="card lg pad20" style="text-align:center;border:1px dashed var(--stroke);">
+          <div style="width:56px;height:56px;border-radius:100px;background:var(--danger-bg);color:var(--danger);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M18.36 6.64A9 9 0 1 1 5.64 6.64M2 2l20 20"/></svg></div>
+          <div style="font-size:15px;font-weight:700;">指标加载失败</div>
+          <div style="font-size:12px;color:var(--sub);margin-top:6px;">网络开小差了，请检查连接。</div>
+          <button class="btn secondary" style="margin-top:16px;height:42px;" data-goto="v-home" data-toast="已重新加载">重新加载</button>
+        </div>
+        <div class="spacer"></div>
+        <div class="btn ghost" style="align-self:center;" data-goto="v-home">← 返回正常首页</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 成员切换刷新中 -->
+  <div class="view" id="v-switching">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div style="background:var(--soft);padding:8px 22px;display:flex;align-items:center;gap:8px;"><span class="loading-spin" style="width:14px;height:14px;border-width:2px;"></span><span style="font-size:11px;color:var(--brand);">已切换到「妈妈」，正在加载她的数据…</span></div>
+      <div class="content" style="min-height:700px;">
+        <div class="brand" style="margin-top:6px;"><span class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg></span><span class="word">轻衡</span><span class="av" style="width:32px;height:32px;font-size:13px;margin-left:auto;background:var(--iconbg);">妈</span></div>
+        <div class="card soft" style="border-radius:24px;padding:20px;"><div class="sk line" style="width:35%;height:10px;"></div><div class="sk line" style="width:55%;height:34px;margin-top:12px;"></div></div>
+        <div class="mgrid"><div class="mcell sk card" style="height:84px;"></div><div class="mcell sk card" style="height:84px;"></div></div>
+        <div class="card sk card" style="height:70px;"></div>
+        <div class="note" style="text-align:center;" data-goto="v-home" data-toast="已切换回林悦">（演示）点击返回 →</div>
+        <div class="spacer"></div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- AI 简报详情 -->
+  <div class="view" id="v-brief">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-goto="v-home"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">AI 健康简报</span></div>
+      <div class="content tight">
+        <div class="hint">分析截止：2026年10月21日 07:30 · 林悦</div>
+        <div class="card soft" style="border-radius:24px;padding:18px;"><div style="font-size:20px;font-weight:700;line-height:1.4;">近 30 天趋势稳健，<br>继续保持你的节奏。</div></div>
+        <div class="card lg pad18">
+          <div class="st sm" style="margin-bottom:10px;">关键变化</div>
+          <div style="display:flex;gap:10px;">
+            <div style="flex:1;background:var(--iconbg);border-radius:12px;padding:12px;text-align:center;"><div class="num" style="font-size:20px;font-weight:600;color:var(--brand);">−1.6</div><div class="hint" style="margin-top:2px;">体重 kg</div></div>
+            <div style="flex:1;background:var(--iconbg);border-radius:12px;padding:12px;text-align:center;"><div class="num" style="font-size:20px;font-weight:600;color:var(--brand);">−1.5</div><div class="hint" style="margin-top:2px;">体脂 %</div></div>
+          </div>
+          <div style="font-size:12px;color:var(--sub);line-height:1.7;margin-top:14px;">近 30 天体重下降 1.6 kg、体脂率下降 1.5 个百分点，趋势稳健。单次波动不代表脂肪变化。</div>
+        </div>
+        <div class="spacer"></div>
+        <div class="btn primary" data-goto="v-home" data-toast="打开 AI 助手（演示）">问 AI 助手</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 目标完成 -->
+  <div class="view" id="v-goaldone">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-goto="v-home"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">目标达成</span></div>
+      <div class="content">
+        <div class="hero center" style="margin-top:20px;">
+          <div class="bigicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 6-6"/></svg></div>
+          <div class="h1" style="margin-top:20px;">恭喜，达成体重目标！</div>
+          <div class="h2">从 65.2 kg 到 58.0 kg，减重 7.2 kg，用时 84 天。</div>
+        </div>
+        <div class="card lg pad20" style="text-align:center;">
+          <div style="display:flex;justify-content:center;gap:24px;">
+            <div><div class="num" style="font-size:24px;font-weight:600;color:var(--brand);">58.0</div><div class="hint">目标 kg</div></div>
+            <div><div class="num" style="font-size:24px;font-weight:600;">57.9</div><div class="hint">当前 kg</div></div>
+            <div><div class="num" style="font-size:24px;font-weight:600;color:var(--brand);">84</div><div class="hint">天数</div></div>
+          </div>
+        </div>
+        <div class="spacer"></div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="btn primary" data-goto="v-home" data-toast="设定新目标（演示）">设定新目标</div>
+          <div class="btn secondary" data-goto="v-home" data-toast="维持当前体重">维持当前体重</div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+</div>
+<div class="flowbar" style="margin-top:20px;text-align:center;"><p>轻衡 · 首页状态交互原型 · 7 屏 + 1 弹层</p></div>
+<script src="app.js"></script>
+</body>
+</html>
