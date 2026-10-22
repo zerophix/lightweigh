@@ -1,6 +1,6 @@
 # 项目状态
 
-> 由 generate-status.py 自动生成。最后更新: 2026-10-22T07:52:07Z
+> 由 generate-status.py 自动生成。最后更新: 2026-10-22T07:54:34Z
 > 新 AI 启动时: `cat STATUS.md && bash scripts/session/ses-context-load.sh`
 
 ---
@@ -12,8 +12,8 @@
 | 名称 | 轻衡健康 Android（lightweigh） |
 | 版本 | 0.1.0 |
 | 文档语言 | zh-CN |
-| Git 分支 | chore/docs-consistency |
-| 最后提交 | 14a512f Merge pull request #23 from zerophix/chore/ops-debt-p0-p1 |
+| Git 分支 | master |
+| 最后提交 | adc38c2 Merge pull request #27 from zerophix/chore/docs-consistency |
 | 文档校验 | 运行: `bash scripts/governance/gov-validate.sh` |
 
 ## AI 交接
@@ -28,7 +28,7 @@
 
 **上下文：**
 
-> 完成: DEC-053：test-guard PR 警告；已合入 PR #21 | 决策: 缺测试默认 warn 不红门禁；--strict+allow-no-tests 可选
+> 完成: DEC-055 文档内容一致性治理；PR #27 已合入 master（merge adc38c2 / 9b5d182）。活跃面轻衡/lightweigh、断链、流程 DEC 范围、MkDocs、architecture/reference/changelog 晋升。 | 决策: 只改活跃文档与流程说明；历史 DEC/reviews/inbox 与轻刻绿等历史叙述保留；applicationId com.xcwk.scalehub 不变。
 
 **下一步：**
 
@@ -39,11 +39,11 @@
 最近 5 次提交：
 
 ```
+adc38c2 Merge pull request #27 from zerophix/chore/docs-consistency
+9b5d182 docs(governance): align docs with lightweigh brand (DEC-055)
 14a512f Merge pull request #23 from zerophix/chore/ops-debt-p0-p1
 4fe4122 chore(status): align STATUS with ops-debt commit
 3dc6a30 chore(ops): clear PROTO inbox debt, Dependabot majors, DEC-054 docs
-0105016 Merge pull request #22 from zerophix/chore/worktree-guard
-11107a4 feat(governance): add worktree guard to pre-commit (DEC-054)
 ```
 
 ## 工程指标
@@ -72,7 +72,7 @@
 | 检查项 | 状态 | 详情 |
 |-------|------|------|
 | 本地门禁 (gov-local-ci) | 通过 | local-ci PASS @ 2026-10-22T07:52:07Z sha=14a512f branch=chore/docs-consistency [gradlew build:ok,gov-validate:ok,gov-custom-checks:ok,gov-secrets-scan:ok,gov-schema-guard:ok,gov-test-guard:ok] |
-| GitHub Actions | 无数据 | gh 不可用或无最近 run |
+| GitHub Actions | 进行中 | ci @ 2026-10-22T07:53:02Z sha=adc38c2 https://github.com/zerophix/lightweigh/actions/runs/39743644307 |
 | 文档校验 | 通过 | 来自 local-ci @ 2026-10-22T07:52:07Z sha=14a512f |
 | Git 钩子 | 通过 | 安装: bash scripts/bootstrap/bs-install-hooks.sh |
 
@@ -80,5 +80,5 @@
 
 > 上次 AI session 的经验教训。新 AI 启动时必读。
 
-缺测试默认 warn 不红门禁；--strict+allow-no-tests 可选
+只改活跃文档与流程说明；历史 DEC/reviews/inbox 与轻刻绿等历史叙述保留；applicationId com.xcwk.scalehub 不变。
 
