@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": "2026-10-22T11:30:16+08:00",
+  "updated_at": "2026-10-22T11:57:49+08:00",
   "next_action": "在 Android 真机安装 APK 验证",
   "next_action_why": "端到端验证确认修复有效, 踏秤获取锁定结果",
   "next_action_confirmed": false,
   "known_risks": [
+    "分支保护 / GitHub Pro / 公开仓：人类明确不做。权威合入门禁改为本地 `bash scripts/governance/gov-local-ci.sh` + pre-push validate；master 已含 DEC-045..047（merge 9cfc46d）。真机 APK 验收仍须人类。",
     "多会话共享同一工作树仍有碰撞风险：会话归属 hook 依赖 .ai/current-session.json；缺失时精简 pre-commit 跳过归属检查。claims 历史噪声需清理。",
-    "master 未开分支保护且仓库私有：CI 结论不阻断合入；本地 master 曾长期领先 origin（需人类推送/开源或升级后开启 required checks）。",
     "治理双轨：本机安装的是 gov-pre-commit-simplified（编译检查）；仓库模板 gov-pre-commit（261 行）仍在 gov-owned.list，执行 bs-install-hooks 会覆盖精简版。gov-custom-checks / gov-code-check 当前既不在精简 hook 也不在 CI。",
     "墙钟协议门禁：GOV-PROTO-001/002（inbox 48h / handoff 24h）仍可拦 pre-push 与 CI，与代码无关。",
     "CI 镜像分流依赖 CI=true：第三方 CI 未设该变量可能重踩阿里云 502（见 DEC-031/032）。",
