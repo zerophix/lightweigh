@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-10-22T04:30:25Z",
+  "updated_at": "2026-10-22T04:38:15Z",
   "next_action": "在 Android 真机安装 APK 验证",
   "next_action_why": "人类端到端验收",
   "next_action_confirmed": false,
@@ -14,7 +14,8 @@
     "真机 BLE：用户已确认真机秤可用；DEC-044 已修 Chipsea 混合广播误识别。残余：新协议/机型回归、android-test 周跑设备链、以及 tasks 中人类验收步骤（如安装 APK 验证）仍须人类执行。",
     "模板拥有区 modules 分叉，gov-upgrade 可能覆盖；T-045/T-046 与已 done 任务可能重叠须人类确认；无分支保护仍可 --no-verify 直推",
     "无",
-    "gov-pre-push/gov_validate_status 为模板区分叉，upgrade 后须重检；allowlist 过宽会漏报"
+    "gov-pre-push/gov_validate_status 为模板区分叉，upgrade 后须重检；allowlist 过宽会漏报",
+    "旧 hook 副本需 bs-install-hooks 或手工 cp 同步"
   ],
   "tasks": [
     {
