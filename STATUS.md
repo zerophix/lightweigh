@@ -1,6 +1,6 @@
 # 项目状态
 
-> 由 generate-status.py 自动生成。最后更新: 2026-10-22T04:46:45Z
+> 由 generate-status.py 自动生成。最后更新: 2026-10-22T04:50:34Z
 > 新 AI 启动时: `cat STATUS.md && bash scripts/session/ses-context-load.sh`
 
 ---
@@ -12,8 +12,8 @@
 | 名称 | 轻刻健康 Android（qk-health-v2） |
 | 版本 | 0.1.0 |
 | 文档语言 | zh-CN |
-| Git 分支 | chore/schema-golden-guard |
-| 最后提交 | c24865a Merge pull request #19 from zerophix/chore/dec051-handoff |
+| Git 分支 | chore/test-guard-pr |
+| 最后提交 | fcae111 Merge pull request #20 from zerophix/chore/schema-golden-guard |
 | 文档校验 | 运行: `bash scripts/governance/gov-validate.sh` |
 
 ## AI 交接
@@ -28,7 +28,7 @@
 
 **上下文：**
 
-> 完成: DEC-051：STATUS 读 local-ci 证据；已合入 PR #18 | 决策: 无 Pro 下 local-ci 落盘为权威门禁证据；禁 npm 伪构建
+> 完成: DEC-052：schema/golden 守卫 CI+local-ci；已合入 PR #20 | 决策: 改契约资产默认 fail，DEC 或 allow-schema-change 放行；PR 自动评论
 
 **下一步：**
 
@@ -39,27 +39,27 @@
 最近 5 次提交：
 
 ```
+fcae111 Merge pull request #20 from zerophix/chore/schema-golden-guard
+3e94a4b ci(governance): guard golden and Room schema changes
 c24865a Merge pull request #19 from zerophix/chore/dec051-handoff
 357c174 chore(session): handoff after DEC-051
 5f20210 Merge pull request #18 from zerophix/chore/status-local-ci-evidence
-4083fc9 feat(governance): STATUS health from local-ci evidence
-e0b2d31 Merge pull request #16 from zerophix/chore/dec050-handoff
 ```
 
 ## 工程指标
 
 | 指标 | 数量 |
 |------|------|
-| 决策日志 (DEC) | 52 |
+| 决策日志 (DEC) | 53 |
 | 设计笔记 (NOTE) | 10 |
 | 开发指南 (GC) | 8 |
 | 技术参考 (REF) | 1 |
 
 最近决策：
 
+- [DEC-053](docs/ai/decisions/DEC-053.md): DEC-053: src/main 缺同模块测试的 PR 提醒
 - [DEC-052](docs/ai/decisions/DEC-052.md): DEC-052: 黄金向量 / Room schema 变更守卫
 - [DEC-051](docs/ai/decisions/DEC-051.md): DEC-051: STATUS 门禁证据来自 local-ci / Actions
-- [DEC-050](docs/ai/decisions/DEC-050.md): DEC-050: Worktree 脚本与 hooks 工作树 ROOT
 
 最近笔记：
 
@@ -71,14 +71,14 @@ e0b2d31 Merge pull request #16 from zerophix/chore/dec050-handoff
 
 | 检查项 | 状态 | 详情 |
 |-------|------|------|
-| 本地门禁 (gov-local-ci) | 通过 | local-ci PASS @ 2026-10-22T04:46:45Z sha=c24865a branch=chore/schema-golden-guard [gradlew build:ok,gov-validate:ok,gov-custom-checks:ok,gov-secrets-scan:ok,gov-schema-guard:ok] |
+| 本地门禁 (gov-local-ci) | 通过 | local-ci PASS @ 2026-10-22T04:50:34Z sha=fcae111 branch=chore/test-guard-pr [gradlew build:ok,gov-validate:ok,gov-custom-checks:ok,gov-secrets-scan:ok,gov-schema-guard:ok,gov-test-guard:ok] |
 | GitHub Actions | 无数据 | gh 不可用或无最近 run |
-| 文档校验 | 通过 | 来自 local-ci @ 2026-10-22T04:46:45Z sha=c24865a |
+| 文档校验 | 通过 | 来自 local-ci @ 2026-10-22T04:50:34Z sha=fcae111 |
 | Git 钩子 | 通过 | 安装: bash scripts/bootstrap/bs-install-hooks.sh |
 
 ## 反思
 
 > 上次 AI session 的经验教训。新 AI 启动时必读。
 
-无 Pro 下 local-ci 落盘为权威门禁证据；禁 npm 伪构建
+改契约资产默认 fail，DEC 或 allow-schema-change 放行；PR 自动评论
 

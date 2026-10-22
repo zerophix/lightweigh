@@ -79,6 +79,7 @@ bash scripts/bootstrap/bs-install-hooks.sh   # 安装 simplified pre-commit（DE
 | 密钥扫描 | `gov-secrets-scan.sh`（gitleaks）接入 local-ci / pre-push；缺二进制软警告，有则硬失败 |
 | STATUS 证据 | `gov-local-ci` 写入 `.cache/local-ci-last.json`，`STATUS.md` 健康检查读取（DEC-051）；可选 `gh run` |
 | Schema 守卫 | 改 `golden/` 或 `infrastructure/schemas/` 须 DEC 或 `allow-schema-change`（DEC-052；CI+local-ci） |
+| 测试提醒 | `src/main` 无同模块 `src/test|androidTest` 时 PR 评论警告（DEC-053；默认不红，`--strict`+`allow-no-tests`） |
 | 分支保护 | **无**（用户不做 Pro）；靠 local-ci + PR 模板纪律补偿 |
 
 ---

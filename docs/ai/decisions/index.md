@@ -9,6 +9,7 @@
 
 | 编号 | 标题 | 日期 | 来源 |
 |------|------|------|------|
+| [DEC-053](DEC-053.md) | DEC-053: src/main 缺同模块测试的 PR 提醒 | 2026-10-22 | 用户「好, 做」缺测试 PR 提醒 |
 | [DEC-052](DEC-052.md) | DEC-052: 黄金向量 / Room schema 变更守卫 | 2026-10-22 | 市场对比 Danger/可观测性 + 用户请求 |
 | [DEC-051](DEC-051.md) | DEC-051: STATUS 门禁证据来自 local-ci / Actions | 2026-10-22 | 市场对比「STATUS 证据」+ 用户请求 |
 | [DEC-050](DEC-050.md) | DEC-050: Worktree 脚本与 hooks 工作树 ROOT | 2026-10-22 | 市场对比 P1 worktree + 用户请求 |
