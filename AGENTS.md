@@ -18,7 +18,7 @@ ls -t docs/ai/decisions/ | head -3
 1. 有未读 inbox → 先读再干活。
 2. `next_action` 未确认 → 问人类；确认后 `wf-task-board.sh confirm`。
 3. 编码前读任务 `acceptance`（见 [GC-task-acceptance](docs/guides/GC-task-acceptance.md)）；无 ready AC 不开工。
-4. 多会话：`ses-session-begin.sh` → 分支/worktree → `ses-claim-staged.sh` → commit → `gov-local-ci.sh` → PR → `ses-session-end.sh`。详见 [GC-multi-agent-collab](docs/guides/GC-multi-agent-collab.md)。
+4. 多会话：`ses-worktree.sh add feat/<topic>` → `cd` 到新树 → `ses-session-begin.sh` → `ses-claim-staged.sh` → commit → `gov-local-ci.sh` → PR → `ses-session-end.sh`。详见 [GC-multi-agent-collab](docs/guides/GC-multi-agent-collab.md)（DEC-050）。
 
 ### 接力铁律
 

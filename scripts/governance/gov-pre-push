@@ -2,7 +2,12 @@
 # Git pre-push hook — 分支命名 + 校验必须 PASS + 密钥扫描（DEC-049）
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+# DEC-050: worktree 下优先 show-toplevel，避免共享 hooks 时 ROOT 落到主树
+ROOT="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+if [ -z "${ROOT:-}" ] || [ ! -f "$ROOT/scripts/governance/gov-validate.sh" ]; then
+  ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+fi
+cd "$ROOT"
 BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
 VALIDATE_SCRIPT="$ROOT/scripts/governance/gov-validate.sh"
 

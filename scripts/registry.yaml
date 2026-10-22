@@ -116,6 +116,11 @@ commands:
   path: session/ses-session-end.sh
   status: stable
   type: sh
+- description: 多 AI worktree 创建/列表/移除（DEC-050）
+  name: ses-worktree
+  path: session/ses-worktree.sh
+  status: stable
+  type: sh
 - description: 生成文档索引
   name: gov-generate-index
   path: governance/gov-generate-index.sh

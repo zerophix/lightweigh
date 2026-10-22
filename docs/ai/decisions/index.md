@@ -9,6 +9,7 @@
 
 | 编号 | 标题 | 日期 | 来源 |
 |------|------|------|------|
+| [DEC-050](DEC-050.md) | DEC-050: Worktree 脚本与 hooks 工作树 ROOT | 2026-10-22 | 市场对比 P1 worktree + 用户请求 |
 | [DEC-049](DEC-049.md) | DEC-049: 特性分支 CI、Dependabot、本地密钥扫描 | 2026-10-22 | 市场对比 P1 + 用户「可以」 |
 | [DEC-048](DEC-048.md) | DEC-048: AI 开发 P0 — 任务 AC、短 AGENTS、PR 合入清单 | 2026-10-22 | `/workspace/review/ai-dev-market-compare-20261022.md` + 用户授权 |
 | [DEC-047](DEC-047.md) | DEC-047: 多 AI 并发协作门禁与反思约束退役 | 2026-10-22 | 用户推进多 AI 并发与扎实开发；DEC-045/046 后续 |
