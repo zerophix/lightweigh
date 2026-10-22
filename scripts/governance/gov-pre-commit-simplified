@@ -8,10 +8,10 @@
 
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-# 从 .git/hooks 安装时 dirname 为 .git/hooks → ../.. 仍是仓库根
-if [ ! -f "$ROOT/scripts/governance/gov-custom-checks.sh" ]; then
-  ROOT="$(git rev-parse --show-toplevel 2>/dev/null || echo "$ROOT")"
+# DEC-050: worktree 共享 .git/hooks 时，$0 回推会指到主树；优先 show-toplevel
+ROOT="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+if [ -z "${ROOT:-}" ] || [ ! -f "$ROOT/scripts/governance/gov-custom-checks.sh" ]; then
+  ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 fi
 cd "$ROOT"
 GIT_DIR=$(git rev-parse --git-dir 2>/dev/null || echo ".git")

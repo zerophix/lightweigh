@@ -28,3 +28,6 @@ design/prototypes/figma-renders/
 scripts/tools/gitleaks
 scripts/tools/gitleaks-*
 !scripts/tools/gitleaks.sha256
+
+# DEC-050: in-repo git worktrees
+.worktrees/

@@ -371,6 +371,7 @@
 
 | 版本 | 日期 | 变更摘要 |
 |------|------|---------|
+| v80 | 2026-10-22 | DEC-050：ses-worktree.sh + hooks 优先 show-toplevel（worktree ROOT） |
 | v79 | 2026-10-22 | DEC-049：特性分支 CI 通配、Dependabot、gov-secrets-scan（gitleaks）接入 local-ci/pre-push |
 | v78 | 2026-10-22 | DEC-048：任务 AC schema + GC-task-acceptance；AGENTS 瘦身 + GC-coding-conventions；PR 合入模板；GOV-PROTO-004 |
 | v80 | 2026-10-22 | DEC-047 多 AI 并发协议 + 钉死 simplified hook 安装 + 退役 REFLECT；gov-local-ci 已验证 PASS |
