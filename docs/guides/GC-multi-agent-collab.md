@@ -2,7 +2,7 @@
 
 > 适用：多名 AI（或 AI + 人类）同时推进本仓库。
 > 权威任务板：`.ai/tasks.json`。合入前门禁：`bash scripts/governance/gov-local-ci.sh`。
-> 决策：DEC-047。
+> 决策：DEC-047、DEC-048。
 
 ---
 
@@ -12,26 +12,20 @@
 2. **一 AI 一分支**：分支名 `feat|fix|docs|refactor|chore|test|ci/<topic>`；禁止在 `master` 上直提交（pre-commit 已拦）。
 3. **优先 worktree**：`git worktree add ../qk-health-wt-<topic> -b feat/<topic>`；未验证 worktree 钩子前，也可约定「主树独占 + 其他会话只读」。
 4. **不共享未提交工作**：不要在别人的脏树上继续改；认领文件后再改。
-5. **合入看门禁**：本地 `gov-local-ci.sh` 全绿，再开 PR；远程 CI / 分支保护由人类配置。
+5. **合入看门禁**：本地 `gov-local-ci.sh` 全绿，再开 PR；远程无分支保护（用户不做 Pro）时，**PR 模板勾选是纪律硬门槛**。
+6. **无 AC 不开工**：任务须具备 ready 的 `acceptance`（见 [GC-task-acceptance](GC-task-acceptance.md)）。
 
 ## 2. 会话生命周期
 
 ```bash
-# 开始（写入 .ai/current-session.json，已 gitignore）
 bash scripts/session/ses-session-begin.sh
-
-# 暂存后、提交前：声明文件归属（写入 .ai/staged-claims.json，已 gitignore）
 git add <files>
 bash scripts/session/ses-claim-staged.sh
-
-# 提交（pre-commit：归属检查 + 源码时 compile + gov-custom-checks）
 git commit -m "type(scope): summary"
-
-# 结束（删除 current-session，并清理本会话 claims）
 bash scripts/session/ses-session-end.sh
 ```
 
-若缺少 `current-session.json`，pre-commit **跳过**归属检查——因此并发场景下**必须** begin。
+若缺少 `current-session.json`，pre-commit **跳过**归属检查——并发场景下**必须** begin。
 
 ## 3. 何时写 DEC
 
@@ -62,12 +56,23 @@ bash scripts/session/ses-session-end.sh
 ## 6. 推荐日常顺序
 
 1. begin → 读 STATUS / tasks.json / inbox  
-2. 向人类确认 next_action  
+2. 向人类确认 next_action；确认任务 AC ready  
 3. 建分支或 worktree → 改代码 → claim → commit  
 4. `bash scripts/governance/gov-local-ci.sh`  
-5. push → 开 PR → 人类合并  
+5. push → 开 PR（**使用仓库 PR 模板勾选清单**）→ 人类或授权合并  
 6. session-end  
+
+## 7. PR 合入清单（DEC-048）
+
+开 PR 时必须使用 `.github/PULL_REQUEST_TEMPLATE.md`，至少勾选并填写：
+
+- 已跑 `gov-local-ci.sh` 且粘贴 PASS 摘要  
+- 任务 AC / DoD 已覆盖  
+- 未静默改黄金向量 / Room schema（有改必写 DEC）  
+- DEC / 关联任务 ID  
+
+无 GitHub Pro、无 required checks 时，**未勾选则视为不可合入**。
 
 ## 来源
 
-DEC-047；前序 DEC-045（文档事实）、DEC-046（custom-checks / local-ci）。
+DEC-047、DEC-048；前序 DEC-045（文档事实）、DEC-046（custom-checks / local-ci）。

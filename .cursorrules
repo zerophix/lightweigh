@@ -1,57 +1,48 @@
 # Cursor Rules — AI 协作协议
 
 ## 启动
-- `cat STATUS.md` — 项目全景 + AI 交接（自动生成，勿手改）
-- `bash scripts/session/ses-context-load.sh` — AI 上下文记忆
-- 阅读 `docs/ai/constraints/index.md` — 行为边界
-- **事实交叉验证**：架构/README 与 `.ai/tasks.json`、近期 DEC 对照；任务以 tasks.json 为准
+- `cat STATUS.md` — 项目全景（自动生成，勿手改）
+- `bash scripts/session/ses-context-load.sh`
+- 阅读 `docs/ai/constraints/index.md`
+- 任务以 `.ai/tasks.json` 为准；**无 ready AC 不开工**（`docs/guides/GC-task-acceptance.md`）
 
-## 决策流转（6 阶段）
+## 决策流转
 
 ```
-NOTE（未定型） → DEC（追加写） → lifecycle（覆盖型）
-  → wf-promote.sh → golden standards → gov-validate.sh → commit
+NOTE → DEC → lifecycle → wf-promote.sh → golden → gov-validate.sh → commit
 ```
 
-- 创建 DEC: `bash scripts/governance/gov-next-decision.sh --create`（自动编号 + 原子锁）
-- 晋升: `bash scripts/workflow/wf-promote.sh <target> --decision DEC-XXX`
-- 校验: `bash scripts/governance/gov-validate.sh`（0 FAIL 才能推送）
-- 决策日志只追加，不覆盖，不删除
-- 黄金标准（`docs/architecture/` 等）不可直接编辑，须 lifecycle → promote
+- 创建 DEC: `bash scripts/governance/gov-next-decision.sh --create`
+- 黄金标准不可直改；须 lifecycle → promote
 
 ## 文件规范
 
-| 目录 | 格式 | 示例 |
-|------|------|------|
-| `docs/guides/` | `GC-{slug}.md` | `GC-coding-conventions.md` |
-| `docs/reference/` | `REF-{slug}.md` | `REF-api-spec.md` |
-| `docs/archive/` | `ARCH-{slug}.md` | `ARCH-v0.9-docs.md` |
-| `docs/notes/` | `NOTE-YYYYMMDD-NNN.md` | `NOTE-20260706-001.md` |
-| `docs/ai/decisions/` | `DEC-XXX.md` | `DEC-001.md` |
+| 目录 | 格式 |
+|------|------|
+| `docs/guides/` | `GC-{slug}.md` |
+| `docs/reference/` | `REF-{slug}.md` |
+| `docs/notes/` | `NOTE-YYYYMMDD-NNN.md` |
+| `docs/ai/decisions/` | `DEC-XXX.md` |
 
-**严禁:** old/legacy/vN 路径，v1/v2/bak/backup/copy 后缀
+**严禁:** old/legacy/vN 路径，bak/backup/copy 后缀
 
-## 校验与本机钩子
+## 校验与合入
 
 ```bash
-bash scripts/governance/gov-validate.sh       # 全量严格校验（规则族见 AGENTS.md 速查表）
+bash scripts/governance/gov-validate.sh
+bash scripts/governance/gov-local-ci.sh
 ```
 
-- 本机 **pre-commit** = `scripts/governance/gov-pre-commit-simplified`（已同步到 `.git/hooks/pre-commit`）：
-  master 禁直提交、可选会话归属；源码变更时 compileKotlin **并**跑 `gov-custom-checks.sh`（含 gov-code-check）。
-  **不是** 模板长版；勿用未改过的 `bs-install-hooks` 覆盖。
-- 合并前本地门禁：`bash scripts/governance/gov-local-ci.sh`（`./gradlew build` + validate + custom-checks）。
-- pre-push：分支命名 + 全量 `gov-validate.sh`（可被 `--no-verify` 绕过；远程 CI 另议）。
+- pre-commit = `gov-pre-commit-simplified`（compile + custom-checks）；DEC-047
+- 合入：local-ci 全绿 + `.github/PULL_REQUEST_TEMPLATE.md` 勾选（无 Pro 时的纪律门禁）；DEC-048
+- 编码约定：`docs/guides/GC-coding-conventions.md`
 
 ## 工程反思（自愿）
 
-强制 README 反思门禁已拆除（不再阻塞提交/推送）。
-有真实教训时追加到 [`docs/guides/GC-engineering-reflections.md`](docs/guides/GC-engineering-reflections.md)；无则不写。
-会话结束仍建议写 handoff（context/next/key_files）；`lessons` 可选。
+强制反思已拆除。有教训时追加 `docs/guides/GC-engineering-reflections.md`。
 
 ## 参考
-- `AGENTS.md` — 完整协议
-- `docs/guides/GC-decision-flow.md` — 决策流转规范
-- `docs/ai/guides/workflow.md` — 10 步生命周期
-- `.ai/tasks.json` — 权威任务板
-- `docs/guides/GC-multi-agent-collab.md` — 多 AI 并发（begin/claim/local-ci）
+- `AGENTS.md` — 精炼协议
+- `docs/guides/GC-decision-flow.md`
+- `docs/guides/GC-multi-agent-collab.md`
+- `docs/guides/GC-task-acceptance.md`

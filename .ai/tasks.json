@@ -1,13 +1,14 @@
 {
   "version": 1,
-  "updated_at": "2026-10-22T11:57:49+08:00",
+  "updated_at": "2026-10-22T12:05:41+08:00",
   "next_action": "在 Android 真机安装 APK 验证",
   "next_action_why": "端到端验证确认修复有效, 踏秤获取锁定结果",
   "next_action_confirmed": false,
   "known_risks": [
+    "任务无 ready AC 不得开工；in_progress 缺 definition_of_done 会触发 GOV-PROTO-004（DEC-048）。",
     "分支保护 / GitHub Pro / 公开仓：人类明确不做。权威合入门禁改为本地 `bash scripts/governance/gov-local-ci.sh` + pre-push validate；master 已含 DEC-045..047（merge 9cfc46d）。真机 APK 验收仍须人类。",
     "多会话共享同一工作树仍有碰撞风险：会话归属 hook 依赖 .ai/current-session.json；缺失时精简 pre-commit 跳过归属检查。claims 历史噪声需清理。",
-    "治理双轨：本机安装的是 gov-pre-commit-simplified（编译检查）；仓库模板 gov-pre-commit（261 行）仍在 gov-owned.list，执行 bs-install-hooks 会覆盖精简版。gov-custom-checks / gov-code-check 当前既不在精简 hook 也不在 CI。",
+    "无 GitHub Pro / 无分支保护：合入靠 `gov-local-ci.sh` + PR 模板勾选（DEC-048）。simplified pre-commit 已含 custom-checks；bs-install-hooks 优先装 simplified（DEC-047）。",
     "墙钟协议门禁：GOV-PROTO-001/002（inbox 48h / handoff 24h）仍可拦 pre-push 与 CI，与代码无关。",
     "CI 镜像分流依赖 CI=true：第三方 CI 未设该变量可能重踩阿里云 502（见 DEC-031/032）。",
     "真机 BLE：用户已确认真机秤可用；DEC-044 已修 Chipsea 混合广播误识别。残余：新协议/机型回归、android-test 周跑设备链、以及 tasks 中人类验收步骤（如安装 APK 验证）仍须人类执行。"
@@ -162,8 +163,41 @@
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-21T10:27:54Z",
-      "updated_at": "2026-10-21T10:27:54Z",
-      "notes": ""
+      "updated_at": "2026-10-22T12:05:41+08:00",
+      "notes": "AC: see acceptance (DEC-048); may overlap earlier done tasks — confirm gaps before coding.",
+      "acceptance": {
+        "status": "draft",
+        "given": [
+          "T-033 / DEC-043-F 已落地「资料→单位→绑秤」引导骨架（勿当作从零重做）",
+          "feature/guide 相关代码可编译"
+        ],
+        "when": [
+          "新用户走完引导三步（具体表单字段以人类确认的 open_questions 为准）"
+        ],
+        "then": [
+          "资料 / 单位 / 绑定流中「补全」项可完成且无崩溃",
+          "与已有 DEC-043-F 行为不回退（回归：既有引导仍可达）"
+        ],
+        "verify_commands": [
+          "./gradlew :app:testDebugUnitTest --tests 'com.xcwk.scalehub.feature.guide.*'",
+          "bash scripts/governance/gov-local-ci.sh"
+        ],
+        "forbidden": [
+          "静默改 Room schema / 黄金向量",
+          "删除既有引导测试以凑绿"
+        ],
+        "definition_of_done": [
+          "对照 open_questions 得到人类答复或明确标 blocked",
+          "补全项有 ViewModel 测试或说明为何仅 UI",
+          "local-ci PASS",
+          "真机走通三步（人类；AI 不伪称完成）"
+        ],
+        "open_questions": [
+          "「资料表单」相对 T-033 还缺哪些字段？",
+          "「真实绑定流」是否要求真机 BLE 成功，还是模拟绑定即可？",
+          "单位选择器是否已有全局单位层（DEC-043-C），本任务是否只接引导入口？"
+        ]
+      }
     },
     {
       "id": "T-046",
@@ -173,8 +207,39 @@
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-21T10:28:18Z",
-      "updated_at": "2026-10-21T10:28:18Z",
-      "notes": ""
+      "updated_at": "2026-10-22T12:05:41+08:00",
+      "notes": "AC: see acceptance (DEC-048); may overlap earlier done tasks — confirm gaps before coding.",
+      "acceptance": {
+        "status": "draft",
+        "given": [
+          "T-028 / DEC-043-A 已落地报告分析 Tab 主体（成分/体型/目标/折线/插画）",
+          "feature/report 可编译"
+        ],
+        "when": [
+          "用户打开报告分析相关 Tab（缺口项以 open_questions 为准）"
+        ],
+        "then": [
+          "标题所列缺口能力可见且不回退 DEC-043-A",
+          "无新增架构违规（ArchUnit）"
+        ],
+        "verify_commands": [
+          "./gradlew :app:testDebugUnitTest --tests 'com.xcwk.scalehub.feature.report.*'",
+          "bash scripts/governance/gov-local-ci.sh"
+        ],
+        "forbidden": [
+          "重写整页代替缺口补丁",
+          "静默改黄金向量"
+        ],
+        "definition_of_done": [
+          "列出相对 T-028 的差异清单并获人类确认",
+          "缺口项测试或手工步骤写明",
+          "local-ci PASS"
+        ],
+        "open_questions": [
+          "T-046 与已 done 的 T-028 差异具体是什么？若无差异应关闭本任务。",
+          "体型 3x3 / 插画是否已有资源，缺的是数据绑定还是 UI？"
+        ]
+      }
     },
     {
       "id": "T-047",
@@ -206,8 +271,40 @@
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-21T10:29:08Z",
-      "updated_at": "2026-10-21T10:29:08Z",
-      "notes": ""
+      "updated_at": "2026-10-22T12:05:41+08:00",
+      "notes": "AC: see acceptance (DEC-048); may overlap earlier done tasks — confirm gaps before coding.",
+      "acceptance": {
+        "status": "draft",
+        "given": [
+          "历史列表可展示多条测量记录（feature/history）",
+          "本机至少可构造 2 条记录（测试夹具或调试数据）"
+        ],
+        "when": [
+          "用户在历史中挑选 2 条记录并进入对比"
+        ],
+        "then": [
+          "对比页展示两条记录的关键指标并排或分栏（具体指标集待确认）",
+          "取消/返回不损坏历史列表状态"
+        ],
+        "verify_commands": [
+          "./gradlew :app:testDebugUnitTest --tests 'com.xcwk.scalehub.feature.history.*'",
+          "bash scripts/governance/gov-local-ci.sh"
+        ],
+        "forbidden": [
+          "在 UI 层直查 Room",
+          "静默改 schema"
+        ],
+        "definition_of_done": [
+          "四件套或既有 history 扩展落地",
+          "至少 1 个 ViewModel 测试覆盖「选 2 条 → 对比状态」",
+          "local-ci PASS",
+          "对比指标列表已由人类确认或写入 DEC"
+        ],
+        "open_questions": [
+          "对比展示哪些字段（体重/体脂/水分/…）？",
+          "是否允许跨成员对比？"
+        ]
+      }
     },
     {
       "id": "T-050",
@@ -305,8 +402,41 @@
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-21T10:29:23Z",
-      "updated_at": "2026-10-21T10:29:23Z",
-      "notes": ""
+      "updated_at": "2026-10-22T12:05:41+08:00",
+      "notes": "AC: see acceptance (DEC-048); may overlap earlier done tasks — confirm gaps before coding.",
+      "acceptance": {
+        "status": "draft",
+        "given": [
+          "当前扫码依赖系统 CaptureActivity（或既有封装）",
+          "需要竖屏且带取消的自定义布局（产品文案/按钮位置未完全定稿）"
+        ],
+        "when": [
+          "用户进入扫码流程并选择取消或成功扫码"
+        ],
+        "then": [
+          "自定义竖屏布局展示；取消返回上一页且无泄漏相机",
+          "成功扫码结果仍交给既有解析路径（不改变协议语义）"
+        ],
+        "verify_commands": [
+          "./gradlew :app:assembleDebug",
+          "bash scripts/governance/gov-validate.sh"
+        ],
+        "forbidden": [
+          "把相机权限逻辑散落到无关 feature",
+          "提交含真实用户二维码图片隐私"
+        ],
+        "definition_of_done": [
+          "自定义布局可取消",
+          "说明真机验证步骤（人类）",
+          "validate PASS；涉及源码则 local-ci PASS"
+        ],
+        "open_questions": [
+          "取消按钮文案与位置？",
+          "是否必须支持横屏锁定为竖屏？",
+          "扫码内容类型（设备绑定 / 其他）是否变更？"
+        ]
+      }
     }
-  ]
+  ],
+  "acceptance_schema": "GC-task-acceptance@1"
 }
