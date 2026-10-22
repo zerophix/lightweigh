@@ -1,6 +1,6 @@
 # 项目状态
 
-> 由 generate-status.py 自动生成。最后更新: 2026-10-22T04:10:35Z
+> 由 generate-status.py 自动生成。最后更新: 2026-10-22T04:30:25Z
 > 新 AI 启动时: `cat STATUS.md && bash scripts/session/ses-context-load.sh`
 
 ---
@@ -13,7 +13,7 @@
 | 版本 | 0.1.0 |
 | 文档语言 | zh-CN |
 | Git 分支 | master |
-| 最后提交 | 6283840 Merge pull request #4 from zerophix/chore/dec048-handoff |
+| 最后提交 | 4c3a19f Merge pull request #6 from zerophix/chore/ci-dependabot-gitleaks |
 | 文档校验 | 运行: `bash scripts/governance/gov-validate.sh` |
 
 ## AI 交接
@@ -28,7 +28,7 @@
 
 **上下文：**
 
-> 完成: 合入 PR #4 session handoff（inbox/STATUS/metrics） | 决策: session-end 产物需入库，禁止 master 直提交故走 PR #4
+> 完成: DEC-049：特性分支 CI、Dependabot、gitleaks 门禁；已合入 PR #6 | 决策: 无 Pro 下补远程信号与密钥扫描；gitleaks 二进制不入库、校验和钉死
 
 **下一步：**
 
@@ -39,27 +39,27 @@
 最近 5 次提交：
 
 ```
+4c3a19f Merge pull request #6 from zerophix/chore/ci-dependabot-gitleaks
+ff7340e ci(governance): feature-branch CI, Dependabot, gitleaks gate
+c515501 Merge pull request #5 from zerophix/chore/dec048-handoff-2
+ca6cb11 chore(session): secondary handoff cleanup after PR4
 6283840 Merge pull request #4 from zerophix/chore/dec048-handoff
-af17a0b chore(session): handoff after DEC-048 merge
-406faa0 Merge pull request #3 from zerophix/chore/ai-dev-p0-ac-agents-pr-template
-c741dfc docs(governance): add task AC, slim AGENTS, PR checklist
-cf06d84 Merge branch 'chore/defer-branch-protection'
 ```
 
 ## 工程指标
 
 | 指标 | 数量 |
 |------|------|
-| 决策日志 (DEC) | 48 |
+| 决策日志 (DEC) | 49 |
 | 设计笔记 (NOTE) | 10 |
 | 开发指南 (GC) | 8 |
 | 技术参考 (REF) | 1 |
 
 最近决策：
 
+- [DEC-049](docs/ai/decisions/DEC-049.md): DEC-049: 特性分支 CI、Dependabot、本地密钥扫描
 - [DEC-048](docs/ai/decisions/DEC-048.md): DEC-048: AI 开发 P0 — 任务 AC、短 AGENTS、PR 合入清单
 - [DEC-047](docs/ai/decisions/DEC-047.md): DEC-047: 多 AI 并发协作门禁与反思约束退役
-- [DEC-046](docs/ai/decisions/DEC-046.md): DEC-046: 本地门禁接入 gov-custom-checks 与 gov-local-ci
 
 最近笔记：
 
@@ -79,5 +79,5 @@ cf06d84 Merge branch 'chore/defer-branch-protection'
 
 > 上次 AI session 的经验教训。新 AI 启动时必读。
 
-session-end 产物需入库，禁止 master 直提交故走 PR #4
+无 Pro 下补远程信号与密钥扫描；gitleaks 二进制不入库、校验和钉死
 
