@@ -68,7 +68,7 @@ bash scripts/governance/gov-next-decision.sh --create
 **铁律：**
 - 决策日志只追加，不覆盖，不删除
 - 编号必须连续（DEC-001 → DEC-002 → ...）
-- 每次修改 src/ 或 scripts/ 必须对应一个 DEC
+- 协议 / 算法 / Room schema / 同步语义 / 治理门禁 / 架构事实须对应 DEC；纯文案、注释、死 import 清理通常不需要（与 AGENTS.md、GC-multi-agent-collab、DEC-055 一致）
 - DEC 内容不得留 TODO 占位符
 
 ## 第三阶段：Lifecycle — 迭代覆盖型文档

@@ -1,6 +1,6 @@
 # 项目状态
 
-> 由 generate-status.py 自动生成。最后更新: 2026-10-22T07:42:25Z
+> 由 generate-status.py 自动生成。最后更新: 2026-10-22T07:52:07Z
 > 新 AI 启动时: `cat STATUS.md && bash scripts/session/ses-context-load.sh`
 
 ---
@@ -12,8 +12,8 @@
 | 名称 | 轻衡健康 Android（lightweigh） |
 | 版本 | 0.1.0 |
 | 文档语言 | zh-CN |
-| Git 分支 | chore/ops-debt-p0-p1 |
-| 最后提交 | 3dc6a30 chore(ops): clear PROTO inbox debt, Dependabot majors, DEC-054 docs |
+| Git 分支 | chore/docs-consistency |
+| 最后提交 | 14a512f Merge pull request #23 from zerophix/chore/ops-debt-p0-p1 |
 | 文档校验 | 运行: `bash scripts/governance/gov-validate.sh` |
 
 ## AI 交接
@@ -39,27 +39,27 @@
 最近 5 次提交：
 
 ```
+14a512f Merge pull request #23 from zerophix/chore/ops-debt-p0-p1
+4fe4122 chore(status): align STATUS with ops-debt commit
 3dc6a30 chore(ops): clear PROTO inbox debt, Dependabot majors, DEC-054 docs
 0105016 Merge pull request #22 from zerophix/chore/worktree-guard
 11107a4 feat(governance): add worktree guard to pre-commit (DEC-054)
-aa27c35 chore(brand): rename repo to lightweigh, unify brand name
-006e912 Merge pull request #21 from zerophix/chore/test-guard-pr
 ```
 
 ## 工程指标
 
 | 指标 | 数量 |
 |------|------|
-| 决策日志 (DEC) | 54 |
+| 决策日志 (DEC) | 55 |
 | 设计笔记 (NOTE) | 10 |
 | 开发指南 (GC) | 8 |
 | 技术参考 (REF) | 1 |
 
 最近决策：
 
+- [DEC-055](docs/ai/decisions/DEC-055.md): DEC-055: 文档内容一致性治理（lightweigh / 轻衡）
 - [DEC-054](docs/ai/decisions/DEC-054.md): DEC-054: 主共享树多会话守卫（强制 worktree）
 - [DEC-053](docs/ai/decisions/DEC-053.md): DEC-053: src/main 缺同模块测试的 PR 提醒
-- [DEC-052](docs/ai/decisions/DEC-052.md): DEC-052: 黄金向量 / Room schema 变更守卫
 
 最近笔记：
 
@@ -71,9 +71,9 @@ aa27c35 chore(brand): rename repo to lightweigh, unify brand name
 
 | 检查项 | 状态 | 详情 |
 |-------|------|------|
-| 本地门禁 (gov-local-ci) | 通过 | local-ci PASS @ 2026-10-22T07:42:25Z sha=3dc6a30 branch=chore/ops-debt-p0-p1 [gradlew build:ok,gov-validate:ok,gov-custom-checks:ok,gov-secrets-scan:ok,gov-schema-guard:ok,gov-test-guard:ok] |
+| 本地门禁 (gov-local-ci) | 通过 | local-ci PASS @ 2026-10-22T07:52:07Z sha=14a512f branch=chore/docs-consistency [gradlew build:ok,gov-validate:ok,gov-custom-checks:ok,gov-secrets-scan:ok,gov-schema-guard:ok,gov-test-guard:ok] |
 | GitHub Actions | 无数据 | gh 不可用或无最近 run |
-| 文档校验 | 通过 | 来自 local-ci @ 2026-10-22T07:42:25Z sha=3dc6a30 |
+| 文档校验 | 通过 | 来自 local-ci @ 2026-10-22T07:52:07Z sha=14a512f |
 | Git 钩子 | 通过 | 安装: bash scripts/bootstrap/bs-install-hooks.sh |
 
 ## 反思

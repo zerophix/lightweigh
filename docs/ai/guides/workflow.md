@@ -28,7 +28,7 @@ D→R→E→T→A→V→M→L→D→P
 1. **不进则退** — 不在未通过 validate.sh 的状态下提交
 2. **追加不覆盖** — 决策日志只追加写，不删除不修改
 3. **晋升不直接写** — 黄金标准必须通过 promote.sh，不直接编辑 docs/ 根目录文件
-4. **有变更必有 DEC** — 修改 src/ 或 scripts/ 必须对应一个决策日志
+4. **重大变更须有 DEC** — 协议/算法/schema/同步语义/治理门禁/架构事实须写 DEC；纯文案、注释、死 import 清理通常不需要（见 AGENTS.md / GC-multi-agent-collab / DEC-055）
 
 ## 文件管理
 

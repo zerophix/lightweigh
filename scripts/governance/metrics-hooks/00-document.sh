@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ============================================================
 # scripts/governance/metrics-hooks/00-document.sh
-# 轻刻健康 Android 指标文档（项目本地化）
+# 轻衡健康 Android 指标文档（项目本地化）
 #
 # 由 gov-update-metrics.sh 调用：stdout 非空时作为整篇
 # docs/ai/lifecycle/06_Metrics.md，取代模板内置的通用指标

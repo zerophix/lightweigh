@@ -18,7 +18,7 @@
 |--------|------|---------|
 | ARCH-001 | 新增模块必须经过架构评审 | 拒绝合入 |
 | ARCH-002 | `:domain` / `:application` 禁止引入 Android 依赖（纯 JVM，编译期强制） | 编译失败 |
-| ARCH-003 | 依赖方向只允许向内：trigger → application → domain ← infrastructure | ArchUnit 守卫 FAIL |
+| ARCH-003 | 依赖方向只允许向内：:app（feature）→ :application → :domain ← :infrastructure（trigger 仅为 BLE/后台预留落点，非独立 Gradle 模块） | ArchUnit 守卫 FAIL |
 | ARCH-004 | 领域层禁止抛 `android.*` 异常；禁止以 -1 充当错误码（-1 仅作"未计算"哨兵） | 评审拒绝 |
 | ARCH-005 | 统一包坐标 com.xcwk.scalehub（DEC-011） | 评审拒绝 |
 | ARCH-006 | 改 Room 实体必须 version+1、写 Migration、导出 schema 快照入库 | 评审拒绝 |
@@ -38,7 +38,7 @@
 | REFLECT-002 | **已退役** | ≥50 字 / 信号词门禁已随 README 反思校验拆除（b344d61） |
 | REFLECT-003 | **已退役** | 「不可复用旧反思」门禁已拆除 |
 
-工程反思改为**自愿追加**：有真实教训时写入 [`docs/guides/GC-engineering-reflections.md`](../guides/GC-engineering-reflections.md)；无则不写。
+工程反思改为**自愿追加**：有真实教训时写入 [`docs/guides/GC-engineering-reflections.md`](../../guides/GC-engineering-reflections.md)；无则不写。
 会话结束仍建议写 handoff（context / next / key_files）；`lessons` 可选。
 
 ## 文件命名约束

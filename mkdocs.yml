@@ -349,16 +349,21 @@ plugins:
 
 
 
+
 nav:
   - 首页: index.md
 
   - 标准文档:
       - 架构设计: architecture/index.md
       - 开发指南: guides/index.md
+      - 编码约定（Android / AI）: guides/GC-coding-conventions.md
       - 决策流转规范: guides/GC-decision-flow.md
+      - 工程反思与交付状态（治理日志）: guides/GC-engineering-reflections.md
       - 已有项目迁移指南: guides/GC-existing-project-porting.md
+      - 多 AI 并发协作协议: guides/GC-multi-agent-collab.md
       - 新项目接入指南: guides/GC-new-project-setup.md
       - README 结构规范: guides/GC-readme-structure.md
+      - 任务验收标准（AC）规范: guides/GC-task-acceptance.md
       - 技术参考: reference/index.md
       - 脚本接口规范: reference/REF-api-spec.md
       - 变更日志: changelog/index.md
@@ -399,4 +404,4 @@ markdown_extensions:
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/neking/ai-project-template
+      link: https://github.com/zerophix/lightweigh
