@@ -23,7 +23,15 @@ public final class Protocols {
     }
 
     public static ScanMatch match(byte[] scanRecord) {
-        ScanMatch cloud = ChipseaCloudProtocol.INSTANCE.match(scanRecord);
+        return match(scanRecord, null);
+    }
+
+    /**
+     * 识别广播。deviceName 来自扫描回调（可为 null）。
+     * Chipsea_BLE 等混合设备常把名称只放在 BluetoothDevice.getName()，AD 无 0x09。
+     */
+    public static ScanMatch match(byte[] scanRecord, String deviceName) {
+        ScanMatch cloud = ChipseaCloudProtocol.INSTANCE.match(scanRecord, deviceName);
         if (cloud != null) {
             return cloud;
         }

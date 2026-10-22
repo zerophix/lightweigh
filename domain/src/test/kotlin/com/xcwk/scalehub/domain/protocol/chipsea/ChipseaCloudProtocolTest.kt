@@ -170,4 +170,40 @@ class ChipseaCloudProtocolTest {
         assertThat(ChipseaCloudProtocol.INSTANCE.missingRequiredMessage())
             .isEqualTo("没有非锁定数据特征 0xFFF1")
     }
+
+    /** 仅厂商数据（版本 0x10），扫描记录不含设备名称 AD。 */
+    private fun hybridAdvertisementNoName(property: Int, weightRaw: Int, mac: ByteArray): ByteArray {
+        val mfrData = ByteArray(15)
+        mfrData[0] = 0xFF.toByte()
+        mfrData[1] = 0xF0.toByte()
+        mfrData[2] = 0x10
+        mfrData[3] = property.toByte()
+        mfrData[4] = weightRaw.toByte()
+        mfrData[5] = (weightRaw shr 8).toByte()
+        System.arraycopy(mac, 0, mfrData, 6, 6)
+        val record = ByteArray(1 + 1 + mfrData.size)
+        record[0] = (mfrData.size + 1).toByte()
+        record[1] = 0xFF.toByte()
+        System.arraycopy(mfrData, 0, record, 2, mfrData.size)
+        return record
+    }
+
+    @Test
+    fun `deviceName param recognizes version 0x10 without AD name as chipsea`() {
+        val mac = byteArrayOf(0x11, 0x22, 0x33, 0x44, 0x55, 0x66)
+        val record = hybridAdvertisementNoName(0x00, 6550, mac)
+        assertThat(ChipseaCloudProtocol.INSTANCE.match(record)).isNull()
+        val match = ChipseaCloudProtocol.INSTANCE.match(record, "Chipsea_BLE")
+        requireNotNull(match)
+        assertThat(match.protocolId).isEqualTo("chipsea-cloud-1")
+        assertThat(match.summary).isEqualTo("65.5 kg  云端版")
+    }
+
+    @Test
+    fun `deviceName without chipsea does not force version 0x10`() {
+        val mac = byteArrayOf(0x11, 0x22, 0x33, 0x44, 0x55, 0x66)
+        val record = hybridAdvertisementNoName(0x00, 6550, mac)
+        assertThat(ChipseaCloudProtocol.INSTANCE.match(record, "OKOK-SCALE")).isNull()
+        assertThat(ChipseaCloudProtocol.INSTANCE.match(record, null)).isNull()
+    }
 }
