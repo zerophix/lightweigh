@@ -1,0 +1,64 @@
+schema_version: "2.0"
+
+执行:
+  类型: manual
+  描述: 原型驱动开发通过 gov-prototype-verify.py 读取任务元数据，AI 按流程编码
+
+脚本工具:
+  gov-prototype-verify.py:
+    参数:
+      task-id: 任务 ID 如 T-072 (必填，与 --all/--schema 互斥)
+      --all: 验证所有有 prototype_ref 的任务
+      --schema: 只校验 schema 不检查代码
+      --strict: 缺 target_files 或代码不匹配时返回非零
+    返回: 错误/警告/信息列表 + 摘要行
+
+  wf-task-board.sh:
+    参数:
+      take <id>: 认领任务
+      list: 列出所有任务
+    返回: 任务状态
+
+数据流:
+  1. tasks.json (prototype_ref + target_files + wave + module/ac_refs/prd_ref)
+     → gov-prototype-verify.py 读取
+     → 输出：原型文件路径 + view 列表 + 目标文件列表 + 追溯信息
+
+  2. design/prototypes/interactive/<file>.html
+     → grep 定位 view 块
+     → 提取：布局/文案/颜色类名
+
+  3. theme.css (CSS 变量)
+     → 映射到 QkTheme.kt (QkColor/QkRadius/QkSpacing)
+
+  4. 目标 Kotlin 文件
+     → gov-prototype-verify.py --strict 检查
+     → 硬编码颜色检测 + 原型文案匹配率
+
+验证规则:
+  schema:
+    - prototype_ref.file 存在
+    - prototype_ref.views 非空
+    - target_files 非空 (Wave 1)
+    - wave 字段存在且为 0/1/2
+    - module 字段存在 (M# 追溯)
+    - ac_refs 非空 (AC 原文追溯)
+    - prd_ref 存在 (上层文档链接)
+  code:
+    - 目标文件存在
+    - 无 Color(0x...) 硬编码
+    - 有 Qk* 组件引用
+    - 原型中文文案匹配率 ≥30%
+
+异常处理:
+  - 任务无 prototype_ref: 跳过（非原型映射任务）
+  - 原型文件不存在: 报错，检查路径
+  - view 不存在: 报错，检查 view id
+  - 目标文件不存在: 警告（未实现）或信息（待建）
+  - 硬编码颜色: 报错，必须替换为 QkColor
+  - 匹配率 <30%: 警告，可能未参考原型
+
+知识回流:
+  - 闭环验证失败 → 修正代码后重跑
+  - 新组件需求 → 补充到 QkComponents.kt
+  - 新颜色 token → 补充到 QkTheme.kt

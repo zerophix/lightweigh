@@ -1,0 +1,47 @@
+name: prototype-dev
+description: 原型驱动开发 — 从原型 HTML 到 Compose 代码的闭环流程
+version: "1.0"
+status: 生效
+意图:
+  - 读任务元数据（prototype_ref + target_files + wave + module/ac_refs/prd_ref）
+  - 定位原型 view（grep view id）
+  - 映射原型到 Compose（CSS 类 → Qk 组件，颜色 → QkColor token）
+  - 编码（四件套：Screen/ViewModel/UiState/Route）
+  - 测试（ViewModel 单测）
+  - 闭环验证（目标文件存在、无硬编码颜色、原型文案匹配率）
+能力边界:
+  不跳过闭环验证: --strict 失败必须修，不能绕过
+  不硬编码颜色间距: 原型值必须映射到 QkTheme token
+  不直访数据层: Screen/ViewModel 不碰 Room/SDK，经 domain 端口
+  不删测试凑绿: 测试失败修代码，不删断言
+触发方式:
+  - /原型开发
+  - /prototype-dev
+  - 认领 T-072~T-105 任务时自动适用
+场景细分:
+  start:
+    描述: 认领任务并读元数据
+    执行: bash scripts/workflow/wf-task-board.sh take T-XXX && python3 scripts/governance/gov-prototype-verify.py T-XXX
+  locate:
+    描述: 定位原型 view
+    执行: grep -n 'id="v-<view-id>"' design/prototypes/interactive/<file>.html
+  verify:
+    描述: 闭环验证（单任务）
+    执行: python3 scripts/governance/gov-prototype-verify.py T-XXX --strict
+  verify-all:
+    描述: 全量闭环检查（CI 用）
+    执行: python3 scripts/governance/gov-prototype-verify.py --all --strict
+  schema:
+    描述: 只校验 schema（不检查代码）
+    执行: python3 scripts/governance/gov-prototype-verify.py --schema
+  test:
+    描述: 运行测试
+    执行: ./gradlew :app:testDebugUnitTest
+前置条件:
+  - .ai/tasks.json 存在且任务有 prototype_ref 字段
+  - design/prototypes/interactive/ 下原型文件存在
+  - target_files 路径正确
+后置效果:
+  - 目标 Kotlin 文件创建/更新
+  - 闭环验证通过（无硬编码颜色、原型文案匹配率 ≥30%）
+  - 测试通过

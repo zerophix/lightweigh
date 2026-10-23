@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>轻衡 · 设备配置与固件（可交互）</title>
+<link rel="stylesheet" href="../theme.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body class="interactive">
+<div class="flowbar">
+  <h1>设备配置与固件 · 可交互原型</h1>
+  <p>蓝牙权限说明 → 确认设备 → 固件更新。补 Figma C02/C03/C08 缺口。</p>
+  <div class="nav"><a href="index.html">交互总览</a><a href="04-device.html">设备连接</a><a href="../index.html">← 静态总览</a></div>
+</div>
+<div class="app">
+
+  <!-- 蓝牙权限说明（Figma C02） -->
+  <div class="view" id="v-bt-permission">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-goto="v-confirm-device"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">蓝牙权限</span></div>
+      <div class="content" style="min-height:700px;">
+        <div class="hero center" style="margin-top:12px;">
+          <div class="bigicon ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64A9 9 0 1 1 5.64 6.64M12 2v10"/></svg></div>
+          <div class="h1 sm" style="margin-top:20px;">需要蓝牙权限<br>才能连接体脂秤</div>
+          <div class="h2">Android 12+ 需要「附近设备」权限。<br>我们只用它发现和连接体脂秤，<br>不会读取你的位置信息。</div>
+        </div>
+        <div class="card lg" style="padding:8px 18px;">
+          <div class="row" style="padding:12px 0;"><span class="tx"><span class="t">搜索附近体脂秤</span><span class="d">发现可连接的轻衡设备</span></span><span class="chk on"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg></span></div>
+          <div class="row" style="padding:12px 0;"><span class="tx"><span class="t">传输测量数据</span><span class="d">读取体重和体成分结果</span></span><span class="chk on"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg></span></div>
+          <div class="row" style="padding:12px 0;"><span class="tx"><span class="t">读取设备信息</span><span class="d">电量、固件版本、序列号</span></span><span class="chk on"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg></span></div>
+        </div>
+        <div class="banner"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span><span class="bt">点击「继续」后系统会弹出权限请求，你可以拒绝，但连接体脂秤需要此权限。</span></div>
+        <div class="spacer"></div>
+        <div class="btn primary" data-goto="v-confirm-device" data-toast="蓝牙权限已允许">继续</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 确认你的设备（Figma C03） -->
+  <div class="view" id="v-confirm-device">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-goto="v-firmware"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">确认设备</span></div>
+      <div class="content" style="min-height:700px;">
+        <div class="hero center" style="margin-top:8px;">
+          <div class="bigicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M8 12h.01M16 12h.01M12 15h.01"/></svg></div>
+          <div class="h1 sm" style="margin-top:18px;">发现一台设备</div>
+          <div class="h2">请确认是否为你要连接的体脂秤</div>
+        </div>
+        <div class="card lg pad20" style="text-align:center;">
+          <div style="font-size:18px;font-weight:700;">轻衡 S1 智能体脂秤</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:6px;">型号 XHS-01 · 序列号 ****8A2F</div>
+          <div style="display:flex;justify-content:center;gap:16px;margin-top:14px;">
+            <div style="text-align:center;"><div style="font-size:12px;color:var(--sub);">信号强度</div><div style="display:flex;gap:2px;justify-content:center;margin-top:4px;"><span style="width:8px;height:12px;background:var(--brand);border-radius:2px;"></span><span style="width:8px;height:12px;background:var(--brand);border-radius:2px;"></span><span style="width:8px;height:12px;background:var(--brand);border-radius:2px;"></span><span style="width:8px;height:12px;background:var(--track);border-radius:2px;"></span></div></div>
+            <div style="width:1px;background:var(--divider);"></div>
+            <div style="text-align:center;"><div style="font-size:12px;color:var(--sub);">电量</div><div class="num" style="font-size:14px;font-weight:600;margin-top:4px;">82%</div></div>
+          </div>
+        </div>
+        <div class="banner"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></span><span class="bt">如果不是你的设备，请轻踩秤面唤醒后重新搜索。</span></div>
+        <div class="spacer"></div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="btn primary" data-goto="v-connecting" data-toast="正在配对…">确认，开始配对</div>
+          <div class="btn secondary" data-goto="v-bt-permission">重新搜索</div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 正在连接 -->
+  <div class="view" id="v-connecting">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-goto="v-confirm-device"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">连接设备</span></div>
+      <div class="content" style="min-height:700px;">
+        <div class="hero center" style="margin-top:30px;">
+          <div class="loading-spin" style="width:48px;height:48px;border-width:4px;margin:0 auto;"></div>
+          <div class="h1 sm" style="margin-top:24px;">正在连接 轻衡 S1…</div>
+          <div class="h2">请保持手机靠近体脂秤，<br>轻踩秤面确保唤醒</div>
+        </div>
+        <div class="card lg" style="padding:8px 18px;">
+          <div class="row" style="padding:11px 0;"><span class="ic soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="tx"><span class="t">蓝牙已开启</span></span></div>
+          <div class="row" style="padding:11px 0;"><span class="ic soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="tx"><span class="t">已发现设备</span></span></div>
+          <div class="row" style="padding:11px 0;"><span class="ic"><span class="loading-spin" style="width:20px;height:20px;border-width:2px;"></span></span><span class="tx"><span class="t">建立连接…</span></span></div>
+          <div class="row" style="padding:11px 0;opacity:.4;"><span class="ic plain"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg></span><span class="tx"><span class="t">同步设备信息</span></span></div>
+        </div>
+        <div class="spacer"></div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn secondary" style="flex:1;" data-goto="v-connected">模拟成功</button>
+          <button class="btn secondary" style="flex:1;" data-goto="v-confirm-device">取消</button>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 连接成功 → 检查固件 -->
+  <div class="view" id="v-connected">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-goto="v-confirm-device"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">连接成功</span></div>
+      <div class="statepage">
+        <div class="sic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+        <div class="st">连接成功</div>
+        <div class="sd">「轻衡 S1」已连接，<br>正在检查固件版本…</div>
+        <div class="loading-spin" style="width:28px;height:28px;margin:20px auto;"></div>
+        <button class="btn primary" data-goto="v-firmware-check" style="margin-top:12px;">继续</button>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 固件检查结果 -->
+  <div class="view" id="v-firmware-check">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-goto="v-connected"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">固件更新</span></div>
+      <div class="content" style="min-height:700px;">
+        <div class="card soft" style="border-radius:24px;padding:20px;display:flex;align-items:center;gap:14px;">
+          <span class="av" style="width:48px;height:48px;background:var(--white);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M8 12h.01M16 12h.01"/></svg></span>
+          <div style="flex:1;"><div style="font-size:15px;font-weight:700;">轻衡 S1</div><div style="font-size:11px;color:var(--sub);margin-top:2px;">当前固件 v1.1.0</div></div>
+          <span class="tag">可更新</span>
+        </div>
+        <div class="lbl" style="margin-top:8px;">新版本 v1.2.0</div>
+        <div class="card lg pad18">
+          <div style="font-size:12px;color:var(--sub);line-height:2;">· 优化蓝牙连接稳定性<br>· 修复特定机型测量偶发失败<br>· 提升体脂率估算精度<br>· 新增低电量提醒</div>
+        </div>
+        <div class="banner warn"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg></span><span class="bt">更新过程中请勿断开蓝牙或关闭秤，<br>预计耗时 2–3 分钟。</span></div>
+        <div class="spacer"></div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="btn primary" data-goto="v-firmware-update" data-toast="开始更新固件">立即更新</div>
+          <div class="btn secondary" data-goto="v-firmware-latest" data-toast="跳过更新">暂不更新</div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 固件更新中 -->
+  <div class="view" id="v-firmware-update">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">固件更新中</span></div>
+      <div class="content" style="min-height:700px;">
+        <div class="hero center" style="margin-top:24px;">
+          <div style="width:150px;height:150px;position:relative;margin:0 auto;">
+            <svg width="150" height="150" viewBox="0 0 150 150"><circle cx="75" cy="75" r="65" fill="none" stroke="#CFE3D6" stroke-width="8"/><circle cx="75" cy="75" r="65" fill="none" stroke="#258C77" stroke-width="8" stroke-linecap="round" stroke-dasharray="408" stroke-dashoffset="120" transform="rotate(-90 75 75)"/></svg>
+            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div class="num" style="font-size:32px;font-weight:600;">70%</div><div class="hint" style="margin-top:4px;">正在更新</div></div>
+          </div>
+          <div class="h1 sm" style="margin-top:20px;">正在更新固件…</div>
+          <div class="h2">请勿断开蓝牙或关闭秤<br>预计剩余 45 秒</div>
+        </div>
+        <div class="banner warn"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg></span><span class="bt">更新中断可能导致设备无法使用，请保持耐心。</span></div>
+        <div class="spacer"></div>
+        <button class="btn primary" data-goto="v-firmware-latest" data-toast="固件已更新完成">模拟更新完成</button>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 固件最新 -->
+  <div class="view" id="v-firmware-latest">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-goto="v-connected"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">设备信息</span></div>
+      <div class="statepage">
+        <div class="sic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+        <div class="st">设备已就绪</div>
+        <div class="sd">固件已是最新版本<br>可以开始第一次测量了。</div>
+        <button class="btn primary" data-goto="v-connected">开始测量</button>
+        <button class="btn ghost" style="margin-top:12px;" data-goto="v-confirm-device">返回</button>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+</div>
+<div class="flowbar" style="margin-top:20px;text-align:center;"><p>轻衡 · 设备配置与固件交互原型 · 6 屏（补 Figma C02/C03/C08 缺口）</p></div>
+<script src="app.js"></script>
+</body>
+</html>

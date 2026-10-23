@@ -22,6 +22,7 @@
 | [多 AI 并发协作](GC-multi-agent-collab.md) | 多会话 / 多代理 | 一写者原则、worktree/分支、会话 claim、gov-local-ci、PR 清单（DEC-047/048） |
 | [任务验收标准](GC-task-acceptance.md) | 所有任务执行 | `.ai/tasks.json` 的 acceptance schema；无 ready AC 不开工（DEC-048） |
 | [编码约定](GC-coding-conventions.md) | 写代码的 AI/人 | 模块地图、Gradle 矩阵、四件套、Room/黄金禁区（DEC-048） |
+| [原型驱动开发](GC-prototype-driven-dev.md) | 认领 T-072~T-105 的 AI | 4 波执行顺序、原型→Compose 映射、闭环验证 `gov-prototype-verify.py`；skill `prototype-dev` 自动加载 |
 | [工程反思（自愿）](GC-engineering-reflections.md) | 有真实教训时 | 自愿追加；强制反思门禁已退役 |
 
 ---
@@ -31,6 +32,7 @@
 - **新用户**：先读 GC-new-project-setup.md 完成项目初始化
 - **迁移用户**：读 GC-existing-project-porting.md 了解分阶段迁移策略
 - **所有 AI**：每次启动必须读 GC-decision-flow.md；编码前读 GC-coding-conventions 与任务 AC
+- **做原型映射任务**：读 GC-prototype-driven-dev.md，认领后先跑 `gov-prototype-verify.py <任务号>`，提交前 `--strict` 必须通过
 - **多会话并发**：先读 GC-multi-agent-collab.md，再 begin / claim；合入用 PR 模板
 
 ## 来源: ai/decisions/DEC-048

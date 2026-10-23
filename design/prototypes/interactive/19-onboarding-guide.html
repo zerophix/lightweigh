@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>轻衡 · 首次引导（可交互）</title>
+<link rel="stylesheet" href="../theme.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body class="interactive">
+<div class="flowbar">
+  <h1>首次引导 · 可交互原型</h1>
+  <p>认识你 → 设定目标 → 准备第一次测量。补 Figma A11–A13 引导三部曲缺口。</p>
+  <div class="nav"><a href="index.html">交互总览</a><a href="01-login.html">登录流程</a><a href="../index.html">← 静态总览</a></div>
+</div>
+<div class="app">
+
+  <!-- 第 1 步：认识你（Figma A11） -->
+  <div class="view" id="v-intro">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-goto="v-goal"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm" style="font-size:16px;">完善资料</span><span style="font-size:12px;color:var(--muted);" class="num">1/3</span></div>
+      <div class="content" style="min-height:700px;">
+        <div class="steps"><span class="s on"></span><span class="s"></span><span class="s"></span></div>
+        <div class="hint" style="text-align:center;">第 1 步 · 认识你</div>
+        <div class="hero center" style="margin-top:12px;">
+          <div class="bigicon ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg></div>
+          <div class="h1 sm" style="margin-top:20px;">认识一下你</div>
+          <div class="h2">这些信息用于计算你的身体指标参考区间。</div>
+        </div>
+        <div class="card lg pad18" style="display:flex;flex-direction:column;gap:18px;">
+          <div>
+            <div class="lbl">昵称</div>
+            <div class="field"><input placeholder="怎么称呼你？" value="林悦"></div>
+          </div>
+          <div>
+            <div class="lbl">性别</div>
+            <div class="seg"><span class="opt">男</span><span class="opt on">女</span><span class="opt">不告知</span></div>
+            <div class="hint" style="margin-top:6px;padding-left:2px;">性别影响体脂率参考区间</div>
+          </div>
+          <div>
+            <div class="lbl">出生日期</div>
+            <div class="field"><input class="num" value="1996-05-12"></div>
+          </div>
+          <div>
+            <div class="lbl">身高</div>
+            <div class="field"><input class="num" value="168"><span class="unit">cm</span></div>
+          </div>
+        </div>
+        <div class="spacer"></div>
+        <div class="btn primary" data-goto="v-goal">下一步</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 第 2 步：设定健康方向（Figma A12） -->
+  <div class="view" id="v-goal">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-goto="v-intro"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm" style="font-size:16px;">健康目标</span><span style="font-size:12px;color:var(--muted);" class="num">2/3</span></div>
+      <div class="content" style="min-height:700px;">
+        <div class="steps"><span class="s on"></span><span class="s on"></span><span class="s"></span></div>
+        <div class="hint" style="text-align:center;">第 2 步 · 设定健康方向</div>
+        <div class="hero center" style="margin-top:12px;">
+          <div class="bigicon ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1Z"/><path d="M4 22v-7"/></svg></div>
+          <div class="h1 sm" style="margin-top:20px;">你想达成什么？</div>
+          <div class="h2">目标可以随时调整，<br>先选一个方向就好。</div>
+        </div>
+        <div class="card lg pad18" style="display:flex;flex-direction:column;gap:12px;">
+          <div style="padding:14px;border:2px solid var(--brand);border-radius:14px;background:var(--brand-soft);cursor:pointer;">
+            <div style="font-size:15px;font-weight:700;">减轻体重</div>
+            <div style="font-size:11px;color:var(--sub);margin-top:3px;">设定目标体重，跟踪减重进度</div>
+          </div>
+          <div style="padding:14px;border:1px solid var(--divider);border-radius:14px;cursor:pointer;" data-toast="已选择：保持体重">
+            <div style="font-size:15px;font-weight:700;">保持体重</div>
+            <div style="font-size:11px;color:var(--sub);margin-top:3px;">维持当前体重，关注身体成分变化</div>
+          </div>
+          <div style="padding:14px;border:1px solid var(--divider);border-radius:14px;cursor:pointer;" data-toast="已选择：增加肌肉">
+            <div style="font-size:15px;font-weight:700;">增加肌肉</div>
+            <div style="font-size:11px;color:var(--sub);margin-top:3px;">提升肌肉量，改善身体成分比例</div>
+          </div>
+        </div>
+        <div style="margin-top:12px;">
+          <div class="lbl">目标体重</div>
+          <div class="field"><input class="num" value="58.0"><span class="unit">kg</span></div>
+          <div class="hint" style="margin-top:6px;padding-left:2px;">从 62.4 kg 到 58.0 kg，需减 4.4 kg</div>
+        </div>
+        <div class="spacer"></div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="btn primary" data-goto="v-prepare">下一步</div>
+          <div class="btn ghost" style="align-self:center;" data-goto="v-prepare">跳过，稍后设置</div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 第 3 步：准备第一次测量（Figma A13） -->
+  <div class="view" id="v-prepare">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-goto="v-goal"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm" style="font-size:16px;">准备测量</span><span style="font-size:12px;color:var(--muted);" class="num">3/3</span></div>
+      <div class="content" style="min-height:700px;">
+        <div class="steps"><span class="s on"></span><span class="s on"></span><span class="s on"></span></div>
+        <div class="hint" style="text-align:center;">第 3 步 · 准备第一次测量</div>
+        <div class="hero center" style="margin-top:12px;">
+          <div class="bigicon ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M8 12h.01M16 12h.01M12 15h.01"/></svg></div>
+          <div class="h1 sm" style="margin-top:20px;">准备好第一次测量</div>
+          <div class="h2">连接体脂秤，完成第一次测量，<br>就能看到你的身体概览。</div>
+        </div>
+        <div class="card lg" style="padding:8px 18px;">
+          <div class="row" style="padding:13px 0;"><span class="ic soft"><span class="num" style="font-weight:700;">1</span></span><span class="tx"><span class="t">轻踩体脂秤唤醒</span><span class="d">屏幕点亮即可连接</span></span></div>
+          <div class="row" style="padding:13px 0;"><span class="ic soft"><span class="num" style="font-weight:700;">2</span></span><span class="tx"><span class="t">打开蓝牙，靠近秤</span><span class="d">手机距秤 1 米以内</span></span></div>
+          <div class="row" style="padding:13px 0;"><span class="ic soft"><span class="num" style="font-weight:700;">3</span></span><span class="tx"><span class="t">赤脚站上秤面</span><span class="d">双脚踩住电极，保持静止</span></span></div>
+        </div>
+        <div class="banner"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></span><span class="bt">测量前请正常饮水，避免剧烈运动后立即测量。</span></div>
+        <div class="spacer"></div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="btn primary" data-goto="v-connected" data-toast="正在连接体脂秤…">连接体脂秤，开始测量</div>
+          <div class="btn ghost" style="align-self:center;" data-goto="v-skip">跳过，稍后连接</div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 连接设备（简版） -->
+  <div class="view" id="v-connected">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-goto="v-prepare"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">连接设备</span></div>
+      <div class="content" style="min-height:700px;">
+        <div class="hero center" style="margin-top:24px;">
+          <div class="loading-spin" style="width:44px;height:44px;border-width:3px;margin:0 auto;"></div>
+          <div class="h1 sm" style="margin-top:22px;">正在搜索设备…</div>
+          <div class="h2">请轻踩体脂秤唤醒，保持手机靠近</div>
+        </div>
+        <div class="spacer"></div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn secondary" style="flex:1;" data-goto="v-skip">跳过</button>
+          <button class="btn primary" style="flex:1;" data-goto="v-done" data-toast="已连接，开始第一次测量">模拟连接成功</button>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 引导完成 -->
+  <div class="view" id="v-done">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="statepage">
+        <div class="bigicon ring" style="margin:0 auto 20px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+        <div class="st" style="font-size:22px;">一切就绪</div>
+        <div class="sd">资料已完善，体脂秤已连接。<br>现在就可以开始第一次测量了。</div>
+        <button class="btn primary" data-goto="v-intro" data-toast="已回到引导起点（演示结束）">开始第一次测量</button>
+        <button class="btn ghost" style="margin-top:12px;" data-goto="v-intro">重新走一遍引导</button>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 跳过连接 -->
+  <div class="view" id="v-skip">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="statepage">
+        <div class="sic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M8 12h.01M16 12h.01M12 15h.01"/></svg></div>
+        <div class="st">跳过连接</div>
+        <div class="sd">你可以随时在「设备管理」中连接体脂秤。<br>引导已完成。</div>
+        <button class="btn primary" data-goto="v-intro" data-toast="引导完成，返回起点">完成引导</button>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+</div>
+<div class="flowbar" style="margin-top:20px;text-align:center;"><p>轻衡 · 首次引导交互原型 · 5 屏（补 Figma A11–A13 引导三部曲缺口）</p></div>
+<script src="app.js"></script>
+</body>
+</html>

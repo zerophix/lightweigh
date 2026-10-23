@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>轻衡 · 最终补全（可交互）</title>
+<link rel="stylesheet" href="../theme.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body class="interactive">
+<div class="flowbar">
+  <h1>最终补全 · 可交互原型</h1>
+  <p>第三方 SDK 清单、下拉刷新、滑动删除、无限滚动、搜索筛选。补 page-list-TODO §11 §05 最后缺口。</p>
+  <div class="nav"><a href="index.html">交互总览</a><a href="../index.html">← 静态总览</a></div>
+</div>
+<div class="app">
+
+  <!-- 枢纽 -->
+  <div class="view" id="v-hub">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="content" style="min-height:740px;overflow-y:auto;">
+        <div class="hero"><div class="h1 sm">最终补全</div><div class="h2">选择一个场景查看（page-list-TODO 最后缺口）</div></div>
+        <div class="lbl">合规</div>
+        <div class="rows">
+          <div class="row" data-goto="v-sdk-list" style="cursor:pointer;"><span class="ic soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg></span><span class="tx"><span class="t">第三方 SDK 清单</span><span class="d">§11 SDK 信息披露</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+        </div>
+        <div class="lbl" style="margin-top:4px;">交互模式</div>
+        <div class="rows">
+          <div class="row" data-goto="v-pull-refresh" style="cursor:pointer;"><span class="ic soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></span><span class="tx"><span class="t">下拉刷新</span><span class="d">列表顶部下拉刷新</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+          <div class="row" data-goto="v-swipe-delete" style="cursor:pointer;"><span class="ic soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></span><span class="tx"><span class="t">滑动删除</span><span class="d">左滑露出删除按钮</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+          <div class="row" data-goto="v-infinite-scroll" style="cursor:pointer;"><span class="ic soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg></span><span class="tx"><span class="t">无限滚动</span><span class="d">滚动到底自动加载</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+          <div class="row" data-goto="v-search-filter" style="cursor:pointer;"><span class="ic soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></span><span class="tx"><span class="t">搜索筛选</span><span class="d">关键词搜索 + 筛选</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+        </div>
+        <div class="spacer"></div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 第三方 SDK 清单 -->
+  <div class="view" id="v-sdk-list">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-goto="v-hub"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">第三方 SDK</span></div>
+      <div class="content tight" style="overflow-y:auto;">
+        <div class="banner"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></span><span class="bt">以下第三方 SDK 用于实现对应功能，<br>我们要求其遵守本隐私政策。</span></div>
+        <div class="rows">
+          <div class="row" style="align-items:flex-start;" data-toast="微信 OpenSDK 隐私政策"><span class="tx"><span class="t">微信 OpenSDK</span><span class="d">用途：微信登录与分享<br>收集：openid、昵称、头像</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+          <div class="row" style="align-items:flex-start;" data-toast="极光推送隐私政策"><span class="tx"><span class="t">极光推送 JPush</span><span class="d">用途：测量提醒通知<br>收集：设备标识（可关闭）</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+          <div class="row" style="align-items:flex-start;" data-toast="阿里云 OSS 隐私政策"><span class="tx"><span class="t">阿里云 OSS</span><span class="d">用途：健康数据加密云存储<br>收集：加密后的测量数据</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+          <div class="row" style="align-items:flex-start;" data-toast="Glide 隐私政策"><span class="tx"><span class="t">Glide</span><span class="d">用途：图片加载<br>收集：无个人数据</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+        </div>
+        <div class="note">点击可查看各 SDK 的隐私政策链接与数据处理说明。</div>
+        <div class="spacer"></div>
+        <div class="btn secondary" data-goto="v-hub">返回</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 下拉刷新 -->
+  <div class="view" id="v-pull-refresh">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-goto="v-hub"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">下拉刷新演示</span></div>
+      <div class="content tight" style="min-height:700px;">
+        <div style="text-align:center;padding:12px 0;">
+          <button class="btn secondary" style="display:inline-flex;gap:8px;" data-toast="下拉刷新中…"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>下拉刷新（点击模拟）</button>
+        </div>
+        <div class="rows">
+          <div class="row"><span class="tx"><span class="t num">今天 07:30</span><span class="d">体脂 28.6%</span></span><span class="num" style="font-weight:600;">62.4 kg</span></div>
+          <div class="row"><span class="tx"><span class="t num">昨天 07:28</span><span class="d">体脂 28.8%</span></span><span class="num" style="font-weight:600;">62.7 kg</span></div>
+          <div class="row"><span class="tx"><span class="t num">10/19 07:22</span><span class="d">体脂 28.9%</span></span><span class="num" style="font-weight:600;">62.8 kg</span></div>
+        </div>
+        <div class="banner"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></span><span class="bt">下拉刷新在真实设备上：<br>列表顶部下拉 → 出现刷新图标 → 松手触发。</span></div>
+        <div class="spacer"></div>
+        <div class="btn secondary" data-goto="v-hub">返回</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 滑动删除 -->
+  <div class="view" id="v-swipe-delete">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-goto="v-hub"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">滑动删除演示</span></div>
+      <div class="content tight" style="min-height:700px;">
+        <div class="banner"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></span><span class="bt">在真实设备上：左滑记录行 → 露出删除按钮。</span></div>
+        <!-- 正常行 -->
+        <div class="rows">
+          <div class="row"><span class="tx"><span class="t num">今天 07:30</span><span class="d">体脂 28.6%</span></span><span class="num" style="font-weight:600;">62.4 kg</span></div>
+        </div>
+        <!-- 左滑露出删除 -->
+        <div style="position:relative;margin-top:8px;border-radius:16px;overflow:hidden;">
+          <div style="position:absolute;right:0;top:0;bottom:0;width:80px;background:var(--danger);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;">删除</div>
+          <div style="position:relative;background:var(--white);padding:15px 16px;display:flex;align-items:center;gap:12px;transform:translateX(-80px);">
+            <span style="flex:1;"><span style="font-size:13px;font-weight:500;" class="num">昨天 07:28</span><span style="display:block;font-size:10px;color:var(--muted);margin-top:2px;">体脂 28.8% · 左滑删除</span></span>
+            <span class="num" style="font-weight:600;">62.7 kg</span>
+          </div>
+        </div>
+        <div class="rows" style="margin-top:8px;">
+          <div class="row"><span class="tx"><span class="t num">10/19 07:22</span><span class="d">体脂 28.9%</span></span><span class="num" style="font-weight:600;">62.8 kg</span></div>
+        </div>
+        <div class="spacer"></div>
+        <div style="display:flex;gap:12px;">
+          <button class="btn secondary" style="flex:1;" data-goto="v-hub">返回</button>
+          <button class="btn danger" style="flex:1;" data-open="dlg-delete">点击删除（弹窗）</button>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+      <div class="overlay" id="dlg-delete">
+        <div class="dialog"><div class="dic dgr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div><div class="dt">删除这条记录？</div><div class="dd">删除后本地与云端同步移除，7 天内可恢复。</div><div class="dact"><button class="btn secondary" data-close>取消</button><button class="btn danger" data-close data-toast="已删除 · 撤销">删除</button></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 无限滚动 -->
+  <div class="view" id="v-infinite-scroll">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-goto="v-hub"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">无限滚动演示</span></div>
+      <div class="content tight" style="min-height:700px;overflow-y:auto;">
+        <div class="banner"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></span><span class="bt">滚动到底部自动加载更多记录。</span></div>
+        <div class="rows">
+          <div class="row"><span class="tx"><span class="t num">10/21 07:30</span></span><span class="num" style="font-weight:600;">62.4 kg</span></div>
+          <div class="row"><span class="tx"><span class="t num">10/20 07:28</span></span><span class="num" style="font-weight:600;">62.7 kg</span></div>
+          <div class="row"><span class="tx"><span class="t num">10/19 07:22</span></span><span class="num" style="font-weight:600;">62.8 kg</span></div>
+          <div class="row"><span class="tx"><span class="t num">10/18 07:20</span></span><span class="num" style="font-weight:600;">62.9 kg</span></div>
+          <div class="row"><span class="tx"><span class="t num">10/17 07:30</span></span><span class="num" style="font-weight:600;">63.0 kg</span></div>
+          <div class="row"><span class="tx"><span class="t num">10/16 07:25</span></span><span class="num" style="font-weight:600;">63.1 kg</span></div>
+          <div class="row"><span class="tx"><span class="t num">10/15 07:28</span></span><span class="num" style="font-weight:600;">62.9 kg</span></div>
+        </div>
+        <div style="text-align:center;padding:16px 0;display:flex;flex-direction:column;align-items:center;gap:8px;">
+          <span class="loading-spin" style="width:20px;height:20px;border-width:2px;"></span>
+          <span class="hint">加载中…</span>
+        </div>
+        <div class="rows">
+          <div class="row"><span class="tx"><span class="t num">10/14 07:22</span></span><span class="num" style="font-weight:600;">63.2 kg</span></div>
+          <div class="row"><span class="tx"><span class="t num">10/13 07:20</span></span><span class="num" style="font-weight:600;">63.0 kg</span></div>
+        </div>
+        <div class="hint" style="text-align:center;padding:12px 0;" data-toast="已加载全部记录">已加载全部 128 条</div>
+        <div class="spacer"></div>
+        <div class="btn secondary" data-goto="v-hub">返回</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 搜索筛选 -->
+  <div class="view" id="v-search-filter">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-goto="v-hub"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">搜索筛选</span></div>
+      <div class="content tight" style="min-height:700px;">
+        <div class="field"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input placeholder="搜索指标、日期、备注…" value="体脂"></div>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <span style="background:var(--brand);color:#fff;border-radius:100px;padding:6px 14px;font-size:12px;">全部</span>
+          <span style="background:var(--white);border:1px solid var(--divider);border-radius:100px;padding:6px 14px;font-size:12px;" data-toast="已筛选：本周">本周</span>
+          <span style="background:var(--white);border:1px solid var(--divider);border-radius:100px;padding:6px 14px;font-size:12px;" data-toast="已筛选：本月">本月</span>
+          <span style="background:var(--white);border:1px solid var(--divider);border-radius:100px;padding:6px 14px;font-size:12px;" data-toast="已筛选：自定义">自定义</span>
+        </div>
+        <div class="lbl" style="margin-top:8px;">搜索结果（3 条匹配"体脂"）</div>
+        <div class="rows">
+          <div class="row"><span class="tx"><span class="t">体脂率 28.6%</span><span class="d">10/21 07:30 · 标准范围</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+          <div class="row"><span class="tx"><span class="t">体脂率 28.8%</span><span class="d">10/20 07:28 · 标准范围</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+          <div class="row"><span class="tx"><span class="t">体脂率 28.9%</span><span class="d">10/19 07:22 · 标准范围</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+        </div>
+        <div class="spacer"></div>
+        <div class="btn secondary" data-goto="v-hub">返回</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+</div>
+<div class="flowbar" style="margin-top:20px;text-align:center;"><p>轻衡 · 最终补全交互原型 · 5 屏 + 1 弹层</p></div>
+<script src="app.js"></script>
+</body>
+</html>

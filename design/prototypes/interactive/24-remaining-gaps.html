@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>轻衡 · 剩余缺口（可交互）</title>
+<link rel="stylesheet" href="../theme.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body class="interactive">
+<div class="flowbar">
+  <h1>剩余缺口 · 可交互原型</h1>
+  <p>设备重命名、成员设备关联、数据恢复、关闭提醒确认、维护模式、语言/外观设置。</p>
+  <div class="nav"><a href="index.html">交互总览</a><a href="../index.html">← 静态总览</a></div>
+</div>
+<div class="app">
+
+  <!-- 缺口枢纽 -->
+  <div class="view" id="v-hub">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="content" style="min-height:740px;overflow-y:auto;">
+        <div class="hero"><div class="h1 sm">剩余缺口</div><div class="h2">选择一个场景查看（补 page-list-TODO 未覆盖项）</div></div>
+        <div class="lbl">设备</div>
+        <div class="rows">
+          <div class="row" data-goto="v-rename-device" style="cursor:pointer;"><span class="ic soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3Z"/></svg></span><span class="tx"><span class="t">设备重命名</span><span class="d">§07 设备重命名</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+          <div class="row" data-goto="v-member-device" style="cursor:pointer;"><span class="ic soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18.36 6.64A9 9 0 1 1 5.64 6.64M12 2v10"/></svg></span><span class="tx"><span class="t">成员与设备关联</span><span class="d">§08 成员设备关联管理</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+        </div>
+        <div class="lbl" style="margin-top:4px;">数据</div>
+        <div class="rows">
+          <div class="row" data-goto="v-recovery" style="cursor:pointer;"><span class="ic soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></span><span class="tx"><span class="t">数据恢复/重新拉取</span><span class="d">§13 数据恢复状态</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+        </div>
+        <div class="lbl" style="margin-top:4px;">提醒</div>
+        <div class="rows">
+          <div class="row" data-open="dlg-close-remind" style="cursor:pointer;"><span class="ic soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg></span><span class="tx"><span class="t">关闭提醒确认</span><span class="d">§10 关闭提醒确认</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+        </div>
+        <div class="lbl" style="margin-top:4px;">系统</div>
+        <div class="rows">
+          <div class="row" data-goto="v-maintenance" style="cursor:pointer;"><span class="ic warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18.36 6.64A9 9 0 1 1 5.64 6.64M12 2v10M2 2l20 20"/></svg></span><span class="tx"><span class="t">服务维护中</span><span class="d">§01 维护中状态</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+        </div>
+        <div class="lbl" style="margin-top:4px;">设置</div>
+        <div class="rows">
+          <div class="row" data-goto="v-language" style="cursor:pointer;"><span class="ic soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20ZM2 12h20"/></svg></span><span class="tx"><span class="t">语言设置</span><span class="d">§11 多语言</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+          <div class="row" data-goto="v-appearance" style="cursor:pointer;"><span class="ic soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg></span><span class="tx"><span class="t">外观设置</span><span class="d">§11 主题切换</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+        </div>
+        <div class="spacer"></div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+      <!-- 关闭提醒确认弹层 -->
+      <div class="overlay" id="dlg-close-remind">
+        <div class="dialog"><div class="dic warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg></div><div class="dt">关闭测量提醒？</div><div class="dd">关闭后将不再收到每日测量提醒。<br>测量功能不受影响，可随时重新开启。</div><div class="dact"><button class="btn secondary" data-close>保持开启</button><button class="btn danger" data-close data-toast="已关闭测量提醒">确认关闭</button></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 设备重命名 -->
+  <div class="view" id="v-rename-device">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-goto="v-hub"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">设备重命名</span></div>
+      <div class="content" style="min-height:700px;">
+        <div class="hero"><div class="h1 sm">重命名设备</div><div class="h2">给你的体脂秤一个好记的名字</div></div>
+        <div class="card soft" style="border-radius:16px;padding:14px 16px;display:flex;gap:12px;align-items:center;">
+          <span class="av" style="width:40px;height:40px;background:var(--white);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M8 12h.01M16 12h.01"/></svg></span>
+          <div style="flex:1;"><div style="font-size:13px;font-weight:500;">当前名称</div><div style="font-size:10px;color:var(--sub);margin-top:2px;">轻衡 S1 · 序列号 ****8A2F</div></div>
+        </div>
+        <div style="margin-top:12px;">
+          <div class="lbl">新名称</div>
+          <div class="field"><input placeholder="输入新名称" value="客厅体脂秤"></div>
+          <div class="hint" style="margin-top:6px;padding-left:2px;">最多 20 个字符，支持中英文、数字</div>
+        </div>
+        <div class="banner"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></span><span class="bt">重命名仅影响显示名称，<br>不影响设备连接和测量数据。</span></div>
+        <div class="spacer"></div>
+        <div class="btn primary" data-goto="v-hub" data-toast="设备已重命名为「客厅体脂秤」">保存名称</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 成员设备关联 -->
+  <div class="view" id="v-member-device">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-goto="v-hub"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">成员设备关联</span></div>
+      <div class="content" style="min-height:700px;overflow-y:auto;">
+        <div class="hero"><div class="h1 sm">成员与设备关联</div><div class="h2">管理哪些成员使用哪些设备</div></div>
+        <div class="lbl">设备</div>
+        <div class="rows">
+          <div class="row"><span class="ic soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M8 12h.01M16 12h.01"/></svg></span><span class="tx"><span class="t">客厅体脂秤</span><span class="d">已关联 3 位成员</span></span><span class="val brand">管理 ›</span></div>
+        </div>
+        <div class="lbl" style="margin-top:4px;">关联成员</div>
+        <div class="rows">
+          <div class="row"><span class="av" style="width:40px;height:40px;">悦</span><span class="tx"><span class="t">林悦</span><span class="d">默认使用此设备</span></span><span class="sw on"><span class="knob"></span></span></div>
+          <div class="row"><span class="av" style="width:40px;height:40px;background:var(--iconbg);">妈</span><span class="tx"><span class="t">妈妈</span><span class="d">共用客厅体脂秤</span></span><span class="sw on"><span class="knob"></span></span></div>
+          <div class="row"><span class="av" style="width:40px;height:40px;background:var(--iconbg);">爸</span><span class="tx"><span class="t">爸爸</span><span class="d">共用客厅体脂秤</span></span><span class="sw on"><span class="knob"></span></span></div>
+        </div>
+        <div class="banner"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></span><span class="bt">一台体脂秤可关联多位成员，<br>测量时会自动识别当前成员。</span></div>
+        <div class="spacer"></div>
+        <div class="btn primary" data-goto="v-hub" data-toast="关联设置已保存">保存关联</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 数据恢复 -->
+  <div class="view" id="v-recovery">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-goto="v-hub"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">数据恢复</span></div>
+      <div class="content" style="min-height:700px;overflow-y:auto;">
+        <div class="hero"><div class="h1 sm">数据恢复</div><div class="h2">从云端重新拉取历史数据</div></div>
+        <div class="card soft" style="border-radius:16px;padding:14px 16px;display:flex;gap:12px;align-items:center;">
+          <span class="av" style="width:40px;height:40px;background:var(--white);color:var(--brand);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></span>
+          <div style="flex:1;"><div style="font-size:13px;font-weight:500;">云端数据可用</div><div style="font-size:10px;color:var(--sub);margin-top:2px;">最近同步：10月21日 07:30</div></div>
+        </div>
+        <div class="lbl" style="margin-top:4px;">恢复选项</div>
+        <div class="rows">
+          <div class="row"><span class="tx"><span class="t">恢复全部数据</span><span class="d">从云端拉取所有历史记录</span></span><span class="radio on"></span></div>
+          <div class="row"><span class="tx"><span class="t">恢复最近 30 天</span><span class="d">仅拉取近 30 天记录</span></span><span class="radio"></span></div>
+          <div class="row"><span class="tx"><span class="t">恢复指定日期范围</span><span class="d">自定义起止日期</span></span><span class="radio"></span></div>
+        </div>
+        <div class="banner warn"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg></span><span class="bt">恢复操作将<b>覆盖本地现有数据</b>，<br>建议先备份。</span></div>
+        <div class="spacer"></div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="btn primary" data-goto="v-recovery-done" data-toast="正在从云端恢复数据…">开始恢复</div>
+          <div class="btn ghost" style="align-self:center;" data-goto="v-hub">取消</div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 数据恢复完成 -->
+  <div class="view" id="v-recovery-done">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="statepage">
+        <div class="sic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+        <div class="st">数据恢复完成</div>
+        <div class="sd">已从云端恢复 <b class="num">128 条</b>记录。<br>本地数据已更新。</div>
+        <button class="btn primary" data-goto="v-hub">查看数据</button>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 服务维护中 -->
+  <div class="view" id="v-maintenance">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-goto="v-hub"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span></div>
+      <div class="content" style="min-height:700px;">
+        <div class="statepage" style="flex:1;">
+          <div class="sic warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64A9 9 0 1 1 5.64 6.64M12 2v10M2 2l20 20"/></svg></div>
+          <div class="st">服务维护中</div>
+          <div class="sd">我们正在升级服务，预计 <b>30 分钟</b>内恢复。<br>期间测量和查看数据不受影响，<br>仅云同步和 AI 功能暂停。</div>
+          <div style="margin-top:16px;padding:12px 16px;background:var(--iconbg);border-radius:12px;font-size:12px;color:var(--sub);line-height:1.6;">
+            预计恢复时间：<span class="num">14:30</span><br>
+            受影响功能：云同步 · AI 解读 · 周总结
+          </div>
+          <button class="btn primary" style="margin-top:20px;" data-goto="v-hub">稍后再试</button>
+          <button class="btn ghost" style="margin-top:12px;" data-toast="已查看服务状态公告">查看状态公告</button>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 语言设置 -->
+  <div class="view" id="v-language">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-goto="v-hub"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">语言</span></div>
+      <div class="content tight" style="min-height:700px;">
+        <div class="lbl">界面语言</div>
+        <div class="rows">
+          <div class="row"><span class="tx"><span class="t">简体中文</span></span><span class="radio on"></span></div>
+          <div class="row"><span class="tx"><span class="t">繁體中文</span></span><span class="radio"></span></div>
+          <div class="row"><span class="tx"><span class="t">English</span></span><span class="radio"></span></div>
+          <div class="row"><span class="tx"><span class="t">日本語</span></span><span class="radio"></span></div>
+        </div>
+        <div class="banner"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></span><span class="bt">切换语言后需重启应用生效。<br>部分翻译可能不完整，持续完善中。</span></div>
+        <div class="spacer"></div>
+        <div class="btn primary" data-goto="v-hub" data-toast="语言已切换，重启后生效">保存</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 外观设置 -->
+  <div class="view" id="v-appearance">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-goto="v-hub"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">外观</span></div>
+      <div class="content tight" style="min-height:700px;">
+        <div class="lbl">主题模式</div>
+        <div style="display:flex;gap:10px;">
+          <div style="flex:1;padding:14px;border:2px solid var(--brand);border-radius:14px;background:var(--brand-soft);text-align:center;cursor:pointer;">
+            <div style="font-size:24px;margin-bottom:6px;">☀️</div>
+            <div style="font-size:13px;font-weight:600;">浅色</div>
+          </div>
+          <div style="flex:1;padding:14px;border:1px solid var(--divider);border-radius:14px;text-align:center;cursor:pointer;" data-toast="已切换到深色模式">
+            <div style="font-size:24px;margin-bottom:6px;">🌙</div>
+            <div style="font-size:13px;font-weight:600;">深色</div>
+          </div>
+          <div style="flex:1;padding:14px;border:1px solid var(--divider);border-radius:14px;text-align:center;cursor:pointer;" data-toast="已切换到跟随系统">
+            <div style="font-size:24px;margin-bottom:6px;">⚙️</div>
+            <div style="font-size:13px;font-weight:600;">跟随系统</div>
+          </div>
+        </div>
+        <div class="lbl" style="margin-top:8px;">品牌色预览</div>
+        <div class="card lg pad20" style="text-align:center;">
+          <div style="display:flex;gap:12px;justify-content:center;">
+            <div style="width:48px;height:48px;border-radius:12px;background:var(--brand);"></div>
+            <div style="width:48px;height:48px;border-radius:12px;background:var(--brand-soft);"></div>
+            <div style="width:48px;height:48px;border-radius:12px;background:var(--ink);"></div>
+            <div style="width:48px;height:48px;border-radius:12px;background:var(--iconbg);"></div>
+          </div>
+          <div class="hint" style="margin-top:10px;">轻衡绿 #258C77 · 墨绿 #203D37</div>
+        </div>
+        <div class="banner"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></span><span class="bt">深色模式和跟随系统将在后续版本提供。</span></div>
+        <div class="spacer"></div>
+        <div class="btn primary" data-goto="v-hub" data-toast="外观设置已保存">保存</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+</div>
+<div class="flowbar" style="margin-top:20px;text-align:center;"><p>轻衡 · 剩余缺口交互原型 · 6 屏 + 1 弹层</p></div>
+<script src="app.js"></script>
+</body>
+</html>

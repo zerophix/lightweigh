@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>轻衡 · 家庭共享邀请（可交互）</title>
+<link rel="stylesheet" href="../theme.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body class="interactive">
+<div class="flowbar">
+  <h1>家庭共享邀请 · 可交互原型</h1>
+  <p>邀请家人 → 生成邀请码 → 接受邀请 → 撤销共享。补 page-list-TODO §08 P2 缺口。</p>
+  <div class="nav"><a href="index.html">交互总览</a><a href="../index.html">← 静态总览</a></div>
+</div>
+<div class="app">
+
+  <!-- 家庭共享首页 -->
+  <div class="view" id="v-hub">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="content" style="min-height:740px;overflow-y:auto;">
+        <div class="hero"><div class="h1 sm">家庭共享</div><div class="h2">邀请家人共享健康数据，或接受他人的邀请</div></div>
+        <div class="card soft" style="border-radius:16px;padding:14px 16px;display:flex;gap:12px;align-items:center;">
+          <span class="av" style="width:40px;height:40px;background:var(--white);">悦</span>
+          <div style="flex:1;"><div style="font-size:13px;font-weight:500;">林悦 · 我的家庭</div><div style="font-size:10px;color:var(--sub);margin-top:2px;">3 位成员 · 我是管理员</div></div>
+        </div>
+        <div class="lbl" style="margin-top:4px;">操作</div>
+        <div class="rows">
+          <div class="row" data-goto="v-invite" style="cursor:pointer;"><span class="ic soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg></span><span class="tx"><span class="t">邀请家人加入</span><span class="d">生成邀请码分享给家人</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+          <div class="row" data-goto="v-accept" style="cursor:pointer;"><span class="ic soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></span><span class="tx"><span class="t">接受邀请</span><span class="d">输入邀请码加入他人家庭</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+        </div>
+        <div class="lbl" style="margin-top:4px;">当前成员</div>
+        <div class="rows">
+          <div class="row"><span class="av" style="width:40px;height:40px;">悦</span><span class="tx"><span class="t">林悦</span><span class="d">管理员 · 本人</span></span><span class="tag">我</span></div>
+          <div class="row"><span class="av" style="width:40px;height:40px;background:var(--iconbg);">妈</span><span class="tx"><span class="t">妈妈</span><span class="d">成员 · 可查看我的数据</span></span><span class="chev" data-goto="v-revoke" style="color:var(--muted);cursor:pointer;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+          <div class="row"><span class="av" style="width:40px;height:40px;background:var(--iconbg);">爸</span><span class="tx"><span class="t">爸爸</span><span class="d">成员 · 仅查看体重</span></span><span class="chev" data-goto="v-revoke" style="color:var(--muted);cursor:pointer;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+        </div>
+        <div class="banner"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></span><span class="bt">共享的是数据查看权限，<br>不会共享账号登录状态。</span></div>
+        <div class="spacer"></div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 生成邀请码 -->
+  <div class="view" id="v-invite">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-goto="v-hub"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">邀请家人</span></div>
+      <div class="content" style="min-height:700px;">
+        <div class="hero center" style="margin-top:12px;">
+          <div class="bigicon ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg></div>
+          <div class="h1 sm" style="margin-top:18px;">邀请家人加入</div>
+          <div class="h2">生成邀请码，分享给家人</div>
+        </div>
+        <!-- 邀请码 -->
+        <div class="card lg pad20" style="text-align:center;">
+          <div class="hint" style="margin-bottom:8px;">邀请码（24 小时内有效）</div>
+          <div class="num" style="font-size:32px;font-weight:600;letter-spacing:6px;color:var(--brand);">QH8K2M</div>
+          <div style="display:flex;gap:12px;justify-content:center;margin-top:16px;">
+            <button class="btn secondary" style="flex:1;height:40px;font-size:12px;" data-toast="邀请码已复制">复制</button>
+            <button class="btn secondary" style="flex:1;height:40px;font-size:12px;" data-toast="已分享到微信">分享给家人</button>
+          </div>
+        </div>
+        <div class="lbl" style="margin-top:8px;">共享权限设置</div>
+        <div class="rows">
+          <div class="row"><span class="tx"><span class="t">允许查看测量记录</span></span><span class="sw on"><span class="knob"></span></span></div>
+          <div class="row"><span class="tx"><span class="t">允许查看身体报告</span></span><span class="sw on"><span class="knob"></span></span></div>
+          <div class="row"><span class="tx"><span class="t">允许查看 AI 解读</span></span><span class="sw"><span class="knob"></span></span></div>
+        </div>
+        <div class="banner"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span><span class="bt">邀请码仅用于身份验证，<br>不包含任何健康数据。</span></div>
+        <div class="spacer"></div>
+        <div class="btn primary" data-goto="v-invite-done" data-toast="邀请已发送">发送邀请</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 邀请已发送 -->
+  <div class="view" id="v-invite-done">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-goto="v-hub"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">邀请已发送</span></div>
+      <div class="content" style="min-height:700px;">
+        <div class="card soft" style="border-radius:16px;padding:14px 16px;display:flex;gap:12px;align-items:center;">
+          <span class="av" style="width:40px;height:40px;background:var(--white);color:var(--brand);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+          <div style="flex:1;"><div style="font-size:13px;font-weight:500;">邀请已发送</div><div style="font-size:10px;color:var(--sub);margin-top:2px;">等待家人接受邀请</div></div>
+        </div>
+        <div class="card lg pad18">
+          <div class="st sm" style="margin-bottom:10px;">待接受邀请</div>
+          <div class="rows">
+            <div class="row"><span class="ic warn" style="width:32px;height:32px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="tx"><span class="t">邀请码 QH8K2M</span><span class="d">24 小时后过期</span></span><span class="tag warn">待接受</span></div>
+          </div>
+        </div>
+        <div class="banner"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></span><span class="bt">家人接受后，你可以在「家庭共享」中<br>管理他的查看权限。</span></div>
+        <div class="spacer"></div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="btn primary" data-goto="v-hub">返回家庭共享</div>
+          <div class="btn ghost" style="align-self:center;" data-goto="v-invite" data-toast="已生成新邀请码">重新生成邀请码</div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 接受邀请 -->
+  <div class="view" id="v-accept">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-goto="v-hub"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">接受邀请</span></div>
+      <div class="content" style="min-height:700px;">
+        <div class="hero center" style="margin-top:12px;">
+          <div class="bigicon ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></div>
+          <div class="h1 sm" style="margin-top:18px;">输入邀请码</div>
+          <div class="h2">向家人索取邀请码后输入</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div>
+            <div class="lbl">邀请码</div>
+            <div class="field"><input class="num" placeholder="6 位邀请码" value="QH8K2M" style="letter-spacing:4px;font-size:18px;text-align:center;"></div>
+          </div>
+        </div>
+        <div class="banner"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></span><span class="bt">接受邀请后，对方可以查看你授权的数据。<br>你可以随时在设置中撤销。</span></div>
+        <div class="spacer"></div>
+        <div class="btn primary" data-goto="v-accept-confirm" data-toast="正在验证邀请码…">接受邀请</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 接受确认 -->
+  <div class="view" id="v-accept-confirm">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-goto="v-accept"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">确认加入</span></div>
+      <div class="content" style="min-height:700px;">
+        <div class="hero center" style="margin-top:12px;">
+          <div class="av" style="width:64px;height:64px;font-size:24px;background:var(--iconbg);margin:0 auto;">悦</div>
+          <div class="h1 sm" style="margin-top:16px;">林悦 邀请你加入</div>
+          <div class="h2">「林悦的家庭」</div>
+        </div>
+        <div class="card lg pad18">
+          <div class="st sm" style="margin-bottom:10px;">对方将可以查看</div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--brand);flex-shrink:0;margin-top:2px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg></span><span style="font-size:12px;color:var(--sub);line-height:1.6;">你的测量记录</span></div>
+            <div style="display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--brand);flex-shrink:0;margin-top:2px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg></span><span style="font-size:12px;color:var(--sub);line-height:1.6;">你的身体报告</span></div>
+            <div style="display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--muted);flex-shrink:0;margin-top:2px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg></span><span style="font-size:12px;color:var(--muted);line-height:1.6;">AI 解读（未授权）</span></div>
+          </div>
+        </div>
+        <div class="banner warn"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg></span><span class="bt">接受后对方可以查看你的健康数据，<br>你可以随时在设置中撤销共享。</span></div>
+        <div class="spacer"></div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="btn primary" data-goto="v-accept-done" data-toast="已加入家庭共享">确认加入</div>
+          <div class="btn secondary" data-goto="v-accept">取消</div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 接受成功 -->
+  <div class="view" id="v-accept-done">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-goto="v-hub"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">已加入</span></div>
+      <div class="content" style="min-height:700px;">
+        <div class="card soft" style="border-radius:16px;padding:14px 16px;display:flex;gap:12px;align-items:center;">
+          <span class="av" style="width:40px;height:40px;background:var(--white);color:var(--brand);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+          <div style="flex:1;"><div style="font-size:13px;font-weight:500;">已加入「林悦的家庭」</div><div style="font-size:10px;color:var(--sub);margin-top:2px;">现在可以查看林悦的健康数据</div></div>
+        </div>
+        <div class="card lg pad18">
+          <div class="st sm" style="margin-bottom:10px;">你现在可以</div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--brand);flex-shrink:0;margin-top:2px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg></span><span style="font-size:12px;color:var(--sub);line-height:1.6;">查看林悦的测量记录</span></div>
+            <div style="display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--brand);flex-shrink:0;margin-top:2px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg></span><span style="font-size:12px;color:var(--sub);line-height:1.6;">查看林悦的身体报告</span></div>
+            <div style="display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--brand);flex-shrink:0;margin-top:2px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg></span><span style="font-size:12px;color:var(--sub);line-height:1.6;">查看林悦的趋势图</span></div>
+          </div>
+        </div>
+        <div class="banner"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></span><span class="bt">你的数据仍然独立保存，<br>不会自动共享给对方。</span></div>
+        <div class="spacer"></div>
+        <div class="btn primary" data-goto="v-hub" data-toast="进入家庭共享（演示结束）">进入家庭共享</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 撤销共享 -->
+  <div class="view" id="v-revoke">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-goto="v-hub"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">撤销共享</span></div>
+      <div class="content" style="min-height:700px;">
+        <div class="card soft" style="border-radius:16px;padding:14px 16px;display:flex;gap:12px;align-items:center;">
+          <span class="av" style="width:40px;height:40px;background:var(--iconbg);">妈</span>
+          <div style="flex:1;"><div style="font-size:13px;font-weight:500;">妈妈</div><div style="font-size:10px;color:var(--sub);margin-top:2px;">当前可查看：测量记录 + 身体报告</div></div>
+        </div>
+        <div class="lbl" style="margin-top:4px;">调整查看权限</div>
+        <div class="rows">
+          <div class="row"><span class="tx"><span class="t">查看测量记录</span></span><span class="sw on"><span class="knob"></span></span></div>
+          <div class="row"><span class="tx"><span class="t">查看身体报告</span></span><span class="sw on"><span class="knob"></span></span></div>
+          <div class="row"><span class="tx"><span class="t">查看 AI 解读</span></span><span class="sw"><span class="knob"></span></span></div>
+        </div>
+        <div class="banner warn"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg></span><span class="bt">关闭全部权限后，<br>妈妈将无法再查看你的数据。</span></div>
+        <div class="spacer"></div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="btn primary" data-goto="v-hub" data-toast="权限已更新">保存权限</div>
+          <div class="btn secondary" style="color:var(--danger);border-color:var(--danger-bg);" data-open="dlg-revoke-all">撤销全部共享</div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+      <div class="overlay" id="dlg-revoke-all">
+        <div class="dialog"><div class="dic dgr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M2 21c0-3 3-5 7-5M17 8l4 4M21 8l-4 4"/></svg></div><div class="dt">撤销全部共享？</div><div class="dd">妈妈将立即无法查看你的任何健康数据。<br>此操作可重新邀请恢复。</div><div class="dact"><button class="btn secondary" data-close>取消</button><button class="btn danger" data-close data-goto="v-hub" data-toast="已撤销全部共享">确认撤销</button></div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<div class="flowbar" style="margin-top:20px;text-align:center;"><p>轻衡 · 家庭共享邀请交互原型 · 6 屏 + 1 弹层（补 page-list-TODO §08 P2 缺口）</p></div>
+<script src="app.js"></script>
+</body>
+</html>

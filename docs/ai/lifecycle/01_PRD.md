@@ -3,6 +3,11 @@
 > 轻衡健康 Android 客户端（lightweigh）：蓝牙体脂秤测量数据的记录、展示与同步。
 > 覆盖型文档：每次迭代重写，不保留历史。
 > 权威任务列表见仓库根目录 `.ai/tasks.json`（本文件只描述产品范围与当前阶段，不枚举工单）。
+>
+> **真源声明**：本文件是 Notion「轻衡健康 / 01-产品 / PRD-产品需求」的工程侧镜像。
+> **产品范围与验收标准（AC）的权威在 Notion**，冲突时以 Notion 为准，并回同步本文件；
+> 本文件的权威仅在任务板 `.ai/tasks.json` 与工程决策 `docs/ai/decisions/DEC-*`。
+> 归属规则见 [GC-decision-flow](../../guides/GC-decision-flow.md) 第 0 层。
 
 ---
 

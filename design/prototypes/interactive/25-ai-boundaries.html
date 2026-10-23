@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>轻衡 · AI 边界与免责声明（可交互）</title>
+<link rel="stylesheet" href="../theme.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body class="interactive">
+<div class="flowbar">
+  <h1>AI 边界与免责声明 · 可交互原型</h1>
+  <p>AI 服务不可用、报告过期、未授权咨询入口、家庭成员不在授权范围。补 page-list-TODO §09 边界缺口。</p>
+  <div class="nav"><a href="index.html">交互总览</a><a href="../index.html">← 静态总览</a></div>
+</div>
+<div class="app">
+
+  <!-- 边界枢纽 -->
+  <div class="view" id="v-hub">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="content" style="min-height:740px;overflow-y:auto;">
+        <div class="hero"><div class="h1 sm">AI 边界与免责声明</div><div class="h2">选择一个边界场景查看（page-list-TODO §09）</div></div>
+        <div class="lbl">服务可用性</div>
+        <div class="rows">
+          <div class="row" data-goto="v-ai-unavailable" style="cursor:pointer;"><span class="ic warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18.36 6.64A9 9 0 1 1 5.64 6.64M12 2v10M2 2l20 20"/></svg></span><span class="tx"><span class="t">AI 服务不可用</span><span class="d">§09 AI 服务不可用状态</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+          <div class="row" data-goto="v-report-expired" style="cursor:pointer;"><span class="ic warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></span><span class="tx"><span class="t">报告过期/重新分析</span><span class="d">§09 报告过期或数据更新</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+        </div>
+        <div class="lbl" style="margin-top:4px;">授权边界</div>
+        <div class="rows">
+          <div class="row" data-goto="v-unauth-consult" style="cursor:pointer;"><span class="ic soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg></span><span class="tx"><span class="t">未授权·一般咨询入口</span><span class="d">§09 未授权时的一般咨询</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+          <div class="row" data-goto="v-member-unauth" style="cursor:pointer;"><span class="ic warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg></span><span class="tx"><span class="t">成员不在授权范围</span><span class="d">§09 家庭成员授权范围</span></span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+        </div>
+        <div class="lbl" style="margin-top:4px;">免责声明</div>
+        <div class="card lg pad18">
+          <div style="font-size:12px;color:var(--sub);line-height:1.8;">AI 建议仅供健康管理参考，不作疾病诊断。<br>如有持续不适或健康疑问，请咨询专业医务人员。</div>
+        </div>
+        <div class="spacer"></div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- AI 服务不可用 -->
+  <div class="view" id="v-ai-unavailable">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-goto="v-hub"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">AI 健康助手</span></div>
+      <div class="content" style="min-height:700px;">
+        <div class="statepage" style="flex:1;">
+          <div class="sic warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64A9 9 0 1 1 5.64 6.64M12 2v10M2 2l20 20"/></svg></div>
+          <div class="st">AI 服务暂时不可用</div>
+          <div class="sd">AI 服务正在维护，<br>预计 <b>15 分钟</b>内恢复。<br>你的测量与记录不受影响。</div>
+          <div style="margin-top:16px;padding:12px 16px;background:var(--iconbg);border-radius:12px;font-size:12px;color:var(--sub);line-height:1.6;">受影响：AI 解读 · 周总结 · 行动建议<br>不受影响：测量 · 记录 · 趋势图表</div>
+          <button class="btn primary" style="margin-top:20px;" data-goto="v-hub" data-toast="已重新连接 AI 服务">重试连接</button>
+          <button class="btn ghost" style="margin-top:12px;" data-goto="v-unauth-consult">先看历史报告</button>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 报告过期 -->
+  <div class="view" id="v-report-expired">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-goto="v-hub"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">AI 报告解读</span></div>
+      <div class="content tight" style="overflow-y:auto;">
+        <div class="banner warn"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></span><span class="bt">你有 <b>2 条新测量记录</b>，<br>本报告基于旧数据生成。</span></div>
+        <div class="card soft" style="border-radius:24px;padding:18px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;"><span class="tag mut">旧报告</span><span style="font-size:11px;color:var(--sub);">基于 10月20日数据</span></div>
+          <div style="font-size:20px;font-weight:700;line-height:1.4;margin-top:10px;">近 30 天体重下降 1.4 kg，<br>趋势稳健。</div>
+        </div>
+        <div class="card lg pad18">
+          <div class="st sm" style="margin-bottom:8px;">重新分析后将更新</div>
+          <div class="hint" style="line-height:1.9;">· 纳入最新 2 条测量记录<br>· 更新体重/体脂趋势结论<br>· 重新生成可执行建议</div>
+        </div>
+        <div class="banner"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></span><span class="bt">旧报告保留在历史中，不会被覆盖。</span></div>
+        <div class="spacer"></div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="btn primary" data-goto="v-reanalyzing" data-toast="正在重新分析…">用最新数据重新分析</div>
+          <div class="btn secondary" data-goto="v-hub">继续查看旧报告</div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 重新分析中 -->
+  <div class="view" id="v-reanalyzing">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-goto="v-hub"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">AI 报告解读</span></div>
+      <div class="content" style="min-height:700px;">
+        <div class="hero center" style="margin-top:30px;">
+          <div class="loading-spin" style="width:44px;height:44px;border-width:3px;margin:0 auto;"></div>
+          <div class="h1 sm" style="margin-top:22px;">正在重新分析…</div>
+          <div class="h2">纳入最新 2 条测量记录<br>约需 10–20 秒</div>
+        </div>
+        <div class="card lg pad18" style="opacity:.6;">
+          <div class="sk line" style="width:60%;height:16px;"></div>
+          <div class="sk line" style="width:90%;"></div>
+          <div class="sk line" style="width:80%;"></div>
+          <div class="sk card" style="height:60px;margin-top:12px;"></div>
+        </div>
+        <div class="spacer"></div>
+        <div class="btn secondary" data-goto="v-report-done" data-toast="分析完成">模拟完成</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 重新分析完成 -->
+  <div class="view" id="v-report-done">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-goto="v-hub"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">AI 报告解读</span></div>
+      <div class="content tight" style="overflow-y:auto;">
+        <div class="banner"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="bt">已基于最新 2 条记录重新分析。</span></div>
+        <div class="card soft" style="border-radius:24px;padding:18px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;"><span class="tag">新报告</span><span style="font-size:11px;color:var(--sub);">基于 10月21日最新数据</span></div>
+          <div style="font-size:20px;font-weight:700;line-height:1.4;margin-top:10px;">近 30 天体重下降 1.6 kg，<br>纳入最新数据后趋势更清晰。</div>
+        </div>
+        <div class="card lg pad18"><div style="font-size:13px;color:var(--sub);line-height:1.7;">纳入最新 2 条记录后，30 天体重下降从 1.4 kg 修正为 <b>1.6 kg</b>，体脂率下降 1.5 个百分点。趋势与减重目标一致。</div></div>
+        <div class="note">AI 建议仅供参考，不作疾病诊断。</div>
+        <div class="spacer"></div>
+        <div class="btn primary" data-goto="v-hub">返回</div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 未授权一般咨询 -->
+  <div class="view" id="v-unauth-consult">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-goto="v-hub"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">AI 健康助手</span></div>
+      <div class="content tight" style="min-height:700px;">
+        <div class="banner"><span class="bic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span><span class="bt">未开启个性化分析，AI <b>不使用你的健康数据</b>，<br>仅提供通用健康知识。</span></div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+          <span style="background:var(--white);border:1px solid var(--divider);border-radius:100px;padding:7px 14px;font-size:12px;color:var(--brand);" data-toast="通用回答（不使用个人数据）">BMI 22.1 正常吗？</span>
+          <span style="background:var(--white);border:1px solid var(--divider);border-radius:100px;padding:7px 14px;font-size:12px;color:var(--brand);" data-toast="通用回答（不使用个人数据）">体脂率怎么看？</span>
+          <span style="background:var(--white);border:1px solid var(--divider);border-radius:100px;padding:7px 14px;font-size:12px;color:var(--brand);" data-toast="通用回答（不使用个人数据）">如何健康减脂？</span>
+        </div>
+        <div class="card" style="border-radius:18px 6px 18px 18px;padding:16px;margin-top:12px;">
+          <div style="font-size:12px;color:var(--sub);line-height:1.7;">通用健康问题都可以问我。<br>要获得针对你数据的解读，请先开启个性化分析。</div>
+        </div>
+        <div class="note">未开启个性化时，AI 不会读取你的测量记录、健康档案和目标。</div>
+        <div class="spacer"></div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="btn primary" data-goto="v-hub" data-toast="去开启个性化分析">开启个性化分析</div>
+          <div class="field"><span class="fake ph">问问健康知识…</span><span style="width:36px;height:36px;border-radius:100px;background:var(--iconbg);color:var(--brand);display:flex;align-items:center;justify-content:center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></span></div>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+  <!-- 成员不在授权范围 -->
+  <div class="view" id="v-member-unauth">
+    <div class="screen">
+      <div class="statusbar"><span class="time num">9:41</span><span class="sys"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" width="3" height="11" rx="1"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/></svg></span></div>
+      <div class="navbar"><span class="back" data-goto="v-hub"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2 2 10l8 8"/></svg></span><span class="title sm">AI 报告解读</span></div>
+      <div class="content" style="min-height:700px;">
+        <div class="card soft" style="border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;">
+          <span class="av" style="width:40px;height:40px;background:var(--iconbg);">妈</span>
+          <div style="flex:1;"><div style="font-size:13px;font-weight:500;">当前查看：妈妈</div><div style="font-size:10px;color:var(--sub);margin-top:2px;">AI 解读 · 未授权</div></div>
+          <span class="tag warn">未授权</span>
+        </div>
+        <div class="statepage" style="flex:1;">
+          <div class="sic warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a5 5 0 0 1 5 5v3H7V7a5 5 0 0 1 5-5Z"/><rect x="4" y="10" width="16" height="11" rx="2M2 2l20 20"/></svg></div>
+          <div class="st">该成员未开启 AI 解读</div>
+          <div class="sd">「妈妈」尚未授权 AI 使用她的健康数据。<br>AI 无法为她生成报告解读。</div>
+          <button class="btn primary" style="margin-top:16px;" data-goto="v-hub" data-toast="已切换到林悦">切换到已授权成员</button>
+          <button class="btn ghost" style="margin-top:12px;" data-toast="已发送授权邀请（演示）">邀请妈妈开启</button>
+        </div>
+      </div>
+      <div class="homebar"><span class="bar"></span></div>
+    </div>
+  </div>
+
+</div>
+<div class="flowbar" style="margin-top:20px;text-align:center;"><p>轻衡 · AI 边界与免责声明交互原型 · 5 屏（补 page-list-TODO §09 边界缺口）</p></div>
+<script src="app.js"></script>
+</body>
+</html>
