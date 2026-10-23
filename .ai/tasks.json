@@ -1020,7 +1020,7 @@
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:52:02Z",
-      "updated_at": "2026-10-23T03:52:02Z",
+      "updated_at": "2026-10-23T09:50:00Z",
       "notes": "",
       "prototype_ref": {
         "file": "design/prototypes/interactive/20-ai-members.html",
@@ -1038,7 +1038,35 @@
       "ac_refs": [
         "AC-J1-11 周报与成员详情"
       ],
-      "prd_ref": "https://app.notion.com/p/40141bd50f8a8131aad6f95b74dcf436"
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a8131aad6f95b74dcf436",
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "AI 模块已有周数据与成员数据",
+          "原型20 定义 v-weekly 与 v-member-detail 两个 view"
+        ],
+        "when": "打开 AI 周总结页或成员权限详情页",
+        "then": [
+          "周总结页展示成员与日期区间（林悦 · 2026年10月14日 — 10月20日）+ 总结句 + 关键变化指标卡（体重/体脂变化值）（v-weekly 原文）",
+          "成员详情页展示身份行（本人 · 女 · 30岁 · 168cm）+ 权限管理三项开关（查看测量记录/编辑测量记录/删除测量记录）及各自说明文案（v-member-detail 原文）",
+          "周数据为空时走通用空态组件，不出现除零或假数据"
+        ],
+        "forbidden": [
+          "硬编码颜色/间距",
+          "改 ai 模块既有文件（AiScreen/AiViewModel 等归 Wave 2 T-083）",
+          "在 UI 层直接读 repository"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-084 --strict",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "definition_of_done": [
+          "AiWeeklySummary.kt 与 MemberPermissionDetail.kt 存在且可编译",
+          "原型 view 布局与文案一致",
+          "单测 + gov-prototype-verify --strict 通过"
+        ],
+        "open_questions": []
+      }
     },
     {
       "id": "T-085",
@@ -1227,7 +1255,7 @@
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:52:35Z",
-      "updated_at": "2026-10-23T03:52:35Z",
+      "updated_at": "2026-10-23T09:50:00Z",
       "notes": "",
       "prototype_ref": {
         "file": "design/prototypes/interactive/24-remaining-gaps.html",
@@ -1245,7 +1273,35 @@
       "ac_refs": [
         "AC-S5 语言与外观设置"
       ],
-      "prd_ref": "https://app.notion.com/p/40241bd50f8a81978bd4c99ada828be1"
+      "prd_ref": "https://app.notion.com/p/40241bd50f8a81978bd4c99ada828be1",
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "用户已进入设置模块",
+          "原型24 定义 v-language 与 v-appearance 两个 view"
+        ],
+        "when": "打开语言设置或外观设置页并切换选项",
+        "then": [
+          "语言页列出简体中文/繁體中文/English 且当前项有选中标识；页底展示「切换语言后需重启应用生效」与「部分翻译可能不完整」两条提示（v-language 原文）",
+          "外观页提供主题模式三选：跟随系统/浅色/深色，当前项有选中标识（v-appearance 原文）",
+          "选择结果通过 ViewModel 意图上报，Screen 零业务逻辑"
+        ],
+        "forbidden": [
+          "硬编码颜色/间距（必须用 Qk token）",
+          "改 settings 模块既有文件（本任务只新建文件）",
+          "编造 AC 编号"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-091 --strict",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "definition_of_done": [
+          "LanguageSettings.kt 与 AppearanceSettings.kt 存在且可编译",
+          "原型 view 布局与文案一致",
+          "单测 + gov-prototype-verify --strict 通过"
+        ],
+        "open_questions": []
+      }
     },
     {
       "id": "T-092",
@@ -1382,7 +1438,7 @@
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:52:45Z",
-      "updated_at": "2026-10-23T03:52:45Z",
+      "updated_at": "2026-10-23T09:50:00Z",
       "notes": "",
       "prototype_ref": {
         "file": "design/prototypes/interactive/10-privacy-authorization.html",
@@ -1402,7 +1458,37 @@
       "ac_refs": [
         "AC-V5 隐私授权流与弹窗"
       ],
-      "prd_ref": "https://app.notion.com/p/40141bd50f8a81cdbbedcb4fb9228eca"
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a81cdbbedcb4fb9228eca",
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "健康数据授权为敏感信息需单独同意",
+          "原型10 定义 v-auth/v-granted/v-unauth/v-consult/v-rules 五个 view"
+        ],
+        "when": "走完隐私授权五态流程（授权弹窗→已授权管理→撤回后未授权→AI 咨询受限→数据删除规则）",
+        "then": [
+          "授权页列出「身体成分数据（体重、体脂率、肌肉量等）」与「健康档案信息（年龄、性别、身高）」两类数据项及单独同意文案（v-auth 原文）",
+          "已授权页展示开启时间与入口（数据删除与保留规则/撤回授权后会怎样/预览功能降级）（v-granted 原文）",
+          "未授权页展示撤回时间与受影响功能清单（AI 报告解读已停止等）+「重新开启」（v-unauth 原文）",
+          "咨询页未开启个性化时提示「仅提供通用健康知识」并引导开启（v-consult 原文）",
+          "规则页区分四类删除操作（删单条记录/删单段对话/清空全部对话/…）及影响范围（v-rules 原文）"
+        ],
+        "forbidden": [
+          "五态合并成一个巨型文件超过 400 行不拆分（超限则按 view 拆子文件并在 DoD 说明）",
+          "硬编码颜色/间距",
+          "实现真实授权写入（本任务为呈现式 UI，授权经回调交由既有流程）"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-096 --strict",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "definition_of_done": [
+          "privacy/PrivacyAuthFlow.kt 存在且可编译（或按 view 拆分的等价文件组）",
+          "五个 view 布局与文案一致",
+          "单测 + gov-prototype-verify --strict 通过"
+        ],
+        "open_questions": []
+      }
     },
     {
       "id": "T-097",
@@ -1658,7 +1744,7 @@
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:56:21Z",
-      "updated_at": "2026-10-23T03:56:21Z",
+      "updated_at": "2026-10-23T09:50:00Z",
       "notes": "",
       "prototype_ref": {
         "file": "design/prototypes/interactive/08-sync-network-help.html",
@@ -1676,7 +1762,35 @@
       "ac_refs": [
         "AC-N3 网络与服务状态页"
       ],
-      "prd_ref": "https://app.notion.com/p/40141bd50f8a8134bec9f5290e1bd659"
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a8134bec9f5290e1bd659",
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "设备处于断网或云服务不可用场景",
+          "原型08 定义 v-network 与 v-service 两个 view"
+        ],
+        "when": "从数据同步入口进入网络状态页或服务状态页",
+        "then": [
+          "网络页展示「网络连接不可用」+ 副文案「测量与记录不受影响，数据先存本机，联网后自动同步」+ 按钮「检查网络设置/继续离线使用」（v-network 原文）",
+          "服务页展示「云服务暂时不可用」+ 「我们正在维护服务，数据安全无虞。本地测量与查看不受影响。」+ 按钮「重试连接/查看服务公告」（v-service 原文）",
+          "页面为呈现式组件：只渲染传入状态，网络检测经由传入回调，不直接访问 ConnectivityManager"
+        ],
+        "forbidden": [
+          "Screen 直接访问系统网络服务",
+          "硬编码颜色/间距",
+          "改 sync 模块既有文件"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-102 --strict",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "definition_of_done": [
+          "NetworkStatus.kt 与 ServiceStatus.kt 存在且可编译",
+          "原型 view 布局与文案一致",
+          "单测 + gov-prototype-verify --strict 通过"
+        ],
+        "open_questions": []
+      }
     },
     {
       "id": "T-103",
