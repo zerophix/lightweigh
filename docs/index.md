@@ -18,6 +18,7 @@
 冲突时：产品口径以 Notion 为准并回同步；工程口径以本仓库 DEC 为准并回同步。
 归属规则全文见 [GC-decision-flow](guides/GC-decision-flow.md) 第 0 层；
 Notion 侧对应规范为「00-规范 / DOC-目录与命名规范」与「DOC-需求到编码链路」。
+页面与仓库路径的逐条对照见 [REF-notion-index](reference/REF-notion-index.md)。
 
 ---
 

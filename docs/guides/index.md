@@ -34,5 +34,6 @@
 - **所有 AI**：每次启动必须读 GC-decision-flow.md；编码前读 GC-coding-conventions 与任务 AC
 - **做原型映射任务**：读 GC-prototype-driven-dev.md，认领后先跑 `gov-prototype-verify.py <任务号>`，提交前 `--strict` 必须通过
 - **多会话并发**：先读 GC-multi-agent-collab.md，再 begin / claim；合入用 PR 模板
+- **查 Notion 页面对应哪份仓库文件**：读 [REF-notion-index](../reference/REF-notion-index.md)。轻衡健康下新增页面时同步更新该索引。
 
 ## 来源: ai/decisions/DEC-048

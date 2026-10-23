@@ -92,4 +92,4 @@ bash scripts/bootstrap/bs-install-hooks.sh   # 安装 simplified pre-commit（DE
 | 通用 | `AGENTS.md`（本文件） |
 | Cursor / Cline | `.cursorrules` / `.clinerules` |
 
-任务板权威：`.ai/tasks.json`。
+任务板权威：`.ai/tasks.json`。Notion 页面与仓库路径的对照见 `docs/reference/REF-notion-index.md`；轻衡健康下新增页面时同步更新该文件。
