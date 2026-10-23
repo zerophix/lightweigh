@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updated_at": "2026-10-23T09:38:15Z",
-  "next_action": "开工 Wave 0 基础组件 T-097/T-098/T-099（通用状态页、下拉刷新与滑删与无限滚动与搜索栏、骨架屏与长按菜单）",
-  "next_action_why": "Wave 0 组件被 Wave 1/2 多个任务复用，未完成则后续任务缺组件无法开工；GC-prototype-driven-dev 明确 Wave 0 必须最先做",
-  "next_action_confirmed": true,
+  "updated_at": "2026-10-23T12:07:45Z",
+  "next_action": "跟进在途 PR 与 Actions 故障：Actions 恢复后 gh run rerun 39944412520 复跑 PR #42 checks；各在途分支合入 master 后先跑 gov-validate --fix 同步 03_TaskGraph 计数再把对应任务置 done（T-102 含）。",
+  "next_action_why": "多分支各自 take 任务 + 各自同步计数，合入顺序会打乱 pending 数（本 PR 已按 57 写入，DEC-062 分支按 57 写入但其树内 T-099 也已 take）——不同步则 master 的 GOV-DOCS-004 持续转红；CI 秒败与本 PR 内容无关，需人工核对配额后复跑才能拿到绿 checks。",
+  "next_action_confirmed": false,
   "known_risks": [
     "任务无 ready AC 不得开工；in_progress 缺 definition_of_done 会触发 GOV-PROTO-004（DEC-048）。",
     "分支保护 / GitHub Pro / 公开仓：人类明确不做。权威合入门禁改为本地 `bash scripts/governance/gov-local-ci.sh` + pre-push validate；master 已含 DEC-045..047（merge 9cfc46d）。真机 APK 验收仍须人类。",
