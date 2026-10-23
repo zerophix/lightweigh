@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "updated_at": "2026-10-23T09:26:02Z",
-  "next_action": "开工 Wave 0 基础组件 T-097/T-098/T-099（通用状态页、下拉刷新与滑删与无限滚动与搜索栏、骨架屏与长按菜单）",
-  "next_action_why": "Wave 0 组件被 Wave 1/2 多个任务复用，未完成则后续任务缺组件无法开工；GC-prototype-driven-dev 明确 Wave 0 必须最先做",
+  "updated_at": "2026-10-23T10:27:57Z",
+  "next_action": "继续 Wave 1 并行：独立新文件任务（勿碰已认领的 T-081、T-082、T-084、T-096）",
+  "next_action_why": "人类已确认继续 Wave 1 多会话并行。本会话只做 T-084 与 T-096。",
   "next_action_confirmed": true,
   "known_risks": [
     "任务无 ready AC 不得开工；in_progress 缺 definition_of_done 会触发 GOV-PROTO-004（DEC-048）。",
@@ -1016,12 +1016,12 @@
       "id": "T-084",
       "description": "ai: AI周总结与成员权限详情",
       "why": "原型20 v-weekly/v-member-detail · 新增 ai/AiWeeklySummary.kt ai/MemberPermissionDetail.kt",
-      "status": "pending",
-      "assigned_to": "",
-      "dec": "",
+      "status": "in_progress",
+      "assigned_to": "ai",
+      "dec": "DEC-062",
       "created_at": "2026-10-23T03:52:02Z",
-      "updated_at": "2026-10-23T09:50:00Z",
-      "notes": "",
+      "updated_at": "2026-10-23T10:27:57Z",
+      "notes": "呈现式组件。空周走通用空态，不改 AiScreen/AiViewModel。",
       "prototype_ref": {
         "file": "design/prototypes/interactive/20-ai-members.html",
         "views": [
@@ -1434,12 +1434,12 @@
       "id": "T-096",
       "description": "privacy: 隐私授权流程（授权/已授权/未授权/咨询/规则）",
       "why": "原型10全部5屏 · 新增 privacy/PrivacyAuthFlow.kt",
-      "status": "pending",
-      "assigned_to": "",
-      "dec": "",
+      "status": "in_progress",
+      "assigned_to": "ai",
+      "dec": "DEC-062",
       "created_at": "2026-10-23T03:52:45Z",
-      "updated_at": "2026-10-23T09:50:00Z",
-      "notes": "",
+      "updated_at": "2026-10-23T10:27:57Z",
+      "notes": "按 view 拆成 PrivacyAuthFlow.kt、PrivacyConsentPages.kt、PrivacyRestrictedPages.kt，单文件均低于 400 行。授权只经回调。",
       "prototype_ref": {
         "file": "design/prototypes/interactive/10-privacy-authorization.html",
         "views": [

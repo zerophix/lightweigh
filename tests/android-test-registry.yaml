@@ -217,5 +217,11 @@ commands:
   type: gradle-test
 - description: Wave1 纯逻辑（编辑字段限制与同源 / 趋势缺日切段与数据不足 / 指标文案, T-081+T-082）
   path: app/src/test/kotlin/com/xcwk/scalehub/feature/Wave1HistoryTrendTest.kt
+  status: stable
+  type: gradle-test
+- description: Wave1 纯逻辑（周总结空态与除零 / 成员权限 / 隐私五态回调, T-084+T-096）
+  path: app/src/test/kotlin/com/xcwk/scalehub/feature/Wave1AiPrivacyTest.kt
+  status: stable
+  type: gradle-test
 configs: []
 orphans: []

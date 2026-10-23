@@ -157,6 +157,17 @@ T-082 单文件 **83%**，全部高于 30% 阈值且零 WARN —— 因为把原
 （文案由调用方持有）。这既印证了校验脚本的本意，也确认了问题 6 的结论：
 **匹配率衡量的是"文案是否在本文件里"，不是"有没有参考原型"**，多文件/薄封装任务会系统性偏低。
 
+### 问题 8：T-084/T-096 不能新建四件套，也不能把授权写进 UI（DEC-062）
+
+T-084 禁改 `AiScreen` / `AiViewModel`，T-096 禁止真实授权写入，且五态合成单文件会超过 400 行。
+沿用 DEC-061 的呈现式做法：周读数与权限由参数传入，空周走 `QkEmptyState`；
+`averageDailyChange` 在测量天数为 0 时返回空，`goalProgressPercent` 在跨度为 0 时返回空。
+隐私用 `reducePrivacy` 纯函数表达五态，只有同意 / 仅本机 / 确认撤回把 `persist` 置真，
+屏幕只调用 `onPersistConsent`。文件拆成 `PrivacyAuthFlow.kt`（状态与文案）、
+`PrivacyConsentPages.kt`（v-auth / v-granted）、`PrivacyRestrictedPages.kt`
+（v-unauth / v-consult / v-rules），单文件均低于 400 行。
+文案常量留在 `PrivacyAuthFlow.kt`，闭环脚本对目标文件的短语匹配为 100%。
+
 ## 3. 待完成/已知问题
 
 - [ ] M2 SyncGateway 云同步与登录（含 CloudBase 防腐层）
