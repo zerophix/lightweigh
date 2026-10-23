@@ -1,5 +1,6 @@
 package com.xcwk.scalehub.feature.trend
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -56,6 +57,8 @@ data class MetricSpec(
     val note: String = "",
     /** 标签 + 数值 的补充行（评分为构成占比、代谢为三档摄入） */
     val composition: List<Pair<String, String>> = emptyList(),
+    /** 列表短标题。空则用 [title]（内脏脂肪详情叫「内脏脂肪等级」，列表叫「内脏脂肪」） */
+    val listTitle: String = "",
 )
 
 /** 一次测量下的指标读数（运行时数据，由调用方汇总）。 */
@@ -65,7 +68,45 @@ data class MetricReading(
     val deltaText: String = "",
     val trendPoints: List<TrendPointUi> = emptyList(),
     val trendDates: List<String> = emptyList(),
+    /**
+     * 含缺日的序列。`null` = 该天无记录。
+     * 非空时优先于 [trendPoints]：否则缺日被丢掉，[segmentSeries] 无法切断连线（AC-HT4）。
+     */
+    val trendSeries: List<Double?> = emptyList(),
+    /** 评分所处区间名，如「良好」。空则不展示区间标题。 */
+    val bandLabel: String = "",
 )
+
+/** 列表页脚（原型 v-list）。 */
+const val METRIC_LIST_NOTE = "点击任意指标查看详情。所有指标由体脂秤估算，仅供参考。"
+
+/** 趋势卡片右上角范围（原型 v-weight「近30天」）。 */
+const val TREND_RANGE_LABEL = "近30天"
+
+/** 差值后的比较词（原型「↓0.3 较上次」）。无差值时返回空，避免编造比较。 */
+fun formatDelta(delta: String): String =
+    if (delta.isBlank()) "" else "$delta 较上次"
+
+/** 评分卡副标题。只有原型写过的三档用固定句，其余不拼「区间」。 */
+fun scoreBandCaption(bandName: String): String = when (bandName) {
+    "良好" -> "本次评分 · 良好区间"
+    "需改善" -> "本次评分 · 需改善区间"
+    "优秀" -> "本次评分 · 优秀区间"
+    else -> ""
+}
+
+/** 列表格状态词：评分用「良好」，其余用「标准范围」（原型 v-list）。 */
+fun listStatusLabel(spec: MetricSpec): String {
+    val normal = spec.levels.firstOrNull { it.tone == MetricTone.Normal }
+    return when {
+        normal == null -> "标准范围"
+        normal.name == "良好" -> "良好"
+        else -> "标准范围"
+    }
+}
+
+fun listTitleOf(spec: MetricSpec): String =
+    spec.listTitle.ifBlank { spec.title }
 
 /**
  * 趋势可绘制状态（**AC-HT5 的可判定形式**）。
@@ -116,6 +157,61 @@ fun segmentSeries(values: List<Double?>): List<List<Double>> {
     return segments
 }
 
+/** 一段连续测量：值与对齐的日期标签。段与段之间没有连线。 */
+data class TrendSegment(val values: List<Double>, val labels: List<String>)
+
+/**
+ * 按缺日切段，并带上同一下标的日期。
+ * 标签短于数值时，多出来的点不补假日期。
+ */
+fun segmentTrend(values: List<Double?>, labels: List<String> = emptyList()): List<TrendSegment> {
+    val segments = mutableListOf<TrendSegment>()
+    val currentValues = mutableListOf<Double>()
+    val currentLabels = mutableListOf<String>()
+    values.forEachIndexed { index, value ->
+        if (value == null) {
+            if (currentValues.isNotEmpty()) {
+                segments += TrendSegment(currentValues.toList(), currentLabels.toList())
+                currentValues.clear()
+                currentLabels.clear()
+            }
+        } else {
+            currentValues += value
+            if (index < labels.size) currentLabels += labels[index]
+        }
+    }
+    if (currentValues.isNotEmpty()) {
+        segments += TrendSegment(currentValues.toList(), currentLabels.toList())
+    }
+    return segments
+}
+
+/** 绘图序列：有 [MetricReading.trendSeries] 时用它（保留空洞），否则用连续点。 */
+fun chartValues(reading: MetricReading): List<Double?> =
+    if (reading.trendSeries.isNotEmpty()) {
+        reading.trendSeries
+    } else {
+        reading.trendPoints.map { it.value }
+    }
+
+/** 非空测量点数。缺日的 null 不计数（AC-HT5 看的是真实测量条数）。 */
+fun measuredPointCount(values: List<Double?>): Int = values.count { it != null }
+
+/**
+ * 趋势绘制计划。
+ * 非 [TrendState.Plottable] 时 [TrendChartPlan.segments] 必为空，调用方无图可画。
+ */
+data class TrendChartPlan(val state: TrendState, val segments: List<TrendSegment>)
+
+fun chartPlan(reading: MetricReading): TrendChartPlan {
+    val values = chartValues(reading)
+    val state = trendStateOf(measuredPointCount(values))
+    if (state != TrendState.Plottable) {
+        return TrendChartPlan(state, emptyList())
+    }
+    return TrendChartPlan(state, segmentTrend(values, reading.trendDates))
+}
+
 /**
  * 八个指标的静态文案（逐字取自原型 `17-metric-details.html`）。
  *
@@ -139,6 +235,7 @@ val METRIC_SPECS: List<MetricSpec> = listOf(
         title = "BMI",
         unit = "",
         explainer = "BMI 不区分肌肉与脂肪，运动员可能偏高但体脂正常。",
+        referenceLabel = "BMI 分级（亚洲标准）",
         levels = listOf(
             MetricLevel("偏瘦", "<18.5", MetricTone.Low),
             MetricLevel("正常", "18.5–23.9", MetricTone.Normal),
@@ -181,6 +278,7 @@ val METRIC_SPECS: List<MetricSpec> = listOf(
             MetricLevel("高", "(15+)", MetricTone.High),
         ),
         formula = "等级可视化（1–30）",
+        listTitle = "内脏脂肪",
     ),
     MetricSpec(
         key = MetricKey.Metabolism,
@@ -236,6 +334,7 @@ fun metricSpec(key: MetricKey): MetricSpec? = METRIC_SPECS.find { it.key == key 
 fun MetricListScreen(
     readings: List<MetricReading>,
     modifier: Modifier = Modifier,
+    subtitle: String = "",
     onBack: () -> Unit = {},
     onOpen: (MetricKey) -> Unit = {},
 ) {
@@ -255,6 +354,14 @@ fun MetricListScreen(
                 style = MaterialTheme.typography.titleLarge,
             )
         }
+        if (subtitle.isNotEmpty()) {
+            Spacer(Modifier.height(QkSpacing.Xs))
+            Text(
+                text = subtitle,
+                color = QkColor.Muted,
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
 
         if (readings.isEmpty()) {
             QkEmptyState(
@@ -267,17 +374,20 @@ fun MetricListScreen(
 
         Spacer(Modifier.height(QkSpacing.Lg))
         readings.forEach { reading ->
-            val rangeLabel = reading.spec.levels
-                .firstOrNull { it.tone == MetricTone.Normal }?.takeIf { it.range.isNotEmpty() }
-                ?.let { "标准范围 ${it.range}" }
-                ?: "标准范围"
+            val rangeLabel = listStatusLabel(reading.spec)
             QkListRow(
-                title = reading.spec.title,
+                title = listTitleOf(reading.spec),
                 subtitle = "${reading.value} ${reading.spec.unit}".trimEnd() + " · $rangeLabel ›",
                 onClick = { onOpen(reading.spec.key) },
             )
         }
 
+        Spacer(Modifier.height(QkSpacing.Lg))
+        Text(
+            text = METRIC_LIST_NOTE,
+            color = QkColor.Muted,
+            style = MaterialTheme.typography.bodySmall,
+        )
         Spacer(Modifier.height(QkSpacing.Xl))
     }
 }
@@ -290,10 +400,9 @@ fun MetricListScreen(
  * `v-weight` / `v-bmi` / `v-muscle` / `v-water` / `v-visceral` / `v-metabolism` / `v-score` / `v-bone`
  *
  * ## 验收
- * - **AC-HT4 趋势中间缺一天时不出现跨空洞插值线** → 由 [segmentSeries] 切段、逐段绘制，
- *   结构上不可能产生跨空洞连线
- * - **AC-HT5 仅 1 条测量时为 InsufficientData，不画假趋势** → 由 [trendStateOf] 判定，
- *   非 [TrendState.Plottable] 时**不渲染任何趋势线**，只显示文字说明
+ * - **AC-HT4 趋势中间缺一天时不出现跨空洞插值线** → [chartPlan] 用 [segmentTrend] 切段后逐段绘制
+ * - **AC-HT5 仅 1 条测量时为 InsufficientData，不画假趋势** → 非 [TrendState.Plottable] 时分段为空
+ * - **AC-HT1** 无读数时走 [QkEmptyState]，不渲染伪造数值
  */
 @Composable
 fun MetricDetailScreen(
@@ -303,9 +412,9 @@ fun MetricDetailScreen(
     onSeeList: () -> Unit = {},
 ) {
     val spec = reading.spec
-    val state = trendStateOf(reading.trendPoints.size)
-    // 缺日切段：每段独立绘制，段间不连线（AC-HT4）
-    val segments = segmentSeries(reading.trendPoints.map { it.value })
+    val plan = chartPlan(reading)
+    val deltaLabel = formatDelta(reading.deltaText)
+    val scoreCaption = scoreBandCaption(reading.bandLabel)
 
     Column(
         modifier = modifier
@@ -322,6 +431,15 @@ fun MetricDetailScreen(
                 color = QkColor.Fg,
                 style = MaterialTheme.typography.titleLarge,
             )
+        }
+
+        if (reading.value.isBlank() && plan.state == TrendState.Empty) {
+            QkEmptyState(
+                title = "还没有测量记录",
+                description = "连接体脂秤后开始第一次测量。",
+                modifier = Modifier.fillMaxWidth(),
+            )
+            return@Column
         }
 
         Spacer(Modifier.height(QkSpacing.Lg))
@@ -348,25 +466,36 @@ fun MetricDetailScreen(
                             modifier = Modifier.padding(bottom = QkSpacing.Xs),
                         )
                     }
-                    if (reading.deltaText.isNotEmpty()) {
-                        Spacer(Modifier.width(QkSpacing.Md))
+                    if (deltaLabel.isNotEmpty()) {
+                        Spacer(Modifier.weight(1f))
                         Text(
-                            text = reading.deltaText,
+                            text = deltaLabel,
                             color = QkColor.Primary,
                             style = MaterialTheme.typography.labelLarge,
                             modifier = Modifier.padding(bottom = QkSpacing.Xs),
                         )
                     }
                 }
+                if (scoreCaption.isNotEmpty()) {
+                    Spacer(Modifier.height(QkSpacing.Xs))
+                    Text(
+                        text = scoreCaption,
+                        color = QkColor.Muted,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
             }
         }
 
-        Spacer(Modifier.height(QkSpacing.CardGap))
-        Text(
-            text = spec.explainer,
-            color = QkColor.Muted,
-            style = MaterialTheme.typography.bodyMedium,
-        )
+        val compositionTitle = if (spec.key == MetricKey.Score) "评分如何得出" else "减重参考（每日摄入）"
+        if (spec.explainer.isNotEmpty() && spec.explainer != compositionTitle) {
+            Spacer(Modifier.height(QkSpacing.CardGap))
+            Text(
+                text = spec.explainer,
+                color = QkColor.Muted,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        }
 
         if (spec.formula.isNotEmpty()) {
             Spacer(Modifier.height(QkSpacing.Sm))
@@ -390,7 +519,7 @@ fun MetricDetailScreen(
 
         if (spec.composition.isNotEmpty()) {
             Spacer(Modifier.height(QkSpacing.Lg))
-            QkSectionHead(if (spec.key == MetricKey.Score) "评分如何得出" else "减重参考（每日摄入）")
+            QkSectionHead(compositionTitle)
             Spacer(Modifier.height(QkSpacing.CardGap))
             QkCard(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(QkSpacing.CardPad)) {
@@ -418,13 +547,26 @@ fun MetricDetailScreen(
         }
 
         Spacer(Modifier.height(QkSpacing.Lg))
-        QkSectionHead("趋势")
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            QkSectionHead("趋势")
+            if (plan.state == TrendState.Plottable) {
+                Text(
+                    text = TREND_RANGE_LABEL,
+                    color = QkColor.Muted,
+                    style = MaterialTheme.typography.labelMedium,
+                )
+            }
+        }
         Spacer(Modifier.height(QkSpacing.CardGap))
-        when (state) {
-            TrendState.Empty -> Text(
-                text = "还没有测量记录，暂无趋势。",
-                color = QkColor.Muted,
-                style = MaterialTheme.typography.bodySmall,
+        when (plan.state) {
+            TrendState.Empty -> QkEmptyState(
+                title = "还没有测量记录",
+                description = "连接体脂秤后开始第一次测量。暂无趋势。",
+                modifier = Modifier.fillMaxWidth(),
             )
 
             TrendState.InsufficientData -> Text(
@@ -433,7 +575,7 @@ fun MetricDetailScreen(
                 style = MaterialTheme.typography.bodySmall,
             )
 
-            TrendState.Plottable -> segments.forEachIndexed { index, segment ->
+            TrendState.Plottable -> plan.segments.forEachIndexed { index, segment ->
                 if (index > 0) {
                     Spacer(Modifier.height(QkSpacing.Sm))
                     Text(
@@ -443,9 +585,9 @@ fun MetricDetailScreen(
                     )
                 }
                 QkAreaChart(
-                    points = segment.mapIndexed { i, v -> TrendPointUi(i.toLong(), v) },
+                    points = segment.values.mapIndexed { i, v -> TrendPointUi(i.toLong(), v) },
                     modifier = Modifier.fillMaxWidth(),
-                    xLabels = reading.trendDates.take(segment.size),
+                    xLabels = segment.labels,
                 )
             }
         }
@@ -478,6 +620,7 @@ private fun LevelRow(level: MetricLevel) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = QkSpacing.Xs),
+        horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
@@ -488,7 +631,6 @@ private fun LevelRow(level: MetricLevel) {
                 MetricTone.High -> QkColor.Accent
             },
             style = MaterialTheme.typography.labelLarge,
-            modifier = Modifier.width(QkSpacing.Xl),
         )
         Text(
             text = level.range,

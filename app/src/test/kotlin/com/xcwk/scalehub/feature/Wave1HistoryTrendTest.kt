@@ -4,12 +4,22 @@ import com.google.common.truth.Truth.assertThat
 import com.xcwk.scalehub.feature.history.RecordEditModel
 import com.xcwk.scalehub.feature.history.RecordEditField
 import com.xcwk.scalehub.feature.history.buildDelta
+import com.xcwk.scalehub.feature.history.canOpenHistoryOffline
+import com.xcwk.scalehub.feature.history.detailMatchesReport
+import com.xcwk.scalehub.feature.history.detailMetaLine
 import com.xcwk.scalehub.feature.history.isEditable
 import com.xcwk.scalehub.feature.history.validateRecordEdit
 import com.xcwk.scalehub.feature.trend.METRIC_SPECS
 import com.xcwk.scalehub.feature.trend.MetricKey
+import com.xcwk.scalehub.feature.trend.MetricReading
+import com.xcwk.scalehub.feature.trend.TrendPointUi
 import com.xcwk.scalehub.feature.trend.TrendState
+import com.xcwk.scalehub.feature.trend.chartPlan
+import com.xcwk.scalehub.feature.trend.formatDelta
+import com.xcwk.scalehub.feature.trend.listStatusLabel
+import com.xcwk.scalehub.feature.trend.listTitleOf
 import com.xcwk.scalehub.feature.trend.metricSpec
+import com.xcwk.scalehub.feature.trend.scoreBandCaption
 import com.xcwk.scalehub.feature.trend.segmentSeries
 import com.xcwk.scalehub.feature.trend.trendStateOf
 import org.junit.Test
@@ -93,6 +103,26 @@ class Wave1HistoryTrendTest {
         assertThat(buildDelta("62.4", "kg", "")).isEqualTo("62.4 kg")
     }
 
+    @Test
+    fun `详情与报告 recordId 相同才同源`() {
+        assertThat(detailMatchesReport(7L, 7L)).isTrue()
+        assertThat(detailMatchesReport(7L, 8L)).isFalse()
+        assertThat(detailMatchesReport(0L, 0L)).isFalse()
+    }
+
+    @Test
+    fun `飞行模式有本地快照仍可打开详情`() {
+        assertThat(canOpenHistoryOffline(hasLocalSnapshot = true, networkAvailable = false)).isTrue()
+        assertThat(canOpenHistoryOffline(hasLocalSnapshot = true, networkAvailable = true)).isTrue()
+        assertThat(canOpenHistoryOffline(hasLocalSnapshot = false, networkAvailable = false)).isFalse()
+    }
+
+    @Test
+    fun `详情顶栏带已同步或本地`() {
+        assertThat(detailMetaLine("10月21日 07:30", synced = true)).isEqualTo("10月21日 07:30 · 已同步")
+        assertThat(detailMetaLine("10月21日 07:30", synced = false)).contains("本地")
+    }
+
     // ---- T-082：趋势状态与缺日切段（AC-HT4 / AC-HT5）----
 
     @Test
@@ -142,6 +172,80 @@ class Wave1HistoryTrendTest {
     fun `无缺口时只有一段`() {
         assertThat(segmentSeries(listOf(1.0, 2.0, 3.0)))
             .isEqualTo(listOf(listOf(1.0, 2.0, 3.0)))
+    }
+
+    private fun weightReading(
+        points: List<TrendPointUi> = emptyList(),
+        series: List<Double?> = emptyList(),
+        dates: List<String> = emptyList(),
+    ) = MetricReading(
+        spec = metricSpec(MetricKey.Weight)!!,
+        value = "62.4",
+        trendPoints = points,
+        trendSeries = series,
+        trendDates = dates,
+    )
+
+    @Test
+    fun `缺日切段后没有任何一段同时含空洞两侧的点`() {
+        val plan = chartPlan(
+            weightReading(
+                series = listOf(1.0, 2.0, null, 3.0),
+                dates = listOf("09/21", "10/01", "10/11", "10/21"),
+            ),
+        )
+        assertThat(plan.state).isEqualTo(TrendState.Plottable)
+        assertThat(plan.segments).hasSize(2)
+        assertThat(plan.segments[0].values).containsExactly(1.0, 2.0).inOrder()
+        assertThat(plan.segments[1].values).containsExactly(3.0).inOrder()
+        assertThat(plan.segments[1].labels).containsExactly("10/21")
+        assertThat(plan.segments.none { 2.0 in it.values && 3.0 in it.values }).isTrue()
+    }
+
+    @Test
+    fun `仅一条测量的绘制计划不含任何线段`() {
+        val plan = chartPlan(weightReading(series = listOf(62.4)))
+        assertThat(plan.state).isEqualTo(TrendState.InsufficientData)
+        assertThat(plan.segments).isEmpty()
+    }
+
+    @Test
+    fun `没有测量时绘制计划为空态且不画线`() {
+        val plan = chartPlan(weightReading())
+        assertThat(plan.state).isEqualTo(TrendState.Empty)
+        assertThat(plan.segments).isEmpty()
+    }
+
+    @Test
+    fun `显式缺日序列优先于连续点避免把空洞补成直线`() {
+        val plan = chartPlan(
+            weightReading(
+                points = listOf(
+                    TrendPointUi(1L, 1.0),
+                    TrendPointUi(2L, 2.0),
+                    TrendPointUi(3L, 3.0),
+                ),
+                series = listOf(1.0, null, 3.0),
+            ),
+        )
+        assertThat(plan.segments.map { it.values })
+            .containsExactly(listOf(1.0), listOf(3.0))
+            .inOrder()
+    }
+
+    @Test
+    fun `差值为空时不拼较上次`() {
+        assertThat(formatDelta("")).isEmpty()
+        assertThat(formatDelta("↓0.3")).isEqualTo("↓0.3 较上次")
+    }
+
+    @Test
+    fun `列表状态词与短标题对齐原型`() {
+        assertThat(listStatusLabel(metricSpec(MetricKey.Score)!!)).isEqualTo("良好")
+        assertThat(listStatusLabel(metricSpec(MetricKey.Weight)!!)).isEqualTo("标准范围")
+        assertThat(listTitleOf(metricSpec(MetricKey.Visceral)!!)).isEqualTo("内脏脂肪")
+        assertThat(scoreBandCaption("良好")).isEqualTo("本次评分 · 良好区间")
+        assertThat(scoreBandCaption("未知")).isEmpty()
     }
 
     // ---- T-082：指标文案与覆盖 ----

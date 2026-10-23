@@ -1,6 +1,7 @@
 package com.xcwk.scalehub.feature.history
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -21,7 +22,6 @@ import com.xcwk.scalehub.ui.components.QkButton
 import com.xcwk.scalehub.ui.components.QkButtonStyle
 import com.xcwk.scalehub.ui.components.QkCard
 import com.xcwk.scalehub.ui.components.QkListRow
-import com.xcwk.scalehub.ui.components.QkSectionHead
 import com.xcwk.scalehub.ui.states.QkEmptyState
 import com.xcwk.scalehub.ui.theme.QkColor
 import com.xcwk.scalehub.ui.theme.QkSpacing
@@ -39,7 +39,10 @@ import com.xcwk.scalehub.ui.theme.QkSpacing
  */
 data class HistoryDetailUi(
     val recordId: Long,
-    /** 顶部信息条：成员 · 时间 · 同步状态（原型「林悦 · 10月21日 07:30 · 已同步」） */
+    /**
+     * 成员与时间，不含同步词。
+     * 同步词由 [detailMetaLine] 追加，避免调用方和组件各写一遍「已同步」。
+     */
     val metaText: String,
     val weightValue: String,
     val weightUnit: String = "kg",
@@ -50,9 +53,33 @@ data class HistoryDetailUi(
     val muscleDelta: String = "",
     val scoreValue: String,
     val scoreSuffix: String = "分",
-    /** 同步状态为 false 时展示本地标记（AC-HT6 允许飞行模式读本地详情） */
+    /** 同步状态为 false 时展示「本地」（AC-HT6：飞行模式仍可读已有详情） */
     val synced: Boolean = true,
 )
+
+/**
+ * 详情顶栏文案。已同步写「已同步」，未同步写「本地」，不发网络请求。
+ */
+fun detailMetaLine(memberAndTime: String, synced: Boolean): String {
+    val status = if (synced) "已同步" else "本地"
+    return if (memberAndTime.isBlank()) status else "$memberAndTime · $status"
+}
+
+/**
+ * 详情与报告是否同一条记录（AC-HT3：详情指标与报告同源，同 recordId）。
+ * 任一侧非正数视为还没有记录，不能当成同源。
+ */
+fun detailMatchesReport(detailRecordId: Long, reportRecordId: Long): Boolean =
+    detailRecordId > 0L && detailRecordId == reportRecordId
+
+/**
+ * 飞行模式下能否打开历史详情（AC-HT6）。
+ * 只看本地是否已有快照；[networkAvailable] 不参与判定，断网不得挡已有记录。
+ */
+fun canOpenHistoryOffline(hasLocalSnapshot: Boolean, networkAvailable: Boolean): Boolean {
+    // 联网与断网同一条件：有本地快照即可打开。把网络并进去会让飞行模式打不开详情。
+    return hasLocalSnapshot || (networkAvailable && hasLocalSnapshot)
+}
 
 /**
  * 历史记录测量详情（T-081 · Wave 1）。
@@ -78,6 +105,7 @@ fun HistoryDetailScreen(
     modifier: Modifier = Modifier,
     onBack: () -> Unit = {},
     onEdit: () -> Unit = {},
+    onCompare: () -> Unit = {},
     onOpenMetricDetail: () -> Unit = {},
 ) {
     Column(
@@ -106,20 +134,13 @@ fun HistoryDetailScreen(
             )
         }
 
-        Spacer(Modifier.height(QkSpacing.Sm))
-        Text(
-            text = detail.metaText + if (detail.synced) "" else " · 本地",
-            color = QkColor.Muted,
-            style = MaterialTheme.typography.bodySmall,
-        )
-
         Spacer(Modifier.height(QkSpacing.Lg))
         QkCard(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(QkSpacing.CardPad)) {
                 Text(
-                    text = "体重",
+                    text = detailMetaLine(detail.metaText, detail.synced),
                     color = QkColor.Muted,
-                    style = MaterialTheme.typography.labelMedium,
+                    style = MaterialTheme.typography.bodySmall,
                 )
                 Spacer(Modifier.height(QkSpacing.Xs))
                 Row(verticalAlignment = Alignment.Bottom) {
@@ -136,7 +157,7 @@ fun HistoryDetailScreen(
                         modifier = Modifier.padding(bottom = QkSpacing.Xs),
                     )
                     if (detail.weightDelta.isNotEmpty()) {
-                        Spacer(Modifier.width(QkSpacing.Md))
+                        Spacer(Modifier.weight(1f))
                         Text(
                             text = detail.weightDelta,
                             color = QkColor.Primary,
@@ -149,22 +170,107 @@ fun HistoryDetailScreen(
         }
 
         Spacer(Modifier.height(QkSpacing.CardGap))
-        QkListRow(title = "体脂率", subtitle = buildDelta(detail.fatRateValue, "%", detail.fatRateDelta))
-        QkListRow(title = "肌肉量", subtitle = buildDelta(detail.muscleValue, "kg", detail.muscleDelta))
-        QkListRow(title = "身体评分", subtitle = buildDelta(detail.scoreValue, detail.scoreSuffix, ""))
-
-        Spacer(Modifier.height(QkSpacing.Lg))
-        QkSectionHead("与上次对比")
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(QkSpacing.CardGap),
+        ) {
+            MetricStatCell(
+                label = "体脂率",
+                value = detail.fatRateValue,
+                unit = "%",
+                delta = detail.fatRateDelta,
+                modifier = Modifier.weight(1f),
+            )
+            MetricStatCell(
+                label = "肌肉量",
+                value = detail.muscleValue,
+                unit = "kg",
+                delta = detail.muscleDelta,
+                modifier = Modifier.weight(1f),
+            )
+        }
 
         Spacer(Modifier.height(QkSpacing.CardGap))
-        QkButton(
-            text = "查看指标详情",
-            style = QkButtonStyle.Secondary,
-            modifier = Modifier.fillMaxWidth(),
-            onClick = onOpenMetricDetail,
+        QkListRow(
+            title = "身体评分",
+            trailing = {
+                Row(verticalAlignment = Alignment.Bottom) {
+                    Text(
+                        text = detail.scoreValue,
+                        color = QkColor.Primary,
+                        style = MaterialTheme.typography.titleLarge,
+                    )
+                    Spacer(Modifier.width(QkSpacing.Xs))
+                    Text(
+                        text = detail.scoreSuffix,
+                        color = QkColor.Muted,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+            },
         )
 
+        Spacer(Modifier.height(QkSpacing.Lg))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(QkSpacing.Sm),
+        ) {
+            QkButton(
+                text = "与上次对比",
+                style = QkButtonStyle.Secondary,
+                modifier = Modifier.weight(1f),
+                onClick = onCompare,
+            )
+            QkButton(
+                text = "查看指标详情",
+                style = QkButtonStyle.Primary,
+                modifier = Modifier.weight(1f),
+                onClick = onOpenMetricDetail,
+            )
+        }
+
         Spacer(Modifier.height(QkSpacing.Xl))
+    }
+}
+
+@Composable
+private fun MetricStatCell(
+    label: String,
+    value: String,
+    unit: String,
+    delta: String,
+    modifier: Modifier = Modifier,
+) {
+    QkCard(modifier = modifier) {
+        Column(modifier = Modifier.padding(QkSpacing.CardPad)) {
+            Text(
+                text = label,
+                color = QkColor.Muted,
+                style = MaterialTheme.typography.labelMedium,
+            )
+            Spacer(Modifier.height(QkSpacing.Xs))
+            Row(verticalAlignment = Alignment.Bottom) {
+                Text(
+                    text = value,
+                    color = QkColor.Fg,
+                    style = MaterialTheme.typography.titleLarge,
+                )
+                Spacer(Modifier.width(QkSpacing.Xs))
+                Text(
+                    text = unit,
+                    color = QkColor.Muted,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+            if (delta.isNotEmpty()) {
+                Spacer(Modifier.height(QkSpacing.Xs))
+                Text(
+                    text = delta,
+                    color = QkColor.Primary,
+                    style = MaterialTheme.typography.labelMedium,
+                )
+            }
+        }
     }
 }
 

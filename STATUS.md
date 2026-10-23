@@ -1,6 +1,6 @@
 # 项目状态
 
-> 由 generate-status.py 自动生成。最后更新: 2026-10-23T09:30:29Z
+> 由 generate-status.py 自动生成。最后更新: 2026-10-23T10:29:24Z
 > 新 AI 启动时: `cat STATUS.md && bash scripts/session/ses-context-load.sh`
 
 ---
@@ -12,8 +12,8 @@
 | 名称 | 轻衡健康 Android（lightweigh） |
 | 版本 | 0.1.0 |
 | 文档语言 | zh-CN |
-| Git 分支 | feat/wave1-history-trend |
-| 最后提交 | a403e12 chore(tasks): unblock T-099 with prototype-based acceptance |
+| Git 分支 | cursor/wave1-history-metric-b66d |
+| 最后提交 | d9ba3f1 Merge pull request #38 from zerophix/chore/wave1-ac-batch |
 | 文档校验 | 运行: `bash scripts/governance/gov-validate.sh` |
 
 ## AI 交接
@@ -51,11 +51,11 @@
 最近 5 次提交：
 
 ```
+d9ba3f1 Merge pull request #38 from zerophix/chore/wave1-ac-batch
+97267b9 chore(tasks): add ready acceptance for wave1 batch T-084/091/096/102
+754c37a Merge pull request #36 from zerophix/feat/wave1-history-trend
+48dc474 chore(status): local-ci evidence for wave zero merge
 a403e12 chore(tasks): unblock T-099 with prototype-based acceptance
-116f8ad chore(status): local-ci evidence after wave one delivery
-29d193c chore(tasks): mark wave zero states and components tasks done
-25a5593 feat(history): deliver wave 1 detail edit and metric screens (DEC-061)
-f8649fa chore(tasks): record wave 1 acceptance and trace fields
 ```
 
 ## 工程指标
@@ -83,10 +83,10 @@ f8649fa chore(tasks): record wave 1 acceptance and trace fields
 
 | 检查项 | 状态 | 详情 |
 |-------|------|------|
-| 本地门禁 (gov-local-ci) | 通过 | local-ci PASS @ 2026-10-23T09:30:29Z sha=a403e12 branch=feat/wave1-history-trend [gradlew build:ok,gov-validate:ok,gov-custom-checks:ok,gov-secrets-scan:ok,gov-schema-guard:ok,gov-test-guard:ok] |
-| GitHub Actions | 进行中 | ci @ 2026-10-23T09:28:30Z sha=116f8ad https://github.com/zerophix/lightweigh/actions/runs/39932096524 |
-| 文档校验 | 通过 | 来自 local-ci @ 2026-10-23T09:30:29Z sha=a403e12 |
-| Git 钩子 | 通过 | 安装: bash scripts/bootstrap/bs-install-hooks.sh |
+| 本地门禁 (gov-local-ci) | 通过 | local-ci PASS @ 2026-10-23T10:29:24Z sha=d9ba3f1 branch=cursor/wave1-history-metric-b66d [gradlew build:ok,gov-validate:ok,gov-custom-checks:ok,gov-secrets-scan:ok,gov-schema-guard:ok,gov-test-guard:ok] |
+| GitHub Actions | 无数据 | gh 不可用或无最近 run |
+| 文档校验 | 通过 | 来自 local-ci @ 2026-10-23T10:29:24Z sha=d9ba3f1 |
+| Git 钩子 | 未安装 | 安装: bash scripts/bootstrap/bs-install-hooks.sh |
 
 ## 反思
 
