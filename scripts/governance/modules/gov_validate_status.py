@@ -60,13 +60,38 @@ def check_readme_structure() -> None:
     print("  [PASS] README 结构符合 GC-readme-structure 机读层规范")
 
 
+def _git_hooks_dir() -> Path:
+    """解析 git hooks 目录，**兼容 worktree**（DEC-050）。
+
+    worktree 下 `.git` 是一个 89 字节的**文件**（内容 `gitdir: <主仓>/.git/worktrees/<名>`），
+    不是目录。直接拼 `ROOT/.git/hooks` 在 worktree 中恒为不存在，会让
+    「Git hooks 未安装」误报并阻断该树的提交 —— 这正是多 AI 改用 worktree 后
+    仍被迫回主树提交的原因（实测：四个 agent 的 worktree 分支均零提交）。
+
+    交给 `git rev-parse --git-path hooks` 解析：主树返回 `<主仓>/.git/hooks`，
+    worktree 也返回同一主仓 hooks（git 默认共享），两种形态都正确。
+    """
+    try:
+        r = subprocess.run(
+            ["git", "rev-parse", "--git-path", "hooks"],
+            cwd=ROOT, capture_output=True, text=True, timeout=10,
+        )
+        if r.returncode == 0 and r.stdout.strip():
+            p = Path(r.stdout.strip())
+            return p if p.is_absolute() else (ROOT / p)
+    except (OSError, subprocess.SubprocessError):
+        pass
+    return ROOT / ".git" / "hooks"  # git 不可用时退回原行为
+
+
 def check_status() -> None:
     print("\n--- R0: git hooks 安装校验 ---")
     # 反思已迁至 docs/guides/GC-engineering-reflections.md（自愿追加，不再强制、不阻塞推送）。
     # README 改用标准结构，不再要求「当前状态/反思」节；实时状态见 STATUS.md。
     hooks_missing = []
+    hooks_dir = _git_hooks_dir()
     for hook in ("pre-commit", "commit-msg", "pre-push"):
-        if not (ROOT / ".git" / "hooks" / hook).is_file():
+        if not (hooks_dir / hook).is_file():
             hooks_missing.append(hook)
     if hooks_missing:
         # hooks 是本机状态, 不随 clone 走; CI 环境无法拥有 hooks (DEC-008)
@@ -192,6 +217,8 @@ def check_root_files() -> None:
     for f in ROOT.iterdir():
         if not f.is_file(): continue
         if f.name.startswith(".") and f.name in (".DS_Store", ".coverage"): continue
+        # worktree（DEC-050）下 .git 是文件而非目录，属 git 内部结构，不是仓库内容
+        if f.name == ".git": continue
         if f.name not in ALLOWED_ROOT_FILES:
             fail(f"{f.name}: 不在根目录允许清单中"); issues += 1; continue
     for fname in ("README.md", "LICENSE", ".gitignore", "STATUS.md", "setup.sh", "VERSION"):

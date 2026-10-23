@@ -112,9 +112,16 @@ def check_pytest() -> None:
         buf = io.StringIO()
         old_stdout = sys.stdout
         sys.stdout = buf
+        # 钩子环境隔离（DEC-062）：pre-commit / pre-push 会注入 GIT_DIR、GIT_WORK_TREE 等，
+        # 进程内 pytest.main() 与各测试的 git 子进程会继承它们，导致：
+        #   1) 临时目录里的 git 操作指向宿主仓库（实测曾试图向真实仓库提交）
+        #   2) 依赖 git 上下文的测试在钩子中必然失败，使 GOV-TEST-005 误报
+        # 校验仓库本身时不应携带宿主钩子的 git 上下文，故在此统一剥离并恢复。
+        saved_git_env = {k: os.environ.pop(k) for k in list(os.environ) if k.startswith("GIT_")}
         try:
             exit_code = pytest.main(["--tb=short", "-q", "--no-header", str(TESTS_DIR)])
         finally:
+            os.environ.update(saved_git_env)
             sys.stdout = old_stdout
         output = buf.getvalue()
         summary = ""
