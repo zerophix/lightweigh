@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "updated_at": "2026-10-23T04:06:49Z",
-  "next_action": "在 Android 真机安装 APK 验证",
-  "next_action_why": "人类端到端验收（沿用既有 next_action）",
+  "updated_at": "2026-10-23T08:18:15Z",
+  "next_action": "修 GOV-PROTO 撞号: 把 gov_validate_prototype.py 的规则改名为不与 gov_validate_protocol.py 冲突的前缀 (如 GOV-PTASK-001~007)，同步 skill/binding/GC 文档/测试中的引用",
+  "next_action_why": "排障时已两次因同名规则产生歧义，属实际发生而非假设的缺陷；改动范围明确 (单模块前缀 + 引用同步)、有 19 条既有测试可即时回归，成本远低于继续忍受歧义。修完再开 Wave 0 原型任务，否则执行原型任务时的 verify 输出仍会混淆。",
   "next_action_confirmed": false,
   "known_risks": [
     "任务无 ready AC 不得开工；in_progress 缺 definition_of_done 会触发 GOV-PROTO-004（DEC-048）。",
