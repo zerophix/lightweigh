@@ -1,6 +1,6 @@
 # 项目状态
 
-> 由 generate-status.py 自动生成。最后更新: 2026-10-23T09:30:29Z
+> 由 generate-status.py 自动生成。最后更新: 2026-10-23T10:29:11Z
 > 新 AI 启动时: `cat STATUS.md && bash scripts/session/ses-context-load.sh`
 
 ---
@@ -12,8 +12,8 @@
 | 名称 | 轻衡健康 Android（lightweigh） |
 | 版本 | 0.1.0 |
 | 文档语言 | zh-CN |
-| Git 分支 | feat/wave1-history-trend |
-| 最后提交 | a403e12 chore(tasks): unblock T-099 with prototype-based acceptance |
+| Git 分支 | feat/settings-language |
+| 最后提交 | 958e16e chore(tasks): register t-091 test and sync lifecycle counts |
 | 文档校验 | 运行: `bash scripts/governance/gov-validate.sh` |
 
 ## AI 交接
@@ -28,34 +28,22 @@
 
 **上下文：**
 
-> 完成: 原型驱动开发与文档治理闭环全部落地并合入 master（PR #31, merge 3df489a）:
-1) 原型闭环: gov-prototype-verify.py + GOV-PROTO 校验 + 34 任务补 prototype_ref/target_files/module/ac_refs/prd_ref/wave + skill prototype-dev
-2) 文档闭环: GOV-DOCS-001~005 + gov-validate --fix 自愈 + skill docs-manage + 29 条测试
-3) PR 模板: 补上规范强制但缺失的 .github/PULL_REQUEST_TEMPLATE.md + 7 条 guard-safe 测试
-4) DEC-057 (治理从文档约束升级为脚本门禁)、DEC-058 (CI 变更范围白名单)
-5) CI 慢因修复: gov-ci-scope.sh 单一真源 + 15 条负向测试，非构建类路径不再白跑全量 gradle
-6) Notion 六阶段文档体系: 新增 04-研发/05-测试/06-发布/07-运维 + 9 篇专业文档 + 真源归属规则
-7) 本地已切回 master 并 ff，feature 分支本地已删，gov-validate 0 违规 / 125 测试通过 | 决策: 1) 强制力介质选 validator 脚本而非 AGENTS.md —— 治理设计约束 Q2: 后者最易写也最易被忽略，本次全部规则挂进 gov-validate 三层闸门 (pre-commit / gov-local-ci / GitHub CI)
-2) 自愈准入判据: 自愈安全性 = 改错了会不会被同一条规则立刻抓到。GOV-DOCS-004 计数同步是自洽的 (改错下次仍红) 故允许 --fix；005 时间戳是自噬的 (无脑改今日则规则永久失效) 故必须绑 git diff 判定内容真有变更；统一边界为只重写已有锚点、不新增结构
-3) PR 模板刻意不含 allow-no-tests / allow-schema-change 字面量，也不含 DEC 加三位数字 —— 两个 guard 靠匹配 PR body 放行，模板自带即永久静默放行；首次写时我自己踩中 DEC-048，靠变异测试抓回
-4) CI 范围判定用白名单而非黑名单: 白名单外默认 code=true，新增构建目录也不会漏；.github/ 故意不入白名单，改 CI 本身仍保守构建
-5) 把内联在 ci.yml 的正则抽为可测脚本，否则改白名单时无人能回答会不会漏源码
-6) 三个工具定位: Notion 管为什么做什么谁定的 (结构化真源)、仓库 docs/ 管怎么做与机器校验 (承重、可重建性差)、幕布管还在想的事 (迁完即弃)
+> 完成: T-091 语言与外观设置完成（本地 2 提交，未推送）: 5d50376 feat(settings) 两个呈现式 Screen（LanguageSettings.kt/AppearanceSettings.kt）+ 14 例 JVM 单测 + QkTheme 补 QkColor.Sub/QkRadius.Tile/QkStroke token; 958e16e chore(tasks) 测试注册表登记 + 03_TaskGraph pending 58→57 + tasks.json T-091 in_progress。验证全绿: :app:testDebugUnitTest（新 14 例 0 失败）; gov-prototype-verify T-091 --strict 通过（文案匹配率 48%/57%）; local-ci 6 步中 5 步 PASS（gradlew build / custom-checks / secrets-scan / schema-guard / test-guard），gov-validate 仅剩 2 项 worktree 假阳性（见风险） | 决策: 1) 语言页保留原型全部 4 项含日本語: 原型 view 是文案单一真源，AC 点名的 3 语是其子集，删反而违背 DoD 与原型一致; 2) 原型 emoji 图形（日/月/齿轮）改 Material 线性图标: 全局规则禁源码 emoji，LightMode/DarkMode 直接 import（同 MembersScreen 先例），齿轮复用 QkIcons.Setting，KDoc 已注明该偏差; 3) token 缺失按任务授权补进 QkTheme.kt: Sub=#5D756D（原型 --sub）/ Tile=14（原型外观卡圆角）/ QkStroke 1与2（细边/选中边），两新文件零字面量 dp 与零硬编码色; 4) 两页共用 SettingsNoticeBanner 声明在 LanguageSettings.kt 同包直用，不新建第三个文件（任务限定只建 2 个 target_file）; 5) 原型 data-toast 不在纯渲染层实现，随 Save 意图交宿主 ViewModel; 6) 宁可交付受阻分支也不 --no-verify 绕门禁
 
 **下一步：**
 
-> 修 GOV-PROTO 撞号: 把 gov_validate_prototype.py 的规则改名为不与 gov_validate_protocol.py 冲突的前缀 (如 GOV-PTASK-001~007)，同步 skill/binding/GC 文档/测试中的引用
+> 等人类解封 worktree 门禁（合并 DEC-062 3811606 + GOV-TEST-005 清理 GIT_* env）后，从本 worktree push feat/settings-language 并按模板 gh pr create，勿 merge 留人审
 
 ## 最近动态
 
 最近 5 次提交：
 
 ```
-a403e12 chore(tasks): unblock T-099 with prototype-based acceptance
-116f8ad chore(status): local-ci evidence after wave one delivery
-29d193c chore(tasks): mark wave zero states and components tasks done
-25a5593 feat(history): deliver wave 1 detail edit and metric screens (DEC-061)
-f8649fa chore(tasks): record wave 1 acceptance and trace fields
+958e16e chore(tasks): register t-091 test and sync lifecycle counts
+5d50376 feat(settings): add language and appearance settings screens
+d9ba3f1 Merge pull request #38 from zerophix/chore/wave1-ac-batch
+97267b9 chore(tasks): add ready acceptance for wave1 batch T-084/091/096/102
+754c37a Merge pull request #36 from zerophix/feat/wave1-history-trend
 ```
 
 ## 工程指标
@@ -83,19 +71,14 @@ f8649fa chore(tasks): record wave 1 acceptance and trace fields
 
 | 检查项 | 状态 | 详情 |
 |-------|------|------|
-| 本地门禁 (gov-local-ci) | 通过 | local-ci PASS @ 2026-10-23T09:30:29Z sha=a403e12 branch=feat/wave1-history-trend [gradlew build:ok,gov-validate:ok,gov-custom-checks:ok,gov-secrets-scan:ok,gov-schema-guard:ok,gov-test-guard:ok] |
-| GitHub Actions | 进行中 | ci @ 2026-10-23T09:28:30Z sha=116f8ad https://github.com/zerophix/lightweigh/actions/runs/39932096524 |
-| 文档校验 | 通过 | 来自 local-ci @ 2026-10-23T09:30:29Z sha=a403e12 |
-| Git 钩子 | 通过 | 安装: bash scripts/bootstrap/bs-install-hooks.sh |
+| 本地门禁 (gov-local-ci) | 失败 | local-ci FAIL @ 2026-10-23T10:18:19Z sha=958e16e branch=feat/settings-language [gradlew build:ok,gov-validate:fail,gov-custom-checks:ok,gov-secrets-scan:ok,gov-schema-guard:ok,gov-test-guard:ok] |
+| GitHub Actions | 无数据 | gh 不可用或无最近 run |
+| 文档校验 | 失败 | 来自 local-ci @ 2026-10-23T10:18:19Z sha=958e16e |
+| Git 钩子 | 未安装 | 安装: bash scripts/bootstrap/bs-install-hooks.sh |
 
 ## 反思
 
 > 上次 AI session 的经验教训。新 AI 启动时必读。
 
-1) 强制力介质选 validator 脚本而非 AGENTS.md —— 治理设计约束 Q2: 后者最易写也最易被忽略，本次全部规则挂进 gov-validate 三层闸门 (pre-commit / gov-local-ci / GitHub CI)
-> 2) 自愈准入判据: 自愈安全性 = 改错了会不会被同一条规则立刻抓到。GOV-DOCS-004 计数同步是自洽的 (改错下次仍红) 故允许 --fix；005 时间戳是自噬的 (无脑改今日则规则永久失效) 故必须绑 git diff 判定内容真有变更；统一边界为只重写已有锚点、不新增结构
-> 3) PR 模板刻意不含 allow-no-tests / allow-schema-change 字面量，也不含 DEC 加三位数字 —— 两个 guard 靠匹配 PR body 放行，模板自带即永久静默放行；首次写时我自己踩中 DEC-048，靠变异测试抓回
-> 4) CI 范围判定用白名单而非黑名单: 白名单外默认 code=true，新增构建目录也不会漏；.github/ 故意不入白名单，改 CI 本身仍保守构建
-> 5) 把内联在 ci.yml 的正则抽为可测脚本，否则改白名单时无人能回答会不会漏源码
-> 6) 三个工具定位: Notion 管为什么做什么谁定的 (结构化真源)、仓库 docs/ 管怎么做与机器校验 (承重、可重建性差)、幕布管还在想的事 (迁完即弃)
+1) 语言页保留原型全部 4 项含日本語: 原型 view 是文案单一真源，AC 点名的 3 语是其子集，删反而违背 DoD 与原型一致; 2) 原型 emoji 图形（日/月/齿轮）改 Material 线性图标: 全局规则禁源码 emoji，LightMode/DarkMode 直接 import（同 MembersScreen 先例），齿轮复用 QkIcons.Setting，KDoc 已注明该偏差; 3) token 缺失按任务授权补进 QkTheme.kt: Sub=#5D756D（原型 --sub）/ Tile=14（原型外观卡圆角）/ QkStroke 1与2（细边/选中边），两新文件零字面量 dp 与零硬编码色; 4) 两页共用 SettingsNoticeBanner 声明在 LanguageSettings.kt 同包直用，不新建第三个文件（任务限定只建 2 个 target_file）; 5) 原型 data-toast 不在纯渲染层实现，随 Save 意图交宿主 ViewModel; 6) 宁可交付受阻分支也不 --no-verify 绕门禁
 
