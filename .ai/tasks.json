@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updated_at": "2026-10-23T08:30:28Z",
+  "updated_at": "2026-10-23T09:04:25Z",
   "next_action": "开工 Wave 0 基础组件 T-097/T-098/T-099（通用状态页、下拉刷新与滑删与无限滚动与搜索栏、骨架屏与长按菜单）",
   "next_action_why": "Wave 0 组件被 Wave 1/2 多个任务复用，未完成则后续任务缺组件无法开工；GC-prototype-driven-dev 明确 Wave 0 必须最先做",
-  "next_action_confirmed": false,
+  "next_action_confirmed": true,
   "known_risks": [
     "任务无 ready AC 不得开工；in_progress 缺 definition_of_done 会触发 GOV-PROTO-004（DEC-048）。",
     "分支保护 / GitHub Pro / 公开仓：人类明确不做。权威合入门禁改为本地 `bash scripts/governance/gov-local-ci.sh` + pre-push validate；master 已含 DEC-045..047（merge 9cfc46d）。真机 APK 验收仍须人类。",
@@ -1348,11 +1348,11 @@
       "id": "T-097",
       "description": "states: 错误与边界状态（16种通用状态页）",
       "why": "原型15全部16屏 · 新增 states/ErrorStates.kt 复用到各模块",
-      "status": "pending",
-      "assigned_to": "",
+      "status": "in_progress",
+      "assigned_to": "ai",
       "dec": "",
       "created_at": "2026-10-23T03:52:45Z",
-      "updated_at": "2026-10-23T03:52:45Z",
+      "updated_at": "2026-10-23T08:38:36Z",
       "notes": "",
       "prototype_ref": {
         "file": "design/prototypes/interactive/15-states-errors.html",
@@ -1380,19 +1380,50 @@
       "wave": 0,
       "module": "states",
       "ac_refs": [
-        "AC-E2E-01 16 种通用状态页"
+        "AC-H4 PartialError 不整页白屏",
+        "AC-HT1 Empty 历史无假数据行",
+        "AC-H1 EmptyNoData 无「较上次」数值"
       ],
-      "prd_ref": "https://app.notion.com/p/40141bd50f8a818fbdbcc0396b31763c"
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a818fbdbcc0396b31763c",
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "列表或首页处于无数据 / 局部加载失败状态",
+          "调用方按场景传入具体状态类型（空、错、网络、超时、无权限等）"
+        ],
+        "when": "渲染 ui/states/ErrorStates.kt 的对应状态页",
+        "then": [
+          "空态不显示伪造数值或假数据行（AC-H1、AC-HT1 原文）",
+          "局部错误不整页白屏，保留已有本地内容（AC-H4 原文）",
+          "文案、按钮与布局与原型 design/prototypes/interactive/15-states-errors.html 对应 view 一致"
+        ],
+        "forbidden": [
+          "状态页内硬编码 Color(0x...) 或 14.dp 等，必须用 QkColor/QkRadius/QkSpacing",
+          "在空态中渲染伪造的测量数据或较上次数值"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-097 --strict",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "definition_of_done": [
+          "app/src/main/kotlin/com/xcwk/scalehub/ui/states/ErrorStates.kt 存在且可编译",
+          "原型 15-states-errors.html 的 16 个 view 均有对应状态实现或明确标注不适用",
+          "无硬编码颜色与间距（gov-prototype-verify --strict 通过）",
+          "空态/局部错误不出现伪造数据（AC-H1、AC-HT1、AC-H4）",
+          "JVM 单测覆盖状态分发逻辑且通过"
+        ],
+        "open_questions": []
+      }
     },
     {
       "id": "T-098",
       "description": "components: 交互模式（下拉刷新/滑动删除/无限滚动/搜索筛选）",
       "why": "原型26 v-pull-refresh/v-swipe-delete/v-infinite-scroll/v-search-filter · 新增 ui/components/QkPullRefresh.kt QkSwipeDelete.kt QkInfiniteScroll.kt QkSearchBar.kt",
-      "status": "pending",
-      "assigned_to": "",
+      "status": "in_progress",
+      "assigned_to": "ai",
       "dec": "",
       "created_at": "2026-10-23T03:52:45Z",
-      "updated_at": "2026-10-23T03:52:45Z",
+      "updated_at": "2026-10-23T08:38:36Z",
       "notes": "",
       "prototype_ref": {
         "file": "design/prototypes/interactive/26-final-gaps.html",
@@ -1412,20 +1443,51 @@
       "wave": 0,
       "module": "components",
       "ac_refs": [
-        "AC-E2E-02 下拉刷新/滑删/无限滚动"
+        "AC-HT2 删确认取消后记录仍在",
+        "AC-H4 PartialError 不整页白屏"
       ],
-      "prd_ref": "https://app.notion.com/p/40141bd50f8a818fbdbcc0396b31763c"
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a818fbdbcc0396b31763c",
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "历史列表已有本地测量数据",
+          "云端拉取处于失败态",
+          "列表存在可删除项与分页数据"
+        ],
+        "when": "执行下拉刷新、滑动删除确认或取消、滚动到底加载下一页、输入搜索筛选",
+        "then": [
+          "删除确认后记录移除，取消后记录仍在（AC-HT2 原文）",
+          "刷新失败不清空本地已有数据，不整页白屏（AC-H4 原文）",
+          "分页加载失败显示底部重试且已有项保留（PRD-历史与趋势 状态机原文）",
+          "搜索筛选仅改变可见集合，不删除数据"
+        ],
+        "forbidden": [
+          "下拉刷新失败时 Cleared 本地最新数据",
+          "删除未经二次确认即执行"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-098 --strict",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "definition_of_done": [
+          "QkPullRefresh.kt / QkSwipeDelete.kt / QkInfiniteScroll.kt / QkSearchBar.kt 四个文件存在且可编译",
+          "原型 26-final-gaps.html 的 v-pull-refresh / v-swipe-delete / v-infinite-scroll / v-search-filter 视觉与交互一致",
+          "无硬编码颜色与间距（--strict 通过）",
+          "AC-HT2、AC-H4 对应行为有单测覆盖并通过"
+        ],
+        "open_questions": []
+      }
     },
     {
       "id": "T-099",
       "description": "components: 组件补全（骨架屏/长按菜单）",
       "why": "原型09 v-skeleton/v-longpress · 新增 ui/components/QkSkeleton.kt QkLongPressMenu.kt",
-      "status": "pending",
-      "assigned_to": "",
+      "status": "blocked",
+      "assigned_to": "ai",
       "dec": "",
       "created_at": "2026-10-23T03:52:45Z",
-      "updated_at": "2026-10-23T03:52:45Z",
-      "notes": "",
+      "updated_at": "2026-10-23T08:43:01Z",
+      "notes": "| 阻塞: 无 PRD 级 AC 可绑：全库检索 AC-* 与会签用例 T-J* 均无骨架屏/长按菜单条目；按 GC-task-acceptance 需人类或 DEC 裁定验收依据（详见任务 acceptance.open_questions）",
       "prototype_ref": {
         "file": "design/prototypes/interactive/09-components-demo.html",
         "views": [
@@ -1439,10 +1501,33 @@
       ],
       "wave": 0,
       "module": "components",
-      "ac_refs": [
-        "AC-E2E-03 骨架屏与长按菜单"
-      ],
-      "prd_ref": "https://app.notion.com/p/40141bd50f8a818fbdbcc0396b31763c"
+      "ac_refs": [],
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a818fbdbcc0396b31763c",
+      "acceptance": {
+        "status": "blocked",
+        "given": [
+          "主 PRD 定义模块 M18 通用状态与组件，内容含骨架、空态、通用错误、确认弹窗、选择器",
+          "上线完备清单给出工程落点 ui/components"
+        ],
+        "when": "尝试为骨架屏与长按菜单绑定可复制的验收标准时",
+        "then": [
+          "在 Notion 全库检索 AC-* 与会签用例 T-J* 均无覆盖骨架屏 / 长按菜单的条目",
+          "按 GC-task-acceptance：有未答问题则 status=blocked，禁止开工"
+        ],
+        "forbidden": [
+          "编造 AC 编号（本轮已发现 T-097/098/099 曾使用不存在的 AC-E2E-01/02/03）"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-099 --strict"
+        ],
+        "definition_of_done": [
+          "人类或 DEC 明确：启用型/组件型任务在无 PRD 级 AC 时以何为验收依据"
+        ],
+        "open_questions": [
+          "骨架屏与长按菜单无 PRD 级 AC，是否接受以主 PRD M18 模块定义 + 原型 view 为验收依据？",
+          "若不接受，需先补一条 PRD AC 或开 DEC 修订 DOC-需求到编码链路 §3 的绑定要求"
+        ]
+      }
     },
     {
       "id": "T-100",
@@ -1611,6 +1696,17 @@
         "AC-D6 设备详情页"
       ],
       "prd_ref": "https://app.notion.com/p/40141bd50f8a815baa74ee7f26890aba"
+    },
+    {
+      "id": "T-106",
+      "description": "修复 gov-prototype-verify 文案匹配率的作用域：多目标文件任务应按任务聚合所有文件后统一比对，而非逐文件比对全部 view；单文件任务则逐 view 比对。属门禁行为变更，需先开 DEC。当前 T-097/T-098 共 5 条 WARN 即由此产生（非实现质量问题）",
+      "why": "校验脚本自身缺陷：按单文件比对全任务 view 文案，多文件任务必然偏低，产生永久性假阳性告警",
+      "status": "pending",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-23T09:04:25Z",
+      "updated_at": "2026-10-23T09:04:25Z",
+      "notes": ""
     }
   ],
   "acceptance_schema": "GC-task-acceptance@1"
