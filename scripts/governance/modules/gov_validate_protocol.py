@@ -1,9 +1,90 @@
 #!/usr/bin/env python3
-"""GOV-PROTO-001~003: AI 协议检查"""
+"""GOV-PROTO-001~005: AI 协议检查"""
 import json, re
 from datetime import datetime, timezone
 from pathlib import Path
 from .gov_validate_core import ROOT, DOCS, MEMORY_FILE, errors, fail
+
+# DEC-057：就绪任务必须钉住 PRD / schema / 原型。单独的 n/a 不算引用。
+_WAIVER_RE = re.compile(r"^(?:n/a|不适用)\s*[:：]\s*\S.{2,}\s*$", re.IGNORECASE)
+_BARE_WAIVER_RE = re.compile(r"^(?:n/a|不适用|todo|tbd)\s*$", re.IGNORECASE)
+_TRACE_LIST_KEYS = ("prd", "schema", "prototype")
+_DONE_STATUSES = {"done", "completed", "cancelled", "canceled"}
+
+
+def _as_dict(value) -> dict:
+    return value if isinstance(value, dict) else {}
+
+
+def _item_ok(item: object) -> bool:
+    if not isinstance(item, str):
+        return False
+    text = item.strip()
+    if not text or _BARE_WAIVER_RE.match(text):
+        return False
+    if text.lower().startswith("n/a") or text.startswith("不适用"):
+        return _WAIVER_RE.match(text) is not None
+    return len(text) >= 3
+
+
+def _list_status(value: object) -> str:
+    if not isinstance(value, list) or not value:
+        return "empty"
+    flags = [_item_ok(item) for item in value]
+    if all(flags):
+        return "ok"
+    if not any(flags):
+        return "empty"
+    return "invalid"
+
+
+def _refs_of(task: dict) -> dict:
+    acc = _as_dict(task.get("acceptance"))
+    refs = _as_dict(acc.get("refs"))
+    if refs:
+        return refs
+    return _as_dict(task.get("refs"))
+
+
+def _trace_mode(task: dict) -> str | None:
+    """hard：可开工；soft：草案警告；None：历史任务不查。"""
+    status = str(task.get("status") or "").strip().lower()
+    if status in _DONE_STATUSES:
+        return None
+    acc_status = str(_as_dict(task.get("acceptance")).get("status") or "").strip().lower()
+    if status == "in_progress" or acc_status == "ready":
+        return "hard"
+    return "soft"
+
+
+def _ref_list_gaps(refs: dict) -> list[str]:
+    gaps: list[str] = []
+    for key in _TRACE_LIST_KEYS:
+        state = _list_status(refs.get(key))
+        if state == "empty":
+            gaps.append(key)
+        elif state == "invalid":
+            gaps.append(f"{key}(无效或无理由的 n/a)")
+    return gaps
+
+
+def _hard_trace_gaps(task: dict) -> list[str]:
+    acc = _as_dict(task.get("acceptance"))
+    refs = _refs_of(task)
+    gaps = _ref_list_gaps(refs)
+    pin = refs.get("pin")
+    pin_text = pin.strip() if isinstance(pin, str) else ""
+    if len(pin_text) < 8 or _BARE_WAIVER_RE.match(pin_text):
+        gaps.append("pin")
+    dod = acc.get("definition_of_done")
+    if not (isinstance(dod, list) and any(isinstance(x, str) and x.strip() for x in dod)):
+        gaps.append("definition_of_done")
+    src_state = _list_status(acc.get("dod_source"))
+    if src_state == "empty":
+        gaps.append("dod_source")
+    elif src_state == "invalid":
+        gaps.append("dod_source(无效)")
+    return gaps
 
 
 def check_protocol() -> None:
@@ -99,6 +180,42 @@ def check_protocol() -> None:
                 )
             else:
                 print("  [PASS] in_progress 任务 AC DoD 检查通过（或无 in_progress）")
+
+            print()
+            print("--- GOV-PROTO-005: 就绪任务须钉住 PRD/原型/schema ---")
+            hard_bad: list[str] = []
+            soft_bad: list[str] = []
+            for t in tasks:
+                mode = _trace_mode(t)
+                if mode is None:
+                    continue
+                task_id = str(t.get("id", "?"))
+                if mode == "hard":
+                    gaps = _hard_trace_gaps(t)
+                    if gaps:
+                        hard_bad.append(f"{task_id}[{', '.join(gaps)}]")
+                else:
+                    gaps = _ref_list_gaps(_refs_of(t))
+                    if gaps:
+                        soft_bad.append(task_id)
+            if hard_bad:
+                fail(
+                    "GOV-PROTO-005: ready/in_progress 任务缺少链路引用: "
+                    + ", ".join(hard_bad)
+                    + "（见 docs/guides/GC-req-to-code-chain.md / DEC-057）"
+                )
+            else:
+                print("  [PASS] 就绪/进行中任务的链路引用检查通过（或无此类任务）")
+            if soft_bad:
+                shown = soft_bad[:12]
+                preview = ", ".join(shown)
+                if len(soft_bad) > len(shown):
+                    preview += f"（共 {len(soft_bad)} 个）"
+                print(
+                    "  [WARN] GOV-PROTO-005: "
+                    f"{len(soft_bad)} 个草案任务尚未填写 acceptance.refs"
+                    f"（prd/schema/prototype）；不阻断: {preview}"
+                )
         except (json.JSONDecodeError, Exception):
             pass
 

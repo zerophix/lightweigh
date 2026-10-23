@@ -5,6 +5,7 @@
 - `bash scripts/session/ses-context-load.sh`
 - 阅读 `docs/ai/constraints/index.md`
 - 任务以 `.ai/tasks.json` 为准；**无 ready AC 不开工**（`docs/guides/GC-task-acceptance.md`）
+- 需求到编码：`docs/guides/GC-req-to-code-chain.md`（任务须钉住 PRD / 原型 / schema）
 
 ## 决策流转
 

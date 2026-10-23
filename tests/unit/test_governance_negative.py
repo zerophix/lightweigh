@@ -147,6 +147,84 @@ def test_proto001_stale_but_read_ok(tmp_path, monkeypatch):
     assert _proto_check(tmp_path, monkeypatch) == []
 
 
+def _write_tasks(tmp_path: Path, tasks: list) -> None:
+    import json
+    ai = tmp_path / ".ai"
+    ai.mkdir(parents=True, exist_ok=True)
+    (ai / "tasks.json").write_text(
+        json.dumps({"tasks": tasks}, ensure_ascii=False),
+        encoding="utf-8",
+    )
+
+
+def _chain_acceptance() -> dict:
+    return {
+        "status": "ready",
+        "refs": {
+            "prd": ["轻衡健康/01-产品/PRD-轻衡-HOME-001 M1 屏 H1"],
+            "schema": ["n/a: 不改 Room，只读现有测量表"],
+            "prototype": ["轻衡健康/03-原型补充-HTML/UI-首页"],
+            "pin": "PRD-轻衡-HOME-001 v1.0 @ 2026-10-22",
+        },
+        "definition_of_done": ["空态不展示较上次"],
+        "dod_source": ["PRD-轻衡-HOME-001 AC-H1"],
+    }
+
+
+def test_proto005_draft_missing_refs_does_not_fail(tmp_path, monkeypatch):
+    """GOV-PROTO-005: 草案缺引用只警告，不进入 errors。"""
+    _write_tasks(tmp_path, [{
+        "id": "T-900",
+        "status": "pending",
+        "acceptance": {"status": "draft"},
+    }])
+    errors = _proto_check(tmp_path, monkeypatch)
+    assert not _has(errors, "GOV-PROTO-005"), errors
+
+
+def test_proto005_done_missing_refs_ignored(tmp_path, monkeypatch):
+    """GOV-PROTO-005: 已完成历史任务不因缺引用失败。"""
+    _write_tasks(tmp_path, [{"id": "T-901", "status": "done"}])
+    assert _proto_check(tmp_path, monkeypatch) == []
+
+
+def test_proto005_ready_missing_refs_fails(tmp_path, monkeypatch):
+    """GOV-PROTO-005: acceptance.status=ready 却无链路引用必须 FAIL。"""
+    _write_tasks(tmp_path, [{
+        "id": "T-902",
+        "status": "pending",
+        "acceptance": {"status": "ready", "definition_of_done": ["做完"]},
+    }])
+    errors = _proto_check(tmp_path, monkeypatch)
+    assert _has(errors, "GOV-PROTO-005"), errors
+    assert _has(errors, "T-902"), errors
+
+
+def test_proto005_bare_na_fails(tmp_path, monkeypatch):
+    """GOV-PROTO-005: 单独的 n/a 不算引用。"""
+    acc = _chain_acceptance()
+    acc["refs"]["schema"] = ["n/a"]
+    _write_tasks(tmp_path, [{
+        "id": "T-903",
+        "status": "pending",
+        "acceptance": acc,
+    }])
+    errors = _proto_check(tmp_path, monkeypatch)
+    assert _has(errors, "GOV-PROTO-005"), errors
+
+
+def test_proto005_in_progress_with_pin_passes_trace(tmp_path, monkeypatch):
+    """GOV-PROTO-005: 钉住的进行中任务不因链路引用失败（僵尸任务仍由 PROTO-003 报）。"""
+    _write_tasks(tmp_path, [{
+        "id": "T-904",
+        "status": "in_progress",
+        "acceptance": _chain_acceptance(),
+    }])
+    errors = _proto_check(tmp_path, monkeypatch)
+    assert not _has(errors, "GOV-PROTO-005"), errors
+    assert _has(errors, "GOV-PROTO-003"), errors
+
+
 def _r0_check(tmp_path: Path, monkeypatch) -> list:
     """在临时 git 仓库上运行 R0 检查, 仅返回反思相关错误。"""
     from scripts.governance.modules import gov_validate_status as status

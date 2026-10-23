@@ -364,6 +364,7 @@ nav:
       - 新项目接入指南: guides/GC-new-project-setup.md
       - README 结构规范: guides/GC-readme-structure.md
       - 任务验收标准（AC）规范: guides/GC-task-acceptance.md
+      - 需求到编码链路: guides/GC-req-to-code-chain.md
       - 技术参考: reference/index.md
       - 脚本接口规范: reference/REF-api-spec.md
       - 变更日志: changelog/index.md

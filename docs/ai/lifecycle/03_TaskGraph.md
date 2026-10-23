@@ -38,6 +38,7 @@ T-024~T-044 一带多已标记 completed/done（习惯、单位、密码登录�
 ```
 
 - 多会话共享工作树仍有碰撞风险；本机精简 pre-commit 含可选会话归属（需 `current-session.json`）。
+- 新开或改为 ready 的任务必须填写 `acceptance.refs`（PRD / schema / 原型 / pin）与从上层抄来的 DoD（DEC-057）。草案缺引用只警告，不得据此开工。
 - 历史 M1 任务（T-301~307）已完成，不再作为当前队列。
 
 ## 4. 如何更新本文件

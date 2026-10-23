@@ -9,7 +9,7 @@ python3 -c "import json;print(json.load(open('.ai/tasks.json'))['next_action'])"
 ls -t docs/ai/decisions/ | head -3
 ```
 
-编码前确认任务 `acceptance` ready（`docs/guides/GC-task-acceptance.md`）。
+编码前确认任务 `acceptance` ready（`docs/guides/GC-task-acceptance.md`），并钉住 PRD / 原型 / schema（`docs/guides/GC-req-to-code-chain.md`）。
 
 ## 决策流转
 

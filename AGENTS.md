@@ -17,7 +17,7 @@ ls -t docs/ai/decisions/ | head -3
 
 1. 有未读 inbox → 先读再干活。
 2. `next_action` 未确认 → 问人类；确认后 `wf-task-board.sh confirm`。
-3. 编码前读任务 `acceptance`（见 [GC-task-acceptance](docs/guides/GC-task-acceptance.md)）；无 ready AC 不开工。
+3. 编码前读任务 `acceptance`（见 [GC-task-acceptance](docs/guides/GC-task-acceptance.md)）；无 ready AC 不开工。引用须钉住 PRD / 原型 / schema（见 [GC-req-to-code-chain](docs/guides/GC-req-to-code-chain.md)）。
 4. 多会话：`ses-worktree.sh add feat/<topic>` → `cd` 到新树 → `ses-session-begin.sh` → `ses-claim-staged.sh` → commit → `gov-local-ci.sh` → PR → `ses-session-end.sh`。详见 [GC-multi-agent-collab](docs/guides/GC-multi-agent-collab.md)（DEC-050）。
 
 ### 接力铁律
@@ -32,9 +32,10 @@ ls -t docs/ai/decisions/ | head -3
 2. **合入权威（无 GitHub Pro）**：`bash scripts/governance/gov-local-ci.sh` 全绿 + PR 模板勾选；勿习惯性 `--no-verify`。
 3. 决策：`NOTE` → `DEC` → lifecycle → `wf-promote.sh` → 黄金标准。详见 [GC-decision-flow](docs/guides/GC-decision-flow.md)。
 4. 编码约定：[GC-coding-conventions](docs/guides/GC-coding-conventions.md)（模块、四件套、Room、黄金禁区）。
-5. 文档语言：跟 `.language`（本仓 `zh-CN` → 中文文档）。
-6. 工程反思**自愿**：[GC-engineering-reflections](docs/guides/GC-engineering-reflections.md)；REFLECT 门禁已退役（DEC-047）。
-7. 提交：`<type>(<scope>): <subject>`（英文，标题 ≤72）；type 含 feat/fix/docs/test/chore/ci/refactor/build/perf/revert/style。
+5. **需求到编码**：产品行为以 Notion 空间「轻衡健康」的 PRD 为准；Figma 未画清处用 HTML 原型补全；再落到 Room schema 与实现。任务 DoD 从上层抄录，上层变更按 pin 级联。详见 [GC-req-to-code-chain](docs/guides/GC-req-to-code-chain.md)。
+6. 文档语言：跟 `.language`（本仓 `zh-CN` → 中文文档）。
+7. 工程反思**自愿**：[GC-engineering-reflections](docs/guides/GC-engineering-reflections.md)；REFLECT 门禁已退役（DEC-047）。
+8. 提交：`<type>(<scope>): <subject>`（英文，标题 ≤72）；type 含 feat/fix/docs/test/chore/ci/refactor/build/perf/revert/style。
 
 ---
 

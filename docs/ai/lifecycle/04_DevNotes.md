@@ -371,6 +371,7 @@
 
 | 版本 | 日期 | 变更摘要 |
 |------|------|---------|
+| v84 | 2026-10-23 | DEC-057：需求到编码链路（GC-req-to-code-chain）；任务 refs/pin/dod_source；GOV-PROTO-005 对 ready 与 in_progress 硬失败，草案只警告 |
 | v83 | 2026-10-22 | DEC-053：main 缺同模块测试 PR 警告（test-guard，默认 warn） |
 | v82 | 2026-10-22 | DEC-052：schema/golden 守卫（CI PR 评论+默认 fail，接入 local-ci） |
 | v81 | 2026-10-22 | DEC-051：local-ci 落盘证据 + STATUS 健康检查取证（禁 npm 伪构建） |

@@ -17,6 +17,8 @@
 
 包根：`com.xcwk.scalehub`。
 
+做界面或改表之前先读 [GC-req-to-code-chain](GC-req-to-code-chain.md)。任务 `acceptance.refs` 写上 PRD、原型、schema（或不适用理由）和 pin。四件套实现的是已钉住的屏，不在代码里发明产品行为。
+
 ## 2. Gradle 命令矩阵
 
 ```bash
@@ -86,9 +88,10 @@ PR 模板要求：黄金 / schema 变更必须显式说明。
 - 决策流转：`GC-decision-flow.md`
 - 多 AI：`GC-multi-agent-collab.md`
 - 任务 AC：`GC-task-acceptance.md`
+- 需求到编码：`GC-req-to-code-chain.md`（DEC-057）
 - 生命周期步骤：`docs/ai/guides/workflow.md`
 - 架构：`docs/architecture/index.md`（经 promote）
 
 ## 来源
 
-DEC-048、DEC-052、DEC-053；架构事实来自 lifecycle / DEC-021/045 等。
+DEC-048、DEC-052、DEC-053、DEC-057；架构事实来自 lifecycle / DEC-021/045 等。

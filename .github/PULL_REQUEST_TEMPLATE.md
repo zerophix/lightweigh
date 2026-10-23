@@ -20,6 +20,7 @@
 ## 验收与安全
 
 - [ ] 任务 AC / DoD 已覆盖（见 `docs/guides/GC-task-acceptance.md`）；无任务则说明验证步骤
+- [ ] 若有任务：`acceptance.refs` 已写 PRD / schema / 原型（或带理由的 `n/a`），DoD 来自上层条款与 pin（见 `docs/guides/GC-req-to-code-chain.md`）
 - [ ] 未静默修改黄金向量（`domain/src/test/resources/golden/`）或 Room schema 快照；若有改动已写 **DEC-xxx**（或标签/正文 `allow-schema-change`，见 DEC-052）并在此说明
 - [ ] 无密钥 / 令牌 / 真机隐私日志入库
 - [ ] 架构或协议变更已走 DEC → lifecycle → promote（如适用）
