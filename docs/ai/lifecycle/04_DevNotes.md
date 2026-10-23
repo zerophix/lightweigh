@@ -112,6 +112,28 @@
 - 防止复发：平台新增 API 优先在构建层解决（脱糖），不要用 `@RequiresApi` 把约束推给调用方；
   判别依据是「这次改动有没有让报错换位置，而不是换个数」。
 
+### 问题 6：首次触碰 `app/` 连带触发三条门禁（T-097，本分支）
+
+T-097 新增 `ui/states/ErrorStates.kt` 是本分支第一次改动 `app/` 源码，一次性激活了三条既有规则，全部是**事前拦截而非事后提醒**：
+
+1. **GOV-CODE-001 死 import**：新文件 import 了 `material3.Icon`，但实际只用 `QkIcon`（其内部封装 Icon）。`gov-code-check` 直接 FAIL 阻断提交 —— 规则在自己新写的代码上生效，非空转。
+2. **lifecycle-audit 要求 DEC + DevNotes 随行**：`SRC_DIRS` 含 `app`，CI 的 `lifecycle-audit` job 以 `--base origin/master` 审计 PR 全范围，缺任一项即红。**未跟踪的新文件不会被本地 `--check` 模式发现**（`git diff` 看不到 untracked），须提交后再以 `--base` 复验。
+3. **僵尸任务规则**：见 DEC-060 —— 认领后的 in_progress 曾被 GOV-PROTO-003 误判，导致工作过程中无法提交。
+
+**原型作用域错配（重要）**：任务描述写「16 种通用状态页」，但 `15-states-errors.html` 实测 16 个 view 中只有 4 个属通用状态：
+
+| view | 归类 |
+|------|------|
+| `v-pair-timeout` / `v-fb-fail` | LoadError |
+| `v-sync-fail` | PartialError（127 条成功 1 条失败 → 对应 AC-H4） |
+| `v-fullscreen-load` | FullScreenLoading |
+| 其余 12 个 | SpecificScreen（编辑/导出/评分/指南/排查/隐私等业务屏） |
+
+因此 `ErrorStates.kt` 以 `PROTOTYPE_STATE_MAP` **显式分类 16 个 view**，并由
+`tests/unit/test_error_states_map.py` 与真实 HTML **交叉核对**（原型增删 view 即红），
+而不是把「16 种通用状态页」当成必须实现 16 个屏。闭环脚本的文案匹配率随之只有 13%，
+属**作用域不感知导致的假阳性**（分母含 12 个非本任务 view），已记录为脚本局限。
+
 ## 3. 待完成/已知问题
 
 - [ ] M2 SyncGateway 云同步与登录（含 CloudBase 防腐层）
