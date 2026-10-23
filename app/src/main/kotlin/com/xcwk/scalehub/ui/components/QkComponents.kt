@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -308,6 +309,7 @@ fun QkTextField(
     singleLine: Boolean = true,
     enabled: Boolean = true,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    leading: @Composable (() -> Unit)? = null,
 ) {
     var focused by remember { mutableStateOf(false) }
     val shape = RoundedCornerShape(QkRadius.Field)
@@ -336,17 +338,23 @@ fun QkTextField(
                 .border(1.dp, if (focused) QkColor.Primary else QkColor.FieldBorder, shape)
                 .padding(horizontal = 12.dp, vertical = 12.dp),
             decorationBox = { inner ->
-                Box {
-                    if (value.isEmpty() && placeholder != null) {
-                        Text(
-                            placeholder,
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = QkColor.Hint,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (leading != null) {
+                        leading()
+                        Spacer(Modifier.width(QkSpacing.Sm))
                     }
-                    inner()
+                    Box(modifier = Modifier.weight(1f)) {
+                        if (value.isEmpty() && placeholder != null) {
+                            Text(
+                                placeholder,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = QkColor.Hint,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                        }
+                        inner()
+                    }
                 }
             },
         )

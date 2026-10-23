@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updated_at": "2026-10-23T08:30:28Z",
+  "updated_at": "2026-10-23T09:40:10Z",
   "next_action": "开工 Wave 0 基础组件 T-097/T-098/T-099（通用状态页、下拉刷新与滑删与无限滚动与搜索栏、骨架屏与长按菜单）",
   "next_action_why": "Wave 0 组件被 Wave 1/2 多个任务复用，未完成则后续任务缺组件无法开工；GC-prototype-driven-dev 明确 Wave 0 必须最先做",
-  "next_action_confirmed": false,
+  "next_action_confirmed": true,
   "known_risks": [
     "任务无 ready AC 不得开工；in_progress 缺 definition_of_done 会触发 GOV-PROTO-004（DEC-048）。",
     "分支保护 / GitHub Pro / 公开仓：人类明确不做。权威合入门禁改为本地 `bash scripts/governance/gov-local-ci.sh` + pre-push validate；master 已含 DEC-045..047（merge 9cfc46d）。真机 APK 验收仍须人类。",
@@ -1348,11 +1348,11 @@
       "id": "T-097",
       "description": "states: 错误与边界状态（16种通用状态页）",
       "why": "原型15全部16屏 · 新增 states/ErrorStates.kt 复用到各模块",
-      "status": "pending",
-      "assigned_to": "",
+      "status": "completed",
+      "assigned_to": "ai",
       "dec": "",
       "created_at": "2026-10-23T03:52:45Z",
-      "updated_at": "2026-10-23T03:52:45Z",
+      "updated_at": "2026-10-23T09:40:10Z",
       "notes": "",
       "prototype_ref": {
         "file": "design/prototypes/interactive/15-states-errors.html",
@@ -1382,17 +1382,63 @@
       "ac_refs": [
         "AC-E2E-01 16 种通用状态页"
       ],
-      "prd_ref": "https://app.notion.com/p/40141bd50f8a818fbdbcc0396b31763c"
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a818fbdbcc0396b31763c",
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "界面验收源是 design/prototypes/interactive/15-states-errors.html 里 prototype_ref.views 的 15 个 view（布局与文案）",
+          "docs/guides/GC-prototype-driven-dev.md Wave 0 要求 states/ErrorStates.kt 供各模块复用空态、错态与加载态",
+          "视觉只用 QkColor、QkRadius、QkSpacing，并复用 QkCard、QkButton、QkListRow、QkPageTitle、QkTextField"
+        ],
+        "when": [
+          "调用方按 ErrorStateKind 打开某一状态页，或打开同原型枢纽中的删除失败、设备占用、清空对话、分享报告弹层"
+        ],
+        "then": [
+          "v-rec-edit：编辑记录；测量数值不可修改；测量时间与备注（可选）；仅时间与备注可编辑；保存修改",
+          "v-export：导出结果；健康数据文件与已生成；下载链接发至邮箱且小时内有效；上次导出失败可重试；下载文件",
+          "v-score：身体评分、良好区间、需改善/优秀、评分如何得出的四项权重、评分为估算参考且非医疗诊断",
+          "v-anomaly：体重趋势；数据异常已剔除；缺少数据；异常值与缺测以虚线/空心点标注",
+          "v-multimetric：趋势对比；体重与体脂率；天内体重与体脂率同步下降且方向一致",
+          "v-pair-timeout：连接设备；配对超时；请轻踩秤面唤醒后重试；重新配对与返回",
+          "v-report-stale：AI 报告解读；旧报告与条新测量记录；重新分析后将更新；用最新数据重新分析",
+          "v-sync-fail：数据同步；条记录同步失败且其余已同步；上传失败可重试；失败记录已存本机；立即重试全部",
+          "v-fb-fail：意见反馈；反馈提交失败；填写内容已保留；重新提交与复制反馈内容",
+          "v-connect-guide：连接指南四步（蓝牙、轻踩唤醒、靠近秤、搜索设备）与我试试",
+          "v-troubleshoot：故障排查；哪里出了问题；四条情况；以上都不是，联系客服",
+          "v-privacy-qa：隐私与数据安全；加密存储且绝不出售或用于广告；四问与查看完整隐私政策",
+          "v-notif-landing：该测量啦与轻衡；早上好林悦；上次测量；开始测量",
+          "v-fullscreen-load：正在加载你的健康数据；首次登录需同步全部记录；已加载与完成",
+          "v-longpress：长按/复制/展开；长按弹出菜单含复制、分享、全选；长文展开",
+          "枢纽弹层（v-hub，非另造屏幕）：删除失败、设备正被其他手机使用、对话管理、分享身体报告"
+        ],
+        "verify_commands": [
+          "./gradlew :app:testDebugUnitTest --tests com.xcwk.scalehub.ui.states.ErrorStateCatalogTest",
+          "python3 scripts/governance/gov-prototype-verify.py T-097 --strict"
+        ],
+        "forbidden": [
+          "静默修改 Room schema 或 golden 向量",
+          "修改 applicationId，或把用户可见品牌写成非「轻衡」文案",
+          "在目标 Kotlin 文件中写 Color(0x…)",
+          "在本 PR 开工 Wave 1/2 任务"
+        ],
+        "definition_of_done": [
+          "ErrorStates.kt 覆盖 prototype_ref 的 15 个 view，标题与关键句来自原型原文",
+          "枢纽四个边界弹层可单独复用",
+          "目标文件无 Color(0x…)，颜色与间距走 Qk token",
+          "ErrorStateCatalogTest 通过",
+          "gov-prototype-verify.py T-097 --strict 通过"
+        ]
+      }
     },
     {
       "id": "T-098",
       "description": "components: 交互模式（下拉刷新/滑动删除/无限滚动/搜索筛选）",
       "why": "原型26 v-pull-refresh/v-swipe-delete/v-infinite-scroll/v-search-filter · 新增 ui/components/QkPullRefresh.kt QkSwipeDelete.kt QkInfiniteScroll.kt QkSearchBar.kt",
-      "status": "pending",
-      "assigned_to": "",
+      "status": "completed",
+      "assigned_to": "ai",
       "dec": "",
       "created_at": "2026-10-23T03:52:45Z",
-      "updated_at": "2026-10-23T03:52:45Z",
+      "updated_at": "2026-10-23T09:40:10Z",
       "notes": "",
       "prototype_ref": {
         "file": "design/prototypes/interactive/26-final-gaps.html",
@@ -1414,17 +1460,50 @@
       "ac_refs": [
         "AC-E2E-02 下拉刷新/滑删/无限滚动"
       ],
-      "prd_ref": "https://app.notion.com/p/40141bd50f8a818fbdbcc0396b31763c"
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a818fbdbcc0396b31763c",
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "界面验收源是 design/prototypes/interactive/26-final-gaps.html 的 v-pull-refresh、v-swipe-delete、v-infinite-scroll、v-search-filter",
+          "docs/guides/GC-prototype-driven-dev.md Wave 0 要求四个 Qk* 组件供历史、趋势、成员列表复用",
+          "交互原语对齐既有 QkButton、QkListRow、QkTextField、QkChip 的写法"
+        ],
+        "when": [
+          "列表套上下拉刷新、左滑删除、滚到底加载，或在搜索栏输入关键字并点全部/本周/本月/自定义"
+        ],
+        "then": [
+          "下拉刷新演示含今天/昨天记录、下拉刷新（点击模拟），以及列表顶部下拉、出现刷新图标、松手触发的说明",
+          "滑动删除演示：左滑记录行露出删除；确认框为删除这条记录，说明删除后本地与云端同步移除且天内可恢复；可取消",
+          "无限滚动演示：滚动到底部自动加载更多记录；加载中；已加载全部",
+          "搜索筛选：占位搜索指标、日期、备注；芯片为全部、本周、本月、自定义；搜索结果按关键字匹配体脂率行"
+        ],
+        "verify_commands": [
+          "./gradlew :app:testDebugUnitTest --tests com.xcwk.scalehub.ui.components.Wave0InteractionLogicTest",
+          "python3 scripts/governance/gov-prototype-verify.py T-098 --strict"
+        ],
+        "forbidden": [
+          "静默修改 Room schema 或 golden 向量",
+          "修改 applicationId，或把用户可见品牌写成非「轻衡」文案",
+          "在目标 Kotlin 文件中写 Color(0x…)",
+          "在本 PR 开工 Wave 1/2 任务"
+        ],
+        "definition_of_done": [
+          "四个目标文件分别实现下拉刷新、左滑删除、无限滚动、搜索筛选",
+          "演示页文案来自对应 view，不另造筛选项或删除后果",
+          "手势与分页的纯函数有单元测试",
+          "gov-prototype-verify.py T-098 --strict 通过"
+        ]
+      }
     },
     {
       "id": "T-099",
       "description": "components: 组件补全（骨架屏/长按菜单）",
       "why": "原型09 v-skeleton/v-longpress · 新增 ui/components/QkSkeleton.kt QkLongPressMenu.kt",
-      "status": "pending",
-      "assigned_to": "",
+      "status": "completed",
+      "assigned_to": "ai",
       "dec": "",
       "created_at": "2026-10-23T03:52:45Z",
-      "updated_at": "2026-10-23T03:52:45Z",
+      "updated_at": "2026-10-23T09:40:10Z",
       "notes": "",
       "prototype_ref": {
         "file": "design/prototypes/interactive/09-components-demo.html",
@@ -1442,7 +1521,39 @@
       "ac_refs": [
         "AC-E2E-03 骨架屏与长按菜单"
       ],
-      "prd_ref": "https://app.notion.com/p/40141bd50f8a818fbdbcc0396b31763c"
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a818fbdbcc0396b31763c",
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "界面验收源是 design/prototypes/interactive/09-components-demo.html 的 v-skeleton 与 v-longpress",
+          "docs/guides/GC-prototype-driven-dev.md 映射表：.skeleton → QkSkeleton，长按菜单为 QkLongPressMenu",
+          "骨架与菜单只用 QkColor / QkRadius / QkSpacing"
+        ],
+        "when": [
+          "内容加载时放上骨架屏；长按一段说明文字，或展开/收起长文"
+        ],
+        "then": [
+          "骨架屏加载页说明内容加载时保持布局稳定、避免跳动，并有指标卡、列表行与图表块占位，底部为返回组件演示",
+          "长按弹出菜单，菜单项为复制、分享、全选；选区高亮为品牌色",
+          "长文展开/收起使用原型中林悦近 30 天那段说明，动作为展开或收起"
+        ],
+        "verify_commands": [
+          "./gradlew :app:testDebugUnitTest --tests com.xcwk.scalehub.ui.components.Wave0InteractionLogicTest",
+          "python3 scripts/governance/gov-prototype-verify.py T-099 --strict"
+        ],
+        "forbidden": [
+          "静默修改 Room schema 或 golden 向量",
+          "修改 applicationId，或把用户可见品牌写成非「轻衡」文案",
+          "在目标 Kotlin 文件中写 Color(0x…)",
+          "在本 PR 开工 Wave 1/2 任务"
+        ],
+        "definition_of_done": [
+          "QkSkeleton.kt 与 QkLongPressMenu.kt 覆盖 v-skeleton、v-longpress 的标题、说明与菜单项",
+          "长按动作与展开文案有单元测试",
+          "目标文件无 Color(0x…)",
+          "gov-prototype-verify.py T-099 --strict 通过"
+        ]
+      }
     },
     {
       "id": "T-100",

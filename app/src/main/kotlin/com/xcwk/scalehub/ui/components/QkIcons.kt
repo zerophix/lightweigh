@@ -16,6 +16,8 @@ import androidx.compose.material.icons.outlined.Calculate
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.ChevronRight
+import androidx.compose.material.icons.outlined.ContentCopy
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.CleaningServices
 import androidx.compose.material.icons.outlined.CloudDownload
 import androidx.compose.material.icons.outlined.DeleteForever
@@ -44,10 +46,14 @@ import androidx.compose.material.icons.outlined.Opacity
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.PrivacyTip
 import androidx.compose.material.icons.outlined.QrCodeScanner
+import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.outlined.Restaurant
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.Straighten
+import androidx.compose.material.icons.outlined.WarningAmber
 import androidx.compose.material.icons.outlined.WaterDrop
 import androidx.compose.ui.graphics.vector.ImageVector
 
@@ -126,4 +132,12 @@ object QkIcons {
     val Restore: ImageVector = Icons.Outlined.CloudDownload
     val Cache: ImageVector = Icons.Outlined.CleaningServices
     val About: ImageVector = Icons.Outlined.Info
+
+    // Wave 0 交互（刷新、滑删、搜索、长按、状态页）
+    val Search: ImageVector = Icons.Outlined.Search
+    val Refresh: ImageVector = Icons.Outlined.Refresh
+    val Delete: ImageVector = Icons.Outlined.Delete
+    val Warning: ImageVector = Icons.Outlined.WarningAmber
+    val Lock: ImageVector = Icons.Outlined.Lock
+    val Copy: ImageVector = Icons.Outlined.ContentCopy
 }

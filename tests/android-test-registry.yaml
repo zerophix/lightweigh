@@ -211,5 +211,13 @@ commands:
   path: app/src/test/kotlin/com/xcwk/scalehub/feature/habit/HabitViewModelTest.kt
   status: stable
   type: gradle-test
+- description: Wave 0 通用状态页文案目录（15 个 prototype view 与 4 个边界弹层, T-097）
+  path: app/src/test/kotlin/com/xcwk/scalehub/ui/states/ErrorStateCatalogTest.kt
+  status: stable
+  type: gradle-test
+- description: Wave 0 交互组件纯逻辑（下拉相位/滑动阈值/分页/搜索窗口/长按文案, T-098 T-099）
+  path: app/src/test/kotlin/com/xcwk/scalehub/ui/components/Wave0InteractionLogicTest.kt
+  status: stable
+  type: gradle-test
 configs: []
 orphans: []
