@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updated_at": "2026-10-23T10:29:11Z",
-  "next_action": "等人类解封 worktree 门禁（合并 DEC-062 3811606 + GOV-TEST-005 清理 GIT_* env）后，从本 worktree push feat/settings-language 并按模板 gh pr create，勿 merge 留人审",
-  "next_action_why": "T-091 代码与全部任务级验证已完成且每个失败点均已定位取证（假阳性 vs 真问题都修完），唯一缺口是全队级 worktree 门禁盲点；解封方式（合并 DEC-062 或授权修复 GOV-TEST-005）必须由人类决策，AI 不得绕过门禁",
-  "next_action_confirmed": false,
+  "updated_at": "2026-10-23T14:25:00Z",
+  "next_action": "T-091 已完成 local-ci 并推送、PR 已开；等人类合入（与 cursor PR #43 语言/外观部分重叠，合入时裁定）。合入后把 T-091 标 completed",
+  "next_action_why": "DEC-062 worktree 门禁修复已 merge 进本分支解锁推送；T-091 代码与全部任务级验证已完成。禁 --no-verify 绕过",
+  "next_action_confirmed": true,
   "known_risks": [
     "任务无 ready AC 不得开工；in_progress 缺 definition_of_done 会触发 GOV-PROTO-004（DEC-048）。",
     "分支保护 / GitHub Pro / 公开仓：人类明确不做。权威合入门禁改为本地 `bash scripts/governance/gov-local-ci.sh` + pre-push validate；master 已含 DEC-045..047（merge 9cfc46d）。真机 APK 验收仍须人类。",
@@ -1628,11 +1628,11 @@
       "id": "T-099",
       "description": "components: 组件补全（骨架屏/长按菜单）",
       "why": "原型09 v-skeleton/v-longpress · 新增 ui/components/QkSkeleton.kt QkLongPressMenu.kt",
-      "status": "pending",
+      "status": "in_progress",
       "assigned_to": "ai",
       "dec": "",
       "created_at": "2026-10-23T03:52:45Z",
-      "updated_at": "2026-10-23T09:45:00Z",
+      "updated_at": "2026-10-23T09:46:01Z",
       "notes": "",
       "prototype_ref": {
         "file": "design/prototypes/interactive/09-components-demo.html",

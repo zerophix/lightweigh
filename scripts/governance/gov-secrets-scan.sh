@@ -18,6 +18,17 @@ resolve_bin() {
     echo "$TOOLS_BIN"
     return 0
   fi
+  # worktree（DEC-050）下二进制被 gitignore、不随 worktree 带出；主仓已装则直接复用。
+  # 否则下面会触发联网安装（实测一次约 75 秒），而 worktree 内每次 pre-push 都要付这个代价。
+  # 与 DEC-062 同类：治理脚本必须感知 worktree，而不是假装自己在主树。
+  local common_dir main_root
+  if common_dir="$(git rev-parse --git-common-dir 2>/dev/null)" && [ -n "$common_dir" ]; then
+    if main_root="$(cd "$common_dir/.." 2>/dev/null && pwd)" && [ -n "$main_root" ] \
+      && [ -x "$main_root/scripts/tools/gitleaks" ]; then
+      echo "$main_root/scripts/tools/gitleaks"
+      return 0
+    fi
+  fi
   return 1
 }
 
