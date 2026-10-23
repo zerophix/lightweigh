@@ -53,7 +53,7 @@ fun QkTopBar(subtitle: String, modifier: Modifier = Modifier, onBell: () -> Unit
         Column(modifier = Modifier.weight(1f)) {
             Row {
                 Text(
-                    "轻刻",
+                    "轻衡",
                     color = QkColor.Primary,
                     fontSize = 19.sp,
                     fontWeight = FontWeight.ExtraBold,

@@ -13,7 +13,7 @@
 | 2026-10-16 | 指标文档本地化为 Android 应用指标：项目钩子 metrics-hooks/00-document.sh + 脚本覆盖入口 + 漂移守卫测试 | DEC-016 |
 | 2026-10-16 | 剩余黄金标准去模板化：reference 改项目技术参考、guides 去品牌、mkdocs 站点身份改项目 | DEC-014 |
 | 2026-10-16 | 决策空模板治理：GOV-CONTENT-012 占位符校验 + 4 个测试（根治 DEC-012 空模板事故） | DEC-013 |
-| 2026-10-16 | 生命周期 01~06 与黄金标准 architecture/index.md 改写为轻刻健康真实工程描述 | DEC-012 |
+| 2026-10-16 | 生命周期 01~06 与黄金标准 architecture/index.md 改写为轻衡健康真实工程描述 | DEC-012 |
 | 2026-10-16 | 采用公司全限定名 com.xcwk.scalehub：包/namespace/applicationId/存储键/文档全量迁移 | DEC-011 |
 | 2026-10-15 | 模板版本化 + gov-upgrade.sh 升级路径：gov-template-version 事实源、拥有区清单、check/apply 工具与 3 个测试 | DEC-010 |
 | 2026-10-15 | 修复 session-end 上下文缓存静默失败：补必填字段 to、agent 环境检测、字段契约测试 | DEC-009 |

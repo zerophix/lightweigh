@@ -13,7 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 /**
- * 设计 token —— 对齐 v2 交互原型（`docs/prototype/qingke_health_v2_interactive_prototype.html`）。
+ * 设计 token —— 对齐 v2 交互原型（`docs/prototype/lightweigh_v2_interactive_prototype.html`）。
  *
  * 口径变化（相对旧库 QingkeTheme 移植版）：
  *  - 主绿由 `#2D8B56` 调为 `#159B72`（原型 --green），并引入薄荷底 `#E7F7F0` 与墨色 `#20312D`；

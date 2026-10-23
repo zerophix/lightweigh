@@ -39,7 +39,7 @@ import com.xcwk.scalehub.ui.theme.QkTheme
 @Composable
 fun AuthScreen(state: AuthUiState, onIntent: (AuthIntent) -> Unit) {
     Column(modifier = Modifier.fillMaxSize().padding(24.dp).verticalScroll(rememberScrollState())) {
-        Text("轻刻健康", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(top = 32.dp))
+        Text("轻衡健康", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(top = 32.dp))
         Text(
             "配合蓝牙体脂秤的个人健康记录。可游客使用，也可手机号登录",
             style = MaterialTheme.typography.bodyMedium,

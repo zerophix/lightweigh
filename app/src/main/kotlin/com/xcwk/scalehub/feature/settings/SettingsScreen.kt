@@ -215,7 +215,7 @@ fun SettingsScreen(
                 },
             )
             QkListRow(
-                title = "关于轻刻健康",
+                title = "关于轻衡健康",
                 icon = QkIcons.About,
                 glyphSize = 32.dp,
                 onClick = { extraSheet = "about" },
@@ -241,10 +241,10 @@ fun SettingsScreen(
             title = { Text("关于我们") },
             text = {
                 Column {
-                    Text("应用：轻刻健康")
+                    Text("应用：轻衡健康")
                     Text("版本：${appVersion(context)}", modifier = Modifier.padding(top = 6.dp))
                     Text(
-                        "轻刻健康配合 OKOK 协议体脂秤，在本机记录体重、体脂和日常健康数据。",
+                        "轻衡健康配合 OKOK 协议体脂秤，在本机记录体重、体脂和日常健康数据。",
                         modifier = Modifier.padding(top = 10.dp),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,

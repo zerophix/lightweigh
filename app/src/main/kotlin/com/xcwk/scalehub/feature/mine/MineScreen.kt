@@ -97,7 +97,7 @@ fun MineScreen(
                 QkAvatar(path = state.avatarPath.ifBlank { null }, size = 54.dp)
                 Column(modifier = Modifier.weight(1f).padding(start = 12.dp)) {
                     Text(
-                        state.nickname.ifBlank { "轻刻用户" },
+                        state.nickname.ifBlank { "轻衡用户" },
                         style = MaterialTheme.typography.titleMedium,
                         color = QkColor.Fg,
                     )

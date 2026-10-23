@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>轻刻健康 v2 · 交互原型</title>
+<title>轻衡健康 v2 · 交互原型</title>
 <style>
 :root{--green:#2D8B56;--green-dark:#216A41;--green-soft:#E7F3EB;--bg:#F4F6F4;--card:#fff;--text:#202722;--muted:#7B837D;--line:#E9EDE9;--red:#DC4C4C;--blue:#38BDF8;--amber:#F59E0B;--orange:#E85D04;--shadow:0 8px 28px rgba(28,54,36,.06)}
 *{box-sizing:border-box}body{margin:0;background:#E9EEEA;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}button,input{font:inherit}button{cursor:pointer;border:0}button:focus-visible,input:focus-visible{outline:3px solid #A5D8B7;outline-offset:2px}
@@ -16,7 +16,7 @@
 <div class="shell">
   <div class="status"><span>9:41</span><span>●●●　◔　▰</span></div>
   <header class="topbar">
-    <div><div class="brand"><span>轻刻</span>健康</div><div class="subdate" id="todayText">记录一点，健康多一点</div></div>
+    <div><div class="brand"><span>轻衡</span>健康</div><div class="subdate" id="todayText">记录一点，健康多一点</div></div>
     <button class="avatar" onclick="switchPage('mine')" aria-label="个人资料">QK</button>
   </header>
 
@@ -32,7 +32,7 @@
     </section>
 
     <section class="card" style="padding:15px 16px">
-      <div style="display:flex;align-items:center;gap:9px"><div class="iconbox"></div><div><b style="font-size:14px">问问轻刻 AI</b><div class="muted" style="margin-top:3px">结合你的健康记录，给你更贴近实际的建议</div></div></div>
+      <div style="display:flex;align-items:center;gap:9px"><div class="iconbox"></div><div><b style="font-size:14px">问问轻衡 AI</b><div class="muted" style="margin-top:3px">结合你的健康记录，给你更贴近实际的建议</div></div></div>
       <div class="ai-box"><input id="aiInput" placeholder="减脂期可以吃西瓜吗？" onkeydown="if(event.key==='Enter')askAI()"><button class="send" onclick="askAI()">↑</button></div>
     </section>
 
@@ -90,7 +90,7 @@
     </section>
     <section class="card">
       <div class="section-head" style="margin:0 0 6px"><h2>最近记录</h2><button class="textbtn" onclick="switchPage('trend')">全部记录 →</button></div>
-      <div class="list-row" onclick="switchPage('report')" style="cursor:pointer"><div class="list-icon"></div><div class="list-main"><b>体重测量</b><small>今天 08:16 · 轻刻体脂秤</small></div><div class="list-value">68.5 kg<small>查看报告 ›</small></div></div>
+      <div class="list-row" onclick="switchPage('report')" style="cursor:pointer"><div class="list-icon"></div><div class="list-main"><b>体重测量</b><small>今天 08:16 · 轻衡体脂秤</small></div><div class="list-value">68.5 kg<small>查看报告 ›</small></div></div>
       <div class="list-row"><div class="list-icon"></div><div class="list-main"><b>午餐记录</b><small>今天 12:20 · 米饭与鸡胸肉</small></div><div class="list-value">220 kcal</div></div>
     </section>
     <button class="action full" onclick="openMeasure()">＋ 开始蓝牙称重</button>
@@ -107,9 +107,9 @@
     </section>
     <div class="section-head"><h2>测量历史</h2><button class="textbtn" onclick="showToast('已切换到完整历史列表')">按日期筛选 </button></div>
     <section class="card">
-      <div class="list-row" onclick="switchPage('report')" style="cursor:pointer"><div class="list-icon"></div><div class="list-main"><b>今天 · 10月17日</b><small>08:16 · 轻刻体脂秤</small></div><div class="list-value">68.5 kg<small>查看报告 ›</small></div></div>
-      <div class="list-row"><div class="list-icon"></div><div class="list-main"><b>昨天 · 10月16日</b><small>07:52 · 轻刻体脂秤</small></div><div class="list-value">68.8 kg</div></div>
-      <div class="list-row"><div class="list-icon"></div><div class="list-main"><b>10月15日</b><small>08:04 · 轻刻体脂秤</small></div><div class="list-value">69.0 kg</div></div>
+      <div class="list-row" onclick="switchPage('report')" style="cursor:pointer"><div class="list-icon"></div><div class="list-main"><b>今天 · 10月17日</b><small>08:16 · 轻衡体脂秤</small></div><div class="list-value">68.5 kg<small>查看报告 ›</small></div></div>
+      <div class="list-row"><div class="list-icon"></div><div class="list-main"><b>昨天 · 10月16日</b><small>07:52 · 轻衡体脂秤</small></div><div class="list-value">68.8 kg</div></div>
+      <div class="list-row"><div class="list-icon"></div><div class="list-main"><b>10月15日</b><small>08:04 · 轻衡体脂秤</small></div><div class="list-value">69.0 kg</div></div>
       <button class="outline full" style="width:100%;margin-top:14px" onclick="showToast('原型演示：完整历史列表')">查看全部历史</button>
     </section>
   </main>
@@ -128,7 +128,7 @@
     </section>
     <div class="section-head"><h2>已绑定设备</h2><small id="deviceCount">1 台设备</small></div>
     <section class="card" id="boundDevices">
-      <div class="list-row"><div class="list-icon"></div><div class="list-main"><b>轻刻体脂秤</b><small><span class="status-pill">当前设备</span>　已绑定 · 2026/10/12</small></div><button class="textbtn" onclick="showToast('这已经是当前设备')">管理</button></div>
+      <div class="list-row"><div class="list-icon"></div><div class="list-main"><b>轻衡体脂秤</b><small><span class="status-pill">当前设备</span>　已绑定 · 2026/10/12</small></div><button class="textbtn" onclick="showToast('这已经是当前设备')">管理</button></div>
       <div class="muted" style="line-height:1.7;margin-top:10px">测量前请将体脂秤放置在坚硬、平整的地面上，并确保蓝牙连接正常。</div>
     </section>
   </main>
@@ -136,18 +136,18 @@
   <main id="mine" class="page">
     <div class="page-title">我的</div><p class="page-desc">管理个人资料与健康设置</p>
     <section class="card">
-      <div class="profile-top"><div class="profile-avatar">Q</div><div><h3 id="profileName">轻刻用户</h3><p>完善资料，让健康建议更适合你</p></div><button class="textbtn" style="margin-left:auto" onclick="showToast('资料已是当前演示状态')">编辑 ›</button></div>
+      <div class="profile-top"><div class="profile-avatar">衡</div><div><h3 id="profileName">轻衡用户</h3><p>完善资料，让健康建议更适合你</p></div><button class="textbtn" style="margin-left:auto" onclick="showToast('资料已是当前演示状态')">编辑 ›</button></div>
       <div class="divider"></div>
-      <div class="list-row" onclick="showToast('原型演示：进入测量用户管理')"><div class="list-icon"></div><div class="list-main"><b>测量用户</b><small>当前成员：轻刻用户 · 支持多成员</small></div><span>›</span></div>
-      <div class="list-row" onclick="switchPage('devices')"><div class="list-icon"></div><div class="list-main"><b>我的设备</b><small>轻刻体脂秤 · 已连接过</small></div><span>›</span></div>
+      <div class="list-row" onclick="showToast('原型演示：进入测量用户管理')"><div class="list-icon"></div><div class="list-main"><b>测量用户</b><small>当前成员：轻衡用户 · 支持多成员</small></div><span>›</span></div>
+      <div class="list-row" onclick="switchPage('devices')"><div class="list-icon"></div><div class="list-main"><b>我的设备</b><small>轻衡体脂秤 · 已连接过</small></div><span>›</span></div>
       <div class="list-row" onclick="showToast('原型演示：健康目标设置')"><div class="list-icon">◎</div><div class="list-main"><b>健康目标</b><small>体重目标 65.0 kg</small></div><span>›</span></div>
     </section>
     <section class="card">
       <div class="list-row" onclick="showToast('原型演示：账号与安全')"><div class="list-icon"></div><div class="list-main"><b>账号与安全</b><small>登录、退出与账号注销</small></div><span>›</span></div>
       <div class="list-row" onclick="showToast('原型演示：隐私政策')"><div class="list-icon">◇</div><div class="list-main"><b>隐私与权限</b><small>隐私政策、数据收集清单</small></div><span>›</span></div>
-      <div class="list-row" onclick="showToast('轻刻健康 v2 · 原型演示版')"><div class="list-icon"></div><div class="list-main"><b>关于轻刻健康</b><small>版本信息与服务说明</small></div><span>›</span></div>
+      <div class="list-row" onclick="showToast('轻衡健康 v2 · 原型演示版')"><div class="list-icon"></div><div class="list-main"><b>关于轻衡健康</b><small>版本信息与服务说明</small></div><span>›</span></div>
     </section>
-    <div class="footer-note">轻刻健康 · 认真记录，轻松改变</div>
+    <div class="footer-note">轻衡健康 · 认真记录，轻松改变</div>
   </main>
 
   <main id="report" class="page">
@@ -184,7 +184,7 @@
 </div>
 
 <div class="modal-backdrop" id="measureModal" onclick="backdropClose(event,'measureModal')">
-  <div class="sheet"><div class="sheet-handle"></div><div class="sheet-head"><div><h2>蓝牙称重</h2><div class="muted" style="margin-top:5px">轻刻体脂秤 · 当前成员：轻刻用户</div></div><button class="close" onclick="closeModal('measureModal')">×</button></div>
+  <div class="sheet"><div class="sheet-handle"></div><div class="sheet-head"><div><h2>蓝牙称重</h2><div class="muted" style="margin-top:5px">轻衡体脂秤 · 当前成员：轻衡用户</div></div><button class="close" onclick="closeModal('measureModal')">×</button></div>
     <div class="steps"><span class="on" id="step1"></span><span id="step2"></span><span id="step3"></span></div>
     <div class="modal-content" style="text-align:center;padding:22px 16px">
       <div id="measureIcon" style="font-size:40px"></div>
@@ -222,7 +222,7 @@ function setMetric(btn,type){document.querySelectorAll('#metricFilters button').
 function searchDevices(){const b=document.getElementById('searchBtn');b.textContent='正在搜索…';b.disabled=true;setTimeout(()=>{document.getElementById('searchResult').classList.remove('hidden');b.textContent='重新搜索设备';b.disabled=false;showToast('发现 1 台兼容设备')},850)}
 function bindDevice(btn){btn.textContent='已绑定';btn.disabled=true;btn.style.background='#E7F3EB';btn.style.color='#2D8B56';document.getElementById('deviceCount').textContent='2 台设备';showToast('设备绑定成功（原型状态）')}
 function openMeasure(){closeModal('quickModal');measureStep=0;renderMeasure();document.getElementById('measureModal').classList.add('show')}
-function renderMeasure(){const state=document.getElementById('measureState'),num=document.getElementById('measureNumber'),note=document.getElementById('measureNote'),act=document.getElementById('measureAction'),icon=document.getElementById('measureIcon'),prog=document.getElementById('measureProgress');['step1','step2','step3'].forEach((id,i)=>document.getElementById(id).classList.toggle('on',i<=measureStep));if(measureStep===0){icon.textContent='';state.textContent='准备连接体脂秤';num.textContent='···';num.style.color='var(--green)';note.innerHTML='请确认当前测量成员：轻刻用户<br>站上体脂秤后保持稳定';prog.style.width='25%';act.textContent='开始测量';act.disabled=false}else if(measureStep===1){icon.textContent='◉';state.textContent='正在测量，请保持站立';num.textContent='68.5';num.style.color='var(--green)';note.innerHTML='正在读取体重与体成分数据…<br>请暂时不要离开体脂秤';prog.style.width='68%';act.textContent='模拟测量完成';act.disabled=false}else{icon.textContent='';state.textContent='测量完成，记录已保存';num.textContent='68.5 kg';num.style.color='var(--green)';note.innerHTML='体脂率 22.4% · BMI 22.1<br>已保存到「轻刻用户」的测量历史';prog.style.width='100%';act.textContent='查看测量报告';act.disabled=false;document.getElementById('measureSecondary').textContent='完成'}}
+function renderMeasure(){const state=document.getElementById('measureState'),num=document.getElementById('measureNumber'),note=document.getElementById('measureNote'),act=document.getElementById('measureAction'),icon=document.getElementById('measureIcon'),prog=document.getElementById('measureProgress');['step1','step2','step3'].forEach((id,i)=>document.getElementById(id).classList.toggle('on',i<=measureStep));if(measureStep===0){icon.textContent='';state.textContent='准备连接体脂秤';num.textContent='···';num.style.color='var(--green)';note.innerHTML='请确认当前测量成员：轻衡用户<br>站上体脂秤后保持稳定';prog.style.width='25%';act.textContent='开始测量';act.disabled=false}else if(measureStep===1){icon.textContent='◉';state.textContent='正在测量，请保持站立';num.textContent='68.5';num.style.color='var(--green)';note.innerHTML='正在读取体重与体成分数据…<br>请暂时不要离开体脂秤';prog.style.width='68%';act.textContent='模拟测量完成';act.disabled=false}else{icon.textContent='';state.textContent='测量完成，记录已保存';num.textContent='68.5 kg';num.style.color='var(--green)';note.innerHTML='体脂率 22.4% · BMI 22.1<br>已保存到「轻衡用户」的测量历史';prog.style.width='100%';act.textContent='查看测量报告';act.disabled=false;document.getElementById('measureSecondary').textContent='完成'}}
 function nextMeasure(){if(measureStep===0){measureStep=1;renderMeasure()}else if(measureStep===1){measureStep=2;renderMeasure()}else{closeModal('measureModal');switchPage('report')}}
 document.getElementById('measureSecondary').addEventListener('click',()=>{if(measureStep===2){closeModal('measureModal');switchPage('home')}});
 document.getElementById('todayText').textContent='今天也为健康做一点小事';

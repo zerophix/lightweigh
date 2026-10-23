@@ -316,7 +316,7 @@
   治理 56 项全绿。
 
 - 2026-10-16（DEC-021 task B）：设计系统落地。QkTheme/QkColor 品牌色板（移植旧库
-  QingkeTheme：轻刻绿 2D8B56/Bg FAFAFA/Accent E85D04 等 9 色）+ QkSpacing 五档刻度；
+  QingkeTheme：旧主题绿 2D8B56/Bg FAFAFA/Accent E85D04 等 9 色）+ QkSpacing 五档刻度；
   Qk 组件库首批 5 个（Chip/Card/SectionTitle/StatRow/EmptyHint）；TrendScreen 组件化、
   MainActivity 切 QkTheme；ArchUnit UI 层选择器 feature.. 扩为 feature.. + ui..
   （6 处规则与负例同口径）。app 测试执行数 12 全绿。

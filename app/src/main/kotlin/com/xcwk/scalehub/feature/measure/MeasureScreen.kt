@@ -373,7 +373,7 @@ private fun AiAskRow(onAskAi: (String) -> Unit) {
     ) {
         QkIcon(QkIcons.Ai, tint = QkColor.Primary, size = 18.dp)
         Text(
-            "问问轻刻 AI：减脂期能吃西瓜吗？",
+            "问问轻衡 AI：减脂期能吃西瓜吗？",
             modifier = Modifier.weight(1f).padding(start = QkSpacing.Sm),
             style = MaterialTheme.typography.bodySmall,
             color = QkColor.Muted,

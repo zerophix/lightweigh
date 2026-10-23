@@ -22,9 +22,9 @@ class MemberProfileTest {
 
     @Test
     fun `合法档案构造通过`() {
-        val p = profile(nickname = "  轻刻  ")
+        val p = profile(nickname = "  轻衡  ")
         assertThat(p.heightCm).isEqualTo(175)
-        assertThat(p.nickname).isEqualTo("  轻刻  ")   // 归一是服务层职责，构造不改写
+        assertThat(p.nickname).isEqualTo("  轻衡  ")   // 归一是服务层职责，构造不改写
     }
 
     @Test(expected = DomainException::class)
