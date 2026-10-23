@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-10-22T07:54:34Z",
+  "updated_at": "2026-10-23T03:44:45Z",
   "next_action": "在 Android 真机安装 APK 验证",
   "next_action_why": "人类端到端验收（沿用既有 next_action）",
   "next_action_confirmed": false,
@@ -444,6 +444,149 @@
           "扫码内容类型（设备绑定 / 其他）是否变更？"
         ]
       }
+    },
+    {
+      "id": "T-059",
+      "description": "P0: 健康平台集成 — Apple Health / Google Health Connect 数据同步",
+      "why": "2026 年健康 App 标配，page-list-TODO §16 P0",
+      "status": "pending",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-23T03:43:57Z",
+      "updated_at": "2026-10-23T03:43:57Z",
+      "notes": ""
+    },
+    {
+      "id": "T-060",
+      "description": "P0: 多设备切换 — 家用秤+便携秤的设备切换流程",
+      "why": "page-list-TODO §16 P0",
+      "status": "pending",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-23T03:44:35Z",
+      "updated_at": "2026-10-23T03:44:35Z",
+      "notes": ""
+    },
+    {
+      "id": "T-061",
+      "description": "P0: 医生/医疗报告导出 — 生成可给医生看的结构化报告",
+      "why": "page-list-TODO §16 P0",
+      "status": "pending",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-23T03:44:35Z",
+      "updated_at": "2026-10-23T03:44:35Z",
+      "notes": ""
+    },
+    {
+      "id": "T-062",
+      "description": "P1: 设备校准引导 — 体脂秤定期校准流程",
+      "why": "page-list-TODO §16 P1",
+      "status": "pending",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-23T03:44:35Z",
+      "updated_at": "2026-10-23T03:44:35Z",
+      "notes": ""
+    },
+    {
+      "id": "T-063",
+      "description": "P1: 数据迁移（换机）— 换手机时的显式数据迁移引导",
+      "why": "page-list-TODO §16 P1",
+      "status": "pending",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-23T03:44:35Z",
+      "updated_at": "2026-10-23T03:44:35Z",
+      "notes": ""
+    },
+    {
+      "id": "T-064",
+      "description": "P1: 身体重组洞察 — 肌肉↑+脂肪↓ 的专门解读",
+      "why": "page-list-TODO §16 P1",
+      "status": "pending",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-23T03:44:35Z",
+      "updated_at": "2026-10-23T03:44:35Z",
+      "notes": ""
+    },
+    {
+      "id": "T-065",
+      "description": "P1: 周期对比分析 — 本周vs上周、本月vs上月对比视图",
+      "why": "page-list-TODO §16 P1",
+      "status": "pending",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-23T03:44:35Z",
+      "updated_at": "2026-10-23T03:44:35Z",
+      "notes": ""
+    },
+    {
+      "id": "T-066",
+      "description": "P1: 目标进度曲线 — 目标达成随时间的变化曲线",
+      "why": "page-list-TODO §16 P1",
+      "status": "pending",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-23T03:44:35Z",
+      "updated_at": "2026-10-23T03:44:35Z",
+      "notes": ""
+    },
+    {
+      "id": "T-067",
+      "description": "P2: 数据波动教育 — 体重日波动1-2kg正常的教育流程",
+      "why": "page-list-TODO §16 P2",
+      "status": "pending",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-23T03:44:45Z",
+      "updated_at": "2026-10-23T03:44:45Z",
+      "notes": ""
+    },
+    {
+      "id": "T-068",
+      "description": "P2: 智能提醒 — 自适应提醒（3天没测/测量很规律）",
+      "why": "page-list-TODO §16 P2",
+      "status": "pending",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-23T03:44:45Z",
+      "updated_at": "2026-10-23T03:44:45Z",
+      "notes": ""
+    },
+    {
+      "id": "T-069",
+      "description": "P2: 成就/激励系统 — 连续测量天数、减重里程碑",
+      "why": "page-list-TODO §16 P2",
+      "status": "pending",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-23T03:44:45Z",
+      "updated_at": "2026-10-23T03:44:45Z",
+      "notes": ""
+    },
+    {
+      "id": "T-070",
+      "description": "P2: 无障碍适配 — 字体缩放/屏幕阅读器/高对比度",
+      "why": "page-list-TODO §16 P2",
+      "status": "pending",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-23T03:44:45Z",
+      "updated_at": "2026-10-23T03:44:45Z",
+      "notes": ""
+    },
+    {
+      "id": "T-071",
+      "description": "P2: 儿童模式 — 家长追踪孩子成长的年龄适配视图+隐私边界",
+      "why": "page-list-TODO §16 P2",
+      "status": "pending",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-23T03:44:45Z",
+      "updated_at": "2026-10-23T03:44:45Z",
+      "notes": ""
     }
   ],
   "acceptance_schema": "GC-task-acceptance@1"
