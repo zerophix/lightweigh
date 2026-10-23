@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-10-23T03:56:21Z",
+  "updated_at": "2026-10-23T04:06:49Z",
   "next_action": "在 Android 真机安装 APK 验证",
   "next_action_why": "人类端到端验收（沿用既有 next_action）",
   "next_action_confirmed": false,
@@ -938,6 +938,28 @@
       "dec": "",
       "created_at": "2026-10-23T03:56:21Z",
       "updated_at": "2026-10-23T03:56:21Z",
+      "notes": ""
+    },
+    {
+      "id": "T-104",
+      "description": "device: 配对状态机（配对中/配对成功/配对失败）",
+      "why": "原型04 v-pairing/v-pair-success/v-pair-fail · DeviceScreen无配对状态 · 改 DeviceScreen.kt DeviceUiState.kt DeviceViewModel.kt 增加 PairingState",
+      "status": "pending",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-23T04:06:49Z",
+      "updated_at": "2026-10-23T04:06:49Z",
+      "notes": ""
+    },
+    {
+      "id": "T-105",
+      "description": "device: 设备详情/设置页（重命名/解绑/固件/协议信息）",
+      "why": "原型04 v-settings · DeviceScreen无设备详情页 · 新增 device/DeviceDetailScreen.kt 从设备列表点击进入",
+      "status": "pending",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-23T04:06:49Z",
+      "updated_at": "2026-10-23T04:06:49Z",
       "notes": ""
     }
   ],
