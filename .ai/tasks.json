@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updated_at": "2026-10-23T09:38:12Z",
-  "next_action": "开工 Wave 0 基础组件 T-097/T-098/T-099（通用状态页、下拉刷新与滑删与无限滚动与搜索栏、骨架屏与长按菜单）",
-  "next_action_why": "Wave 0 组件被 Wave 1/2 多个任务复用，未完成则后续任务缺组件无法开工；GC-prototype-driven-dev 明确 Wave 0 必须最先做",
-  "next_action_confirmed": true,
+  "updated_at": "2026-10-23T10:56:32Z",
+  "next_action": "等 DEC-062（fix/worktree-aware-governance）合入 master 后，完成 T-084 的 local-ci → push → PR（不 merge），随后把 T-084 标 done",
+  "next_action_why": "代码、单测、原型闭环验证全部绿并已提交在 feat/ai-weekly-summary；唯一缺口是 worktree 下 gov-validate 的两条恒失败项，其既定修复是 DEC-062。禁 --no-verify / CI=1 绕过，故必须等修复合入再推送",
+  "next_action_confirmed": false,
   "known_risks": [
     "任务无 ready AC 不得开工；in_progress 缺 definition_of_done 会触发 GOV-PROTO-004（DEC-048）。",
     "分支保护 / GitHub Pro / 公开仓：人类明确不做。权威合入门禁改为本地 `bash scripts/governance/gov-local-ci.sh` + pre-push validate；master 已含 DEC-045..047（merge 9cfc46d）。真机 APK 验收仍须人类。",

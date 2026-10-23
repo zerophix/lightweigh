@@ -1,6 +1,6 @@
 # 项目状态
 
-> 由 generate-status.py 自动生成。最后更新: 2026-10-23T09:30:29Z
+> 由 generate-status.py 自动生成。最后更新: 2026-10-23T10:56:32Z
 > 新 AI 启动时: `cat STATUS.md && bash scripts/session/ses-context-load.sh`
 
 ---
@@ -12,8 +12,8 @@
 | 名称 | 轻衡健康 Android（lightweigh） |
 | 版本 | 0.1.0 |
 | 文档语言 | zh-CN |
-| Git 分支 | feat/wave1-history-trend |
-| 最后提交 | a403e12 chore(tasks): unblock T-099 with prototype-based acceptance |
+| Git 分支 | feat/ai-weekly-summary |
+| 最后提交 | a146a9b chore(tasks): claim t-084 and register its unit test |
 | 文档校验 | 运行: `bash scripts/governance/gov-validate.sh` |
 
 ## AI 交接
@@ -28,34 +28,32 @@
 
 **上下文：**
 
-> 完成: 原型驱动开发与文档治理闭环全部落地并合入 master（PR #31, merge 3df489a）:
-1) 原型闭环: gov-prototype-verify.py + GOV-PROTO 校验 + 34 任务补 prototype_ref/target_files/module/ac_refs/prd_ref/wave + skill prototype-dev
-2) 文档闭环: GOV-DOCS-001~005 + gov-validate --fix 自愈 + skill docs-manage + 29 条测试
-3) PR 模板: 补上规范强制但缺失的 .github/PULL_REQUEST_TEMPLATE.md + 7 条 guard-safe 测试
-4) DEC-057 (治理从文档约束升级为脚本门禁)、DEC-058 (CI 变更范围白名单)
-5) CI 慢因修复: gov-ci-scope.sh 单一真源 + 15 条负向测试，非构建类路径不再白跑全量 gradle
-6) Notion 六阶段文档体系: 新增 04-研发/05-测试/06-发布/07-运维 + 9 篇专业文档 + 真源归属规则
-7) 本地已切回 master 并 ff，feature 分支本地已删，gov-validate 0 违规 / 125 测试通过 | 决策: 1) 强制力介质选 validator 脚本而非 AGENTS.md —— 治理设计约束 Q2: 后者最易写也最易被忽略，本次全部规则挂进 gov-validate 三层闸门 (pre-commit / gov-local-ci / GitHub CI)
-2) 自愈准入判据: 自愈安全性 = 改错了会不会被同一条规则立刻抓到。GOV-DOCS-004 计数同步是自洽的 (改错下次仍红) 故允许 --fix；005 时间戳是自噬的 (无脑改今日则规则永久失效) 故必须绑 git diff 判定内容真有变更；统一边界为只重写已有锚点、不新增结构
-3) PR 模板刻意不含 allow-no-tests / allow-schema-change 字面量，也不含 DEC 加三位数字 —— 两个 guard 靠匹配 PR body 放行，模板自带即永久静默放行；首次写时我自己踩中 DEC-048，靠变异测试抓回
-4) CI 范围判定用白名单而非黑名单: 白名单外默认 code=true，新增构建目录也不会漏；.github/ 故意不入白名单，改 CI 本身仍保守构建
-5) 把内联在 ci.yml 的正则抽为可测脚本，否则改白名单时无人能回答会不会漏源码
-6) 三个工具定位: Notion 管为什么做什么谁定的 (结构化真源)、仓库 docs/ 管怎么做与机器校验 (承重、可重建性差)、幕布管还在想的事 (迁完即弃)
+> 完成: 1) T-084 新增两个呈现式 Screen（只新建文件，未碰 AiScreen/AiViewModel 等 Wave 2 T-083 归属文件）:
+   - app/src/main/kotlin/com/xcwk/scalehub/feature/ai/AiWeeklySummary.kt（原型20 v-weekly: 成员+日期区间 hint / 总结句卡 / 关键变化三格 / 本周亮点 / 下周建议 / 免责 note / 生成下周计划+返回；周数据为空走 Wave 0 的 ui/states QkEmptyState，不渲染假指标）
+   - app/src/main/kotlin/com/xcwk/scalehub/feature/ai/MemberPermissionDetail.kt（v-member-detail: 身份行+当前标签 / 权限管理五项开关与说明 / 数据概览（goalProgressPercent 目标进度 39%，区间<=0 返回 0 不除零）/ 关联设备 / note / 查看 AI 周总结+保存权限）
+2) 新增 app/src/test/kotlin/com/xcwk/scalehub/feature/Wave1AiWeeklyTest.kt：12 条 JVM 单测（空态分支判定、除零兜底、不补假行），:app:testDebugUnitTest 共 138 全绿；pytest tests/unit 155 全绿
+3) gov-prototype-verify.py T-084 --strict 通过（文案匹配率 55% / 54%，无硬编码颜色与裸 dp）
+4) 治理侧两处既有文件必改已登记: tests/android-test-registry.yaml 注册新测试（GOV-ATEST-005）；gov-validate --fix 同步 docs/ai/lifecycle/03_TaskGraph.md 计数为 57 pending，并随 .ai/tasks.json（T-084 → in_progress）一起提交
+5) 提交: 14c9258 feat(ai) / a146a9b chore(tasks)，均经 ses-claim-staged 声明归属、无 --no-verify | 决策: 1) 呈现式约束: Screen 纯渲染，状态由独立 data class（AiWeeklySummaryUiState / MemberPermissionDetailUiState）整体传入，不读 repository、不建 ViewModel，避免与 T-083 的四件套抢文件（GC-prototype-driven-dev 同模块串行）。
+2) 空态与除零: AC 明确「周数据为空走通用空态、不出现除零或假数据」，故把判定抽成可测纯函数（hasData / goalProgressPercent / lostKg / overview*Text），单测覆盖起始<=目标、反向增长、超额达成等边界——这正是「写错了没人会发现」的部分。
+3) 视觉: 颜色/圆角/间距全走 QkColor/QkRadius/QkSpacing（含派生 QkSpacing.Xl*2 做 48dp 头像），文案逐字取自原型；原型 .card.soft/.rows/.lbl 等 QkCard 无法直接表达的版式用 token 自组容器，不新造 token（QkTheme 属既有文件，禁改）。
+4) 拒绝绕过: gov-validate 两项失败用 CI=1 或 --no-verify 都能「过」，但 DEC-062 已把 CI=1 绕过评为 1/5 分（伪造环境掩盖真实问题），本任务也明令禁止 --no-verify，故选择等待既定修复。
+5) tasks.json / 03_TaskGraph.md 一起提交而非只改本地: 计数校验要求两者自洽，只改一边会在合并后让 master 变红。
 
 **下一步：**
 
-> 修 GOV-PROTO 撞号: 把 gov_validate_prototype.py 的规则改名为不与 gov_validate_protocol.py 冲突的前缀 (如 GOV-PTASK-001~007)，同步 skill/binding/GC 文档/测试中的引用
+> 等 DEC-062（fix/worktree-aware-governance）合入 master 后，完成 T-084 的 local-ci → push → PR（不 merge），随后把 T-084 标 done
 
 ## 最近动态
 
 最近 5 次提交：
 
 ```
-a403e12 chore(tasks): unblock T-099 with prototype-based acceptance
-116f8ad chore(status): local-ci evidence after wave one delivery
-29d193c chore(tasks): mark wave zero states and components tasks done
-25a5593 feat(history): deliver wave 1 detail edit and metric screens (DEC-061)
-f8649fa chore(tasks): record wave 1 acceptance and trace fields
+a146a9b chore(tasks): claim t-084 and register its unit test
+14c9258 feat(ai): add weekly summary and member permission detail screens
+d9ba3f1 Merge pull request #38 from zerophix/chore/wave1-ac-batch
+97267b9 chore(tasks): add ready acceptance for wave1 batch T-084/091/096/102
+754c37a Merge pull request #36 from zerophix/feat/wave1-history-trend
 ```
 
 ## 工程指标
@@ -83,19 +81,18 @@ f8649fa chore(tasks): record wave 1 acceptance and trace fields
 
 | 检查项 | 状态 | 详情 |
 |-------|------|------|
-| 本地门禁 (gov-local-ci) | 通过 | local-ci PASS @ 2026-10-23T09:30:29Z sha=a403e12 branch=feat/wave1-history-trend [gradlew build:ok,gov-validate:ok,gov-custom-checks:ok,gov-secrets-scan:ok,gov-schema-guard:ok,gov-test-guard:ok] |
-| GitHub Actions | 进行中 | ci @ 2026-10-23T09:28:30Z sha=116f8ad https://github.com/zerophix/lightweigh/actions/runs/39932096524 |
-| 文档校验 | 通过 | 来自 local-ci @ 2026-10-23T09:30:29Z sha=a403e12 |
-| Git 钩子 | 通过 | 安装: bash scripts/bootstrap/bs-install-hooks.sh |
+| 本地门禁 (gov-local-ci) | 失败 | local-ci FAIL @ 2026-10-23T09:57:45Z sha=14c9258 branch=feat/ai-weekly-summary [gradlew build:ok,gov-validate:fail,gov-custom-checks:ok,gov-secrets-scan:ok,gov-schema-guard:ok,gov-test-guard:ok] |
+| GitHub Actions | 无数据 | gh 不可用或无最近 run |
+| 文档校验 | 失败 | 来自 local-ci @ 2026-10-23T09:57:45Z sha=14c9258 |
+| Git 钩子 | 未安装 | 安装: bash scripts/bootstrap/bs-install-hooks.sh |
 
 ## 反思
 
 > 上次 AI session 的经验教训。新 AI 启动时必读。
 
-1) 强制力介质选 validator 脚本而非 AGENTS.md —— 治理设计约束 Q2: 后者最易写也最易被忽略，本次全部规则挂进 gov-validate 三层闸门 (pre-commit / gov-local-ci / GitHub CI)
-> 2) 自愈准入判据: 自愈安全性 = 改错了会不会被同一条规则立刻抓到。GOV-DOCS-004 计数同步是自洽的 (改错下次仍红) 故允许 --fix；005 时间戳是自噬的 (无脑改今日则规则永久失效) 故必须绑 git diff 判定内容真有变更；统一边界为只重写已有锚点、不新增结构
-> 3) PR 模板刻意不含 allow-no-tests / allow-schema-change 字面量，也不含 DEC 加三位数字 —— 两个 guard 靠匹配 PR body 放行，模板自带即永久静默放行；首次写时我自己踩中 DEC-048，靠变异测试抓回
-> 4) CI 范围判定用白名单而非黑名单: 白名单外默认 code=true，新增构建目录也不会漏；.github/ 故意不入白名单，改 CI 本身仍保守构建
-> 5) 把内联在 ci.yml 的正则抽为可测脚本，否则改白名单时无人能回答会不会漏源码
-> 6) 三个工具定位: Notion 管为什么做什么谁定的 (结构化真源)、仓库 docs/ 管怎么做与机器校验 (承重、可重建性差)、幕布管还在想的事 (迁完即弃)
+1) 呈现式约束: Screen 纯渲染，状态由独立 data class（AiWeeklySummaryUiState / MemberPermissionDetailUiState）整体传入，不读 repository、不建 ViewModel，避免与 T-083 的四件套抢文件（GC-prototype-driven-dev 同模块串行）。
+> 2) 空态与除零: AC 明确「周数据为空走通用空态、不出现除零或假数据」，故把判定抽成可测纯函数（hasData / goalProgressPercent / lostKg / overview*Text），单测覆盖起始<=目标、反向增长、超额达成等边界——这正是「写错了没人会发现」的部分。
+> 3) 视觉: 颜色/圆角/间距全走 QkColor/QkRadius/QkSpacing（含派生 QkSpacing.Xl*2 做 48dp 头像），文案逐字取自原型；原型 .card.soft/.rows/.lbl 等 QkCard 无法直接表达的版式用 token 自组容器，不新造 token（QkTheme 属既有文件，禁改）。
+> 4) 拒绝绕过: gov-validate 两项失败用 CI=1 或 --no-verify 都能「过」，但 DEC-062 已把 CI=1 绕过评为 1/5 分（伪造环境掩盖真实问题），本任务也明令禁止 --no-verify，故选择等待既定修复。
+> 5) tasks.json / 03_TaskGraph.md 一起提交而非只改本地: 计数校验要求两者自洽，只改一边会在合并后让 master 变红。
 
