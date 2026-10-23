@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "updated_at": "2026-10-23T09:26:02Z",
-  "next_action": "开工 Wave 0 基础组件 T-097/T-098/T-099（通用状态页、下拉刷新与滑删与无限滚动与搜索栏、骨架屏与长按菜单）",
-  "next_action_why": "Wave 0 组件被 Wave 1/2 多个任务复用，未完成则后续任务缺组件无法开工；GC-prototype-driven-dev 明确 Wave 0 必须最先做",
+  "updated_at": "2026-10-23T10:45:46Z",
+  "next_action": "Wave 1 并行开发独立新文件任务（语言与外观、网络与服务状态等），不改既有模块文件",
+  "next_action_why": "人类已确认继续 Wave 1 多会话并行；T-091 与 T-102 已完成，其余任务只新建文件且互不重叠",
   "next_action_confirmed": true,
   "known_risks": [
     "任务无 ready AC 不得开工；in_progress 缺 definition_of_done 会触发 GOV-PROTO-004（DEC-048）。",
@@ -20,7 +20,8 @@
     "join(labels) 表达式若 Actions 解析失败可回退 GITHUB_EVENT_PATH 读标签",
     "模块级匹配可能漏同名类级缺口；资源路径已忽略",
     "无新增代码风险。模板 clone URL 仍指向 nekings/ai-project-template（上游有意保留）。",
-    "STATUS.md 的「下一步」由模板受管的 gov-generate-status.py 从 context.jsonl 的 last handoff 读取，而权威 next_action 在 .ai/tasks.json；两者在 wf-task-board.sh next 之后会脱节直到下次 session-end。gov-generate-status.py 在 gov-owned.list 中，改它升级会被覆盖，需先有 DEC 决定改所有权或加扩展点。"
+    "STATUS.md 的「下一步」由模板受管的 gov-generate-status.py 从 context.jsonl 的 last handoff 读取，而权威 next_action 在 .ai/tasks.json；两者在 wf-task-board.sh next 之后会脱节直到下次 session-end。gov-generate-status.py 在 gov-owned.list 中，改它升级会被覆盖，需先有 DEC 决定改所有权或加扩展点。",
+    "品牌色块使用现有 QkColor，与原型标注的色值文字可能不一致。页面未接线，设置页与同步页入口还看不到。"
   ],
   "tasks": [
     {
@@ -1251,11 +1252,11 @@
       "id": "T-091",
       "description": "settings: 语言与外观设置",
       "why": "原型24 v-language/v-appearance · 新增 settings/LanguageSettings.kt settings/AppearanceSettings.kt",
-      "status": "pending",
-      "assigned_to": "",
+      "status": "completed",
+      "assigned_to": "ai",
       "dec": "",
       "created_at": "2026-10-23T03:52:35Z",
-      "updated_at": "2026-10-23T09:50:00Z",
+      "updated_at": "2026-10-23T10:36:09Z",
       "notes": "",
       "prototype_ref": {
         "file": "design/prototypes/interactive/24-remaining-gaps.html",
@@ -1740,11 +1741,11 @@
       "id": "T-102",
       "description": "sync: 网络状态与服务状态页",
       "why": "原型08 v-network/v-service · 新增 sync/NetworkStatus.kt sync/ServiceStatus.kt",
-      "status": "pending",
-      "assigned_to": "",
+      "status": "completed",
+      "assigned_to": "ai",
       "dec": "",
       "created_at": "2026-10-23T03:56:21Z",
-      "updated_at": "2026-10-23T09:50:00Z",
+      "updated_at": "2026-10-23T10:36:09Z",
       "notes": "",
       "prototype_ref": {
         "file": "design/prototypes/interactive/08-sync-network-help.html",
