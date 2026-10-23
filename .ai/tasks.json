@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-10-23T09:04:25Z",
+  "updated_at": "2026-10-23T09:14:30Z",
   "next_action": "开工 Wave 0 基础组件 T-097/T-098/T-099（通用状态页、下拉刷新与滑删与无限滚动与搜索栏、骨架屏与长按菜单）",
   "next_action_why": "Wave 0 组件被 Wave 1/2 多个任务复用，未完成则后续任务缺组件无法开工；GC-prototype-driven-dev 明确 Wave 0 必须最先做",
   "next_action_confirmed": true,
@@ -862,11 +862,11 @@
       "id": "T-081",
       "description": "history: 历史详情与记录编辑",
       "why": "原型05 v-detail/v-edit · 新增 history/HistoryDetail.kt history/RecordEdit.kt",
-      "status": "pending",
-      "assigned_to": "",
+      "status": "in_progress",
+      "assigned_to": "ai",
       "dec": "",
       "created_at": "2026-10-23T03:51:54Z",
-      "updated_at": "2026-10-23T03:51:54Z",
+      "updated_at": "2026-10-23T09:14:30Z",
       "notes": "",
       "prototype_ref": {
         "file": "design/prototypes/interactive/05-history-trend.html",
@@ -882,19 +882,49 @@
       "wave": 1,
       "module": "history",
       "ac_refs": [
-        "AC-J1-08 历史记录详情与编辑"
+        "AC-HT3 详情指标与报告同源（同 recordId）",
+        "AC-HT6 飞行模式下可打开已有历史详情"
       ],
-      "prd_ref": "https://app.notion.com/p/40141bd50f8a8131aad6f95b74dcf436"
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a8131aad6f95b74dcf436",
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "本地已存在测量记录（含多指标字段）",
+          "设备处于飞行模式"
+        ],
+        "when": "从历史列表进入详情页，或对某条记录执行编辑（仅时间与备注）",
+        "then": [
+          "详情页各项指标与报告页取自同一 recordId，不出现两处不一致（AC-HT3 原文）",
+          "飞行模式下仍可打开已有历史详情（AC-HT6 原文）",
+          "编辑仅时间与备注可改，测量数值来自设备不可修改（原型 v-edit 文案）"
+        ],
+        "forbidden": [
+          "编辑后改动测量数值（来自设备的读数）",
+          "详情页另取一套数据源导致与报告不一致"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-081 --strict",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "definition_of_done": [
+          "HistoryDetail.kt 与 RecordEdit.kt 存在且可编译",
+          "原型对应 view 的布局与文案一致（v-detail / v-edit）",
+          "无硬编码颜色与间距（--strict 通过）",
+          "recordId 同源与编辑字段限制有 JVM 单测覆盖",
+          ":app:testDebugUnitTest 通过"
+        ],
+        "open_questions": []
+      }
     },
     {
       "id": "T-082",
       "description": "trend: 指标详情页（体重/BMI/肌肉/水分/内脏/代谢/评分/骨骼）",
       "why": "原型17全部9屏 · 新增 trend/MetricDetailScreen.kt",
-      "status": "pending",
-      "assigned_to": "",
+      "status": "in_progress",
+      "assigned_to": "ai",
       "dec": "",
       "created_at": "2026-10-23T03:51:54Z",
-      "updated_at": "2026-10-23T03:51:54Z",
+      "updated_at": "2026-10-23T09:14:30Z",
       "notes": "",
       "prototype_ref": {
         "file": "design/prototypes/interactive/17-metric-details.html",
@@ -916,9 +946,39 @@
       "wave": 1,
       "module": "trend",
       "ac_refs": [
-        "AC-J1-09 各指标趋势详情页"
+        "AC-HT4 趋势中间缺一天时不出现跨空洞插值线",
+        "AC-HT5 仅 1 条测量时为 InsufficientData，不画假趋势"
       ],
-      "prd_ref": "https://app.notion.com/p/40141bd50f8a8131aad6f95b74dcf436"
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a8131aad6f95b74dcf436",
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "历史中存在测量记录，含趋势中间缺失日期的场景",
+          "仅 1 条测量记录的场景"
+        ],
+        "when": "进入任一指标（体重/BMI/肌肉/水分/内脏/代谢/评分/骨骼）的趋势详情页",
+        "then": [
+          "趋势中间缺一天时不出现跨空洞的插值连线（AC-HT4 原文）",
+          "仅 1 条测量时判定为 InsufficientData，不画假趋势（AC-HT5 原文）",
+          "无数据时按空态呈现，不渲染伪造数值（AC-HT1 原文，复用 QkEmptyState）"
+        ],
+        "forbidden": [
+          "缺失日期跨空洞插值成连续曲线",
+          "数据不足时编造趋势走向或斜率"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-082 --strict",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "definition_of_done": [
+          "MetricDetailScreen.kt 存在且可编译",
+          "原型 9 个 view（v-list/v-weight/v-bmi/v-muscle/v-water/v-visceral/v_metabolism/v-score/v-bone）覆盖",
+          "无硬编码颜色与间距（--strict 通过）",
+          "缺日不插值与 InsufficientData 判定有 JVM 单测覆盖（这是 AC-HT4/HT5 的可判定部分）",
+          ":app:testDebugUnitTest 通过"
+        ],
+        "open_questions": []
+      }
     },
     {
       "id": "T-083",
