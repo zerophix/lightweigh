@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-10-23T09:26:02Z",
+  "updated_at": "2026-10-23T09:38:14Z",
   "next_action": "开工 Wave 0 基础组件 T-097/T-098/T-099（通用状态页、下拉刷新与滑删与无限滚动与搜索栏、骨架屏与长按菜单）",
   "next_action_why": "Wave 0 组件被 Wave 1/2 多个任务复用，未完成则后续任务缺组件无法开工；GC-prototype-driven-dev 明确 Wave 0 必须最先做",
   "next_action_confirmed": true,
@@ -1251,11 +1251,11 @@
       "id": "T-091",
       "description": "settings: 语言与外观设置",
       "why": "原型24 v-language/v-appearance · 新增 settings/LanguageSettings.kt settings/AppearanceSettings.kt",
-      "status": "pending",
-      "assigned_to": "",
+      "status": "in_progress",
+      "assigned_to": "ai",
       "dec": "",
       "created_at": "2026-10-23T03:52:35Z",
-      "updated_at": "2026-10-23T09:50:00Z",
+      "updated_at": "2026-10-23T09:38:14Z",
       "notes": "",
       "prototype_ref": {
         "file": "design/prototypes/interactive/24-remaining-gaps.html",
