@@ -6,7 +6,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 
 /**
- * po — 测量行（DEC-057 / Room v8）。
+ * po — 测量行（DEC-058 / Room v8）。
  *
  * PK = recordId（客户端 UUID）。measuredAt 保留为采样时刻，
  * 业务防重 UNIQUE(memberId, measuredAt)。冲突与水位看 updatedAt。

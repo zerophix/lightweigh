@@ -298,7 +298,7 @@ class SyncService(
 
         // measurements 增量拉取：只拉 > pulledWatermark 的行
         val mWatermark = syncState?.get("measurements", mid)?.second ?: 0L
-        // 水位值是 updatedAt。云列 updated_at 未加之前，此过滤会使恢复失败（见 DEC-057 云跟进）。
+        // 水位值是 updatedAt。云列 updated_at 未加之前，此过滤会使恢复失败（见 DEC-058 云跟进）。
         val mFilter = if (mWatermark > 0) "&updated_at=gt.$mWatermark" else ""
         val measurementRows = cloud.rows(
             "measurements", "owner_id=eq.$userId&select=*&order=measured_at.desc&limit=180$mFilter",

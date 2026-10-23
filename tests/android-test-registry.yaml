@@ -195,7 +195,7 @@ commands:
   path: infrastructure/src/test/kotlin/com/xcwk/scalehub/infrastructure/profile/ProfileStoreKeyTest.kt
   status: stable
   type: gradle-test
-- description: 成员 JSON 编解码（DEC-057 / DEC-S04）
+- description: 成员 JSON 编解码（DEC-058 / DEC-S04）
   path: infrastructure/src/test/kotlin/com/xcwk/scalehub/infrastructure/member/MemberCodecTest.kt
   status: stable
   type: gradle-test

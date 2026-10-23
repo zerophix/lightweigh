@@ -11,7 +11,7 @@
 | 项 | 值 |
 |----|-----|
 | 已合入主线 | DEC-034 架构债收口；DEC-035 组合根端口化；DEC-036~044 同步/读写分离/称重修复/调试/习惯等 |
-| Room | version 8，schema 1~8 入库（DEC-057） |
+| Room | version 8，schema 1~8 入库（DEC-058） |
 | 真机 BLE | 用户确认真机秤可用；Chipsea 混合广播误识别已修（DEC-044） |
 | 任务板 next_action | 见 `.ai/tasks.json`（近期曾为「真机安装 APK 验证」类人类动作） |
 

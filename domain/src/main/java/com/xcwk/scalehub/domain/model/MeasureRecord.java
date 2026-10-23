@@ -41,7 +41,7 @@ public final class MeasureRecord {
     public final Boolean male;
     public final Integer ageYears;
     public final Integer heightCm;
-    /** 同步身份（UUIDv4）。空串表示尚未分配，仓储落库时补齐（DEC-057 / DEC-S01）。 */
+    /** 同步身份（UUIDv4）。空串表示尚未分配，仓储落库时补齐（DEC-058 / DEC-S01）。 */
     public final String recordId;
     /** 冲突与水位时刻，epoch ms UTC。0 在构造时归一为 [time]。 */
     public final long updatedAt;

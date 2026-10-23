@@ -135,7 +135,7 @@ class MigrationTest {
     }
 
     /**
-     * v7 → v8（DEC-057）：测量改 UUID 主键并保留采样行；健康日志主键带 memberId；
+     * v7 → v8（DEC-058）：测量改 UUID 主键并保留采样行；健康日志主键带 memberId；
      * 设备只加 updatedAt / unboundAt，不删行。
      */
     @Test

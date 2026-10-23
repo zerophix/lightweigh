@@ -27,7 +27,7 @@ import com.xcwk.scalehub.infrastructure.persistent.po.SyncStatePo
 
 /**
  * Room 数据库入口。schema 纪律：改实体必须 version+1 + 写 Migration + 导出 schema 快照入库。
- * v8：DEC-057，对齐已签 Notion DEC-S01…S16。
+ * v8：DEC-058，对齐已签 Notion DEC-S01…S16。
  */
 @Database(
     entities = [
@@ -154,7 +154,7 @@ abstract class AppDatabase : RoomDatabase() {
         }
 
         /**
-         * v7 → v8（DEC-057）：签过的 DEC-S01…S16 目标态。
+         * v7 → v8（DEC-058）：签过的 DEC-S01…S16 目标态。
          *
          * 测量表重建（PK 不能 ALTER）：recordId UUID、updatedAt=measuredAt、deletedAt NULL、
          * syncStatus 0、note ''，UNIQUE(memberId, measuredAt)。

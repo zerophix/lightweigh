@@ -5,7 +5,7 @@ import androidx.room.Entity
 import androidx.room.Index
 
 /**
- * po — 健康记录。本地主键 (memberId, loggedAt, type)，消除跨成员同秒碰撞（DEC-057）。
+ * po — 健康记录。本地主键 (memberId, loggedAt, type)，消除跨成员同秒碰撞（DEC-058）。
  * updatedAt 为冲突/水位时刻；deletedAt 为软删墓碑。
  */
 @Entity(

@@ -3,7 +3,7 @@ package com.xcwk.scalehub.application.sync
 import com.xcwk.scalehub.domain.model.MeasureRecord
 
 /**
- * 测量同步读口（DEC-057）。与 UI 查询分离：包含墓碑，按 updatedAt / syncStatus 选取。
+ * 测量同步读口（DEC-058）。与 UI 查询分离：包含墓碑，按 updatedAt / syncStatus 选取。
  */
 interface MeasurementSyncPort {
     suspend fun due(memberId: String, watermark: Long): List<MeasureRecord>

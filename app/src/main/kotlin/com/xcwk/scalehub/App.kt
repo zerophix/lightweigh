@@ -92,7 +92,7 @@ class AppContainer(context: Context) {
         com.xcwk.scalehub.infrastructure.persistent.repository.RoomPendingSyncRepository(database.pendingSyncDao())
     }
 
-    /** 本机测量用户（Room members，DEC-057 / DEC-S04）。 */
+    /** 本机测量用户（Room members，DEC-058 / DEC-S04）。 */
     private val memberRepository: com.xcwk.scalehub.infrastructure.member.MemberStore by lazy {
         com.xcwk.scalehub.infrastructure.member.MemberStore(context, database)
     }

@@ -50,16 +50,16 @@ b23d5c5 docs(decisions): index DEC-056 for chipsea deviceName match
 
 | 指标 | 数量 |
 |------|------|
-| 决策日志 (DEC) | 57 |
+| 决策日志 (DEC) | 58 |
 | 设计笔记 (NOTE) | 10 |
 | 开发指南 (GC) | 8 |
 | 技术参考 (REF) | 1 |
 
 最近决策：
 
-- [DEC-057](docs/ai/decisions/DEC-057.md): DEC-057: Room v8 对齐已签库表目标态
+- [DEC-058](docs/ai/decisions/DEC-058.md): DEC-058: Room v8 对齐已签库表目标态
+- [DEC-057](docs/ai/decisions/DEC-057.md): DEC-057: 需求到编码链路作为任务验收锚点
 - [DEC-056](docs/ai/decisions/DEC-056.md): DEC-056: 扫描回调 deviceName 参与 Chipsea 混合协议识别
-- [DEC-055](docs/ai/decisions/DEC-055.md): DEC-055: 文档内容一致性治理（lightweigh / 轻衡）
 
 最近笔记：
 
