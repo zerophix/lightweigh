@@ -74,9 +74,30 @@ def check_protocol() -> None:
         try:
             tasks_data = json.loads(tasks_file.read_text(encoding="utf-8"))
             tasks = tasks_data.get("tasks", [])
-            zombie = [t.get("id", "?") for t in tasks if t.get("status") == "in_progress"]
+            # 僵尸 = 认领后 24 小时无任何看板更新。
+            # DEC-060: 原实现只判 status==in_progress 就 fail，消息却写「超过 24 小时」，
+            # 声明与行为不符 —— 结果是任务一旦被认领就无法通过校验，
+            # pre-commit/pre-push 都跑 gov-validate，等于禁止在工作过程中提交。
+            # 改为按 updated_at（回退 created_at）计算实际停滞时长。
+            zombie = []
+            for t in tasks:
+                if t.get("status") != "in_progress":
+                    continue
+                ts = t.get("updated_at") or t.get("created_at")
+                if not ts:
+                    zombie.append(t.get("id", "?"))  # 无法判定停滞时长 → 保守当僵尸
+                    continue
+                try:
+                    dt = datetime.fromisoformat(str(ts).replace("Z", "+00:00"))
+                    if dt.tzinfo is None:
+                        dt = dt.replace(tzinfo=timezone.utc)
+                    hours = (datetime.now(timezone.utc) - dt).total_seconds() / 3600
+                    if hours > 24:
+                        zombie.append(t.get("id", "?"))
+                except (ValueError, TypeError):
+                    zombie.append(t.get("id", "?"))
             if zombie:
-                fail(f"GOV-PROTO-003: 存在僵尸任务（in_progress 超过 24 小时）: {', '.join(zombie)}")
+                fail(f"GOV-PROTO-003: 存在僵尸任务（in_progress 超过 24 小时无看板更新）: {', '.join(zombie)}")
             else:
                 print("  [PASS] 无僵尸任务")
 
