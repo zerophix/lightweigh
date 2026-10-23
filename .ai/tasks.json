@@ -1542,12 +1542,12 @@
       "id": "T-099",
       "description": "components: 组件补全（骨架屏/长按菜单）",
       "why": "原型09 v-skeleton/v-longpress · 新增 ui/components/QkSkeleton.kt QkLongPressMenu.kt",
-      "status": "blocked",
+      "status": "pending",
       "assigned_to": "ai",
       "dec": "",
       "created_at": "2026-10-23T03:52:45Z",
-      "updated_at": "2026-10-23T08:43:01Z",
-      "notes": "| 阻塞: 无 PRD 级 AC 可绑：全库检索 AC-* 与会签用例 T-J* 均无骨架屏/长按菜单条目；按 GC-task-acceptance 需人类或 DEC 裁定验收依据（详见任务 acceptance.open_questions）",
+      "updated_at": "2026-10-23T09:45:00Z",
+      "notes": "",
       "prototype_ref": {
         "file": "design/prototypes/interactive/09-components-demo.html",
         "views": [
@@ -1561,32 +1561,39 @@
       ],
       "wave": 0,
       "module": "components",
-      "ac_refs": [],
+      "ac_refs": [
+        "M18 通用组件（主PRD）",
+        "原型09 v-skeleton",
+        "原型09 v-longpress"
+      ],
       "prd_ref": "https://app.notion.com/p/40141bd50f8a818fbdbcc0396b31763c",
       "acceptance": {
-        "status": "blocked",
+        "status": "ready",
         "given": [
-          "主 PRD 定义模块 M18 通用状态与组件，内容含骨架、空态、通用错误、确认弹窗、选择器",
-          "上线完备清单给出工程落点 ui/components"
+          "主 PRD 定义模块 M18 通用状态与组件",
+          "原型09 定义 v-skeleton 与 v-longpress 两个 view"
         ],
-        "when": "尝试为骨架屏与长按菜单绑定可复制的验收标准时",
+        "when": "实现 QkSkeleton 与 QkLongPressMenu 通用组件",
         "then": [
-          "在 Notion 全库检索 AC-* 与会签用例 T-J* 均无覆盖骨架屏 / 长按菜单的条目",
-          "按 GC-task-acceptance：有未答问题则 status=blocked，禁止开工"
+          "QkSkeleton 支持三种形态：line（宽度可配百分比）、circle（头像位）、block（卡片块），shimmer 动画期间布局占位尺寸稳定、内容加载后无跳动",
+          "QkLongPressMenu 长按弹出黑色菜单条（深色底、白色文字、竖分隔线、圆角），支持自定义菜单项与回调；选中高亮用品牌色 QkColor.Primary",
+          "零硬编码颜色/间距（全用 Qk token），gov-prototype-verify.py T-099 --strict 通过 + 单测覆盖三种骨架形态与菜单回调"
         ],
         "forbidden": [
-          "编造 AC 编号（本轮已发现 T-097/098/099 曾使用不存在的 AC-E2E-01/02/03）"
+          "硬编码颜色或间距",
+          "把长文展开/收起组件纳入本任务（归 AI 模块文案任务，范围外）",
+          "编造 AC 编号"
         ],
         "verify_commands": [
-          "python3 scripts/governance/gov-prototype-verify.py T-099 --strict"
+          "python3 scripts/governance/gov-prototype-verify.py T-099 --strict",
+          "./gradlew :app:testDebugUnitTest"
         ],
         "definition_of_done": [
-          "人类或 DEC 明确：启用型/组件型任务在无 PRD 级 AC 时以何为验收依据"
+          "QkSkeleton.kt 与 QkLongPressMenu.kt 存在且可编译",
+          "原型对应 view 的布局与文案一致（v-skeleton / v-longpress）",
+          "单测通过且 gov-prototype-verify --strict 通过"
         ],
-        "open_questions": [
-          "骨架屏与长按菜单无 PRD 级 AC，是否接受以主 PRD M18 模块定义 + 原型 view 为验收依据？",
-          "若不接受，需先补一条 PRD AC 或开 DEC 修订 DOC-需求到编码链路 §3 的绑定要求"
-        ]
+        "open_questions": []
       }
     },
     {
