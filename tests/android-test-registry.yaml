@@ -195,6 +195,10 @@ commands:
   path: infrastructure/src/test/kotlin/com/xcwk/scalehub/infrastructure/profile/ProfileStoreKeyTest.kt
   status: stable
   type: gradle-test
+- description: 成员 JSON 编解码（DEC-057 / DEC-S04）
+  path: infrastructure/src/test/kotlin/com/xcwk/scalehub/infrastructure/member/MemberCodecTest.kt
+  status: stable
+  type: gradle-test
 - description: 同步编排行为（旧库 CloudSync 语义 + M2b 水位线/对账/幂等 + T-011 多成员隔离）
   path: application/src/test/kotlin/com/xcwk/scalehub/application/sync/SyncServiceTest.kt
   status: stable

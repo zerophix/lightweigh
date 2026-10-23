@@ -75,6 +75,11 @@ class RoomDeviceRepositoryTest {
         assertThat(repo.device("11:22:33:44:55:66")!!.active).isFalse()
         repo.unbind("AA:BB:CC:DD:EE:FF")
         assertThat(repo.contains("AA:BB:CC:DD:EE:FF")).isFalse()
+        val tombstone = dao.rows["AA:BB:CC:DD:EE:FF"]
+        assertThat(tombstone).isNotNull()
+        assertThat(tombstone!!.unboundAt).isNotNull()
+        assertThat(tombstone.name).isEqualTo("甲")
+        assertThat(tombstone.active).isFalse()
     }
 
     @Test

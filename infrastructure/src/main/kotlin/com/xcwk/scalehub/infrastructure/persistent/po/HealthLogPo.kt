@@ -2,13 +2,17 @@ package com.xcwk.scalehub.infrastructure.persistent.po
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Index
 
 /**
- * po — 健康记录持久化对象。表 health_logs 对应云表 public.health_logs 的本地列
- * （列名沿本地惯例 camelCase，同 measurements 对云表 measured_at 的处理）。
- * 复合主键 (loggedAt, type) = 云表 UNIQUE(owner, logged_at, type) 的本地形态。
+ * po — 健康记录。本地主键 (memberId, loggedAt, type)，消除跨成员同秒碰撞（DEC-057）。
+ * updatedAt 为冲突/水位时刻；deletedAt 为软删墓碑。
  */
-@Entity(tableName = "health_logs", primaryKeys = ["loggedAt", "type"])
+@Entity(
+    tableName = "health_logs",
+    primaryKeys = ["memberId", "loggedAt", "type"],
+    indices = [Index(value = ["updatedAt"])],
+)
 data class HealthLogPo(
     val loggedAt: Long,
     val type: String,
@@ -18,4 +22,6 @@ data class HealthLogPo(
     val note: String,
     @ColumnInfo(defaultValue = "1")
     val memberId: String,
+    val updatedAt: Long = loggedAt,
+    val deletedAt: Long? = null,
 )

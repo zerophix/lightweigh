@@ -15,6 +15,9 @@ import com.xcwk.scalehub.domain.model.MeasureRecord
 interface MeasurementRepository {
     suspend fun save(record: MeasureRecord, memberId: String)
 
-    /** 按测量时间戳删除单条（历史页删除，唯一键即时间戳）。 */
+    /**
+     * 按测量时间戳软删当前成员的一条（历史页删除）。
+     * Room 写 deletedAt 墓碑并保留行（DEC-S13）；内存实现直接移除（查询不可见，效果同）。
+     */
     suspend fun delete(time: Long)
 }

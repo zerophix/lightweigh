@@ -26,9 +26,14 @@ class AvatarStore(context: Context) {
         return if (scoped.exists()) scoped.absolutePath else null
     }
 
-    /** 删除某成员头像文件（成员移除联动）。 */
+    /** 删除某成员头像文件（成员移除联动）。删成员不清档案键（DEC-S09），头像文件仍删。 */
     fun removeFor(memberId: String) {
         fileFor(memberId).delete()
+    }
+
+    /** 清本机 / 注销：删掉整个头像目录（DEC-S05 / S11）。 */
+    fun clearAll() {
+        File(appContext.filesDir, "avatars").deleteRecursively()
     }
 
     fun saveFromUri(uri: Uri, memberId: String): String? = runCatching {

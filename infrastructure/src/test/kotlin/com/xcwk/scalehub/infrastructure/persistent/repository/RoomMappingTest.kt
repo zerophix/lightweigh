@@ -28,8 +28,8 @@ class RoomMappingTest {
             toReturn.sortedByDescending { it.measuredAt }.take(limit)
         override suspend fun between(from: Long, to: Long, memberId: String): List<MeasurementPo> =
             toReturn.filter { it.measuredAt >= from && it.measuredAt < to }
-        override suspend fun delete(time: Long) {
-            saved.removeAll { it.measuredAt == time }
+        override suspend fun delete(time: Long, memberId: String, now: Long) {
+            saved.removeAll { it.measuredAt == time && it.memberId == memberId }
             toReturn = saved.toList()
         }
     }
@@ -44,6 +44,9 @@ class RoomMappingTest {
         )
         repo.save(record, "member-1")
         assertThat(dao.saved).hasSize(1)
+        assertThat(dao.saved[0].recordId).isNotEmpty()
+        assertThat(dao.saved[0].syncStatus).isEqualTo(MeasureRecord.SYNC_CLEAN)
+        assertThat(dao.saved[0].deletedAt).isNull()
         assertThat(dao.saved[0].male).isTrue()
         assertThat(dao.saved[0].memberId).isEqualTo("member-1")
         assertThat(dao.saved[0].ageYears).isEqualTo(30)
@@ -65,7 +68,23 @@ class RoomMappingTest {
         val repo = RoomMeasurementRepository(dao, { "1" })
         // 模拟 v1 旧行为：仅 6 字段（经 PO 直塞）
         dao.toReturn = listOf(
-            MeasurementPo(1690000000000L, 68.0, 400.0, -1.0, "CC:DD", "builtin-1", null, null, null, "1"),
+            MeasurementPo(
+                recordId = "legacy-1690000000000",
+                measuredAt = 1690000000000L,
+                weightKg = 68.0,
+                impedanceOhm = 400.0,
+                fat = -1.0,
+                mac = "CC:DD",
+                algorithmId = "builtin-1",
+                male = null,
+                ageYears = null,
+                heightCm = null,
+                memberId = "1",
+                updatedAt = 1690000000000L,
+                deletedAt = null,
+                syncStatus = 0,
+                note = "",
+            ),
         )
         val back = RoomMeasurementQuery(dao, { "1" }).between(0L, Long.MAX_VALUE).single()
         assertThat(back.male).isNull()

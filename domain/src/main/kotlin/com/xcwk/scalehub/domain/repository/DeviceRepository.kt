@@ -7,7 +7,14 @@ import com.xcwk.scalehub.domain.model.ScaleDevice
  * 协议与算法编号在绑定时写下；normalizeMac 由实现持有（旧库 AppStore:208-227）。
  */
 interface DeviceRepository {
+    /** 仍绑定的秤（unboundAt 为空）。解绑行不出现在此列表。 */
     fun devices(): List<ScaleDevice>
+
+    /**
+     * 含已解绑行，供同步把 active=false 推上去，以及导出 device_label（DEC-S15）。
+     * 假件默认等同 [devices]（解绑即从列表消失的旧语义）。
+     */
+    fun allDevices(): List<ScaleDevice> = devices()
 
     fun contains(mac: String): Boolean
 

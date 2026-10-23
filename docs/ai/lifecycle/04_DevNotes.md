@@ -1,11 +1,31 @@
 # 开发笔记
 
-> 本迭代（M2 前置硬缺口闭环）的技术笔记、问题与发现。
-> 覆盖型文档：每次迭代重写，保留本次迭代的技术细节。
+> 本迭代（DEC-057 Room v8）的技术笔记。前序 M2 笔记仍留在下方，供对照。
+> 覆盖型文档：每次迭代重写顶部；历史段落保留到下一次整篇覆盖。
 
 ---
 
-## 0. 本迭代概览（DEC-036）
+## 0. 本迭代概览（DEC-057）
+
+**目标**：把已签 Notion DEC-S01…S16（无 S06）落成 `AppDatabase` version 8。不裁 MVP，家庭云/邀请不做。
+
+**库**：
+
+- 测量表重建 PK 为 `recordId`，存量行 SQL 生成 UUIDv4；`updatedAt` 迁入时等于 `measuredAt`。
+- `health_logs` 主键改为 `(memberId, loggedAt, type)`。
+- 新建 `goals`、`members`、`pending_sync`。设备加 `updatedAt` / `unboundAt`，`boundAt` 仍是 TEXT。
+- SP 里的目标与成员不在 SQL 迁移中导入，由 Store 首次打开导入。
+
+**同步与清理**：
+
+- 测量冲突键 `owner_id,record_id`。云缺列时 upsert 失败、水位不推进。
+- `targetWeight` 不进 profiles payload。
+- 注销与清本机共用本地擦除；只有注销会 `signOut`；清本机不打云。
+- 生产 `SyncService` 接上 `RoomSyncStateRepository`（此前组合根把 syncState 留空）。
+
+**验证**：`MigrationSchemaAgreementTest` 对拍 8.json；`MigrationTest.v7到v8` 待模拟器。本机用 sqlite3 演练同一条迁移 SQL。
+
+## 0b. 前序迭代概览（DEC-036）
 
 **目标**：完成 20261021_m2-prereq-checklist 核验出的 F-001~F-006 六项硬缺口，为 M2 业务逻辑开发扫清障碍。
 

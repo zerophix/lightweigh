@@ -21,6 +21,10 @@ class InMemoryHealthLogRepository : HealthLogRepository, HealthLogQueryPort {
         rows.add(log)
     }
 
+    override suspend fun markDeleted(time: Long, type: String, memberId: String) {
+        rows.removeAll { it.time == time && it.type == type }
+    }
+
     override suspend fun recent(limit: Int): List<HealthLog> =
         rows.sortedByDescending { it.time }.take(limit)
 

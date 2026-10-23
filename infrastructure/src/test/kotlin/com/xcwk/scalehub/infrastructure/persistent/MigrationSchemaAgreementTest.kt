@@ -140,6 +140,8 @@ class MigrationSchemaAgreementTest {
         assertThat(AppDatabase.MIGRATION_5_6.endVersion).isEqualTo(6)
         assertThat(AppDatabase.MIGRATION_6_7.startVersion).isEqualTo(6)
         assertThat(AppDatabase.MIGRATION_6_7.endVersion).isEqualTo(7)
+        assertThat(AppDatabase.MIGRATION_7_8.startVersion).isEqualTo(7)
+        assertThat(AppDatabase.MIGRATION_7_8.endVersion).isEqualTo(8)
     }
 
     @Test
@@ -170,6 +172,45 @@ class MigrationSchemaAgreementTest {
             assertThat(actualShape.second).isEqualTo(expectedShape.second)
         }
         assertThat(actualShape.second).isEqualTo(listOf("id"))
+    }
+
+    @Test
+    fun `迁移7_8重建表与schema8声明逐列一致`() {
+        val json = findSchema(8).readText(Charsets.UTF_8)
+        val cases = listOf(
+            "measurements" to AppDatabase.MIGRATION_7_8_MEASUREMENTS,
+            "health_logs" to AppDatabase.MIGRATION_7_8_HEALTH_LOGS,
+            "goals" to AppDatabase.CREATE_GOALS_TABLE_V8,
+            "members" to AppDatabase.CREATE_MEMBERS_TABLE_V8,
+            "pending_sync" to AppDatabase.CREATE_PENDING_SYNC_TABLE_V8,
+        )
+        for ((table, ddl) in cases) {
+            val match = Regex(""""tableName": "$table"[\s\S]*?"createSql": "(.*?)"""")
+                .find(json) ?: error("8.json 中未找到 $table 的 createSql")
+            val expectedSql = match.groupValues[1].replace("\\\"", "\"")
+            val expectedShape = shapeOfSql(expectedSql, table)
+            val actualShape = shapeOfSql(ddl, table)
+            assertWithMessage("$table 迁移 DDL 与 schema 8.json 逐列一致") {
+                assertThat(actualShape.first).isEqualTo(expectedShape.first)
+                assertThat(actualShape.second).isEqualTo(expectedShape.second)
+            }
+        }
+        assertThat(shapeOfSql(AppDatabase.MIGRATION_7_8_MEASUREMENTS, "measurements").second)
+            .isEqualTo(listOf("recordId"))
+        assertThat(shapeOfSql(AppDatabase.MIGRATION_7_8_HEALTH_LOGS, "health_logs").second)
+            .isEqualTo(listOf("memberId", "loggedAt", "type"))
+        val measurementsSql = Regex(""""tableName": "measurements"[\s\S]*?"createSql": "(.*?)"""")
+            .find(json)!!.groupValues[1]
+        assertThat(measurementsSql).contains("DEFAULT ''")
+        assertThat(AppDatabase.MIGRATION_7_8_MEASUREMENTS).contains("DEFAULT ''")
+        assertThat(measurementsSql).contains("syncStatus")
+        val devicesSql = Regex(""""tableName": "devices"[\s\S]*?"createSql": "(.*?)"""")
+            .find(json)!!.groupValues[1]
+        assertThat(devicesSql).contains("`updatedAt` INTEGER NOT NULL DEFAULT 0")
+        assertThat(devicesSql).contains("`unboundAt` INTEGER")
+        assertThat(json).contains("index_habits_memberId")
+        assertThat(json).contains("index_measurements_memberId_measuredAt")
+        assertThat(json).contains("index_members_slot")
     }
 
     private fun assertWithMessage(msg: String, block: () -> Unit) {

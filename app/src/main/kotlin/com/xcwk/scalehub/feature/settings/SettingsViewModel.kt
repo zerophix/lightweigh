@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
 /**
  * settings — ViewModel：账号三流程（恢复/退出/注销）编排，
  * 语义随旧库设置页与 CloudSync（恢复=拉取合并+回推并刷数据信号；退出只清登录态；
- * 注销=发码→确认→SyncService 三步，本机保留）。
+ * 注销=发码→确认→验码后清云端并立即清本机测量库与会话，DEC-057 / DEC-S11）。
  *
  * 恢复与注销的成功广播由 [RestoreAccountService] / [DeleteAccountService] 在应用层
  * 发出——本层只调 execute、只关心给用户看的 message，不发数据变更信号（DEC-034 组 A）。

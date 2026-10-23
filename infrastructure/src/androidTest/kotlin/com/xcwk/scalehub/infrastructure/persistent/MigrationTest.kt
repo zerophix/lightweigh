@@ -134,7 +134,71 @@ class MigrationTest {
         }
     }
 
+    /**
+     * v7 → v8（DEC-057）：测量改 UUID 主键并保留采样行；健康日志主键带 memberId；
+     * 设备只加 updatedAt / unboundAt，不删行。
+     */
+    @Test
+    fun v7到v8_主键重建与存量保留() {
+        helper.createDatabase(TEST_DB_V8, 7).apply {
+            execSQL(
+                "INSERT INTO measurements (measuredAt, weightKg, impedanceOhm, fat, mac, algorithmId, " +
+                    "male, ageYears, heightCm, memberId) VALUES " +
+                    "(1700000000000, 70.0, 500.0, 18.4, 'AA:BB', 'builtin-1', 1, 30, 175, '1')",
+            )
+            execSQL(
+                "INSERT INTO health_logs (loggedAt, type, value, value2, label, note, memberId) " +
+                    "VALUES (1700000000000, 'diet', 1500.0, 0.0, '午餐', '', '2')",
+            )
+            execSQL(
+                "INSERT INTO devices (mac, name, boundAt, active, protocolId, algorithmId) " +
+                    "VALUES ('AA:BB:CC:DD:EE:FF', '卧室秤', '2026-10-01', 1, 'okok-1', 'okok-bia-1')",
+            )
+            close()
+        }
+
+        helper.runMigrationsAndValidate(TEST_DB_V8, 8, true, AppDatabase.MIGRATION_7_8).use { db ->
+            db.query(
+                "SELECT weightKg, memberId, updatedAt, deletedAt, syncStatus, note, length(recordId) " +
+                    "FROM measurements",
+            ).use { c ->
+                assertTrue(c.moveToFirst())
+                assertEquals(70.0, c.getDouble(0), 1e-9)
+                assertEquals("1", c.getString(1))
+                assertEquals(1700000000000L, c.getLong(2))
+                assertTrue(c.isNull(3))
+                assertEquals(0, c.getInt(4))
+                assertEquals("", c.getString(5))
+                assertEquals(36, c.getInt(6))
+            }
+            db.query(
+                "SELECT memberId, value, updatedAt, deletedAt FROM health_logs WHERE type = 'diet'",
+            ).use { c ->
+                assertTrue(c.moveToFirst())
+                assertEquals("2", c.getString(0))
+                assertEquals(1500.0, c.getDouble(1), 1e-9)
+                assertEquals(1700000000000L, c.getLong(2))
+                assertTrue(c.isNull(3))
+            }
+            db.query("SELECT name, updatedAt, unboundAt FROM devices").use { c ->
+                assertTrue(c.moveToFirst())
+                assertEquals("卧室秤", c.getString(0))
+                assertEquals(0, c.getInt(1))
+                assertTrue(c.isNull(2))
+            }
+            db.query(
+                "SELECT name FROM sqlite_master WHERE type = 'table' AND name IN " +
+                    "('goals','members','pending_sync') ORDER BY name",
+            ).use { c ->
+                val names = mutableListOf<String>()
+                while (c.moveToNext()) names += c.getString(0)
+                assertEquals(listOf("goals", "members", "pending_sync"), names)
+            }
+        }
+    }
+
     companion object {
         private const val TEST_DB = "migration-test.db"
+        private const val TEST_DB_V8 = "migration-v8.db"
     }
 }

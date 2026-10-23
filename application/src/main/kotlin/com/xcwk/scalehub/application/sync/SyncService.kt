@@ -5,9 +5,9 @@ import com.xcwk.scalehub.application.query.HealthLogQueryPort
 import com.xcwk.scalehub.application.auth.AuthPort
 import com.xcwk.scalehub.application.debug.DebugLog
 import com.xcwk.scalehub.domain.model.HealthLog
+import com.xcwk.scalehub.domain.model.MacFormat
 import com.xcwk.scalehub.domain.model.MeasureRecord
 import com.xcwk.scalehub.domain.model.MemberProfile
-import com.xcwk.scalehub.domain.model.MacFormat
 import com.xcwk.scalehub.domain.model.ScaleDevice
 import com.xcwk.scalehub.domain.repository.DeviceRepository
 import com.xcwk.scalehub.domain.repository.GoalRepository
@@ -53,6 +53,12 @@ class SyncService(
     private val memberId: () -> String,
     /** 同步状态端口（M2b 水位线/对账/幂等）——可为 null 以兼容无水位线的旧路径 */
     private val syncState: SyncStatePort? = null,
+    /** 生产路径按 updatedAt / syncStatus 推拉测量（DEC-S01）。null 时退回查询端口，供既有测试。 */
+    private val measurementSync: MeasurementSyncPort? = null,
+    private val healthLogSync: HealthLogSyncPort? = null,
+    private val pendingSync: PendingSyncPort? = null,
+    /** 注销 / 清本机。生产必须接线（DEC-S11 / S05）。 */
+    private val localData: LocalDataControlPort? = null,
 ) {
     private val mutex = Mutex()
 
@@ -86,7 +92,10 @@ class SyncService(
         return SyncOutcome(true, "已从云端恢复当前测量用户的记录")
     }
 
-    /** 注销：验码删云端身份 → 清云端四表（devices 项随 M3）→ 登出；本机保留（:263-284）。 */
+    /**
+     * 注销（DEC-S11 / L2）：验码删云端身份 → 尽力清云端四表 → 立即清本机测量库、
+     * 档案/目标/头像/缓存，成员重置为「我」→ 登出。不再保留本机测量。
+     */
     suspend fun deleteAccount(code: String): SyncOutcome {
         if (!session.isFormalAccount()) return SyncOutcome(false, "请先使用手机号登录")
         val digits = code.filter { it.isDigit() }
@@ -110,11 +119,24 @@ class SyncService(
             cloud.delete("health_logs", "owner_id=eq.$userId")
             cloud.delete("profiles", "id=eq.$userId")
         }.onFailure { DebugLog.add("sync", "deleteAccount: cloud wipe FAILED ${it.javaClass.simpleName}") }
-        // 清除全部同步状态（水位线归零，M2b）
-        runCatching { syncState?.clearAll() }
+        // 水位线随业务表一起硬删（localData）；未接线时仍清水位，避免旧路径残留。
+        runCatching { localData?.wipeAfterAccountDeletion() }
+            .onFailure { DebugLog.add("sync", "deleteAccount: local wipe FAILED ${it.javaClass.simpleName}") }
+        if (localData == null) runCatching { syncState?.clearAll() }
         session.signOut()
-        DebugLog.add("sync", "deleteAccount: done")
+        DebugLog.add("sync", "deleteAccount: done (local wiped=${localData != null})")
         return SyncOutcome(true, "账号已注销")
+    }
+
+    /**
+     * 清本机（DEC-S05 / PH-R3）：清 Room 业务表 + 档案/目标/头像/缓存，成员重置为「我」，
+     * 保留 session。不调用云（PH-R4）。
+     */
+    suspend fun clearLocal(): SyncOutcome {
+        val local = localData ?: return SyncOutcome(false, "本机清理未接线")
+        local.clearLocalKeepingSession()
+        DebugLog.add("sync", "clearLocal: ok (cloud untouched)")
+        return SyncOutcome(true, "已清除本机数据，云端未改动")
     }
 
     // ---- 内部编排 ----
@@ -152,11 +174,24 @@ class SyncService(
         }
         val ok = cloud.upsert("profiles", "id", listOf(CloudRow(fields)))
         DebugLog.add("sync", "push profile: fields=${fields.size} ok=$ok")
+        if (ok) pendingSync?.clear("profile", memberId())
+        // DEC-S02：targetWeight 已在 Room goals。profiles 现有列只有 calorie/water；
+        // 云侧尚无 target_weight，本 PR 不把该列塞进 payload（避免整份档案 upsert 失败）。
+        goals?.let { g ->
+            if (g.targetWeight > 0f) {
+                DebugLog.add("sync", "push goals: targetWeight kept local (cloud column follow-up)")
+            }
+        }
     }
 
-    /** devices 上云沿旧库五列（:305-325）：协议/算法不随云走。 */
+    /**
+     * devices 上云沿旧库五列：协议/算法不随云走。
+     * 含已解绑行（active=false），不删历史测量（DEC-S15）。
+     * unbound_at 云列未落地，不放进 payload。
+     */
     private suspend fun syncDevices(userId: String) {
-        val rows = devices.devices().map { device ->
+        val fleet = devices.allDevices()
+        val rows = fleet.map { device ->
             CloudRow(
                 buildMap {
                     put("owner_id", userId)
@@ -170,24 +205,34 @@ class SyncService(
         if (rows.isNotEmpty()) {
             val ok = cloud.upsert("devices", "owner_id,mac", rows)
             DebugLog.add("sync", "push devices: n=${rows.size} ok=$ok")
+            if (ok) fleet.forEach { pendingSync?.clear("devices", it.mac) }
         }
     }
 
     private suspend fun syncMeasurements(userId: String) {
         val mid = memberId()
-        // 水位线闸门：只推 > pushedWatermark 的行（M2b 增量推送）
+        // 水位是 updatedAt（DEC-S01）。无 MeasurementSyncPort 时退回按采样时刻的查询（测试路径）。
         val watermark = syncState?.get("measurements", mid)?.first ?: 0L
-        val all = measurementQuery.between(watermark + 1, Long.MAX_VALUE)   // from 是 inclusive，+1 排除已推
+        val source = measurementSync
+        val all = if (source != null) {
+            source.due(mid, watermark)
+        } else {
+            measurementQuery.between(watermark + 1, Long.MAX_VALUE)
+        }
         if (all.isEmpty()) return
         val rows = all.map { r ->
             CloudRow(
                 buildMap {
                     put("owner_id", userId)
+                    put("record_id", r.recordId.ifBlank { legacyRecordId(r.time) })
                     put("measured_at", r.time)
+                    put("updated_at", r.updatedAt)
                     put("weight", r.weight)
                     put("impedance", r.impedance)
                     put("fat", r.fat)
                     put("mac", r.mac)
+                    if (r.note.isNotEmpty()) put("note", r.note)
+                    r.deletedAt?.let { put("deleted_at", it) }
                     r.algorithm.takeIf { it.isNotEmpty() }?.let { put("algorithm_id", it) }
                     r.male?.let { put("male", it) }
                     r.ageYears?.let { put("age_years", it) }
@@ -195,20 +240,27 @@ class SyncService(
                 },
             )
         }
-        val ok = cloud.upsert("measurements", "owner_id,measured_at", rows)
+        // 目标冲突键 owner_id,record_id。云表须有 record_id 唯一约束后才会成功；失败不推进水位。
+        val ok = cloud.upsert("measurements", "owner_id,record_id", rows)
         DebugLog.add("sync", "push measurements: n=${rows.size} watermark=$watermark ok=$ok")
-        // 推送成功后更新水位线（先推后记，崩溃可重推但不丢）
         if (ok) {
-            val maxTime = all.maxOf { it.time }
-            syncState?.updatePushed("measurements", mid, maxTime)
+            val maxUpdated = all.maxOf { it.updatedAt }
+            syncState?.updatePushed("measurements", mid, maxUpdated)
+            source?.markClean(all.map { it.recordId }.filter { it.isNotBlank() })
         }
     }
 
+    private fun legacyRecordId(time: Long) = "legacy-$time"
+
     private suspend fun syncHealthLogs(userId: String) {
         val mid = memberId()
-        // 水位线闸门：只推 > pushedWatermark 的行（M2b 增量推送）
         val watermark = syncState?.get("health_logs", mid)?.first ?: 0L
-        val allLogs = healthLogQuery.between(watermark + 1, Long.MAX_VALUE)   // from 是 inclusive，+1 排除已推
+        val source = healthLogSync
+        val allLogs = if (source != null) {
+            source.due(mid, watermark)
+        } else {
+            healthLogQuery.between(watermark + 1, Long.MAX_VALUE)
+        }
         if (allLogs.isEmpty()) return
         val rows = allLogs.map { log ->
             CloudRow(
@@ -220,32 +272,19 @@ class SyncService(
                     put("value2", log.value2)
                     put("label", log.label)
                     put("note", log.note)
+                    put("updated_at", log.updatedAt)
+                    log.deletedAt?.let { put("deleted_at", it) }
                 },
             )
         }
+        // 云冲突键仍是 owner_id,logged_at,type。updated_at/deleted_at 列未落地时 upsert 会失败，水位不推进。
         val ok = cloud.upsert("health_logs", "owner_id,logged_at,type", rows)
         DebugLog.add("sync", "push health_logs: n=${rows.size} watermark=$watermark ok=$ok")
-        // 推送成功后更新水位线
         if (ok) {
-            val maxTime = allLogs.maxOf { it.time }
-            syncState?.updatePushed("health_logs", mid, maxTime)
+            val maxUpdated = allLogs.maxOf { it.updatedAt }
+            syncState?.updatePushed("health_logs", mid, maxUpdated)
         }
     }
-
-    private suspend fun healthLogRowsForPush(userId: String): List<CloudRow> =
-        healthLogQuery.recent(Int.MAX_VALUE).map { log ->
-            CloudRow(
-                buildMap {
-                    put("owner_id", userId)
-                    put("logged_at", log.time)
-                    put("type", log.type)
-                    put("value", log.value)
-                    put("value2", log.value2)
-                    put("label", log.label)
-                    put("note", log.note)
-                },
-            )
-        }
 
     /** 拉取合并（旧库 restoreNow:182-260），M2b 增量拉取。 */
     private suspend fun restoreNow(): Boolean {
@@ -259,14 +298,15 @@ class SyncService(
 
         // measurements 增量拉取：只拉 > pulledWatermark 的行
         val mWatermark = syncState?.get("measurements", mid)?.second ?: 0L
-        val mFilter = if (mWatermark > 0) "&measured_at=gt.$mWatermark" else ""
+        // 水位值是 updatedAt。云列 updated_at 未加之前，此过滤会使恢复失败（见 DEC-057 云跟进）。
+        val mFilter = if (mWatermark > 0) "&updated_at=gt.$mWatermark" else ""
         val measurementRows = cloud.rows(
             "measurements", "owner_id=eq.$userId&select=*&order=measured_at.desc&limit=180$mFilter",
         ) ?: run { DebugLog.add("sync", "pull measurements: FAILED (watermark=$mWatermark)"); return false }
 
         // health_logs 增量拉取：只拉 > pulledWatermark 的行
         val hWatermark = syncState?.get("health_logs", mid)?.second ?: 0L
-        val hFilter = if (hWatermark > 0) "&logged_at=gt.$hWatermark" else ""
+        val hFilter = if (hWatermark > 0) "&updated_at=gt.$hWatermark" else ""
         val logRows = cloud.rows(
             "health_logs", "owner_id=eq.$userId&select=*&order=logged_at.desc&limit=300$hFilter",
         ) ?: run { DebugLog.add("sync", "pull health_logs: FAILED (watermark=$hWatermark)"); return false }
@@ -321,32 +361,103 @@ class SyncService(
      * @return 本次合并的最大时间戳（0 = 无有效合并）
      */
     private suspend fun mergeMeasurements(rows: List<CloudRow>): Long {
+        val port = measurementSync
+        if (port == null) return mergeMeasurementsLegacy(rows)
+        return mergeMeasurementsByRecord(rows, port)
+    }
+
+    /** 无 recordId 读口时的旧合并：按采样时刻只补本机没有的。 */
+    private suspend fun mergeMeasurementsLegacy(rows: List<CloudRow>): Long {
         val existing = measurementQuery.between(0L, Long.MAX_VALUE).map { it.time }.toSet()
         var maxTime = 0L
         for (row in rows) {
             val time = (row.fields["measured_at"] as? Number)?.toLong() ?: continue
-            if (time <= 0 || time in existing) continue    // 只补本机没有的（不删除云端多出）
+            if (time <= 0 || time in existing) continue
             runCatching {
-                measurements.save(
-                    MeasureRecord(
-                        time,
-                        (row.fields["weight"] as? Number)?.toDouble() ?: return@runCatching,
-                        (row.fields["impedance"] as? Number)?.toDouble() ?: 0.0,
-                        (row.fields["fat"] as? Number)?.toDouble() ?: -1.0,
-                        row.fields["mac"]?.toString() ?: "",
-                        row.fields["algorithm_id"]?.toString() ?: "",
-                        row.fields["male"] as? Boolean,
-                        (row.fields["age_years"] as? Number)?.toInt(),
-                        (row.fields["height_cm"] as? Number)?.toInt(),
-                    ),
-                    memberId(),
-                )
+                measurements.save(row.toMeasureRecord(recordId = "", syncStatus = MeasureRecord.SYNC_CLEAN), memberId())
                 if (time > maxTime) maxTime = time
             }.onFailure {
                 DebugLog.add("sync", "merge measurements: bad row skipped t=$time (${it.javaClass.simpleName})")
-            }   // 坏行跳过（守卫 fail-fast 即过滤器）
+            }
         }
         return maxTime
+    }
+
+    /**
+     * 同一 recordId：updatedAt 更大者胜，但已入库的体重/阻抗/体脂/采样时刻不静默改写。
+     * 采样列冲突只标 syncStatus=CONFLICT；备注与墓碑可以套用。
+     */
+    private suspend fun mergeMeasurementsByRecord(rows: List<CloudRow>, port: MeasurementSyncPort): Long {
+        val mid = memberId()
+        val existing = port.all(mid)
+        val byId = existing.filter { it.recordId.isNotBlank() }.associateBy { it.recordId }
+        val byTime = existing.filter { it.deletedAt == null }.associateBy { it.time }
+        var maxUpdated = 0L
+        for (row in rows) {
+            val time = (row.fields["measured_at"] as? Number)?.toLong() ?: continue
+            if (time <= 0) continue
+            val remoteId = row.fields["record_id"]?.toString().orEmpty()
+            val remoteUpdated = (row.fields["updated_at"] as? Number)?.toLong() ?: time
+            val remoteDeleted = (row.fields["deleted_at"] as? Number)?.toLong()
+            val remoteNote = row.fields["note"]?.toString().orEmpty()
+            val local = if (remoteId.isNotBlank()) byId[remoteId] else byTime[time]
+            runCatching {
+                if (local == null) {
+                    measurements.save(
+                        row.toMeasureRecord(remoteId, MeasureRecord.SYNC_CLEAN),
+                        mid,
+                    )
+                } else if (remoteUpdated > local.updatedAt) {
+                    val remoteWeight = (row.fields["weight"] as? Number)?.toDouble()
+                    val sampleChanged = remoteWeight != null && remoteWeight != local.weight
+                    val next = if (sampleChanged && remoteDeleted == null) {
+                        local.withSync(
+                            local.recordId.ifBlank { remoteId },
+                            remoteUpdated,
+                            local.deletedAt,
+                            MeasureRecord.SYNC_CONFLICT,
+                            local.note,
+                        )
+                    } else {
+                        local.withSync(
+                            local.recordId.ifBlank { remoteId },
+                            remoteUpdated,
+                            remoteDeleted ?: local.deletedAt,
+                            MeasureRecord.SYNC_CLEAN,
+                            remoteNote.ifEmpty { local.note },
+                        )
+                    }
+                    measurements.save(next, mid)
+                } else {
+                    return@runCatching
+                }
+                if (remoteUpdated > maxUpdated) maxUpdated = remoteUpdated
+            }.onFailure {
+                DebugLog.add("sync", "merge measurements: bad row skipped t=$time (${it.javaClass.simpleName})")
+            }
+        }
+        return maxUpdated
+    }
+
+    private fun CloudRow.toMeasureRecord(recordId: String, syncStatus: Int): MeasureRecord {
+        val time = (fields["measured_at"] as? Number)?.toLong() ?: 0L
+        val updated = (fields["updated_at"] as? Number)?.toLong() ?: time
+        return MeasureRecord(
+            time,
+            (fields["weight"] as? Number)?.toDouble() ?: throw IllegalArgumentException("weight"),
+            (fields["impedance"] as? Number)?.toDouble() ?: 0.0,
+            (fields["fat"] as? Number)?.toDouble() ?: -1.0,
+            fields["mac"]?.toString() ?: "",
+            fields["algorithm_id"]?.toString() ?: "",
+            fields["male"] as? Boolean,
+            (fields["age_years"] as? Number)?.toInt(),
+            (fields["height_cm"] as? Number)?.toInt(),
+            recordId,
+            updated,
+            (fields["deleted_at"] as? Number)?.toLong(),
+            syncStatus,
+            fields["note"]?.toString() ?: "",
+        )
     }
 
     /**
@@ -354,29 +465,46 @@ class SyncService(
      * @return 本次合并的最大时间戳（0 = 无有效合并）
      */
     private suspend fun mergeHealthLogs(rows: List<CloudRow>): Long {
-        val existing = healthLogQuery.recent(Int.MAX_VALUE).map { it.time to it.type }.toSet()
-        var maxTime = 0L
+        val port = healthLogSync
+        val existing = if (port != null) {
+            port.all(memberId()).map { it.time to it.type to it }.toMap()
+        } else {
+            healthLogQuery.recent(Int.MAX_VALUE).map { it.time to it.type to it }.toMap()
+        }
+        var maxStamp = 0L
         for (row in rows) {
             val time = (row.fields["logged_at"] as? Number)?.toLong() ?: continue
             val type = row.fields["type"]?.toString().orEmpty()
-            if (time <= 0 || type.isEmpty() || (time to type) in existing) continue
+            if (time <= 0 || type.isEmpty()) continue
+            val remoteUpdated = (row.fields["updated_at"] as? Number)?.toLong() ?: time
+            val remoteDeleted = (row.fields["deleted_at"] as? Number)?.toLong()
+            val local = existing[time to type]
+            if (local != null && remoteUpdated <= local.updatedAt) continue
             runCatching {
-                healthLogs.save(
-                    HealthLog(
-                        time, type,
-                        (row.fields["value"] as? Number)?.toDouble() ?: 0.0,
-                        (row.fields["value2"] as? Number)?.toDouble() ?: 0.0,
-                        row.fields["label"]?.toString() ?: "",
-                        row.fields["note"]?.toString() ?: "",
-                    ),
-                    memberId(),
+                val base = HealthLog(
+                    time, type,
+                    (row.fields["value"] as? Number)?.toDouble() ?: 0.0,
+                    (row.fields["value2"] as? Number)?.toDouble() ?: 0.0,
+                    row.fields["label"]?.toString() ?: "",
+                    row.fields["note"]?.toString() ?: "",
+                    updatedAt = remoteUpdated,
+                    deletedAt = remoteDeleted,
                 )
-                if (time > maxTime) maxTime = time
+                val saved = if (local != null && remoteDeleted == null) {
+                    // 不静默改写已入库主值；只套用更新的备注/水位。
+                    local.copy(note = base.note.ifEmpty { local.note }, updatedAt = remoteUpdated)
+                } else if (local != null) {
+                    local.copy(deletedAt = remoteDeleted, updatedAt = remoteUpdated)
+                } else {
+                    base
+                }
+                healthLogs.save(saved, memberId())
+                if (remoteUpdated > maxStamp) maxStamp = remoteUpdated
             }.onFailure {
                 DebugLog.add("sync", "merge health_logs: bad row skipped t=$time type=$type (${it.javaClass.simpleName})")
             }
         }
-        return maxTime
+        return maxStamp
     }
 
     /** 云端档案合并：仅当字段组通过 MemberProfile 守卫才落本地（不完整行跳过）。 */

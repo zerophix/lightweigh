@@ -1,10 +1,11 @@
 package com.xcwk.scalehub.infrastructure.profile
 
 import android.content.Context
+import com.xcwk.scalehub.application.sync.PendingSyncPort
+import com.xcwk.scalehub.domain.model.LengthUnit
 import com.xcwk.scalehub.domain.model.MemberProfile
 import com.xcwk.scalehub.domain.model.UserUnitPreferences
 import com.xcwk.scalehub.domain.model.WeightUnit
-import com.xcwk.scalehub.domain.model.LengthUnit
 import com.xcwk.scalehub.domain.repository.MemberProfileReader
 import com.xcwk.scalehub.domain.repository.MemberProfileWriter
 import java.time.LocalDate
@@ -17,6 +18,7 @@ import java.time.LocalDate
 class ProfileStore(
     context: Context,
     private val activeMemberId: () -> String,
+    private val pending: PendingSyncPort? = null,
 ) : MemberProfileReader, MemberProfileWriter {
 
     private val prefs = context.applicationContext.getSharedPreferences("scalehub_profile", Context.MODE_PRIVATE)
@@ -45,6 +47,7 @@ class ProfileStore(
             .putInt(key(KEY_HEIGHT_CM), profile.heightCm)
             .putString(key(KEY_NICKNAME), profile.nickname)
             .apply()
+        pending?.enqueue("profile", activeMemberId(), "upsert")
     }
 
     override fun unitPreferences(): UserUnitPreferences {
@@ -64,6 +67,72 @@ class ProfileStore(
             .putString(key(KEY_LENGTH_UNIT), prefs.lengthUnit.name)
             .putBoolean(key(KEY_APPLY_TO_DERIVED), prefs.applyToDerived)
             .apply()
+        pending?.enqueue("profile", activeMemberId(), "upsert")
+    }
+
+    /** 档案单位键是否已有显式值（legacy unit_prefs 迁移判断）。 */
+    fun hasUnitKeys(): Boolean =
+        prefs.contains(key(KEY_WEIGHT_UNIT)) || prefs.contains(key(KEY_LENGTH_UNIT))
+
+    /** 仅迁移路径写入，避免再走一遍 pending 语义以外的默认值。 */
+    internal fun writeUnits(prefs: UserUnitPreferences) {
+        saveUnitsBlocking(prefs)
+    }
+
+    private fun saveUnitsBlocking(prefs: UserUnitPreferences) {
+        this.prefs.edit()
+            .putString(key(KEY_WEIGHT_UNIT), prefs.weightUnit.name)
+            .putString(key(KEY_LENGTH_UNIT), prefs.lengthUnit.name)
+            .putBoolean(key(KEY_APPLY_TO_DERIVED), prefs.applyToDerived)
+            .apply()
+    }
+
+    /**
+     * 把 MemberStore 旧档案/单位键导入本店，仅当 profile_{id}_* 尚不存在。
+     * 导入后 MemberStore 不再写这些键（DEC-S08 / S09）。
+     */
+    fun importLegacyIfAbsent(memberId: String, legacy: LegacyMemberProfile) {
+        val editor = prefs.edit()
+        var changed = false
+        fun bool(base: String, value: Boolean?) {
+            if (value == null) return
+            val k = scoped(memberId, base)
+            if (!prefs.contains(k)) {
+                editor.putBoolean(k, value)
+                changed = true
+            }
+        }
+        fun num(base: String, value: Int?) {
+            if (value == null) return
+            val k = scoped(memberId, base)
+            if (!prefs.contains(k)) {
+                editor.putInt(k, value)
+                changed = true
+            }
+        }
+        fun text(base: String, value: String?) {
+            if (value == null) return
+            val k = scoped(memberId, base)
+            if (!prefs.contains(k)) {
+                editor.putString(k, value)
+                changed = true
+            }
+        }
+        bool(KEY_MALE, legacy.male)
+        num(KEY_HEIGHT_CM, legacy.heightCm)
+        num(KEY_BIRTH_YEAR, legacy.birthYear)
+        num(KEY_BIRTH_MONTH, legacy.birthMonth)
+        num(KEY_BIRTH_DAY, legacy.birthDay)
+        text(KEY_NICKNAME, legacy.nickname)
+        text(KEY_WEIGHT_UNIT, legacy.weightUnit)
+        text(KEY_LENGTH_UNIT, legacy.lengthUnit)
+        bool(KEY_APPLY_TO_DERIVED, legacy.applyToDerived)
+        if (changed) editor.apply()
+    }
+
+    /** 清本机 / 注销：档案权威整表清空（DEC-S05 / S11）。 */
+    fun clearAll() {
+        prefs.edit().clear().apply()
     }
 
     /**
@@ -77,7 +146,9 @@ class ProfileStore(
         editor.apply()
     }
 
-    private fun key(base: String) = "profile_${activeMemberId()}_$base"
+    private fun key(base: String) = scoped(activeMemberId(), base)
+
+    private fun scoped(memberId: String, base: String) = "profile_${memberId}_$base"
 
     private fun readInt(base: String, fallback: Int): Int {
         val scoped = prefs.getInt(key(base), Int.MIN_VALUE)
@@ -114,3 +185,16 @@ class ProfileStore(
         )
     }
 }
+
+/** MemberStore 旧键快照。null = 该键不存在，导入时跳过。 */
+data class LegacyMemberProfile(
+    val male: Boolean? = null,
+    val heightCm: Int? = null,
+    val birthYear: Int? = null,
+    val birthMonth: Int? = null,
+    val birthDay: Int? = null,
+    val nickname: String? = null,
+    val weightUnit: String? = null,
+    val lengthUnit: String? = null,
+    val applyToDerived: Boolean? = null,
+)

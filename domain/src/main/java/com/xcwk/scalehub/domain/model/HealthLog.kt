@@ -26,6 +26,10 @@ data class HealthLog(
     val value2: Double,
     val label: String,
     val note: String,
+    /** 冲突与水位时刻，epoch ms UTC。默认等于采样时刻（DEC-057 / DEC-S13）。 */
+    val updatedAt: Long = time,
+    /** 软删墓碑；null = 存活。 */
+    val deletedAt: Long? = null,
 ) {
     init {
         if (time <= 0) {

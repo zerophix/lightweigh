@@ -120,13 +120,33 @@ class SyncServiceTest {
         override suspend fun saveUnitPreferences(prefs: com.xcwk.scalehub.domain.model.UserUnitPreferences) {}
     }
 
+    private class FakeLocal : LocalDataControlPort {
+        var wiped = false
+        var clearedKeepingSession = false
+        override suspend fun wipeAfterAccountDeletion() { wiped = true }
+        override suspend fun clearLocalKeepingSession() { clearedKeepingSession = true }
+    }
+
     private fun service(
         session: FakeSession, cloud: FakeCloud, auth: FakeAuth = FakeAuth(),
         devices: FakeDevices = FakeDevices(),
         measures: FakeMeasureRepo = FakeMeasureRepo(), logs: FakeLogRepo = FakeLogRepo(),
         profile: FakeProfile = FakeProfile(),
         syncState: SyncStatePort? = null,
-    ) = SyncService(session, cloud, auth, devices, null, measures, logs, measures, logs, profile, profile, memberId = { "1" }, syncState = syncState)
+        localData: LocalDataControlPort? = null,
+        measurementSync: MeasurementSyncPort? = null,
+    ) = SyncService(
+        session, cloud, auth, devices, null, measures, logs, measures, logs, profile, profile,
+        memberId = { "1" }, syncState = syncState, localData = localData,
+        measurementSync = measurementSync,
+    )
+
+    private class FakeMeasurementSync(private val rows: List<MeasureRecord>) : MeasurementSyncPort {
+        override suspend fun due(memberId: String, watermark: Long): List<MeasureRecord> =
+            rows.filter { it.updatedAt > watermark || it.syncStatus != MeasureRecord.SYNC_CLEAN }
+        override suspend fun markClean(recordIds: List<String>) = Unit
+        override suspend fun all(memberId: String): List<MeasureRecord> = rows
+    }
 
     // ---- 游客门 ----
 
@@ -155,7 +175,9 @@ class SyncServiceTest {
         val cloud = FakeCloud()
         assertThat(service(FakeSession(), cloud, measures = measures, logs = logs).push()).isTrue()
         assertThat(cloud.upserts.map { it.first }).containsExactly("profiles", "measurements", "health_logs").inOrder()
-        assertThat(cloud.upserts[1].second).isEqualTo("owner_id,measured_at")
+        assertThat(cloud.upserts[1].second).isEqualTo("owner_id,record_id")
+        assertThat(cloud.upserts[1].third[0].fields["record_id"]).isEqualTo("legacy-1000")
+        assertThat(cloud.upserts[1].third[0].fields["updated_at"]).isEqualTo(1000L)
         assertThat(cloud.upserts[2].second).isEqualTo("owner_id,logged_at,type")
         // 快照列上云（v2 契约）：有快照带三列；无快照行只带算法字段
         val m0 = cloud.upserts[1].third[0].fields
@@ -297,18 +319,34 @@ class SyncServiceTest {
     }
 
     @Test
-    fun `注销_成功清四表并登出_本机保留`() = runTest {
+    fun `注销_成功清四表并清本机库与会话`() = runTest {
         val cloud = FakeCloud()
         val session = FakeSession()
         val measures = FakeMeasureRepo(listOf(MeasureRecord(1000L, 70.0, 0.0, -1.0, "", "")))
-        val outcome = service(session, cloud, measures = measures).deleteAccount("12 34")
+        val local = FakeLocal()
+        val outcome = service(session, cloud, measures = measures, localData = local).deleteAccount("12 34")
         assertThat(outcome.ok).isTrue()
         assertThat(cloud.deletes.map { it.first })
             .containsExactly("measurements", "devices", "health_logs", "profiles").inOrder()
         assertThat(cloud.deletes[0].second).isEqualTo("owner_id=eq.u-1")
         assertThat(cloud.deletes[3].second).isEqualTo("id=eq.u-1")
+        assertThat(local.wiped).isTrue()
+        assertThat(local.clearedKeepingSession).isFalse()
         assertThat(session.signedOut).isTrue()
-        assertThat(measures.saved).hasSize(1)   // 本机测量保留（需求：注销不删本机）
+    }
+
+    @Test
+    fun `清本机不调用云且保留会话`() = runTest {
+        val cloud = FakeCloud()
+        val session = FakeSession()
+        val local = FakeLocal()
+        val outcome = service(session, cloud, localData = local).clearLocal()
+        assertThat(outcome.ok).isTrue()
+        assertThat(cloud.deletes).isEmpty()
+        assertThat(cloud.upserts).isEmpty()
+        assertThat(local.clearedKeepingSession).isTrue()
+        assertThat(local.wiped).isFalse()
+        assertThat(session.signedOut).isFalse()
     }
 
     @Test
@@ -705,5 +743,81 @@ class SyncServiceTest {
         // 用户 2 的 cloud 行 owner_id = "user-2"
         val mUpsert2 = cloud2.upserts.first { it.first == "measurements" }
         assertThat(mUpsert2.third[0].fields["owner_id"]).isEqualTo("user-2")
+    }
+
+    @Test
+    fun `拉取按recordId合并_采样冲突不改体重`() = runTest {
+        val local = MeasureRecord(
+            1000L, 70.0, 500.0, 18.0, "AA", "builtin-1", null, null, null,
+            "rid-1", 1000L, null, MeasureRecord.SYNC_CLEAN, "old",
+        )
+        val measures = FakeMeasureRepo(listOf(local))
+        val cloud = FakeCloud()
+        cloud.servedRows = mapOf(
+            "measurements" to listOf(
+                CloudRow(
+                    mapOf(
+                        "measured_at" to 1000L,
+                        "weight" to 71.0,
+                        "record_id" to "rid-1",
+                        "updated_at" to 2000L,
+                        "note" to "remote",
+                    ),
+                ),
+            ),
+        )
+        val outcome = service(
+            FakeSession(), cloud, measures = measures,
+            measurementSync = FakeMeasurementSync(listOf(local)),
+        ).restore()
+        assertThat(outcome.ok).isTrue()
+        val merged = measures.saved.last()
+        assertThat(merged.weight).isEqualTo(70.0)
+        assertThat(merged.syncStatus).isEqualTo(MeasureRecord.SYNC_CONFLICT)
+        assertThat(merged.note).isEqualTo("old")
+        assertThat(merged.updatedAt).isEqualTo(2000L)
+        assertThat(merged.recordId).isEqualTo("rid-1")
+    }
+
+    @Test
+    fun `拉取新recordId入库_墓碑套用`() = runTest {
+        val local = MeasureRecord(
+            1000L, 70.0, 500.0, 18.0, "AA", "builtin-1", null, null, null,
+            "rid-1", 1000L, null, MeasureRecord.SYNC_CLEAN, "",
+        )
+        val measures = FakeMeasureRepo(listOf(local))
+        val cloud = FakeCloud()
+        cloud.servedRows = mapOf(
+            "measurements" to listOf(
+                CloudRow(
+                    mapOf(
+                        "measured_at" to 3000L,
+                        "weight" to 66.0,
+                        "record_id" to "rid-new",
+                        "updated_at" to 3000L,
+                    ),
+                ),
+                CloudRow(
+                    mapOf(
+                        "measured_at" to 1000L,
+                        "weight" to 70.0,
+                        "record_id" to "rid-1",
+                        "updated_at" to 4000L,
+                        "deleted_at" to 4000L,
+                    ),
+                ),
+            ),
+        )
+        service(
+            FakeSession(), cloud, measures = measures,
+            measurementSync = FakeMeasurementSync(listOf(local)),
+        ).restore()
+        val inserted = measures.saved.first { it.recordId == "rid-new" }
+        assertThat(inserted.weight).isEqualTo(66.0)
+        assertThat(inserted.deletedAt).isNull()
+        val tomb = measures.saved.last { it.recordId == "rid-1" }
+        assertThat(tomb.deletedAt).isEqualTo(4000L)
+        assertThat(tomb.weight).isEqualTo(70.0)
+        assertThat(tomb.syncStatus).isEqualTo(MeasureRecord.SYNC_CLEAN)
     }
 }

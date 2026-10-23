@@ -51,7 +51,7 @@ UI 不直访问 Room / SDK；经 ViewModel → application/domain 端口。
 
 ## 4. Room / 迁移
 
-- 当前 `AppDatabase` **version 7**；schema 快照在
+- 当前 `AppDatabase` **version 8**；schema 快照在
   `infrastructure/schemas/com.xcwk.scalehub.infrastructure.persistent.AppDatabase/`。
 - 改实体：**version+1**、写 `Migration`、导出 schema JSON **入库**、补静态对拍/迁移测试。
 - 禁止静默改 schema 文件「只为让测试绿」。

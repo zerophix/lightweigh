@@ -88,9 +88,13 @@ class AppContainer(context: Context) {
 
     private val database: AppDatabase by lazy { AppDatabase.get(context) }
 
-    /** 本机测量用户（移植补齐：多成员）。 */
+    private val pendingSync: com.xcwk.scalehub.infrastructure.persistent.repository.RoomPendingSyncRepository by lazy {
+        com.xcwk.scalehub.infrastructure.persistent.repository.RoomPendingSyncRepository(database.pendingSyncDao())
+    }
+
+    /** 本机测量用户（Room members，DEC-057 / DEC-S04）。 */
     private val memberRepository: com.xcwk.scalehub.infrastructure.member.MemberStore by lazy {
-        com.xcwk.scalehub.infrastructure.member.MemberStore(context)
+        com.xcwk.scalehub.infrastructure.member.MemberStore(context, database)
     }
 
     val measurementRepository: MeasurementRepository by lazy {
@@ -101,7 +105,7 @@ class AppContainer(context: Context) {
     }
     /** 档案存取：同一个实现同时充当读口与写口，容器对外按用途分别暴露（DEC-035）。 */
     private val profileStoreImpl: ProfileStore by lazy {
-        ProfileStore(context, memberRepository::activeId)
+        ProfileStore(context, memberRepository::activeId, pendingSync)
     }
 
     val profileReader: MemberProfileReader get() = profileStoreImpl
@@ -110,7 +114,9 @@ class AppContainer(context: Context) {
 
     /** 目标存储（移植补齐：首页目标进度卡）。 */
     private val goalStore: com.xcwk.scalehub.infrastructure.profile.GoalStore by lazy {
-        com.xcwk.scalehub.infrastructure.profile.GoalStore(context, memberRepository::activeId)
+        com.xcwk.scalehub.infrastructure.profile.GoalStore(
+            context, memberRepository::activeId, database.goalDao(), pendingSync,
+        )
     }
 
     /** 目标写入口（GoalStore 藏在容器后，feature 层只见函数类型）。 */
@@ -209,9 +215,11 @@ class AppContainer(context: Context) {
     /** 当前成员槽位读取口（MemberStore 藏在容器后，feature 层不直调 infra）。 */
     val activeMemberSlot: () -> Int = { memberRepository.activeSlot() }
 
-    /** 删除某成员的本机痕迹：档案键 + 头像文件（测量/健康记录随 member_id 留档，声明口径）。 */
+    /**
+     * 删成员：测量/日志/习惯仍留在库里但列表按 memberId 不可见；档案键保留为孤儿（DEC-S09）。
+     * 头像文件删除。不清云、不清整库。
+     */
     val removeMemberLocalData: (String) -> Unit = { id ->
-        profileStoreImpl.clearMember(id)
         avatarStore.removeFor(id)
     }
 
@@ -224,10 +232,22 @@ class AppContainer(context: Context) {
 
     /** 已绑定秤仓储（M3c）。具体类型不出容器，表现层只见端口（DEC-035）。 */
     private val deviceRepositoryImpl: RoomDeviceRepository by lazy {
-        RoomDeviceRepository(AppDatabase.get(context).deviceDao())
+        RoomDeviceRepository(database.deviceDao(), pendingSync)
     }
 
     val deviceRepository: DeviceRepository get() = deviceRepositoryImpl
+
+    private val syncStateRepo: com.xcwk.scalehub.infrastructure.persistent.repository.RoomSyncStateRepository by lazy {
+        com.xcwk.scalehub.infrastructure.persistent.repository.RoomSyncStateRepository(
+            database.syncStateDao(),
+        ) { System.currentTimeMillis() }
+    }
+
+    private val localData: com.xcwk.scalehub.infrastructure.privacy.LocalDataController by lazy {
+        com.xcwk.scalehub.infrastructure.privacy.LocalDataController(
+            context, database, profileStoreImpl, goalStore, memberRepository, avatarStore,
+        )
+    }
 
     val syncService: SyncService by lazy {
         SyncService(
@@ -235,7 +255,21 @@ class AppContainer(context: Context) {
             measurementRepository, healthLogRepository, measurementQueryPort, healthLogQueryPort,
             profileStoreImpl, profileStoreImpl,
             memberId = activeMemberId,
+            syncState = syncStateRepo,
+            measurementSync = com.xcwk.scalehub.infrastructure.persistent.repository.RoomMeasurementSync(
+                database.measurementSyncDao(),
+            ),
+            healthLogSync = com.xcwk.scalehub.infrastructure.persistent.repository.RoomHealthLogSync(
+                database.healthLogSyncDao(),
+            ),
+            pendingSync = pendingSync,
+            localData = localData,
         )
+    }
+
+    /** 清本机（PH-R3）：不触云、保留会话。 */
+    val clearLocalData: suspend () -> com.xcwk.scalehub.application.sync.SyncOutcome = {
+        syncService.clearLocal()
     }
 
     /**
@@ -250,6 +284,10 @@ class AppContainer(context: Context) {
     val syncTrigger: SyncTrigger by lazy { SyncTrigger(applicationScope) { syncService.push() } }
 
     init {
+        memberRepository.bindProfileAuthority(profileStoreImpl)
+        com.xcwk.scalehub.infrastructure.profile.LegacyUnitMigration.migrate(context, profileStoreImpl)
+        com.xcwk.scalehub.infrastructure.consent.ConsentStore(context)
+            .seedLegacyIfEntered(sessionStoreImpl.isEntered())
         SyncOnLocalWrites(dataRefreshBus, applicationScope, syncTrigger).start()
     }
 

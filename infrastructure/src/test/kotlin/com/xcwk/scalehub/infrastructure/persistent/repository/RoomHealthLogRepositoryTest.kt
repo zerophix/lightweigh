@@ -23,7 +23,12 @@ class RoomHealthLogRepositoryTest {
         override suspend fun recent(limit: Int, memberId: String): List<HealthLogPo> =
             toReturn.sortedByDescending { it.loggedAt }.take(limit)
         override suspend fun between(from: Long, to: Long, memberId: String): List<HealthLogPo> =
-            toReturn.filter { it.loggedAt >= from && it.loggedAt < to }.sortedBy { it.loggedAt }
+            toReturn.filter { it.loggedAt >= from && it.loggedAt < to && it.deletedAt == null }.sortedBy { it.loggedAt }
+
+        override suspend fun markDeleted(memberId: String, time: Long, type: String, now: Long) {
+            saved += saved.filter { it.memberId == memberId && it.loggedAt == time && it.type == type }
+                .map { it.copy(deletedAt = now, updatedAt = now) }
+        }
     }
 
     @Test

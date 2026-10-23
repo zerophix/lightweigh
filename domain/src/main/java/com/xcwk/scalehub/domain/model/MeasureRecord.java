@@ -27,6 +27,10 @@ public final class MeasureRecord {
     public static final double FAT_NOT_CALCULATED = -1.0;
     public static final double MAX_IMPEDANCE_OHMS = 5000.0;
 
+    public static final int SYNC_CLEAN = 0;
+    public static final int SYNC_PENDING = 1;
+    public static final int SYNC_CONFLICT = 2;
+
     public final long time;
     public final double weight;
     public final double impedance;
@@ -37,6 +41,16 @@ public final class MeasureRecord {
     public final Boolean male;
     public final Integer ageYears;
     public final Integer heightCm;
+    /** 同步身份（UUIDv4）。空串表示尚未分配，仓储落库时补齐（DEC-057 / DEC-S01）。 */
+    public final String recordId;
+    /** 冲突与水位时刻，epoch ms UTC。0 在构造时归一为 [time]。 */
+    public final long updatedAt;
+    /** 软删墓碑；null = 存活（DEC-S13）。 */
+    public final Long deletedAt;
+    /** 0 干净 / 1 待推 / 2 冲突待决（DEC-S16）。 */
+    public final int syncStatus;
+    /** 用户备注；空串表示无备注（DEC-S12）。 */
+    public final String note;
 
     /**
      * 成员归属不在此聚合内（DEC-034 组 D / F-005）。
@@ -55,6 +69,13 @@ public final class MeasureRecord {
 
     public MeasureRecord(long time, double weight, double impedance, double fat, String mac, String algorithm,
                          Boolean male, Integer ageYears, Integer heightCm) {
+        this(time, weight, impedance, fat, mac, algorithm, male, ageYears, heightCm,
+                "", 0L, null, SYNC_CLEAN, "");
+    }
+
+    public MeasureRecord(long time, double weight, double impedance, double fat, String mac, String algorithm,
+                         Boolean male, Integer ageYears, Integer heightCm,
+                         String recordId, long updatedAt, Long deletedAt, int syncStatus, String note) {
         if (time <= 0) {
             throw new DomainException("测量时间戳非法: " + time);
         }
@@ -67,6 +88,9 @@ public final class MeasureRecord {
         if (fat != FAT_NOT_CALCULATED && (fat < 0.0 || fat > 100.0)) {
             throw new DomainException("体脂率 " + fat + " 非法（-1 表示未计算，否则 0..100）");
         }
+        if (syncStatus != SYNC_CLEAN && syncStatus != SYNC_PENDING && syncStatus != SYNC_CONFLICT) {
+            throw new DomainException("syncStatus 非法: " + syncStatus);
+        }
         this.time = time;
         this.weight = weight;
         this.impedance = impedance;
@@ -76,6 +100,19 @@ public final class MeasureRecord {
         this.male = male;
         this.ageYears = ageYears;
         this.heightCm = heightCm;
+        this.recordId = recordId == null ? "" : recordId;
+        this.updatedAt = updatedAt > 0 ? updatedAt : time;
+        this.deletedAt = deletedAt;
+        this.syncStatus = syncStatus;
+        this.note = note == null ? "" : note;
+    }
+
+    /** 保留原始采样列，只替换同步元数据（冲突合并 / 墓碑）。 */
+    public MeasureRecord withSync(String recordId, long updatedAt, Long deletedAt, int syncStatus, String note) {
+        return new MeasureRecord(
+                time, weight, impedance, fat, mac, algorithm, male, ageYears, heightCm,
+                recordId, updatedAt, deletedAt, syncStatus, note
+        );
     }
 
     /**
@@ -110,7 +147,8 @@ public final class MeasureRecord {
         }
         return new MeasureRecord(
                 clock.nowMillis(), weightKg, impedanceOhms, fat, mac, algorithmId,
-                male, ageYears, heightCm
+                male, ageYears, heightCm,
+                "", 0L, null, SYNC_PENDING, ""
         );
     }
 }
