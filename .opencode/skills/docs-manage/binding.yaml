@@ -1,0 +1,79 @@
+schema_version: "2.0"
+
+执行:
+  类型: manual
+  描述: 文档管理由 SKILL.md 引导流程，GOV-DOCS 脚本做结构与数字校验
+
+脚本工具:
+  gov_validate_docs.py:
+    说明: 挂在 gov-validate.py，随 pre-commit / gov-local-ci / GitHub CI 三层生效
+    规则:
+      GOV-DOCS-001:
+        级别: ERROR|WARN
+        条件: guides/GC-*.md 未被 index 收录(ERROR)；reference/REF-*.md 未收录(WARN)
+      GOV-DOCS-002:
+        级别: ERROR
+        条件: docs/**/*.md 的相对链接指向不存在路径
+      GOV-DOCS-003:
+        级别: ERROR
+        条件: docs/index.md 或 docs/ai/lifecycle/01_PRD.md 缺「真源声明」
+      GOV-DOCS-004:
+        级别: ERROR
+        条件: 03_TaskGraph.md 的任务板总数/pending数/原型数/wave数 ≠ .ai/tasks.json
+      GOV-DOCS-005:
+        级别: WARN
+        条件: 入口文档缺「更新时间：YYYY-MM-DD」或超期 14 天
+
+  pytest:
+    参数: tests/unit/test_docs_governance.py
+    说明: 19 条负向反例，证明规则真实生效（治理设计约束 Q3）
+
+  gov-validate.sh:
+    说明: 全量治理校验，违规数须为 0
+
+数据流:
+  1. 归属判定
+     五问判据 → Notion 或 仓库 → 不产生第二份真相
+
+  2. 目录与命名
+     六阶段目录 → {类型}-{主题} 短码 → 首页三要素
+
+  3. 索引收录
+     新 GC 文档 → docs/guides/index.md
+     新 REF 文档 → wf-promote.sh（禁止手改）
+
+  4. 结构校验
+     gov_validate_docs.py → 相对链接解析 + 索引差集 + 标记存在性
+
+  5. 数字校验
+     .ai/tasks.json → 解析 total/pending/proto/wave → 核对 03_TaskGraph.md 文本锚点
+
+验证规则:
+  结构:
+    - 索引收录完整（guides 强制，reference 提醒）
+    - 相对链接全部可解析，跳过 http/#/mailto/notion
+    - MIRROR_DOCS 必须含「真源声明」
+  数字:
+    - 任务板共 {total} 条
+    - {pending} 条 pending
+    - 三波合计 {proto} 条
+    - | wave | 任务数 | 各行
+  时效:
+    - FRESHNESS_DOCS 必须含更新时间标记
+    - 更新时间不超过 14 天
+
+异常处理:
+  - .ai/tasks.json 解析失败: 跳过 004（不让数据损坏阻断其余检查）
+  - 文件读取失败/非 UTF-8: 跳过该文件
+  - reference/index.md 未收录: 只 WARN，因为它由晋升写入、不可手改
+  - 断链目标带锚点: 剥掉 # 后半部分再判断存在性
+
+已知边界:
+  - 只保证结构与数字一致，不保证内容质量
+  - 语义准确性（阶段描述写得对不对）需人工评审
+  - Notion 侧不参与校验（CI 不依赖外部 SaaS 与凭据）
+
+来源:
+  规则源自 2026-10-23 手工 docs 巡检发现的 4 类真实问题
+  反例测试 tests/unit/test_docs_governance.py
+  归属规则 docs/guides/GC-decision-flow.md 第 0 层

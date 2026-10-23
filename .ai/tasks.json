@@ -597,7 +597,26 @@
       "dec": "",
       "created_at": "2026-10-23T03:51:34Z",
       "updated_at": "2026-10-23T03:51:34Z",
-      "notes": ""
+      "notes": "",
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/01-login.html",
+        "views": [
+          "v-email",
+          "v-wechat",
+          "v-guest",
+          "v-guest-done"
+        ]
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/auth/EmailLogin.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/auth/GuestMode.kt"
+      ],
+      "wave": 1,
+      "module": "auth",
+      "ac_refs": [
+        "AC-J1-01 登录后进入主路径"
+      ],
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a8131aad6f95b74dcf436"
     },
     {
       "id": "T-073",
@@ -608,7 +627,23 @@
       "dec": "",
       "created_at": "2026-10-23T03:51:34Z",
       "updated_at": "2026-10-23T03:51:34Z",
-      "notes": ""
+      "notes": "",
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/01-login.html",
+        "views": [
+          "v-reset"
+        ]
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/auth/PasswordReset.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/auth/AccountRecovery.kt"
+      ],
+      "wave": 1,
+      "module": "auth",
+      "ac_refs": [
+        "AC-J1-02 密码重置与账号找回可达"
+      ],
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a8131aad6f95b74dcf436"
     },
     {
       "id": "T-074",
@@ -619,7 +654,28 @@
       "dec": "",
       "created_at": "2026-10-23T03:51:34Z",
       "updated_at": "2026-10-23T03:51:34Z",
-      "notes": ""
+      "notes": "",
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/14-account-lifecycle.html",
+        "views": [
+          "v-forceupdate",
+          "v-minver",
+          "v-privacy-lock",
+          "v-codeerr",
+          "v-expired",
+          "v-multidevice",
+          "v-healthinfo"
+        ]
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/auth/AccountLifecycle.kt"
+      ],
+      "wave": 1,
+      "module": "auth",
+      "ac_refs": [
+        "AC-S5 对外展示名一律「轻衡」"
+      ],
+      "prd_ref": "https://app.notion.com/p/40241bd50f8a81978bd4c99ada828be1"
     },
     {
       "id": "T-075",
@@ -630,7 +686,27 @@
       "dec": "",
       "created_at": "2026-10-23T03:51:46Z",
       "updated_at": "2026-10-23T03:51:46Z",
-      "notes": ""
+      "notes": "",
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/02-onboarding-permission.html",
+        "views": [
+          "v-splash",
+          "v-terms",
+          "v-permissions",
+          "v-granted",
+          "v-denied"
+        ]
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/guide/SplashScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/guide/PermissionFlow.kt"
+      ],
+      "wave": 1,
+      "module": "guide",
+      "ac_refs": [
+        "AC-V5 权限用时申请：先说明再系统弹窗"
+      ],
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a81cdbbedcb4fb9228eca"
     },
     {
       "id": "T-076",
@@ -641,7 +717,27 @@
       "dec": "",
       "created_at": "2026-10-23T03:51:46Z",
       "updated_at": "2026-10-23T03:51:46Z",
-      "notes": ""
+      "notes": "",
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/19-onboarding-guide.html",
+        "views": [
+          "v-intro",
+          "v-goal",
+          "v-prepare",
+          "v-connected",
+          "v-done",
+          "v-skip"
+        ]
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/guide/GuideScreen.kt"
+      ],
+      "wave": 2,
+      "module": "guide",
+      "ac_refs": [
+        "AC-J1-03 新手引导三步完成"
+      ],
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a8131aad6f95b74dcf436"
     },
     {
       "id": "T-077",
@@ -652,7 +748,30 @@
       "dec": "",
       "created_at": "2026-10-23T03:51:46Z",
       "updated_at": "2026-10-23T03:51:46Z",
-      "notes": ""
+      "notes": "",
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/12-measure-full.html",
+        "views": [
+          "v-check",
+          "v-prep",
+          "v-stable",
+          "v-calc",
+          "v-left",
+          "v-invalid",
+          "v-savefail",
+          "v-success"
+        ]
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/MeasureScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/MeasureViewModel.kt"
+      ],
+      "wave": 2,
+      "module": "measure",
+      "ac_refs": [
+        "AC-J1-05 测量完成生成报告"
+      ],
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a818fbdbcc0396b31763c"
     },
     {
       "id": "T-078",
@@ -663,7 +782,24 @@
       "dec": "",
       "created_at": "2026-10-23T03:51:46Z",
       "updated_at": "2026-10-23T03:51:46Z",
-      "notes": ""
+      "notes": "",
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/16-measure-result.html",
+        "views": [
+          "v-share",
+          "v-export",
+          "v-export-done"
+        ]
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/ResultShare.kt"
+      ],
+      "wave": 1,
+      "module": "measure",
+      "ac_refs": [
+        "AC-J1-06 测量结果可分享/导出"
+      ],
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a818fbdbcc0396b31763c"
     },
     {
       "id": "T-079",
@@ -674,7 +810,24 @@
       "dec": "",
       "created_at": "2026-10-23T03:51:54Z",
       "updated_at": "2026-10-23T03:51:54Z",
-      "notes": ""
+      "notes": "",
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/18-device-setup.html",
+        "views": [
+          "v-firmware-check",
+          "v-firmware-update",
+          "v-firmware-latest"
+        ]
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/device/FirmwareManager.kt"
+      ],
+      "wave": 1,
+      "module": "device",
+      "ac_refs": [
+        "AC-D4 固件检测与更新提示"
+      ],
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a815baa74ee7f26890aba"
     },
     {
       "id": "T-080",
@@ -685,7 +838,24 @@
       "dec": "",
       "created_at": "2026-10-23T03:51:54Z",
       "updated_at": "2026-10-23T03:51:54Z",
-      "notes": ""
+      "notes": "",
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/24-remaining-gaps.html",
+        "views": [
+          "v-rename-device",
+          "v-member-device"
+        ]
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/device/DeviceRename.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/device/MemberDeviceLink.kt"
+      ],
+      "wave": 1,
+      "module": "device",
+      "ac_refs": [
+        "AC-D5 设备重命名与成员绑定"
+      ],
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a815baa74ee7f26890aba"
     },
     {
       "id": "T-081",
@@ -696,7 +866,24 @@
       "dec": "",
       "created_at": "2026-10-23T03:51:54Z",
       "updated_at": "2026-10-23T03:51:54Z",
-      "notes": ""
+      "notes": "",
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/05-history-trend.html",
+        "views": [
+          "v-detail",
+          "v-edit"
+        ]
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/history/HistoryDetail.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/history/RecordEdit.kt"
+      ],
+      "wave": 1,
+      "module": "history",
+      "ac_refs": [
+        "AC-J1-08 历史记录详情与编辑"
+      ],
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a8131aad6f95b74dcf436"
     },
     {
       "id": "T-082",
@@ -707,7 +894,30 @@
       "dec": "",
       "created_at": "2026-10-23T03:51:54Z",
       "updated_at": "2026-10-23T03:51:54Z",
-      "notes": ""
+      "notes": "",
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/17-metric-details.html",
+        "views": [
+          "v-list",
+          "v-weight",
+          "v-bmi",
+          "v-muscle",
+          "v-water",
+          "v-visceral",
+          "v-metabolism",
+          "v-score",
+          "v-bone"
+        ]
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/trend/MetricDetailScreen.kt"
+      ],
+      "wave": 1,
+      "module": "trend",
+      "ac_refs": [
+        "AC-J1-09 各指标趋势详情页"
+      ],
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a8131aad6f95b74dcf436"
     },
     {
       "id": "T-083",
@@ -718,7 +928,28 @@
       "dec": "",
       "created_at": "2026-10-23T03:52:02Z",
       "updated_at": "2026-10-23T03:52:02Z",
-      "notes": ""
+      "notes": "",
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/06-ai.html",
+        "views": [
+          "v-generating",
+          "v-failed",
+          "v-unauth",
+          "v-plan",
+          "v-auth"
+        ]
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/ai/AiScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/ai/AiUiState.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/ai/AiViewModel.kt"
+      ],
+      "wave": 2,
+      "module": "ai",
+      "ac_refs": [
+        "AC-J1-10 AI 建议生成与展示"
+      ],
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a8131aad6f95b74dcf436"
     },
     {
       "id": "T-084",
@@ -729,7 +960,24 @@
       "dec": "",
       "created_at": "2026-10-23T03:52:02Z",
       "updated_at": "2026-10-23T03:52:02Z",
-      "notes": ""
+      "notes": "",
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/20-ai-members.html",
+        "views": [
+          "v-weekly",
+          "v-member-detail"
+        ]
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/ai/AiWeeklySummary.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/ai/MemberPermissionDetail.kt"
+      ],
+      "wave": 1,
+      "module": "ai",
+      "ac_refs": [
+        "AC-J1-11 周报与成员详情"
+      ],
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a8131aad6f95b74dcf436"
     },
     {
       "id": "T-085",
@@ -740,7 +988,27 @@
       "dec": "",
       "created_at": "2026-10-23T03:52:02Z",
       "updated_at": "2026-10-23T03:52:02Z",
-      "notes": ""
+      "notes": "",
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/25-ai-boundaries.html",
+        "views": [
+          "v-ai-unavailable",
+          "v-report-expired",
+          "v-reanalyzing",
+          "v-report-done",
+          "v-unauth-consult",
+          "v-member-unauth"
+        ]
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/ai/AiBoundaries.kt"
+      ],
+      "wave": 1,
+      "module": "ai",
+      "ac_refs": [
+        "AC-J1-12 AI 边界与降级状态"
+      ],
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a8131aad6f95b74dcf436"
     },
     {
       "id": "T-086",
@@ -751,7 +1019,25 @@
       "dec": "",
       "created_at": "2026-10-23T03:52:02Z",
       "updated_at": "2026-10-23T03:52:02Z",
-      "notes": ""
+      "notes": "",
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/13-members-plans.html",
+        "views": [
+          "v-edit-member",
+          "v-savefail",
+          "v-member-norecord",
+          "v-member-nodevice"
+        ]
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/member/MembersScreen.kt"
+      ],
+      "wave": 2,
+      "module": "member",
+      "ac_refs": [
+        "AC-J1-13 成员档案编辑与空态"
+      ],
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a8131aad6f95b74dcf436"
     },
     {
       "id": "T-087",
@@ -762,7 +1048,27 @@
       "dec": "",
       "created_at": "2026-10-23T03:52:22Z",
       "updated_at": "2026-10-23T03:52:22Z",
-      "notes": ""
+      "notes": "",
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/13-members-plans.html",
+        "views": [
+          "v-plans",
+          "v-edit-plan",
+          "v-edit-task",
+          "v-plan-empty",
+          "v-remind",
+          "v-notif-denied"
+        ]
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/member/ActionPlans.kt"
+      ],
+      "wave": 1,
+      "module": "member",
+      "ac_refs": [
+        "AC-J1-14 行动计划管理"
+      ],
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a8131aad6f95b74dcf436"
     },
     {
       "id": "T-088",
@@ -773,7 +1079,27 @@
       "dec": "",
       "created_at": "2026-10-23T03:52:22Z",
       "updated_at": "2026-10-23T03:52:22Z",
-      "notes": ""
+      "notes": "",
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/23-family-invite.html",
+        "views": [
+          "v-invite",
+          "v-invite-done",
+          "v-accept",
+          "v-accept-confirm",
+          "v-accept-done",
+          "v-revoke"
+        ]
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/member/FamilyInvite.kt"
+      ],
+      "wave": 1,
+      "module": "member",
+      "ac_refs": [
+        "AC-J1-15 家庭邀请流程"
+      ],
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a8131aad6f95b74dcf436"
     },
     {
       "id": "T-089",
@@ -784,7 +1110,25 @@
       "dec": "",
       "created_at": "2026-10-23T03:52:22Z",
       "updated_at": "2026-10-23T03:52:22Z",
-      "notes": ""
+      "notes": "",
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/07-mine-settings.html",
+        "views": [
+          "v-closure-apply",
+          "v-closure-verify",
+          "v-closure-processing",
+          "v-closure-result"
+        ]
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/mine/AccountClosure.kt"
+      ],
+      "wave": 1,
+      "module": "mine",
+      "ac_refs": [
+        "AC-S5 账号注销流程"
+      ],
+      "prd_ref": "https://app.notion.com/p/40241bd50f8a81978bd4c99ada828be1"
     },
     {
       "id": "T-090",
@@ -795,7 +1139,24 @@
       "dec": "",
       "created_at": "2026-10-23T03:52:22Z",
       "updated_at": "2026-10-23T03:52:22Z",
-      "notes": ""
+      "notes": "",
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/07-mine-settings.html",
+        "views": [
+          "v-about",
+          "v-privacy"
+        ]
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/mine/AboutScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/mine/PrivacyDetail.kt"
+      ],
+      "wave": 1,
+      "module": "mine",
+      "ac_refs": [
+        "AC-S5 关于页与隐私政策"
+      ],
+      "prd_ref": "https://app.notion.com/p/40241bd50f8a81978bd4c99ada828be1"
     },
     {
       "id": "T-091",
@@ -806,7 +1167,24 @@
       "dec": "",
       "created_at": "2026-10-23T03:52:35Z",
       "updated_at": "2026-10-23T03:52:35Z",
-      "notes": ""
+      "notes": "",
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/24-remaining-gaps.html",
+        "views": [
+          "v-language",
+          "v-appearance"
+        ]
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/settings/LanguageSettings.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/settings/AppearanceSettings.kt"
+      ],
+      "wave": 1,
+      "module": "settings",
+      "ac_refs": [
+        "AC-S5 语言与外观设置"
+      ],
+      "prd_ref": "https://app.notion.com/p/40241bd50f8a81978bd4c99ada828be1"
     },
     {
       "id": "T-092",
@@ -817,7 +1195,24 @@
       "dec": "",
       "created_at": "2026-10-23T03:52:35Z",
       "updated_at": "2026-10-23T03:52:35Z",
-      "notes": ""
+      "notes": "",
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/26-final-gaps.html",
+        "views": [
+          "v-sdk-list"
+        ]
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/settings/SdkListScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/settings/DataRecovery.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/settings/MaintenanceScreen.kt"
+      ],
+      "wave": 1,
+      "module": "settings",
+      "ac_refs": [
+        "AC-S5 SDK 列表与数据恢复"
+      ],
+      "prd_ref": "https://app.notion.com/p/40241bd50f8a81978bd4c99ada828be1"
     },
     {
       "id": "T-093",
@@ -828,7 +1223,29 @@
       "dec": "",
       "created_at": "2026-10-23T03:52:35Z",
       "updated_at": "2026-10-23T03:52:35Z",
-      "notes": ""
+      "notes": "",
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/08-sync-network-help.html",
+        "views": [
+          "v-help",
+          "v-faq",
+          "v-feedback",
+          "v-feedback-submit",
+          "v-feedback-success",
+          "v-feedback-fail",
+          "v-diag"
+        ]
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/sync/HelpCenter.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/sync/FeedbackFlow.kt"
+      ],
+      "wave": 1,
+      "module": "sync",
+      "ac_refs": [
+        "AC-N3 帮助中心与反馈流程"
+      ],
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a8134bec9f5290e1bd659"
     },
     {
       "id": "T-094",
@@ -839,7 +1256,27 @@
       "dec": "",
       "created_at": "2026-10-23T03:52:35Z",
       "updated_at": "2026-10-23T03:52:35Z",
-      "notes": ""
+      "notes": "",
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/22-data-conflict.html",
+        "views": [
+          "v-offline-switch",
+          "v-offline-done",
+          "v-multi-device",
+          "v-multi-done",
+          "v-sync-conflict",
+          "v-sync-done"
+        ]
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/sync/DataConflict.kt"
+      ],
+      "wave": 1,
+      "module": "sync",
+      "ac_refs": [
+        "AC-N3 离线/多设备/同步冲突处理"
+      ],
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a8134bec9f5290e1bd659"
     },
     {
       "id": "T-095",
@@ -850,7 +1287,31 @@
       "dec": "",
       "created_at": "2026-10-23T03:52:45Z",
       "updated_at": "2026-10-23T03:52:45Z",
-      "notes": ""
+      "notes": "",
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/11-home-states.html",
+        "views": [
+          "v-home",
+          "v-empty",
+          "v-unconn",
+          "v-syncing",
+          "v-error",
+          "v-switching",
+          "v-brief",
+          "v-goaldone"
+        ]
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/home/HomeStates.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/ui/shell/MainShell.kt"
+      ],
+      "wave": 2,
+      "module": "home",
+      "ac_refs": [
+        "AC-H4 关键指标摘要",
+        "AC-H5 设备摘要"
+      ],
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a811b8d8dc68bc9b789e7"
     },
     {
       "id": "T-096",
@@ -861,7 +1322,26 @@
       "dec": "",
       "created_at": "2026-10-23T03:52:45Z",
       "updated_at": "2026-10-23T03:52:45Z",
-      "notes": ""
+      "notes": "",
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/10-privacy-authorization.html",
+        "views": [
+          "v-auth",
+          "v-granted",
+          "v-unauth",
+          "v-consult",
+          "v-rules"
+        ]
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/privacy/PrivacyAuthFlow.kt"
+      ],
+      "wave": 1,
+      "module": "privacy",
+      "ac_refs": [
+        "AC-V5 隐私授权流与弹窗"
+      ],
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a81cdbbedcb4fb9228eca"
     },
     {
       "id": "T-097",
@@ -872,7 +1352,36 @@
       "dec": "",
       "created_at": "2026-10-23T03:52:45Z",
       "updated_at": "2026-10-23T03:52:45Z",
-      "notes": ""
+      "notes": "",
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/15-states-errors.html",
+        "views": [
+          "v-rec-edit",
+          "v-export",
+          "v-score",
+          "v-anomaly",
+          "v-multimetric",
+          "v-pair-timeout",
+          "v-report-stale",
+          "v-sync-fail",
+          "v-fb-fail",
+          "v-connect-guide",
+          "v-troubleshoot",
+          "v-privacy-qa",
+          "v-notif-landing",
+          "v-fullscreen-load",
+          "v-longpress"
+        ]
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/ui/states/ErrorStates.kt"
+      ],
+      "wave": 0,
+      "module": "states",
+      "ac_refs": [
+        "AC-E2E-01 16 种通用状态页"
+      ],
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a818fbdbcc0396b31763c"
     },
     {
       "id": "T-098",
@@ -883,7 +1392,28 @@
       "dec": "",
       "created_at": "2026-10-23T03:52:45Z",
       "updated_at": "2026-10-23T03:52:45Z",
-      "notes": ""
+      "notes": "",
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/26-final-gaps.html",
+        "views": [
+          "v-pull-refresh",
+          "v-swipe-delete",
+          "v-infinite-scroll",
+          "v-search-filter"
+        ]
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/ui/components/QkPullRefresh.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/ui/components/QkSwipeDelete.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/ui/components/QkInfiniteScroll.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/ui/components/QkSearchBar.kt"
+      ],
+      "wave": 0,
+      "module": "components",
+      "ac_refs": [
+        "AC-E2E-02 下拉刷新/滑删/无限滚动"
+      ],
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a818fbdbcc0396b31763c"
     },
     {
       "id": "T-099",
@@ -894,7 +1424,24 @@
       "dec": "",
       "created_at": "2026-10-23T03:52:45Z",
       "updated_at": "2026-10-23T03:52:45Z",
-      "notes": ""
+      "notes": "",
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/09-components-demo.html",
+        "views": [
+          "v-skeleton",
+          "v-longpress"
+        ]
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/ui/components/QkSkeleton.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/ui/components/QkLongPressMenu.kt"
+      ],
+      "wave": 0,
+      "module": "components",
+      "ac_refs": [
+        "AC-E2E-03 骨架屏与长按菜单"
+      ],
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a818fbdbcc0396b31763c"
     },
     {
       "id": "T-100",
@@ -905,7 +1452,24 @@
       "dec": "",
       "created_at": "2026-10-23T03:56:21Z",
       "updated_at": "2026-10-23T03:56:21Z",
-      "notes": ""
+      "notes": "",
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/01-login.html",
+        "views": [
+          "v-onboard-age",
+          "v-onboard-height",
+          "v-done"
+        ]
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/guide/ProfileSetup.kt"
+      ],
+      "wave": 1,
+      "module": "guide",
+      "ac_refs": [
+        "AC-J1-04 引导资料表单补全"
+      ],
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a8131aad6f95b74dcf436"
     },
     {
       "id": "T-101",
@@ -916,7 +1480,22 @@
       "dec": "",
       "created_at": "2026-10-23T03:56:21Z",
       "updated_at": "2026-10-23T03:56:21Z",
-      "notes": ""
+      "notes": "",
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/07-mine-settings.html",
+        "views": [
+          "v-account"
+        ]
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/mine/AccountSecurity.kt"
+      ],
+      "wave": 1,
+      "module": "mine",
+      "ac_refs": [
+        "AC-S5 账号安全设置"
+      ],
+      "prd_ref": "https://app.notion.com/p/40241bd50f8a81978bd4c99ada828be1"
     },
     {
       "id": "T-102",
@@ -927,7 +1506,24 @@
       "dec": "",
       "created_at": "2026-10-23T03:56:21Z",
       "updated_at": "2026-10-23T03:56:21Z",
-      "notes": ""
+      "notes": "",
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/08-sync-network-help.html",
+        "views": [
+          "v-network",
+          "v-service"
+        ]
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/sync/NetworkStatus.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/sync/ServiceStatus.kt"
+      ],
+      "wave": 1,
+      "module": "sync",
+      "ac_refs": [
+        "AC-N3 网络与服务状态页"
+      ],
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a8134bec9f5290e1bd659"
     },
     {
       "id": "T-103",
@@ -938,7 +1534,26 @@
       "dec": "",
       "created_at": "2026-10-23T03:56:21Z",
       "updated_at": "2026-10-23T03:56:21Z",
-      "notes": ""
+      "notes": "",
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/18-device-setup.html",
+        "views": [
+          "v-bt-permission",
+          "v-confirm-device",
+          "v-connecting",
+          "v-connected"
+        ]
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/device/BtPermissionFlow.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/device/DeviceConnectFlow.kt"
+      ],
+      "wave": 1,
+      "module": "device",
+      "ac_refs": [
+        "AC-BLE-03 蓝牙权限与连接流程"
+      ],
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a815baa74ee7f26890aba"
     },
     {
       "id": "T-104",
@@ -949,7 +1564,26 @@
       "dec": "",
       "created_at": "2026-10-23T04:06:49Z",
       "updated_at": "2026-10-23T04:06:49Z",
-      "notes": ""
+      "notes": "",
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/04-device.html",
+        "views": [
+          "v-pairing",
+          "v-pair-success",
+          "v-pair-fail"
+        ]
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/device/DeviceScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/device/DeviceUiState.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/device/DeviceViewModel.kt"
+      ],
+      "wave": 2,
+      "module": "device",
+      "ac_refs": [
+        "AC-D1 配对状态机与真机连通"
+      ],
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a815baa74ee7f26890aba"
     },
     {
       "id": "T-105",
@@ -960,7 +1594,22 @@
       "dec": "",
       "created_at": "2026-10-23T04:06:49Z",
       "updated_at": "2026-10-23T04:06:49Z",
-      "notes": ""
+      "notes": "",
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/04-device.html",
+        "views": [
+          "v-settings"
+        ]
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/device/DeviceDetailScreen.kt"
+      ],
+      "wave": 1,
+      "module": "device",
+      "ac_refs": [
+        "AC-D6 设备详情页"
+      ],
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a815baa74ee7f26890aba"
     }
   ],
   "acceptance_schema": "GC-task-acceptance@1"

@@ -113,7 +113,7 @@ def check_dot_configs() -> None:
                             fail(f".claude/settings.json: hooks.{event} 引用脚本不存在: scripts/{ref_path}")
                             issues += 1
 
-    skills_dir = ROOT / ".claude" / "skills"
+    skills_dir = ROOT / ".opencode" / "skills"
     if skills_dir.is_dir():
         skill_count = 0
         for skill_dir in sorted(skills_dir.iterdir()):
@@ -125,10 +125,10 @@ def check_dot_configs() -> None:
                     import yaml
                     data = yaml.safe_load(skill_yaml.read_text(encoding="utf-8"))
                     if data and not data.get("name"):
-                        fail(f".claude/skills/{skill_dir.name}/skill.yaml: 缺少 name 字段")
+                        fail(f".opencode/skills/{skill_dir.name}/skill.yaml: 缺少 name 字段")
                         issues += 1
                 except ImportError: pass
-                except Exception as e: fail(f".claude/skills/{skill_dir.name}/skill.yaml: YAML 格式错误: {e}"); issues += 1
+                except Exception as e: fail(f".opencode/skills/{skill_dir.name}/skill.yaml: YAML 格式错误: {e}"); issues += 1
         if skill_count: print(f"  [INFO] skill 定义 {skill_count} 个")
 
     ci_yml = ROOT / ".github" / "workflows" / "ci.yml"

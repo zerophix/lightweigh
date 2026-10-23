@@ -1,0 +1,44 @@
+name: docs-manage
+description: 轻衡项目文档的创建、归属判定、目录归位与 GOV-DOCS 校验流程
+version: "1.0"
+status: 生效
+意图:
+  - 判定文档归属（Notion 还是仓库，五问判据）
+  - 按六阶段选目录、按类型短码命名
+  - 写首页三要素与真源声明
+  - 收进对应 index，跑 GOV-DOCS 校验
+  - 计数类文档与 tasks.json 同步
+能力边界:
+  不为过检查改index: 收录前提是文档本就该在该目录
+  不手改reference-index: 它由 wf-promote 写入，自述不可直接编辑
+  不留第二份真相: 与 Notion 并存必须标真源，禁止两边各写一份
+  不改任务板迁就文档: 任务板是权威，摘要是跟随方
+  不管语义质量: 脚本只保证结构与数字，写得好不好需人工评审
+触发方式:
+  - /docs、/文档、/写文档
+  - 新建或改动 lightweigh 仓库 docs/ 下任意 .md
+  - 出现 GOV-DOCS-001~005 报错时
+场景细分:
+  decide:
+    描述: 判定文档该进 Notion 还是仓库
+    执行: 读 SKILL.md「铁律 1」的五问判据
+  create:
+    描述: 新建文档
+    执行: 判归属 → 选目录 → 命名 → 写首页三要素 → 收 index
+  index:
+    描述: 新增 GC 文档后补索引
+    执行: 在 docs/guides/index.md 增加一行，格式见现有条目
+  validate:
+    描述: 校验
+    执行: python3 -m pytest tests/unit/test_docs_governance.py -q && bash scripts/governance/gov-validate.sh
+  triage:
+    描述: 处理 GOV-DOCS 报错
+    执行: 读 SKILL.md「失败处理」表逐条对应
+前置条件:
+  - docs/ 目录存在
+  - .ai/tasks.json 存在（GOV-DOCS-004 依赖）
+  - docs/guides/index.md、docs/index.md 存在
+后置效果:
+  - gov-validate 0 违规
+  - 新文档被 index 收录且链接可解析
+  - 与 Notion 并存的文档带真源声明

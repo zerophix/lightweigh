@@ -5,10 +5,43 @@
 
 ---
 
+## 0. 强制力机制（不是纯文档约定）
+
+本规范由三层机制强制执行，AI 不能跳过：
+
+| 层 | 介质 | 作用 |
+|----|------|------|
+| 引导 | `.opencode/skills/prototype-dev/SKILL.md` | AI 认领任务时自动加载流程与映射表 |
+| 元数据 | `.ai/tasks.json` 的 `prototype_ref` + `module`/`ac_refs`/`prd_ref` 字段 | 任务携带原型引用、模块编号、AC 追溯、上层文档链接 |
+| Schema 校验 | `gov-validate.py` 的 GOV-PROTO-001~007 检查 | 每次 validate 校验 34 个任务 schema |
+| 闭环验证 | `gov-prototype-verify.py --strict` | 检查目标文件存在/无硬编码颜色/文案匹配率 |
+
+### 快速命令
+
+```bash
+# 认领任务并读元数据
+bash scripts/workflow/wf-task-board.sh take T-XXX
+python3 scripts/governance/gov-prototype-verify.py T-XXX
+
+# 闭环验证（提交前必须过）
+python3 scripts/governance/gov-prototype-verify.py T-XXX --strict
+
+# 全量闭环检查（CI / 收尾）
+python3 scripts/governance/gov-prototype-verify.py --all --strict
+
+# 只校验 schema（任务制定阶段）
+python3 scripts/governance/gov-prototype-verify.py --schema
+```
+
+---
+
 ## 1. 任务波次（执行顺序）
 
-任务板 `.ai/tasks.json` 中 T-072~T-105 共 34 个任务，按**依赖关系**分为 4 波。
-波次编号写在每个任务的 `notes` 字段，格式 `wave=N`。
+任务板 `.ai/tasks.json` 中 T-072~T-105 共 34 个原型映射任务，按依赖关系分 **3 个执行波次**。
+波次是任务的**顶层 `wave` 字段**（数值 0/1/2），由 GOV-PROTO-004 校验，不是写在 notes 里。
+
+> 另有一批 T-059~T-071（13 条功能缺口）编排上称"Wave 3"，但它们不带 `prototype_ref`
+> 也没有 `wave` 字段——它们依赖 Wave 1 完成，属于另一批次，不计入下表 34 条。
 
 ### Wave 0：基础组件（必须最先做）
 
@@ -67,6 +100,7 @@ T-059~T-071，是产品功能缺口而非原型映射。依赖 Wave 1 的基础�
 
 ```
 design/prototypes/interactive/    # 26 个交互原型 HTML（主要参考）
+design/prototypes/html-screens/   # 97 个单屏 HTML（按模块前缀命名，补充细节屏）
 design/prototypes/theme.css       # 设计系统 token（单一来源）
 design/prototypes/interactive/shell.css
 design/prototypes/interactive/app.js
@@ -232,14 +266,16 @@ bash scripts/session/ses-session-end.sh
 
 1. [ ] 读完本文件
 2. [ ] 读任务 `acceptance` 字段（若有）
-3. [ ] `grep -n 'id="v-<view-id>"' <原型文件>` 定位原型 view
-4. [ ] 读原型 view 块，理解布局/文案/颜色
-5. [ ] 确认目标文件不与其他 in_progress 任务冲突
-6. [ ] Wave 0 组件若被本任务依赖，确认已存在
-7. [ ] 开工编码
-8. [ ] 跑 `./gradlew :app:testDebugUnitTest`
-9. [ ] 跑 `bash scripts/governance/gov-local-ci.sh`
-10. [ ] 提交 + push
+3. [ ] `python3 scripts/governance/gov-prototype-verify.py T-XXX` 读元数据
+4. [ ] `grep -n 'id="v-<view-id>"' <原型文件>` 定位原型 view
+5. [ ] 读原型 view 块，理解布局/文案/颜色
+6. [ ] 确认目标文件不与其他 in_progress 任务冲突
+7. [ ] Wave 0 组件若被本任务依赖，确认已存在
+8. [ ] 开工编码
+9. [ ] 跑 `./gradlew :app:testDebugUnitTest`
+10. [ ] 跑 `python3 scripts/governance/gov-prototype-verify.py T-XXX --strict`
+11. [ ] 跑 `bash scripts/governance/gov-local-ci.sh`
+12. [ ] 提交 + push
 
 ---
 
