@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "updated_at": "2026-10-23T09:26:02Z",
-  "next_action": "开工 Wave 0 基础组件 T-097/T-098/T-099（通用状态页、下拉刷新与滑删与无限滚动与搜索栏、骨架屏与长按菜单）",
-  "next_action_why": "Wave 0 组件被 Wave 1/2 多个任务复用，未完成则后续任务缺组件无法开工；GC-prototype-driven-dev 明确 Wave 0 必须最先做",
+  "updated_at": "2026-10-23T14:35:00Z",
+  "next_action": "完成 T-099（骨架屏/长按菜单）：编译+单测+gov-prototype-verify T-099 --strict+local-ci 全绿后 push 并开 PR",
+  "next_action_why": "T-099 是当前唯一 acceptance ready 的 pending 任务（Wave 0 组件补全，Wave1 多任务可复用）",
   "next_action_confirmed": true,
   "known_risks": [
     "任务无 ready AC 不得开工；in_progress 缺 definition_of_done 会触发 GOV-PROTO-004（DEC-048）。",
@@ -862,12 +862,12 @@
       "id": "T-081",
       "description": "history: 历史详情与记录编辑",
       "why": "原型05 v-detail/v-edit · 新增 history/HistoryDetail.kt history/RecordEdit.kt",
-      "status": "in_progress",
+      "status": "completed",
       "assigned_to": "ai",
       "dec": "",
       "created_at": "2026-10-23T03:51:54Z",
-      "updated_at": "2026-10-23T09:14:30Z",
-      "notes": "",
+      "updated_at": "2026-10-23T14:35:00Z",
+      "notes": "代码与单测已随 PR #36 (feat/wave1-history-trend, merge 754c37a) 合入 master：HistoryDetail.kt/RecordEdit.kt/MetricDetailScreen.kt + Wave1HistoryTrendTest 存在；本提交同步任务板状态",
       "prototype_ref": {
         "file": "design/prototypes/interactive/05-history-trend.html",
         "views": [
@@ -920,12 +920,12 @@
       "id": "T-082",
       "description": "trend: 指标详情页（体重/BMI/肌肉/水分/内脏/代谢/评分/骨骼）",
       "why": "原型17全部9屏 · 新增 trend/MetricDetailScreen.kt",
-      "status": "in_progress",
+      "status": "completed",
       "assigned_to": "ai",
       "dec": "",
       "created_at": "2026-10-23T03:51:54Z",
-      "updated_at": "2026-10-23T09:14:30Z",
-      "notes": "",
+      "updated_at": "2026-10-23T14:35:00Z",
+      "notes": "代码与单测已随 PR #36 (feat/wave1-history-trend, merge 754c37a) 合入 master：HistoryDetail.kt/RecordEdit.kt/MetricDetailScreen.kt + Wave1HistoryTrendTest 存在；本提交同步任务板状态",
       "prototype_ref": {
         "file": "design/prototypes/interactive/17-metric-details.html",
         "views": [
@@ -1628,12 +1628,12 @@
       "id": "T-099",
       "description": "components: 组件补全（骨架屏/长按菜单）",
       "why": "原型09 v-skeleton/v-longpress · 新增 ui/components/QkSkeleton.kt QkLongPressMenu.kt",
-      "status": "pending",
+      "status": "in_progress",
       "assigned_to": "ai",
       "dec": "",
       "created_at": "2026-10-23T03:52:45Z",
-      "updated_at": "2026-10-23T09:45:00Z",
-      "notes": "",
+      "updated_at": "2026-10-23T14:35:00Z",
+      "notes": "会话 ses-20261023-t099 于 feat/wave1-module-screens 认领：QkSkeleton.kt + QkLongPressMenu.kt + QkSkeletonLongPressTest.kt",
       "prototype_ref": {
         "file": "design/prototypes/interactive/09-components-demo.html",
         "views": [
