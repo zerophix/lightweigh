@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "updated_at": "2026-10-23T04:06:49Z",
-  "next_action": "在 Android 真机安装 APK 验证",
-  "next_action_why": "人类端到端验收（沿用既有 next_action）",
+  "updated_at": "2026-10-23T08:30:28Z",
+  "next_action": "开工 Wave 0 基础组件 T-097/T-098/T-099（通用状态页、下拉刷新与滑删与无限滚动与搜索栏、骨架屏与长按菜单）",
+  "next_action_why": "Wave 0 组件被 Wave 1/2 多个任务复用，未完成则后续任务缺组件无法开工；GC-prototype-driven-dev 明确 Wave 0 必须最先做",
   "next_action_confirmed": false,
   "known_risks": [
     "任务无 ready AC 不得开工；in_progress 缺 definition_of_done 会触发 GOV-PROTO-004（DEC-048）。",
@@ -19,7 +19,8 @@
     "未跑 local-ci 时 STATUS 显示无证据；generate-status 为模板区分叉",
     "join(labels) 表达式若 Actions 解析失败可回退 GITHUB_EVENT_PATH 读标签",
     "模块级匹配可能漏同名类级缺口；资源路径已忽略",
-    "无新增代码风险。模板 clone URL 仍指向 nekings/ai-project-template（上游有意保留）。"
+    "无新增代码风险。模板 clone URL 仍指向 nekings/ai-project-template（上游有意保留）。",
+    "STATUS.md 的「下一步」由模板受管的 gov-generate-status.py 从 context.jsonl 的 last handoff 读取，而权威 next_action 在 .ai/tasks.json；两者在 wf-task-board.sh next 之后会脱节直到下次 session-end。gov-generate-status.py 在 gov-owned.list 中，改它升级会被覆盖，需先有 DEC 决定改所有权或加扩展点。"
   ],
   "tasks": [
     {

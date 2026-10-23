@@ -13,7 +13,7 @@
 |----|------|------|
 | 引导 | `.opencode/skills/prototype-dev/SKILL.md` | AI 认领任务时自动加载流程与映射表 |
 | 元数据 | `.ai/tasks.json` 的 `prototype_ref` + `module`/`ac_refs`/`prd_ref` 字段 | 任务携带原型引用、模块编号、AC 追溯、上层文档链接 |
-| Schema 校验 | `gov-validate.py` 的 GOV-PROTO-001~007 检查 | 每次 validate 校验 34 个任务 schema |
+| Schema 校验 | `gov-validate.py` 的 GOV-PTASK-001~007 检查 | 每次 validate 校验 34 个任务 schema |
 | 闭环验证 | `gov-prototype-verify.py --strict` | 检查目标文件存在/无硬编码颜色/文案匹配率 |
 
 ### 快速命令
@@ -38,7 +38,7 @@ python3 scripts/governance/gov-prototype-verify.py --schema
 ## 1. 任务波次（执行顺序）
 
 任务板 `.ai/tasks.json` 中 T-072~T-105 共 34 个原型映射任务，按依赖关系分 **3 个执行波次**。
-波次是任务的**顶层 `wave` 字段**（数值 0/1/2），由 GOV-PROTO-004 校验，不是写在 notes 里。
+波次是任务的**顶层 `wave` 字段**（数值 0/1/2），由 GOV-PTASK-004 校验，不是写在 notes 里。
 
 > 另有一批 T-059~T-071（13 条功能缺口）编排上称"Wave 3"，但它们不带 `prototype_ref`
 > 也没有 `wave` 字段——它们依赖 Wave 1 完成，属于另一批次，不计入下表 34 条。
