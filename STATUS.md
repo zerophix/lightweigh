@@ -1,6 +1,6 @@
 # 项目状态
 
-> 由 generate-status.py 自动生成。最后更新: 2026-10-22T08:21:39Z
+> 由 generate-status.py 自动生成。最后更新: 2026-10-23T06:55:52Z
 > 新 AI 启动时: `cat STATUS.md && bash scripts/session/ses-context-load.sh`
 
 ---
@@ -12,8 +12,8 @@
 | 名称 | 轻衡健康 Android（lightweigh） |
 | 版本 | 0.1.0 |
 | 文档语言 | zh-CN |
-| Git 分支 | fix/chipsea-name-param |
-| 最后提交 | b23d5c5 docs(decisions): index DEC-056 for chipsea deviceName match |
+| Git 分支 | cursor/room-schema-v8-dec-s-e5ab |
+| 最后提交 | f7574ad feat(room): migrate AppDatabase to v8 for signed schema |
 | 文档校验 | 运行: `bash scripts/governance/gov-validate.sh` |
 
 ## AI 交接
@@ -39,27 +39,27 @@
 最近 5 次提交：
 
 ```
+f7574ad feat(room): migrate AppDatabase to v8 for signed schema
+04af959 Merge pull request #29 from zerophix/fix/chipsea-name-param
+bc3efc8 chore(status): local-ci evidence after DEC-056
 b23d5c5 docs(decisions): index DEC-056 for chipsea deviceName match
 16fb1cc fix(ble): pass scan callback deviceName into Chipsea match (DEC-056)
-9fd5ed1 Merge pull request #28 from zerophix/chore/docs-handoff-055
-5012f70 chore(session): handoff after DEC-055 docs consistency
-adc38c2 Merge pull request #27 from zerophix/chore/docs-consistency
 ```
 
 ## 工程指标
 
 | 指标 | 数量 |
 |------|------|
-| 决策日志 (DEC) | 56 |
+| 决策日志 (DEC) | 57 |
 | 设计笔记 (NOTE) | 10 |
 | 开发指南 (GC) | 8 |
 | 技术参考 (REF) | 1 |
 
 最近决策：
 
+- [DEC-057](docs/ai/decisions/DEC-057.md): DEC-057: Room v8 对齐已签库表目标态
 - [DEC-056](docs/ai/decisions/DEC-056.md): DEC-056: 扫描回调 deviceName 参与 Chipsea 混合协议识别
 - [DEC-055](docs/ai/decisions/DEC-055.md): DEC-055: 文档内容一致性治理（lightweigh / 轻衡）
-- [DEC-054](docs/ai/decisions/DEC-054.md): DEC-054: 主共享树多会话守卫（强制 worktree）
 
 最近笔记：
 
@@ -71,9 +71,9 @@ adc38c2 Merge pull request #27 from zerophix/chore/docs-consistency
 
 | 检查项 | 状态 | 详情 |
 |-------|------|------|
-| 本地门禁 (gov-local-ci) | 通过 | local-ci PASS @ 2026-10-22T08:21:38Z sha=b23d5c5 branch=fix/chipsea-name-param [gradlew build:ok,gov-validate:ok,gov-custom-checks:ok,gov-secrets-scan:ok,gov-schema-guard:ok,gov-test-guard:ok] |
-| GitHub Actions | 无数据 | gh 不可用或无最近 run |
-| 文档校验 | 通过 | 来自 local-ci @ 2026-10-22T08:21:38Z sha=b23d5c5 |
+| 本地门禁 (gov-local-ci) | 通过 | local-ci PASS @ 2026-10-23T06:55:52Z sha=f7574ad branch=cursor/room-schema-v8-dec-s-e5ab [gradlew build:ok,gov-validate:ok,gov-custom-checks:ok,gov-secrets-scan:ok,gov-schema-guard:ok,gov-test-guard:ok] |
+| GitHub Actions | 进行中 | ci @ 2026-10-23T06:52:31Z sha=f7574ad https://github.com/zerophix/lightweigh/actions/runs/39914173753 |
+| 文档校验 | 通过 | 来自 local-ci @ 2026-10-23T06:55:52Z sha=f7574ad |
 | Git 钩子 | 通过 | 安装: bash scripts/bootstrap/bs-install-hooks.sh |
 
 ## 反思
