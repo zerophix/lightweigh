@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updated_at": "2026-10-23T09:46:01Z",
-  "next_action": "开工 Wave 0 基础组件 T-097/T-098/T-099（通用状态页、下拉刷新与滑删与无限滚动与搜索栏、骨架屏与长按菜单）",
-  "next_action_why": "Wave 0 组件被 Wave 1/2 多个任务复用，未完成则后续任务缺组件无法开工；GC-prototype-driven-dev 明确 Wave 0 必须最先做",
-  "next_action_confirmed": true,
+  "updated_at": "2026-10-23T12:06:10Z",
+  "next_action": "等人类裁定 PR #44 vs PR #41 的 privacy 双实现归属（同组文件两个实现不可同合，详见 PR #44 ⚠️ 节）",
+  "next_action_why": "GC-multi-agent-collab 规定两会话改同一文件由人类裁定；裁定后按结果 merge 或关闭 PR #44，无需开新任务",
+  "next_action_confirmed": false,
   "known_risks": [
     "任务无 ready AC 不得开工；in_progress 缺 definition_of_done 会触发 GOV-PROTO-004（DEC-048）。",
     "分支保护 / GitHub Pro / 公开仓：人类明确不做。权威合入门禁改为本地 `bash scripts/governance/gov-local-ci.sh` + pre-push validate；master 已含 DEC-045..047（merge 9cfc46d）。真机 APK 验收仍须人类。",
@@ -20,7 +20,9 @@
     "join(labels) 表达式若 Actions 解析失败可回退 GITHUB_EVENT_PATH 读标签",
     "模块级匹配可能漏同名类级缺口；资源路径已忽略",
     "无新增代码风险。模板 clone URL 仍指向 nekings/ai-project-template（上游有意保留）。",
-    "STATUS.md 的「下一步」由模板受管的 gov-generate-status.py 从 context.jsonl 的 last handoff 读取，而权威 next_action 在 .ai/tasks.json；两者在 wf-task-board.sh next 之后会脱节直到下次 session-end。gov-generate-status.py 在 gov-owned.list 中，改它升级会被覆盖，需先有 DEC 决定改所有权或加扩展点。"
+    "STATUS.md 的「下一步」由模板受管的 gov-generate-status.py 从 context.jsonl 的 last handoff 读取，而权威 next_action 在 .ai/tasks.json；两者在 wf-task-board.sh next 之后会脱节直到下次 session-end。gov-generate-status.py 在 gov-owned.list 中，改它升级会被覆盖，需先有 DEC 决定改所有权或加扩展点。",
+    "risk-line",
+    "privacy 双实现不可同合：先合 #41 则本分支三文件需重放；DEC-062 修复已 merge 进本分支（原SHA保留），master 上宜有独立治理 PR 去重；tasks.json 计数 23 done/56 pending 已同步 03_TaskGraph，任务板再变动需重算"
   ],
   "tasks": [
     {
