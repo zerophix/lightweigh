@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-10-23T08:43:01Z",
+  "updated_at": "2026-10-23T09:04:25Z",
   "next_action": "开工 Wave 0 基础组件 T-097/T-098/T-099（通用状态页、下拉刷新与滑删与无限滚动与搜索栏、骨架屏与长按菜单）",
   "next_action_why": "Wave 0 组件被 Wave 1/2 多个任务复用，未完成则后续任务缺组件无法开工；GC-prototype-driven-dev 明确 Wave 0 必须最先做",
   "next_action_confirmed": true,
@@ -1696,6 +1696,17 @@
         "AC-D6 设备详情页"
       ],
       "prd_ref": "https://app.notion.com/p/40141bd50f8a815baa74ee7f26890aba"
+    },
+    {
+      "id": "T-106",
+      "description": "修复 gov-prototype-verify 文案匹配率的作用域：多目标文件任务应按任务聚合所有文件后统一比对，而非逐文件比对全部 view；单文件任务则逐 view 比对。属门禁行为变更，需先开 DEC。当前 T-097/T-098 共 5 条 WARN 即由此产生（非实现质量问题）",
+      "why": "校验脚本自身缺陷：按单文件比对全任务 view 文案，多文件任务必然偏低，产生永久性假阳性告警",
+      "status": "pending",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-23T09:04:25Z",
+      "updated_at": "2026-10-23T09:04:25Z",
+      "notes": ""
     }
   ],
   "acceptance_schema": "GC-task-acceptance@1"

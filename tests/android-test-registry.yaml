@@ -211,5 +211,9 @@ commands:
   path: app/src/test/kotlin/com/xcwk/scalehub/feature/habit/HabitViewModelTest.kt
   status: stable
   type: gradle-test
+- description: Wave0 纯逻辑（原型 view 分类 / 无限滚动阈值 / 搜索摘要文案, T-097+T-098）
+  path: app/src/test/kotlin/com/xcwk/scalehub/ui/Wave0ComponentsTest.kt
+  status: stable
+  type: gradle-test
 configs: []
 orphans: []
