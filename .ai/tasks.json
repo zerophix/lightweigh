@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-10-23T03:52:45Z",
+  "updated_at": "2026-10-23T03:56:21Z",
   "next_action": "在 Android 真机安装 APK 验证",
   "next_action_why": "人类端到端验收（沿用既有 next_action）",
   "next_action_confirmed": false,
@@ -894,6 +894,50 @@
       "dec": "",
       "created_at": "2026-10-23T03:52:45Z",
       "updated_at": "2026-10-23T03:52:45Z",
+      "notes": ""
+    },
+    {
+      "id": "T-100",
+      "description": "guide: 登录后引导资料设置（年龄/身高/完成页）",
+      "why": "原型01 v-onboard-age/v-onboard-height/v-done · 新增 guide/ProfileSetup.kt 补全引导资料表单",
+      "status": "pending",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-23T03:56:21Z",
+      "updated_at": "2026-10-23T03:56:21Z",
+      "notes": ""
+    },
+    {
+      "id": "T-101",
+      "description": "mine: 账号安全页",
+      "why": "原型07 v-account · 新增 mine/AccountSecurity.kt 密码修改/登录设备/第三方账号",
+      "status": "pending",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-23T03:56:21Z",
+      "updated_at": "2026-10-23T03:56:21Z",
+      "notes": ""
+    },
+    {
+      "id": "T-102",
+      "description": "sync: 网络状态与服务状态页",
+      "why": "原型08 v-network/v-service · 新增 sync/NetworkStatus.kt sync/ServiceStatus.kt",
+      "status": "pending",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-23T03:56:21Z",
+      "updated_at": "2026-10-23T03:56:21Z",
+      "notes": ""
+    },
+    {
+      "id": "T-103",
+      "description": "device: 蓝牙权限与设备连接流程（权限→确认→连接中→已连接）",
+      "why": "原型18 v-bt-permission/v-confirm-device/v-connecting/v-connected · 新增 device/BtPermissionFlow.kt device/DeviceConnectFlow.kt",
+      "status": "pending",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-23T03:56:21Z",
+      "updated_at": "2026-10-23T03:56:21Z",
       "notes": ""
     }
   ],
