@@ -1,6 +1,6 @@
 # 项目状态
 
-> 由 generate-status.py 自动生成。最后更新: 2026-10-23T08:18:15Z
+> 由 generate-status.py 自动生成。最后更新: 2026-10-23T08:28:25Z
 > 新 AI 启动时: `cat STATUS.md && bash scripts/session/ses-context-load.sh`
 
 ---
@@ -12,8 +12,8 @@
 | 名称 | 轻衡健康 Android（lightweigh） |
 | 版本 | 0.1.0 |
 | 文档语言 | zh-CN |
-| Git 分支 | master |
-| 最后提交 | 3df489a Merge pull request #31 from zerophix/feat/gap-closure-prototypes |
+| Git 分支 | fix/gov-proto-rule-id-collision |
+| 最后提交 | 905bffa chore(session): handoff after PR 31 governance merge |
 | 文档校验 | 运行: `bash scripts/governance/gov-validate.sh` |
 
 ## AI 交接
@@ -51,27 +51,27 @@
 最近 5 次提交：
 
 ```
+905bffa chore(session): handoff after PR 31 governance merge
 3df489a Merge pull request #31 from zerophix/feat/gap-closure-prototypes
 fa3555e ci(governance): route ci scope check through gov-ci-scope (DEC-058)
 4b142b2 docs(decisions): add DEC-057 for prototype and docs gates
 7074b2d ci(governance): add guard-safe pull request template and checks
-d76e823 chore(status): local-ci evidence after governance loop
 ```
 
 ## 工程指标
 
 | 指标 | 数量 |
 |------|------|
-| 决策日志 (DEC) | 58 |
+| 决策日志 (DEC) | 59 |
 | 设计笔记 (NOTE) | 10 |
 | 开发指南 (GC) | 9 |
 | 技术参考 (REF) | 1 |
 
 最近决策：
 
+- [DEC-059](docs/ai/decisions/DEC-059.md): DEC-059: 原型任务规则改名 GOV-PTASK，消除与 AI 协议规则的编号碰撞
 - [DEC-058](docs/ai/decisions/DEC-058.md): DEC-058: CI 变更范围白名单扩展，非构建类路径不再触发重型构建
 - [DEC-057](docs/ai/decisions/DEC-057.md): DEC-057: 原型与文档治理从文档约束升级为脚本门禁
-- [DEC-056](docs/ai/decisions/DEC-056.md): DEC-056: 扫描回调 deviceName 参与 Chipsea 混合协议识别
 
 最近笔记：
 
@@ -84,7 +84,7 @@ d76e823 chore(status): local-ci evidence after governance loop
 | 检查项 | 状态 | 详情 |
 |-------|------|------|
 | 本地门禁 (gov-local-ci) | 通过 | local-ci PASS @ 2026-10-23T06:18:33Z sha=39a2c7d branch=feat/gap-closure-prototypes [gradlew build:ok,gov-validate:ok,gov-custom-checks:ok,gov-secrets-scan:ok,gov-schema-guard:ok,gov-test-guard:ok] |
-| GitHub Actions | 通过 | Dependabot Updates @ 2026-10-23T07:37:29Z sha=3df489a https://github.com/zerophix/lightweigh/actions/runs/39918855274 |
+| GitHub Actions | 无数据 | gh 不可用或无最近 run |
 | 文档校验 | 通过 | 来自 local-ci @ 2026-10-23T06:18:33Z sha=39a2c7d |
 | Git 钩子 | 通过 | 安装: bash scripts/bootstrap/bs-install-hooks.sh |
 
