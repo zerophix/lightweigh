@@ -21,6 +21,7 @@
 
 运行: pytest tests/unit/test_worktree_governance.py
 """
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -33,6 +34,27 @@ if str(ROOT_P) not in sys.path:
 
 from scripts.governance.modules import gov_validate_core as core
 from scripts.governance.modules import gov_validate_status as status_mod
+
+
+def _clean_git_env() -> dict:
+    """剥离宿主仓库的 git 环境变量。
+
+    git 钩子（pre-commit / pre-push）运行时会注入 `GIT_DIR`、`GIT_WORK_TREE` 等变量。
+    若子进程继承它们，测试里的 `git init` / `git commit` 会**指向真实仓库**而非临时目录：
+    实测 pre-push 中该测试曾试图向真实仓库提交，被 commit-msg 钩子拒绝才没造成污染。
+    因此任何"在临时目录里跑 git"的测试都必须显式净化环境。
+    """
+    return {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+
+
+def _strip_git_env(monkeypatch) -> None:
+    """让被测模块内部的 `git rev-parse` 也不受宿主钩子环境影响。
+
+    `_git_hooks_dir()` 自己会调用 git；若 pre-push 注入的 `GIT_DIR` 被继承，
+    它会忽略传入的 ROOT 而指向宿主仓库，使「临时 worktree」场景的断言失效。
+    """
+    for key in [k for k in os.environ if k.startswith("GIT_")]:
+        monkeypatch.delenv(key)
 
 
 def _clean_errors_guard():
@@ -52,6 +74,7 @@ def _git(cwd: Path, *args: str) -> str:
     r = subprocess.run(
         ["git", "-c", "init.defaultBranch=main", *args],
         cwd=cwd, capture_output=True, text=True, timeout=60,
+        env=_clean_git_env(),
     )
     assert r.returncode == 0, f"git {' '.join(args)} 失败: {r.stderr}"
     return r.stdout
@@ -99,6 +122,7 @@ def test_hooks_dir_degrades_gracefully_when_git_unavailable(tmp_path, monkeypatc
     _make_root_files(tmp_path)
     (tmp_path / ".git").write_text("gitdir: /nonexistent/.git/worktrees/x\n", encoding="utf-8")
     monkeypatch.setattr(status_mod, "ROOT", tmp_path)
+    _strip_git_env(monkeypatch)
 
     assert status_mod._git_hooks_dir() == tmp_path / ".git" / "hooks", (
         "git 解析失败时应退回 ROOT/.git/hooks（保守降级），否则校验自身会抛异常"
@@ -124,6 +148,7 @@ def test_hooks_detected_inside_real_git_worktree(tmp_path, monkeypatch):
         (hooks_dir / hook).chmod(0o755)
 
     monkeypatch.setattr(status_mod, "ROOT", wt)
+    _strip_git_env(monkeypatch)
     assert status_mod._git_hooks_dir() == hooks_dir, (
         f"worktree 未解析到主仓 hooks: {status_mod._git_hooks_dir()} != {hooks_dir}"
     )
