@@ -1,9 +1,5 @@
 {
   "version": 1,
-  "updated_at": "2026-10-23T14:25:00Z",
-  "next_action": "T-084 已完成 local-ci 并推送、PR 已开；等人类合入（与 cursor PR #41 周报部分重叠，合入时裁定）。合入后把 T-084 标 completed",
-  "next_action_why": "DEC-062 worktree 门禁修复已 merge 进本分支解锁推送；代码、单测、原型闭环验证全部绿。禁 --no-verify 绕过",
-  "next_action_confirmed": true,
   "known_risks": [
     "任务无 ready AC 不得开工；in_progress 缺 definition_of_done 会触发 GOV-PROTO-004（DEC-048）。",
     "分支保护 / GitHub Pro / 公开仓：人类明确不做。权威合入门禁改为本地 `bash scripts/governance/gov-local-ci.sh` + pre-push validate；master 已含 DEC-045..047（merge 9cfc46d）。真机 APK 验收仍须人类。",
@@ -20,7 +16,9 @@
     "join(labels) 表达式若 Actions 解析失败可回退 GITHUB_EVENT_PATH 读标签",
     "模块级匹配可能漏同名类级缺口；资源路径已忽略",
     "无新增代码风险。模板 clone URL 仍指向 nekings/ai-project-template（上游有意保留）。",
-    "STATUS.md 的「下一步」由模板受管的 gov-generate-status.py 从 context.jsonl 的 last handoff 读取，而权威 next_action 在 .ai/tasks.json；两者在 wf-task-board.sh next 之后会脱节直到下次 session-end。gov-generate-status.py 在 gov-owned.list 中，改它升级会被覆盖，需先有 DEC 决定改所有权或加扩展点。"
+    "STATUS.md 的「下一步」由模板受管的 gov-generate-status.py 从 context.jsonl 的 last handoff 读取，而权威 next_action 在 .ai/tasks.json；两者在 wf-task-board.sh next 之后会脱节直到下次 session-end。gov-generate-status.py 在 gov-owned.list 中，改它升级会被覆盖，需先有 DEC 决定改所有权或加扩展点。",
+    "risk-line",
+    "privacy 双实现不可同合：先合 #41 则本分支三文件需重放；DEC-062 修复已 merge 进本分支（原SHA保留），master 上宜有独立治理 PR 去重；tasks.json 计数 23 done/56 pending 已同步 03_TaskGraph，任务板再变动需重算"
   ],
   "tasks": [
     {
@@ -1434,11 +1432,11 @@
       "id": "T-096",
       "description": "privacy: 隐私授权流程（授权/已授权/未授权/咨询/规则）",
       "why": "原型10全部5屏 · 新增 privacy/PrivacyAuthFlow.kt",
-      "status": "pending",
-      "assigned_to": "",
+      "status": "in_progress",
+      "assigned_to": "ai",
       "dec": "",
       "created_at": "2026-10-23T03:52:45Z",
-      "updated_at": "2026-10-23T09:50:00Z",
+      "updated_at": "2026-10-23T09:38:37Z",
       "notes": "",
       "prototype_ref": {
         "file": "design/prototypes/interactive/10-privacy-authorization.html",
@@ -1740,11 +1738,11 @@
       "id": "T-102",
       "description": "sync: 网络状态与服务状态页",
       "why": "原型08 v-network/v-service · 新增 sync/NetworkStatus.kt sync/ServiceStatus.kt",
-      "status": "pending",
-      "assigned_to": "",
+      "status": "in_progress",
+      "assigned_to": "ai",
       "dec": "",
       "created_at": "2026-10-23T03:56:21Z",
-      "updated_at": "2026-10-23T09:50:00Z",
+      "updated_at": "2026-10-23T09:38:15Z",
       "notes": "",
       "prototype_ref": {
         "file": "design/prototypes/interactive/08-sync-network-help.html",
