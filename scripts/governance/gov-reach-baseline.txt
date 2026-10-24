@@ -27,5 +27,3 @@ app/src/main/kotlin/com/xcwk/scalehub/feature/mine/PrivacyDetail.kt :: PrivacyDe
 app/src/main/kotlin/com/xcwk/scalehub/feature/privacy/PrivacyAuthFlow.kt :: PrivacyAuthFlow
 app/src/main/kotlin/com/xcwk/scalehub/feature/settings/AppearanceSettings.kt :: AppearanceSettingsScreen
 app/src/main/kotlin/com/xcwk/scalehub/feature/settings/LanguageSettings.kt :: LanguageSettingsScreen
-app/src/main/kotlin/com/xcwk/scalehub/feature/trend/MetricDetailScreen.kt :: MetricDetailScreen
-app/src/main/kotlin/com/xcwk/scalehub/feature/trend/MetricDetailScreen.kt :: MetricListScreen
