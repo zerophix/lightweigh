@@ -191,6 +191,9 @@ def check_dependency_dirs() -> None:
     for dirpath_str, dirs, _ in os.walk(str(ROOT)):
         dirpath = Path(dirpath_str); rel = dirpath.relative_to(ROOT).as_posix()
         if rel.startswith(".git/"): dirs.clear(); continue
+        # DEC-050: in-repo worktree (.worktrees/) 自带 .gradle-user/.kotlin 等缓存，属合法产物
+        if rel == ".worktrees" or rel.startswith(".worktrees/"):
+            dirs.clear(); continue
         # 当前层若直接含 Gradle/IDE 缓存目录: 仅项目根(rel==".")允许, 子目录一律违规
         for dname in GRADLE_ROOT_ONLY:
             if dname in dirs and rel != ".":
