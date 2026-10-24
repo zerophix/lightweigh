@@ -43,15 +43,16 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.xcwk.scalehub.App
 import com.xcwk.scalehub.feature.ai.AiRoute
+import com.xcwk.scalehub.feature.auth.AuthFlowRoute
 import com.xcwk.scalehub.feature.auth.AuthGateViewModel
 import com.xcwk.scalehub.feature.auth.AuthScreen
+import com.xcwk.scalehub.feature.auth.GuideFlowRoute
 import com.xcwk.scalehub.feature.device.DeviceRoute
 import com.xcwk.scalehub.feature.features.FeatureRoute
 import com.xcwk.scalehub.feature.history.HistoryRoute
 import com.xcwk.scalehub.feature.measure.MeasureScreen
 import com.xcwk.scalehub.feature.measure.scale.ScaleRoute
 import com.xcwk.scalehub.feature.habit.HabitRoute
-import com.xcwk.scalehub.feature.guide.GuideScreen
 import com.xcwk.scalehub.feature.history.HistoryCompareScreen
 import com.xcwk.scalehub.feature.settings.UnitSettingsScreen
 import com.xcwk.scalehub.feature.settings.PrivacySettingsScreen
@@ -93,8 +94,18 @@ fun MainShell() {
     // 首启门（需求 3.1）：未进入前只见登录/游客门——VM 提升到壳层保单实例
     val authVm: AuthGateViewModel = viewModel(factory = AuthGateViewModel.Factory)
     val authState by authVm.state.collectAsState()
+    // 接入层：登录方式入口 → 邮箱/访客/找回 → 权限说明 → 资料完善（本轮只解决可达性）
+    var showAuthFlow by rememberSaveable { mutableStateOf(false) }
     if (!authState.entered) {
-        AuthScreen(state = authState, onIntent = authVm::onIntent)
+        if (showAuthFlow) {
+            AuthFlowRoute(onExit = { showAuthFlow = false })
+        } else {
+            AuthScreen(
+                state = authState,
+                onIntent = authVm::onIntent,
+                onOpenAuthFlow = { showAuthFlow = true },
+            )
+        }
         return
     }
 
@@ -383,7 +394,7 @@ private fun OverlayHost(
         NavOverlay.Settings -> SettingsRoute(onBack = onBack, onOpenUnitSettings = onPushUnitSettings, onOpenPrivacySettings = onPushPrivacySettings, onOpenSyncStatus = onPushSyncStatus, onOpenSetPassword = onPushSetPassword)
         NavOverlay.Members -> MembersRoute(onBack = onBack)
         NavOverlay.Habit -> HabitRoute(onBack = onBack)
-        NavOverlay.Guide -> GuideScreen(onDone = onBack, onSkip = onBack)
+        NavOverlay.Guide -> GuideFlowRoute(onDone = onBack)
         NavOverlay.HistoryCompare -> HistoryCompareScreen(onBack = onBack)
         NavOverlay.UnitSettings -> UnitSettingsScreen(onBack = onBack)
         NavOverlay.PrivacySettings -> PrivacySettingsScreen(onBack = onBack)
