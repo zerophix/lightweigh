@@ -1,5 +1,6 @@
 package com.xcwk.scalehub.feature.auth
 
+import android.os.Build
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -35,6 +36,9 @@ import com.xcwk.scalehub.ui.theme.QkTheme
 
 /**
  * auth — 游客门 Screen（需求 3.1：协议勾选先行，验证码/登录/游客三路）。
+ *
+ * 启动自检、隐私锁、验证码错误三页由 [AuthGateBoundaryHost] 接管（原型 14）：
+ * 命中时整屏替换登录门，未命中才渲染下面的表单。
  */
 @Composable
 fun AuthScreen(
@@ -42,6 +46,10 @@ fun AuthScreen(
     onIntent: (AuthIntent) -> Unit,
     onOpenAuthFlow: () -> Unit = {},
 ) {
+    if (authGateBoundaryOf(state, Build.VERSION.SDK_INT) != null) {
+        AuthGateBoundaryHost(state = state, onIntent = onIntent, sdkInt = Build.VERSION.SDK_INT)
+        return
+    }
     Column(modifier = Modifier.fillMaxSize().padding(24.dp).verticalScroll(rememberScrollState())) {
         Text("轻刻健康", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(top = 32.dp))
         Text(

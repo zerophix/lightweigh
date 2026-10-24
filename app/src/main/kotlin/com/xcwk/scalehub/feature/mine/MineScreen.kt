@@ -67,6 +67,7 @@ fun MineScreen(
     onOpenHistory: () -> Unit = {},
     onOpenDevice: () -> Unit = {},
     onOpenHabit: () -> Unit = {},
+    onOpenMineEntry: (MineEntry) -> Unit = {},
 ) {
     var showAvatarSheet by rememberSaveable { mutableStateOf(false) }
     var showBirthSheet by rememberSaveable { mutableStateOf(false) }
@@ -275,6 +276,8 @@ fun MineScreen(
                 trailing = { QkIcon(QkIcons.ChevronRight, size = 18.dp) },
             )
         }
+        // 账号与信息：账号安全 / 隐私与数据管理 / 健康数据说明 / 关于（原型 07 接入波）
+        MineEntriesCard(onOpenEntry = onOpenMineEntry)
         Spacer(modifier = Modifier.height(28.dp))
     }
 

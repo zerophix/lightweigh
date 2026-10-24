@@ -33,7 +33,9 @@ class AuthGateViewModel(
 
     fun onIntent(intent: AuthIntent) {
         when (intent) {
-            is AuthIntent.AgreedChanged -> _state.update { it.copy(agreed = intent.agreed, message = null) }
+            is AuthIntent.AgreedChanged -> _state.update {
+                it.copy(agreed = intent.agreed, privacyBlocked = false, message = null)
+            }
             is AuthIntent.PhoneChanged -> _state.update { it.copy(phone = intent.value, message = null) }
             is AuthIntent.CodeChanged -> _state.update { it.copy(code = intent.value, message = null) }
             is AuthIntent.PasswordChanged -> _state.update { it.copy(password = intent.value, message = null) }
@@ -44,12 +46,16 @@ class AuthGateViewModel(
             AuthIntent.SendCode -> sendCode()
             AuthIntent.SignIn -> signIn()
             AuthIntent.EnterGuest -> enterGuest()
+            AuthIntent.DismissBoundary -> _state.update {
+                it.copy(privacyBlocked = false, codeAttempts = 0, message = null)
+            }
         }
     }
 
     private fun requireAgreed(): Boolean {
         if (!_state.value.agreed) {
-            _state.update { it.copy(message = "请先阅读并同意协议") }
+            // 未同意协议：登录门切到隐私锁页（原型 v-privacy-lock），文案保留给无障碍朗读
+            _state.update { it.copy(privacyBlocked = true, message = "请先阅读并同意协议") }
             return false
         }
         return true
@@ -67,6 +73,8 @@ class AuthGateViewModel(
                     message = result.message,
                     verificationId = result.verificationId,
                     isUser = result.isUser,
+                    // 新验证码发下去即重置失败次数（原型：重发后重新计数）
+                    codeAttempts = if (result.ok) 0 else it.codeAttempts,
                 )
             }
             if (result.ok) startCountdown()
@@ -90,7 +98,13 @@ class AuthGateViewModel(
             LoginMode.PASSWORD -> { signInWithPassword(); return }
             LoginMode.EMAIL -> { signInWithEmail(); return }
             LoginMode.WECHAT -> { signInWithWeChat(); return }
-            LoginMode.CODE -> {} // fall through to SMS code
+            LoginMode.CODE -> {
+                // 本机失败次数已到上限：先拦住再请求（服务端同样会拒，这里避免无谓请求）
+                if (codeLocked(s.codeAttempts)) {
+                    _state.update { it.copy(message = "尝试次数过多，请重新获取验证码后再试") }
+                    return
+                }
+            }
         }
         viewModelScope.launch {
             _state.update { it.copy(signingIn = true, message = null) }
@@ -100,6 +114,8 @@ class AuthGateViewModel(
                     signingIn = false,
                     message = if (result.ok) null else result.message,
                     entered = result.ok || it.entered,
+                    // 失败一次进「验证码错误」页；成功清零
+                    codeAttempts = if (result.ok) 0 else it.codeAttempts + 1,
                 )
             }
         }

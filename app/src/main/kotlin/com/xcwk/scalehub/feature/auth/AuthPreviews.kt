@@ -8,7 +8,7 @@ import com.xcwk.scalehub.ui.theme.QkTheme
  * 认证与账号生命周期交付屏的 Compose 预览集合。
  *
  * 全部预览只传状态对象与空回调，不依赖 ViewModel。
- * `AuthRoute` 以 ViewModel 为唯一入参，属接线层而非呈现层，不在预览范围内。
+ * `MineRoute` / `AuthFlowRoute` 以 ViewModel 或流程状态为入参，属接线层而非呈现层，不在预览范围内。
  */
 
 /** 登录主屏 · 默认态。 */

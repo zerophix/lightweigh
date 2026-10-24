@@ -7,8 +7,12 @@ data class AuthUiState(
     val loading: Boolean = true,
     val entered: Boolean = false,
     val agreed: Boolean = false,
+    /** 未同意协议就点了取码/登录/游客：登录门据此切到隐私锁页（原型 v-privacy-lock）。 */
+    val privacyBlocked: Boolean = false,
     val phone: String = "",
     val code: String = "",
+    /** 验证码登录的本机失败次数：> 0 时登录门切到验证码错误页（原型 v-codeerr）。 */
+    val codeAttempts: Int = 0,
     val password: String = "",
     val email: String = "",
     /** 登录方式：code=验证码 / password=密码（T-044/DEC-043-G）。 */
@@ -35,6 +39,8 @@ sealed interface AuthIntent {
     data object SendCode : AuthIntent
     data object SignIn : AuthIntent
     data object EnterGuest : AuthIntent
+    /** 关闭边界页（隐私锁 / 验证码错误）并清掉对应标记。 */
+    data object DismissBoundary : AuthIntent
     data class OpenLegal(val doc: LegalDoc) : AuthIntent
     data object CloseLegal : AuthIntent
 }
