@@ -1,0 +1,31 @@
+# 存量不可达屏（棘轮基线，只减不增）
+# 由 gov-reachability-check.py --update-baseline 生成
+app/src/main/kotlin/com/xcwk/scalehub/feature/ai/AiWeeklySummary.kt :: AiWeeklySummaryScreen
+app/src/main/kotlin/com/xcwk/scalehub/feature/auth/AccountLifecycle.kt :: AccountLifecycleScreen
+app/src/main/kotlin/com/xcwk/scalehub/feature/auth/AccountLifecycle.kt :: CodeErrorScreen
+app/src/main/kotlin/com/xcwk/scalehub/feature/auth/AccountLifecycle.kt :: HealthInfoScreen
+app/src/main/kotlin/com/xcwk/scalehub/feature/auth/AccountLifecycle.kt :: MinVersionScreen
+app/src/main/kotlin/com/xcwk/scalehub/feature/auth/AccountLifecycle.kt :: PrivacyLockScreen
+app/src/main/kotlin/com/xcwk/scalehub/feature/auth/AuthRoute.kt :: AuthRoute
+app/src/main/kotlin/com/xcwk/scalehub/feature/device/BtPermissionFlow.kt :: BtPermissionFlow
+app/src/main/kotlin/com/xcwk/scalehub/feature/device/DeviceConnectFlow.kt :: DeviceConnectFlow
+app/src/main/kotlin/com/xcwk/scalehub/feature/history/HistoryDetail.kt :: HistoryDetailScreen
+app/src/main/kotlin/com/xcwk/scalehub/feature/history/RecordEdit.kt :: RecordEditScreen
+app/src/main/kotlin/com/xcwk/scalehub/feature/member/FamilyInvite.kt :: FamilyInviteAcceptScreen
+app/src/main/kotlin/com/xcwk/scalehub/feature/member/FamilyInvite.kt :: FamilyInviteConfirmScreen
+app/src/main/kotlin/com/xcwk/scalehub/feature/member/FamilyInvite.kt :: FamilyInviteDoneScreen
+app/src/main/kotlin/com/xcwk/scalehub/feature/member/FamilyInvite.kt :: FamilyInviteJoinedScreen
+app/src/main/kotlin/com/xcwk/scalehub/feature/member/FamilyInvite.kt :: FamilyInviteScreen
+app/src/main/kotlin/com/xcwk/scalehub/feature/member/FamilyInvite.kt :: FamilyRevokeScreen
+app/src/main/kotlin/com/xcwk/scalehub/feature/mine/AboutScreen.kt :: AboutScreen
+app/src/main/kotlin/com/xcwk/scalehub/feature/mine/AccountClosure.kt :: ClosureApplyScreen
+app/src/main/kotlin/com/xcwk/scalehub/feature/mine/AccountClosure.kt :: ClosureProcessingScreen
+app/src/main/kotlin/com/xcwk/scalehub/feature/mine/AccountClosure.kt :: ClosureResultScreen
+app/src/main/kotlin/com/xcwk/scalehub/feature/mine/AccountClosure.kt :: ClosureVerifyScreen
+app/src/main/kotlin/com/xcwk/scalehub/feature/mine/AccountSecurity.kt :: AccountSecurityScreen
+app/src/main/kotlin/com/xcwk/scalehub/feature/mine/PrivacyDetail.kt :: PrivacyDetailScreen
+app/src/main/kotlin/com/xcwk/scalehub/feature/privacy/PrivacyAuthFlow.kt :: PrivacyAuthFlow
+app/src/main/kotlin/com/xcwk/scalehub/feature/settings/AppearanceSettings.kt :: AppearanceSettingsScreen
+app/src/main/kotlin/com/xcwk/scalehub/feature/settings/LanguageSettings.kt :: LanguageSettingsScreen
+app/src/main/kotlin/com/xcwk/scalehub/feature/trend/MetricDetailScreen.kt :: MetricDetailScreen
+app/src/main/kotlin/com/xcwk/scalehub/feature/trend/MetricDetailScreen.kt :: MetricListScreen
