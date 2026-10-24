@@ -70,8 +70,6 @@ def _setup(tmp_path: Path, monkeypatch, tasks: list):
     )
 
     monkeypatch.setattr(proto, "ROOT", tmp_path)
-    monkeypatch.setattr(proto, "MEMORY_FILE", cache / "context.jsonl")
-    monkeypatch.setattr(proto, "DOCS", tmp_path / "docs")
     monkeypatch.setattr(core, "ROOT", tmp_path)
 
 

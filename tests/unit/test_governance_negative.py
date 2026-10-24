@@ -105,9 +105,7 @@ def test_struct006_missing_source_annotation(tmp_path, monkeypatch):
 def _proto_check(tmp_path: Path, monkeypatch) -> list:
     """在临时目录上运行协议校验, 返回错误列表（不触碰真实仓库文件）。"""
     from scripts.governance.modules import gov_validate_protocol as protocol
-    monkeypatch.setattr(protocol, "DOCS", tmp_path / "docs")
     monkeypatch.setattr(protocol, "ROOT", tmp_path)
-    monkeypatch.setattr(protocol, "MEMORY_FILE", tmp_path / "nope.jsonl")
     buf = io.StringIO()
     with contextlib.redirect_stdout(buf):
         protocol.check_protocol()
@@ -123,28 +121,15 @@ def _write_inbox(tmp_path: Path, name: str, status: str, timestamp: str) -> None
     )
 
 
-def test_proto001_fresh_unread_not_flagged(tmp_path, monkeypatch):
-    """GOV-PROTO-001 回归: 刚写入的未读接力信不算违规（48h 语义, 防误报）。"""
-    now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    _write_inbox(tmp_path, "20261014-000000.md", "unread", now)
-    assert _proto_check(tmp_path, monkeypatch) == []
-
-
-def test_proto001_stale_unread_fails(tmp_path, monkeypatch):
-    """GOV-PROTO-001: 超过 48 小时的未读留言必须 FAIL。"""
+def test_proto001_002_retired(tmp_path, monkeypatch):
+    """DEC-064: 墙钟规则(001/002)已退役 —— 超 48h 未读不再 FAIL, 接力信只作约定。"""
     stale = (datetime.now(timezone.utc) - timedelta(hours=72)).strftime(
         "%Y-%m-%dT%H:%M:%SZ")
     _write_inbox(tmp_path, "20261001-000000.md", "unread", stale)
     errors = _proto_check(tmp_path, monkeypatch)
-    assert _has(errors, "GOV-PROTO-001"), errors
+    assert not _has(errors, "GOV-PROTO-001"), errors
+    assert not _has(errors, "GOV-PROTO-002"), errors
 
-
-def test_proto001_stale_but_read_ok(tmp_path, monkeypatch):
-    """GOV-PROTO-001: 超 48h 但已读的留言不算违规。"""
-    stale = (datetime.now(timezone.utc) - timedelta(hours=72)).strftime(
-        "%Y-%m-%dT%H:%M:%SZ")
-    _write_inbox(tmp_path, "20261001-000000.md", "read", stale)
-    assert _proto_check(tmp_path, monkeypatch) == []
 
 
 def _r0_check(tmp_path: Path, monkeypatch) -> list:
