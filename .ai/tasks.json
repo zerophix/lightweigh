@@ -1614,12 +1614,12 @@
       "id": "T-088",
       "description": "member: 家庭邀请（邀请/生成码/接受/确认/完成/撤销）",
       "why": "原型23全部7屏 · 新增 member/FamilyInvite.kt",
-      "status": "pending",
+      "status": "completed",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:52:22Z",
-      "updated_at": "2026-10-24T13:20:00Z",
-      "notes": "",
+      "updated_at": "2026-10-24T06:51:12Z",
+      "notes": "已合入 master（PR #62，2026-10-24）；由 gov-board-reconcile 依据合并事实回填",
       "prototype_ref": {
         "file": "design/prototypes/interactive/23-family-invite.html",
         "views": [
@@ -2564,12 +2564,12 @@
       "id": "T-103",
       "description": "device: 蓝牙权限与设备连接流程（权限→确认→连接中→已连接）",
       "why": "原型18 v-bt-permission/v-confirm-device/v-connecting/v-connected · 新增 device/BtPermissionFlow.kt device/DeviceConnectFlow.kt",
-      "status": "pending",
+      "status": "completed",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:56:21Z",
       "updated_at": "2026-10-23T03:56:21Z",
-      "notes": "",
+      "notes": "\n已由合并队列按分支名回填（DEC-071）",
       "prototype_ref": {
         "file": "design/prototypes/interactive/18-device-setup.html",
         "views": [
@@ -2625,12 +2625,12 @@
       "id": "T-104",
       "description": "device: 配对状态机（配对中/配对成功/配对失败）",
       "why": "原型04 v-pairing/v-pair-success/v-pair-fail · DeviceScreen无配对状态 · 改 DeviceScreen.kt DeviceUiState.kt DeviceViewModel.kt 增加 PairingState",
-      "status": "pending",
+      "status": "completed",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T04:06:49Z",
       "updated_at": "2026-10-23T04:06:49Z",
-      "notes": "",
+      "notes": "\n已由合并队列按分支名回填（DEC-071）",
       "prototype_ref": {
         "file": "design/prototypes/interactive/04-device.html",
         "views": [
