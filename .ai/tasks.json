@@ -1,9 +1,5 @@
 {
   "version": 1,
-  "updated_at": "2026-10-24T01:50:00Z",
-  "next_action": "推进 Wave 1：T-072/073/074(auth) + T-075/100(guide) 验收已 ready，可在独立 worktree 认领编码；等人类合入 PR #45~#48",
-  "next_action_why": "Wave 0 已全部交付（#35/#36/#48 在途）；本批 5 条为 Wave 1 入口流集群，文件互不重叠、与在途 PR 无冲突，可并行开工",
-  "next_action_confirmed": true,
   "known_risks": [
     "任务无 ready AC 不得开工；in_progress 缺 definition_of_done 会触发 GOV-PROTO-004（DEC-048）。",
     "分支保护 / GitHub Pro / 公开仓：人类明确不做。权威合入门禁改为本地 `bash scripts/governance/gov-local-ci.sh` + pre-push validate；master 已含 DEC-045..047（merge 9cfc46d）。真机 APK 验收仍须人类。",
@@ -20,7 +16,9 @@
     "join(labels) 表达式若 Actions 解析失败可回退 GITHUB_EVENT_PATH 读标签",
     "模块级匹配可能漏同名类级缺口；资源路径已忽略",
     "无新增代码风险。模板 clone URL 仍指向 nekings/ai-project-template（上游有意保留）。",
-    "STATUS.md 的「下一步」由模板受管的 gov-generate-status.py 从 context.jsonl 的 last handoff 读取，而权威 next_action 在 .ai/tasks.json；两者在 wf-task-board.sh next 之后会脱节直到下次 session-end。gov-generate-status.py 在 gov-owned.list 中，改它升级会被覆盖，需先有 DEC 决定改所有权或加扩展点。"
+    "STATUS.md 的「下一步」由模板受管的 gov-generate-status.py 从 context.jsonl 的 last handoff 读取，而权威 next_action 在 .ai/tasks.json；两者在 wf-task-board.sh next 之后会脱节直到下次 session-end。gov-generate-status.py 在 gov-owned.list 中，改它升级会被覆盖，需先有 DEC 决定改所有权或加扩展点。",
+    "risk-line",
+    "privacy 双实现不可同合：先合 #41 则本分支三文件需重放；DEC-062 修复已 merge 进本分支（原SHA保留），master 上宜有独立治理 PR 去重；tasks.json 计数 23 done/56 pending 已同步 03_TaskGraph，任务板再变动需重算"
   ],
   "tasks": [
     {
@@ -1004,12 +1002,12 @@
       "id": "T-081",
       "description": "history: 历史详情与记录编辑",
       "why": "原型05 v-detail/v-edit · 新增 history/HistoryDetail.kt history/RecordEdit.kt",
-      "status": "in_progress",
+      "status": "completed",
       "assigned_to": "ai",
       "dec": "",
       "created_at": "2026-10-23T03:51:54Z",
-      "updated_at": "2026-10-23T09:14:30Z",
-      "notes": "",
+      "updated_at": "2026-10-23T14:35:00Z",
+      "notes": "代码与单测已随 PR #36 (feat/wave1-history-trend, merge 754c37a) 合入 master：HistoryDetail.kt/RecordEdit.kt/MetricDetailScreen.kt + Wave1HistoryTrendTest 存在；本提交同步任务板状态",
       "prototype_ref": {
         "file": "design/prototypes/interactive/05-history-trend.html",
         "views": [
@@ -1062,12 +1060,12 @@
       "id": "T-082",
       "description": "trend: 指标详情页（体重/BMI/肌肉/水分/内脏/代谢/评分/骨骼）",
       "why": "原型17全部9屏 · 新增 trend/MetricDetailScreen.kt",
-      "status": "in_progress",
+      "status": "completed",
       "assigned_to": "ai",
       "dec": "",
       "created_at": "2026-10-23T03:51:54Z",
-      "updated_at": "2026-10-23T09:14:30Z",
-      "notes": "",
+      "updated_at": "2026-10-23T14:35:00Z",
+      "notes": "代码与单测已随 PR #36 (feat/wave1-history-trend, merge 754c37a) 合入 master：HistoryDetail.kt/RecordEdit.kt/MetricDetailScreen.kt + Wave1HistoryTrendTest 存在；本提交同步任务板状态",
       "prototype_ref": {
         "file": "design/prototypes/interactive/17-metric-details.html",
         "views": [
@@ -1158,11 +1156,11 @@
       "id": "T-084",
       "description": "ai: AI周总结与成员权限详情",
       "why": "原型20 v-weekly/v-member-detail · 新增 ai/AiWeeklySummary.kt ai/MemberPermissionDetail.kt",
-      "status": "pending",
-      "assigned_to": "",
+      "status": "in_progress",
+      "assigned_to": "ai",
       "dec": "",
       "created_at": "2026-10-23T03:52:02Z",
-      "updated_at": "2026-10-23T09:50:00Z",
+      "updated_at": "2026-10-23T09:38:12Z",
       "notes": "",
       "prototype_ref": {
         "file": "design/prototypes/interactive/20-ai-members.html",
@@ -1393,11 +1391,11 @@
       "id": "T-091",
       "description": "settings: 语言与外观设置",
       "why": "原型24 v-language/v-appearance · 新增 settings/LanguageSettings.kt settings/AppearanceSettings.kt",
-      "status": "pending",
-      "assigned_to": "",
+      "status": "in_progress",
+      "assigned_to": "ai",
       "dec": "",
       "created_at": "2026-10-23T03:52:35Z",
-      "updated_at": "2026-10-23T09:50:00Z",
+      "updated_at": "2026-10-23T09:38:14Z",
       "notes": "",
       "prototype_ref": {
         "file": "design/prototypes/interactive/24-remaining-gaps.html",
@@ -1576,11 +1574,11 @@
       "id": "T-096",
       "description": "privacy: 隐私授权流程（授权/已授权/未授权/咨询/规则）",
       "why": "原型10全部5屏 · 新增 privacy/PrivacyAuthFlow.kt",
-      "status": "pending",
-      "assigned_to": "",
+      "status": "in_progress",
+      "assigned_to": "ai",
       "dec": "",
       "created_at": "2026-10-23T03:52:45Z",
-      "updated_at": "2026-10-23T09:50:00Z",
+      "updated_at": "2026-10-23T09:38:37Z",
       "notes": "",
       "prototype_ref": {
         "file": "design/prototypes/interactive/10-privacy-authorization.html",
@@ -1774,8 +1772,6 @@
       "assigned_to": "ai",
       "dec": "",
       "created_at": "2026-10-23T03:52:45Z",
-      "updated_at": "2026-10-23T09:45:00Z",
-      "notes": "",
       "prototype_ref": {
         "file": "design/prototypes/interactive/09-components-demo.html",
         "views": [
@@ -1916,11 +1912,11 @@
       "id": "T-102",
       "description": "sync: 网络状态与服务状态页",
       "why": "原型08 v-network/v-service · 新增 sync/NetworkStatus.kt sync/ServiceStatus.kt",
-      "status": "pending",
-      "assigned_to": "",
+      "status": "in_progress",
+      "assigned_to": "ai",
       "dec": "",
       "created_at": "2026-10-23T03:56:21Z",
-      "updated_at": "2026-10-23T09:50:00Z",
+      "updated_at": "2026-10-23T09:38:15Z",
       "notes": "",
       "prototype_ref": {
         "file": "design/prototypes/interactive/08-sync-network-help.html",

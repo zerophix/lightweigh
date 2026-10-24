@@ -1,6 +1,6 @@
 # 项目状态
 
-> 由 generate-status.py 自动生成。最后更新: 2026-10-24T02:13:19Z
+> 由 generate-status.py 自动生成。最后更新: 2026-10-23T12:07:45Z
 > 新 AI 启动时: `cat STATUS.md && bash scripts/session/ses-context-load.sh`
 
 ---
@@ -12,8 +12,8 @@
 | 名称 | 轻衡健康 Android（lightweigh） |
 | 版本 | 0.1.0 |
 | 文档语言 | zh-CN |
-| Git 分支 | chore/wave1-ac-batch-2 |
-| 最后提交 | 23facbd fix(governance): strip hook git env from the test runner (DEC-062) |
+| Git 分支 | feat/sync-network-status |
+| 最后提交 | 512a1a3 docs(sync): append t-102 execution record to dec-061 and devnotes |
 | 文档校验 | 运行: `bash scripts/governance/gov-validate.sh` |
 
 ## AI 交接
@@ -28,50 +28,48 @@
 
 **上下文：**
 
-> 完成: 原型驱动开发与文档治理闭环全部落地并合入 master（PR #31, merge 3df489a）:
-1) 原型闭环: gov-prototype-verify.py + GOV-PROTO 校验 + 34 任务补 prototype_ref/target_files/module/ac_refs/prd_ref/wave + skill prototype-dev
-2) 文档闭环: GOV-DOCS-001~005 + gov-validate --fix 自愈 + skill docs-manage + 29 条测试
-3) PR 模板: 补上规范强制但缺失的 .github/PULL_REQUEST_TEMPLATE.md + 7 条 guard-safe 测试
-4) DEC-057 (治理从文档约束升级为脚本门禁)、DEC-058 (CI 变更范围白名单)
-5) CI 慢因修复: gov-ci-scope.sh 单一真源 + 15 条负向测试，非构建类路径不再白跑全量 gradle
-6) Notion 六阶段文档体系: 新增 04-研发/05-测试/06-发布/07-运维 + 9 篇专业文档 + 真源归属规则
-7) 本地已切回 master 并 ff，feature 分支本地已删，gov-validate 0 违规 / 125 测试通过 | 决策: 1) 强制力介质选 validator 脚本而非 AGENTS.md —— 治理设计约束 Q2: 后者最易写也最易被忽略，本次全部规则挂进 gov-validate 三层闸门 (pre-commit / gov-local-ci / GitHub CI)
-2) 自愈准入判据: 自愈安全性 = 改错了会不会被同一条规则立刻抓到。GOV-DOCS-004 计数同步是自洽的 (改错下次仍红) 故允许 --fix；005 时间戳是自噬的 (无脑改今日则规则永久失效) 故必须绑 git diff 判定内容真有变更；统一边界为只重写已有锚点、不新增结构
-3) PR 模板刻意不含 allow-no-tests / allow-schema-change 字面量，也不含 DEC 加三位数字 —— 两个 guard 靠匹配 PR body 放行，模板自带即永久静默放行；首次写时我自己踩中 DEC-048，靠变异测试抓回
-4) CI 范围判定用白名单而非黑名单: 白名单外默认 code=true，新增构建目录也不会漏；.github/ 故意不入白名单，改 CI 本身仍保守构建
-5) 把内联在 ci.yml 的正则抽为可测脚本，否则改白名单时无人能回答会不会漏源码
-6) 三个工具定位: Notion 管为什么做什么谁定的 (结构化真源)、仓库 docs/ 管怎么做与机器校验 (承重、可重建性差)、幕布管还在想的事 (迁完即弃)
+> 完成: T-102 交付并开 PR（未合）：
+- 新增 feature/sync/NetworkStatus.kt、ServiceStatus.kt：呈现式组件，网络/服务探测经 fun interface（NetworkAvailabilityProbe / ServiceAvailabilityProbe）由调用方注入，状态经 stateOf() 单向进不可变 UiState，Screen 零系统网络依赖；共用版式 SyncStatusPage 内联 NetworkStatus.kt（T-102 限定只新建两文件，不开第三文件）；文案常量 NetworkStatusText / ServiceStatusText 逐字取自原型 08 v-network / v-service。
+- 新增 app/src/test/kotlin/com/xcwk/scalehub/feature/sync/NetworkServiceStatusTest.kt（9 条）：文案逐字断言、探测回调建状态、源码守卫（去注释后无 ConnectivityManager / android.net、无 Color(0x..)、无 NN.dp、含 Qk 引用）。
+- 治理随行：tests/android-test-registry.yaml 登记新测试（GOV-ATEST-005）；take T-102 后 gov-validate --fix 同步 03_TaskGraph pending=57（GOV-DOCS-004）；CI lifecycle-audit 要求源码变更随 DEC + DevNotes，故向 DEC-061 追加「执行记录（2026-10-23 · T-102）」+ 04_DevNotes 变更记录条目。
+- 验证：./gradlew :app:testDebugUnitTest 134 通过；python3 -m pytest tests/unit -q 155 通过；gov-prototype-verify.py T-102 --strict 通过（文案匹配率 54% / 54%）；gov-lifecycle-audit.sh --base origin/master PASS；gov-local-ci.sh 6/6 PASS（分支 tip 512a1a3 的干净 clone，安装 hooks 后运行）。
+- 提交 8766b80 / 6c3a482 / 512a1a3，ses-claim-staged 逐次声明归属；pre-push 审计 3/3 通过后推送；PR #42 已按模板开立（含 local-ci PASS 摘要与环境说明），未 merge。
+- 收件箱 2 条未读已读（20261023-081815 上轮交接、20261022-082510 DEC-056）。 | 决策: 1) 呈现式交付照 DEC-061 先例：AC-N3 的「网络检测经由传入回调」落成 fun interface 注入，检测实现留在调用方，UI 结构上拿不到系统网络服务（单测源码守卫钉死），而非仅靠自觉不 import。
+2) 共用版式 SyncStatusPage 放 NetworkStatus.kt 而非新建第三个文件——任务铁律只允许新建 NetworkStatus.kt / ServiceStatus.kt，同包 internal 复用是最小代价的去重（否则两文件同构会被 GOV-CODE-002/003 判重）。
+3) 未新开 DEC-062：本树 gov-next-decision 下一号即 062，但该编号已被推送未合入的 fix/worktree-aware-governance 占用，同号多义违 DEC-019 索引唯一、同名文件必冲突；跳号到 063 违 GOV-CONTENT-004 编号连续。故按 DEC-002「执行中追加发现」、DEC-031「更正」的追加先例，把 T-102 执行记录并入 DEC-061（本任务本就是该决策口径的执行）。
+4) worktree 内 gov-local-ci 恒有 2 项根检查环境性误报（.git 是文件、hooks 路径按 ROOT/.git/hooks 拼），修复属别人在写的文件（后写者停手），故门禁改在分支 tip 的干净 clone 运行取得 6/6 PASS，pre-push 也在该 clone 通过后推送——全程未用 --no-verify。
+5) 文案匹配率 54%：v-network/v-service 短语由两文件分散持有所致，与 DevNotes 问题 7「多文件/薄封装任务系统性偏低」结论一致，全部应有文案实际逐字在位（单测断言）。
 
 **下一步：**
 
-> 修 GOV-PROTO 撞号: 把 gov_validate_prototype.py 的规则改名为不与 gov_validate_protocol.py 冲突的前缀 (如 GOV-PTASK-001~007)，同步 skill/binding/GC 文档/测试中的引用
+> 跟进在途 PR 与 Actions 故障：Actions 恢复后 gh run rerun 39944412520 复跑 PR #42 checks；各在途分支合入 master 后先跑 gov-validate --fix 同步 03_TaskGraph 计数再把对应任务置 done（T-102 含）。
 
 ## 最近动态
 
 最近 5 次提交：
 
 ```
-23facbd fix(governance): strip hook git env from the test runner (DEC-062)
-e061a97 test(governance): sanitize git env in worktree tests
-c4078f2 fix(governance): reuse main worktree secrets binary (DEC-062)
-3811606 fix(governance): make root checks worktree aware (DEC-062)
+512a1a3 docs(sync): append t-102 execution record to dec-061 and devnotes
+6c3a482 chore(tasks): sync pending count and register t-102 test
+8766b80 feat(sync): add network and service status screens
 d9ba3f1 Merge pull request #38 from zerophix/chore/wave1-ac-batch
+97267b9 chore(tasks): add ready acceptance for wave1 batch T-084/091/096/102
 ```
 
 ## 工程指标
 
 | 指标 | 数量 |
 |------|------|
-| 决策日志 (DEC) | 62 |
+| 决策日志 (DEC) | 61 |
 | 设计笔记 (NOTE) | 10 |
 | 开发指南 (GC) | 9 |
 | 技术参考 (REF) | 1 |
 
 最近决策：
 
-- [DEC-062](docs/ai/decisions/DEC-062.md): DEC-062: 治理检查改为 worktree 感知，使 DEC-050 的并发隔离真正可用
 - [DEC-061](docs/ai/decisions/DEC-061.md): DEC-061: Wave 1 新屏以呈现式组件交付，静态文案与运行时读数分离
 - [DEC-060](docs/ai/decisions/DEC-060.md): DEC-060: 僵尸任务规则改为按停滞时长判定，不再拦截认领中的任务
+- [DEC-059](docs/ai/decisions/DEC-059.md): DEC-059: 原型任务规则改名 GOV-PTASK，消除与 AI 协议规则的编号碰撞
 
 最近笔记：
 
@@ -83,19 +81,18 @@ d9ba3f1 Merge pull request #38 from zerophix/chore/wave1-ac-batch
 
 | 检查项 | 状态 | 详情 |
 |-------|------|------|
-| 本地门禁 (gov-local-ci) | 失败 | local-ci FAIL @ 2026-10-24T02:13:19Z sha=23facbd branch=chore/wave1-ac-batch-2 [gradlew build:ok,gov-validate:fail,gov-custom-checks:ok,gov-secrets-scan:ok,gov-schema-guard:ok,gov-test-guard:ok] |
-| GitHub Actions | 无数据 | gh 不可用或无最近 run |
-| 文档校验 | 失败 | 来自 local-ci @ 2026-10-24T02:13:19Z sha=23facbd |
+| 本地门禁 (gov-local-ci) | 通过 | local-ci PASS @ 2026-10-23T11:11:19Z sha=512a1a3 branch=feat/sync-network-status [gradlew build:ok,gov-validate:ok,gov-custom-checks:ok,gov-secrets-scan:ok,gov-schema-guard:ok,gov-test-guard:ok] |
+| GitHub Actions | 失败 | ci @ 2026-10-23T12:02:53Z sha=512a1a3 https://github.com/zerophix/lightweigh/actions/runs/39944412520 |
+| 文档校验 | 通过 | 来自 local-ci @ 2026-10-23T11:11:19Z sha=512a1a3 |
 | Git 钩子 | 未安装 | 安装: bash scripts/bootstrap/bs-install-hooks.sh |
 
 ## 反思
 
 > 上次 AI session 的经验教训。新 AI 启动时必读。
 
-1) 强制力介质选 validator 脚本而非 AGENTS.md —— 治理设计约束 Q2: 后者最易写也最易被忽略，本次全部规则挂进 gov-validate 三层闸门 (pre-commit / gov-local-ci / GitHub CI)
-> 2) 自愈准入判据: 自愈安全性 = 改错了会不会被同一条规则立刻抓到。GOV-DOCS-004 计数同步是自洽的 (改错下次仍红) 故允许 --fix；005 时间戳是自噬的 (无脑改今日则规则永久失效) 故必须绑 git diff 判定内容真有变更；统一边界为只重写已有锚点、不新增结构
-> 3) PR 模板刻意不含 allow-no-tests / allow-schema-change 字面量，也不含 DEC 加三位数字 —— 两个 guard 靠匹配 PR body 放行，模板自带即永久静默放行；首次写时我自己踩中 DEC-048，靠变异测试抓回
-> 4) CI 范围判定用白名单而非黑名单: 白名单外默认 code=true，新增构建目录也不会漏；.github/ 故意不入白名单，改 CI 本身仍保守构建
-> 5) 把内联在 ci.yml 的正则抽为可测脚本，否则改白名单时无人能回答会不会漏源码
-> 6) 三个工具定位: Notion 管为什么做什么谁定的 (结构化真源)、仓库 docs/ 管怎么做与机器校验 (承重、可重建性差)、幕布管还在想的事 (迁完即弃)
+1) 呈现式交付照 DEC-061 先例：AC-N3 的「网络检测经由传入回调」落成 fun interface 注入，检测实现留在调用方，UI 结构上拿不到系统网络服务（单测源码守卫钉死），而非仅靠自觉不 import。
+> 2) 共用版式 SyncStatusPage 放 NetworkStatus.kt 而非新建第三个文件——任务铁律只允许新建 NetworkStatus.kt / ServiceStatus.kt，同包 internal 复用是最小代价的去重（否则两文件同构会被 GOV-CODE-002/003 判重）。
+> 3) 未新开 DEC-062：本树 gov-next-decision 下一号即 062，但该编号已被推送未合入的 fix/worktree-aware-governance 占用，同号多义违 DEC-019 索引唯一、同名文件必冲突；跳号到 063 违 GOV-CONTENT-004 编号连续。故按 DEC-002「执行中追加发现」、DEC-031「更正」的追加先例，把 T-102 执行记录并入 DEC-061（本任务本就是该决策口径的执行）。
+> 4) worktree 内 gov-local-ci 恒有 2 项根检查环境性误报（.git 是文件、hooks 路径按 ROOT/.git/hooks 拼），修复属别人在写的文件（后写者停手），故门禁改在分支 tip 的干净 clone 运行取得 6/6 PASS，pre-push 也在该 clone 通过后推送——全程未用 --no-verify。
+> 5) 文案匹配率 54%：v-network/v-service 短语由两文件分散持有所致，与 DevNotes 问题 7「多文件/薄封装任务系统性偏低」结论一致，全部应有文案实际逐字在位（单测断言）。
 

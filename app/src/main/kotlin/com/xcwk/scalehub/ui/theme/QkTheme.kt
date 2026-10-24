@@ -30,6 +30,7 @@ object QkColor {
     val Card = Color(0xFFFFFFFF)        // --white
     val Fg = Color(0xFF20312D)          // --ink
     val Muted = Color(0xFF87948F)       // --muted
+    val Sub = Color(0xFF5D756D)         // --sub 次级文本（原型 .banner 正文）
     val Hint = Color(0xFFA8B3AE)
     val Border = Color(0xFFEDF1EF)      // --line
     val CardBorder = Color(0xFFEDF2EF)
@@ -94,6 +95,13 @@ object QkRadius {
     val SegmentItem = 9.dp
     val NavFab = 16.dp
     val Field = 11.dp
+    val Tile = 14.dp                 // 原型外观页主题选项卡
+}
+
+/** 描边刻度（原型 1px 细边 / 2px 选中边）。 */
+object QkStroke {
+    val Thin = 1.dp
+    val Selected = 2.dp
 }
 
 /** 间距刻度。页面边距 14、卡片内边距 15、卡片间距 11（原型实测值）。 */
@@ -107,6 +115,23 @@ object QkSpacing {
     val Page = 14.dp
     val CardPad = 15.dp
     val CardGap = 11.dp
+}
+
+/**
+ * 组件专用尺寸刻度（T-099 · 原型 09 v-skeleton / v-longpress 实测值收口）。
+ * 页面禁止裸 `10.dp` 等字面量（gov-prototype-verify --strict 会拦），
+ * 组件默认尺寸一律经此 token 取值。
+ */
+object QkComponentSize {
+    // 骨架屏（原型 .sk line 三种高度 / circle 38 / block 110）
+    val SkeletonLineTitle = 10.dp
+    val SkeletonLineBigNumber = 34.dp
+    val SkeletonLineSecondary = 8.dp
+    val SkeletonAvatar = 38.dp
+    val SkeletonBlock = 110.dp
+
+    // 长按菜单（原型黑色菜单条 radius 10）
+    val MenuRadius = 10.dp
 }
 
 /** 字号阶梯（原型 px 值直接映射为 sp）。 */
