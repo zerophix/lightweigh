@@ -1,5 +1,6 @@
 package com.xcwk.scalehub.feature.trend
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -42,19 +43,37 @@ import java.util.Locale
 /**
  * feature.trend — 四件套之 Screen：无状态渲染 + 事件转发，不触任何数据层。
  *
- * 版式按 v2 原型「趋势分析」屏：单卡内 指标（体重/体脂率）× 范围（今天/近7天/近30天/全部）
- * 两级分段控件，加本应用特有的时段筛选；随后大数字 + 增减 + 面积图 + 四格汇总
- * （平均值/最高/最低/变化）。两个指标块由 ViewModel 一并算好，这里按分段切换展示——
- * 原型同一时刻只画一条线，切换即换线，不堆叠。
+ * 版式按原型 05-history-trend.html · v-trend（T-048 补齐）：
+ * 首屏标题「看见每一步改变」+ 副标题「林悦 · 09/21 — 10/21」→ 聚合粒度「周 月 年」→
+ * 图表卡（卡头「体重 ▾」+ 范围「近30天」）→ 二级行「时间范围」「全部测量记录」；
+ * 两个弹层「选择指标」（体重/体脂率/BMI/肌肉量 + 扩展指标）与
+ * 「时间范围」（近 7 天 / 近 30 天 / 近一年 / 自定义…）。
+ *
+ * 既有行为保留：范围分段（今天/近7天/近30天/全部）、时段胶囊、大数字 + 增减 +
+ * 面积图 + 四格汇总（平均值/最高/最低/变化）、数据解读与趋势对比。
+ * 原型同一时刻只画一条线，切换指标即换线，不堆叠。
  */
 @Composable
 fun TrendScreen(
     state: TrendUiState,
     onIntent: (TrendIntent) -> Unit,
     onOpenHistory: () -> Unit = {},
+    memberName: String = TrendText.MemberFallback,
 ) {
-    // 指标切换是控件态（切走不丢另一个块的加载结果），不进 UiState/VM
-    var fatMetric by rememberSaveable { mutableStateOf(false) }
+    // 指标/弹层/自定义范围都是控件态（切走不丢已算好的块），不进 UiState/VM
+    var metricId by rememberSaveable { mutableStateOf(TREND_METRICS.first().id) }
+    var showMetricSheet by rememberSaveable { mutableStateOf(false) }
+    var showRangeSheet by rememberSaveable { mutableStateOf(false) }
+    var customRange by rememberSaveable { mutableStateOf(false) }
+
+    val metric = trendMetricOf(metricId)
+    val block = when (metricId) {
+        "weight" -> state.weight
+        "fat" -> state.fat
+        else -> null // 扩展指标暂无序列，走空态而非假曲线
+    }
+    val points = block?.points.orEmpty()
+    val rangeLabel = if (customRange) TrendText.RangeCustom else trendRangeLabel(state.range)
 
     Column(
         modifier = Modifier
@@ -62,22 +81,62 @@ fun TrendScreen(
             .verticalScroll(rememberScrollState())
             .padding(horizontal = QkSpacing.Page),
     ) {
-        QkCard(modifier = Modifier.padding(top = QkSpacing.Md)) {
-            // 指标：原型 metricTabs（BMI 无连续序列数据，本版只交替体重/体脂率）
-            QkSegmented(
-                items = listOf("体重", "体脂率"),
-                selectedIndex = if (fatMetric) 1 else 0,
-                onSelect = { fatMetric = it == 1 },
+        // 首屏（原型 .hero）：标题 + 成员 · 区间
+        Column(modifier = Modifier.padding(top = QkSpacing.Md)) {
+            Text(
+                TrendText.HeroTitle,
+                style = MaterialTheme.typography.headlineSmall,
+                color = QkColor.Fg,
             )
+            Text(
+                trendHeroSubtitle(memberName, points),
+                modifier = Modifier.padding(top = 2.dp),
+                style = MaterialTheme.typography.bodySmall,
+                color = QkColor.Muted,
+            )
+        }
+
+        // 聚合粒度（原型 .seg：周/月/年 → 近7天/近30天/全部）
+        QkSegmented(
+            items = TrendAggregation.entries.map { it.label },
+            selectedIndex = trendAggregationFor(state.range).ordinal,
+            onSelect = { index ->
+                customRange = false
+                onIntent(TrendIntent.RangeChanged(trendRangeFor(TrendAggregation.entries[index])))
+            },
+            modifier = Modifier.padding(top = QkSpacing.Md),
+        )
+
+        QkCard(modifier = Modifier.padding(top = QkSpacing.Md)) {
+            // 卡头（原型 .sthead）：指标名 ▾ 打开选择指标；右侧范围打开时间范围
+            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    "${metric.name}${TrendText.MetricCaret}",
+                    modifier = Modifier.clickable { showMetricSheet = true },
+                    style = MaterialTheme.typography.titleSmall,
+                    color = QkColor.Fg,
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                Text(
+                    "$rangeLabel ${TrendText.Chevron}",
+                    modifier = Modifier.clickable { showRangeSheet = true },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = QkColor.Muted,
+                )
+            }
+
             // 范围：原型 rangeTabs（今天为应用特有档，旧库默认近7天）
             QkSegmented(
-                items = TrendRange.entries.map { rangeLabel(it) },
+                items = TrendRange.entries.map { trendRangeLabel(it) },
                 selectedIndex = state.range.ordinal,
-                onSelect = { onIntent(TrendIntent.RangeChanged(TrendRange.entries[it])) },
-                modifier = Modifier.padding(top = 8.dp),
+                onSelect = { index ->
+                    customRange = false
+                    onIntent(TrendIntent.RangeChanged(TrendRange.entries[index]))
+                },
+                modifier = Modifier.padding(top = QkSpacing.Sm),
             )
             // 时段：应用特有筛选（旧库 segment），以胶囊行承接，不与原型两级分段混排
-            Row(modifier = Modifier.fillMaxWidth().padding(top = 10.dp)) {
+            Row(modifier = Modifier.fillMaxWidth().padding(top = QkSpacing.Sm)) {
                 TrendSegment.entries.forEach { s ->
                     QkChip(segmentLabel(s), state.segment == s) {
                         onIntent(TrendIntent.SegmentChanged(s))
@@ -85,15 +144,14 @@ fun TrendScreen(
                 }
             }
 
-            val block = if (fatMetric) state.fat else state.weight
-            val unit = if (fatMetric) "%" else "kg"
             if (block == null || block.emptyText != null) {
                 QkEmptyHint(
-                    block?.emptyText ?: "正在加载…",
+                    block?.emptyText
+                        ?: if (metric.hasSeries) TrendText.Loading else trendMetricEmptyText(metric),
                     modifier = Modifier.padding(top = QkSpacing.Md),
                 )
             } else {
-                TrendBlockBody(block = block, unit = unit)
+                TrendBlockBody(block = block, unit = metric.unit)
 
                 // 数据解读（原型 section-head + 卡内两行：方向行 + 测量建议行）
                 if (block.insightText != null) {
@@ -125,20 +183,74 @@ fun TrendScreen(
                         QkMetric(
                             label = "本周期平均",
                             value = block.periodAvgText ?: "--",
-                            unit = unit,
+                            unit = metric.unit,
                             modifier = Modifier.weight(1f),
                         )
                         QkMetric(
                             label = "上周期平均",
                             value = block.prevPeriodAvgText ?: "--",
-                            unit = unit,
+                            unit = metric.unit,
                             modifier = Modifier.weight(1f),
                         )
                     }
                 }
             }
         }
+
+        // 二级行（原型 .rows）：「时间范围」显示当前范围，「全部测量记录」进历史
+        QkCard(modifier = Modifier.padding(top = QkSpacing.CardGap)) {
+            QkListRow(
+                title = TrendText.RangeRowTitle,
+                onClick = { showRangeSheet = true },
+                showDivider = true,
+                trailing = {
+                    Text(
+                        rangeLabel,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = QkColor.Muted,
+                    )
+                },
+            )
+            QkListRow(
+                title = TrendText.AllRecords,
+                onClick = onOpenHistory,
+                showDivider = false,
+                trailing = {
+                    Text(
+                        TrendText.Chevron,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = QkColor.Hint,
+                    )
+                },
+            )
+        }
         Spacer(modifier = Modifier.height(28.dp))
+    }
+
+    if (showMetricSheet) {
+        TrendMetricSheet(
+            selectedId = metricId,
+            onSelect = { selected ->
+                metricId = selected.id
+                showMetricSheet = false
+            },
+            onDismiss = { showMetricSheet = false },
+        )
+    }
+    if (showRangeSheet) {
+        TrendRangeSheet(
+            selectedLabel = if (customRange) TrendText.RangeCustom else trendRangeSheetLabel(state.range),
+            onSelectRange = { range ->
+                customRange = false
+                onIntent(TrendIntent.RangeChanged(range))
+                showRangeSheet = false
+            },
+            onSelectCustom = {
+                customRange = true
+                showRangeSheet = false
+            },
+            onDismiss = { showRangeSheet = false },
+        )
     }
 }
 
@@ -236,13 +348,6 @@ private fun SummaryCell(label: String, value: String, modifier: Modifier = Modif
 }
 
 private fun one(value: Double): String = "%.1f".format(Locale.US, value)
-
-private fun rangeLabel(range: TrendRange): String = when (range) {
-    TrendRange.TODAY -> "今天"
-    TrendRange.LAST_7 -> "近7天"
-    TrendRange.LAST_30 -> "近30天"
-    TrendRange.ALL -> "全部"
-}
 
 @Preview(showBackground = true)
 @Composable
