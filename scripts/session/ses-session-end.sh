@@ -199,7 +199,19 @@ if [ -f "$METRICS_SCRIPT" ]; then
 bash "$METRICS_SCRIPT" 2>/dev/null | tail -1 || true
 fi
 
-# ── 7. 生成摘要 ──
+# ── 7. 工作区审计（DEC-065）──
+# 收尾时自动清理已合入 worktree / 分支、过期锁、孤儿目录、陈旧后台日志。
+# --fix 只处理安全项，剩余 WARN 由人判断；脚本自身失败不阻断收尾。
+echo -e " ${GREEN}[7/7]${NC} 工作区审计（worktree/分支/锁/证据）..."
+WORKSPACE_DOCTOR="$ROOT/scripts/governance/gov-workspace-doctor.sh"
+if [ -f "$WORKSPACE_DOCTOR" ]; then
+  bash "$WORKSPACE_DOCTOR" --fix 2>&1 | tail -20 || true
+  echo "  工作区已审计（剩余 WARN 需人工确认）"
+else
+  echo "  跳过: 未找到 $WORKSPACE_DOCTOR"
+fi
+
+# ── 8. 生成摘要 ──
 echo -e "${BOLD}========================================${NC}"
 echo -e "${GREEN} Session 交接 + 指标刷新完成${NC}"
 echo -e "${BOLD}========================================${NC}"
