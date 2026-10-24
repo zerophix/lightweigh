@@ -264,3 +264,27 @@ def test_reconcile_accepts_explicit_task_row(tmp_path):
 
     data = json.loads((root / ".ai" / "tasks.json").read_text())
     assert data["tasks"][0]["status"] == "completed"
+
+
+def test_reconcile_ignores_task_ranges(tmp_path):
+    """「关联任务 | 无（解锁 T-072~T-105）」这类范围写法不得回填任何任务。"""
+    root = _board_repo(tmp_path, [_task("T-105", "pending")])
+    bindir = _fake_gh(tmp_path, [
+        {"number": 47, "title": "fix(governance): worktree aware",
+         "body": "| 关联任务 | 无（治理修复，解锁 T-072~T-105 各分支） |",
+         "mergedAt": "2026-10-24T04:00:00Z"},
+    ])
+
+    _run(RECONCILE, root=root, env_extra={"PATH": f"{bindir}:{os.environ['PATH']}"})
+
+    data = json.loads((root / ".ai" / "tasks.json").read_text())
+    assert data["tasks"][0]["status"] == "pending"
+
+
+def test_lessons_file_is_valid():
+    """教训库必须可解析，且每条都有 id/symptom/check/enforced。"""
+    lessons = json.loads((ROOT_P / ".ai" / "lessons.json").read_text(encoding="utf-8"))
+    for item in lessons["lessons"]:
+        assert item["id"].startswith("L-"), item
+        assert item["symptom"] and item["check"]
+        assert isinstance(item["enforced"], bool)

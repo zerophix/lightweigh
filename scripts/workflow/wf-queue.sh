@@ -83,6 +83,10 @@ cmd_status() {
 
 cmd_run() {
   local batch_start batch_ts
+  # 运行锁：清理工具据此跳过候选（DEC-069 补）
+  mkdir -p "$ROOT/.cache" 2>/dev/null || true
+  echo "$$" > "$ROOT/.cache/queue.lock" 2>/dev/null || true
+  trap 'rm -f "$ROOT/.cache/queue.lock"' EXIT INT TERM
   batch_start="$(date +%s)"
   batch_ts="$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
   git fetch -q origin || { say "fetch 失败"; return 2; }
@@ -227,8 +231,15 @@ cmd_run() {
 
   # 计时记账（用于度量：流程成本是否失控）
   mkdir -p "$ROOT/.cache" 2>/dev/null || true
-  printf '{"ts":"%s","branches":%d,"seconds":%d,"result":"ok"}\n' \
+  # 产品:治理 文件比例（DEC-071 防本末倒置）
+  local prod gov
+  prod=$(git -C "$ROOT" log --name-only --pretty=format: "origin/master~${#merged[@]}..origin/master" 2>/dev/null \
+    | grep -cE '^(app|domain|application|infrastructure)/src/' || true)
+  gov=$(git -C "$ROOT" log --name-only --pretty=format: "origin/master~${#merged[@]}..origin/master" 2>/dev/null \
+    | grep -cE '^(scripts|docs|\.ai|\.github)/' || true)
+  printf '{"ts":"%s","branches":%d,"seconds":%d,"product":%s,"governance":%s,"result":"ok"}\n' \
     "$batch_ts" "${#merged[@]}" "$(( $(date +%s) - batch_start ))" \
+    "${prod:-0}" "${gov:-0}" \
     >> "$ROOT/.cache/queue-runs.jsonl" 2>/dev/null || true
 
   # 5) 任务板回填 + 主干快检

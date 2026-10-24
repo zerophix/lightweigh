@@ -180,6 +180,32 @@ PY
   [ -z "$merged_wt$live_wt$orphans" ] && echo "  干净"
 
   echo
+  echo "【教训库】"
+  if [ -f "$ROOT/.ai/lessons.json" ]; then
+    python3 - "$ROOT/.ai/lessons.json" <<'PY2' | sed 's/^/  /'
+import json,sys
+d=json.load(open(sys.argv[1]))
+ls=d.get("lessons",[])
+un=[x["id"] for x in ls if not x.get("enforced")]
+print(f"共 {len(ls)} 条，未强制 {len(un)} 条" + (f"：{', '.join(un[:6])}" if un else ""))
+PY2
+  else
+    echo "  （未建立 .ai/lessons.json）"
+  fi
+  if [ -f "$ROOT/.cache/queue-runs.jsonl" ]; then
+    python3 - "$ROOT/.cache/queue-runs.jsonl" <<'PY2' | sed 's/^/  /'
+import json,sys
+rows=[json.loads(l) for l in open(sys.argv[1]) if l.strip()]
+rows=[r for r in rows if "product" in r]
+if rows:
+    r=rows[-1]; p,g=r.get("product",0),r.get("governance",0)
+    ratio=(p/g) if g else float('inf')
+    flag=" ⚠️ 本末倒置" if g and p/g < 2 else ""
+    print(f"上批 产品:治理 = {p}:{g}（{r.get('seconds',0)}s）{flag}")
+PY2
+  fi
+
+  echo
   echo "【下一步】"
   if [ -n "$prs" ]; then
     echo "  bash scripts/workflow/wf-autopilot.sh advance     # 自动推进所有在途 PR"

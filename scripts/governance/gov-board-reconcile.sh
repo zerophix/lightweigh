@@ -74,7 +74,10 @@ for p in prs:
     # 都会被当成已交付 → 任务被误标 completed（2026-10-24 实测）。
     ids = set(re.findall(r"\bT-\d{3}\b", title))
     for line in body.splitlines():
-        if '关联任务' in line or 'related task' in line.lower():
+        if ('关联任务' in line or 'related task' in line.lower()):
+            # 排除范围/泛指写法：T-072~T-105、"各 T-xxx" 之类不是交付声明
+            if any(mark in line for mark in ('~', '～', '—', '各')):
+                continue
             ids.update(re.findall(r"\bT-\d{3}\b", line))
     for tid in ids:
         pr_task.setdefault(tid, p)
