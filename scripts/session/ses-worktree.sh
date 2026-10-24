@@ -169,12 +169,6 @@ cmd_add() {
     cp "$ROOT/local.properties" "$wt/local.properties"
     echo "  已复制 local.properties（gitignore，不入库）"
   fi
-  # Gradle 分发包按 PROJECT 目录存放（gitignore）：不带过去则 wrapper 要联网下载
-  if [ -d "$ROOT/gradle/dists" ] && [ ! -d "$wt/gradle/dists" ]; then
-    mkdir -p "$wt/gradle"
-    cp -R "$ROOT/gradle/dists" "$wt/gradle/dists" 2>/dev/null && \
-      echo "  已复制 gradle/dists（离线可用）"
-  fi
 
   # 登记：谁、什么时候、为哪个分支创建（供 status/doctor 审计年龄）
   if [ -d "$ROOT/.cache" ]; then
