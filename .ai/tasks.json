@@ -266,12 +266,12 @@
       "id": "T-047",
       "description": "P1-6: AI 结构化卡片（饮食卡解析入库/运动卡/指标解读卡/拍照入口/欢迎示例）",
       "why": "",
-      "status": "pending",
+      "status": "completed",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-21T10:29:08Z",
       "updated_at": "2026-10-21T10:29:08Z",
-      "notes": "；AC 待人类定义：「饮食卡解析入库/运动卡/指标解读卡/拍照入口/欢迎示例」在全部 26 个原型 HTML 中均无对应 view（grep 饮食/拍照 无命中）；代码侧 ai/AiCards.kt 已实现 DietCard/ExerciseCard/MetricCard/AiWelcome（DEC-043-B），任务大概率已完成。",
+      "notes": "；AC 待人类定义：「饮食卡解析入库/运动卡/指标解读卡/拍照入口/欢迎示例」在全部 26 个原型 HTML 中均无对应 view（grep 饮食/拍照 无命中）；代码侧 ai/AiCards.kt 已实现 DietCard/ExerciseCard/MetricCard/AiWelcome（DEC-043-B），任务大概率已完成。\n已由合并队列按分支名回填（DEC-071）",
       "target_files": [
         "app/src/main/kotlin/com/xcwk/scalehub/feature/ai/AiCards.kt"
       ],
@@ -1023,12 +1023,12 @@
       "id": "T-070",
       "description": "P2: 无障碍适配 — 字体缩放/屏幕阅读器/高对比度",
       "why": "page-list-TODO §16 P2",
-      "status": "pending",
+      "status": "completed",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:44:45Z",
       "updated_at": "2026-10-23T03:44:45Z",
-      "notes": "；AC 待人类定义：无障碍适配（字体缩放/屏幕阅读器/高对比度）无对应 view，也不适合用原型文案验收；09-components-demo.html v-demo 只是组件视觉演示，无 a11y 标注。",
+      "notes": "；AC 待人类定义：无障碍适配（字体缩放/屏幕阅读器/高对比度）无对应 view，也不适合用原型文案验收；09-components-demo.html v-demo 只是组件视觉演示，无 a11y 标注。\n已由合并队列按分支名回填（DEC-071）",
       "target_files": [
         "app/src/main/kotlin/com/xcwk/scalehub/ui/components/"
       ],
