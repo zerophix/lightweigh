@@ -241,5 +241,13 @@ commands:
   type: gradle-test
   status: stable
   type: gradle-test
+- description: 启动引导文案逐字与门控纯逻辑（条款勾选门控 / 权限结果分支 / 更新弹窗, T-075）
+  path: app/src/test/kotlin/com/xcwk/scalehub/feature/guide/OnboardingSplashPermissionTest.kt
+  status: stable
+  type: gradle-test
+- description: 资料完善表单校验纯逻辑（年龄/身高边界 / 不告知合法 / 两步步进, T-100）
+  path: app/src/test/kotlin/com/xcwk/scalehub/feature/guide/ProfileSetupTest.kt
+  status: stable
+  type: gradle-test
 configs: []
 orphans: []
