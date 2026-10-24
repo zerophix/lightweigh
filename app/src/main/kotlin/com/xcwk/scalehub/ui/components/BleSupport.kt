@@ -25,6 +25,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.core.content.ContextCompat
 import com.xcwk.scalehub.BleGate
 
@@ -49,27 +52,44 @@ fun BlePermissionGate(
     content: @Composable (granted: Boolean, request: () -> Unit) -> Unit,
 ) {
     val activity = LocalContext.current.findActivity()
-    val granted = activity?.let { BleGate.granted(it) } ?: false
+    // 必须是 state：权限是在**系统弹窗**里授予的，页面没有别的事件能触发重组。
+    // 旧实现把它当成普通值读取，于是授权后依旧显示「请允许…权限后搜索」，
+    // 直到退出重进才刷新（端到端走查实测，2026-10-24）。
+    val grantedState = remember { mutableStateOf(activity?.let { BleGate.granted(it) } ?: false) }
     /** null=未拒绝过；true=还能再问；false=永久拒绝 */
     var denied by remember { mutableStateOf<Boolean?>(null) }
     var asked by remember { mutableStateOf(false) }
 
+    // 从系统设置页返回时也要重新读一次权限
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner, activity) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                grantedState.value = activity?.let { BleGate.granted(it) } ?: false
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
     val launcher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions(),
     ) { result ->
-        if (result.values.all { it }) onGranted()
+        val allGranted = result.values.all { it }
+        grantedState.value = allGranted
+        if (allGranted) onGranted()
         else denied = activity?.let { BleGate.canAskAgain(it) } ?: false
     }
 
     // 首次进入未授权即自动请求一次（旧库 prepareScan/startSession 的 askedPermission 门）
     LaunchedEffect(Unit) {
-        if (!granted && activity != null && !asked) {
+        if (!grantedState.value && activity != null && !asked) {
             asked = true
             launcher.launch(BleGate.required())
         }
     }
 
-    content(granted) { launcher.launch(BleGate.required()) }
+    content(grantedState.value) { launcher.launch(BleGate.required()) }
 
     denied?.let { canAskAgain ->
         AlertDialog(
