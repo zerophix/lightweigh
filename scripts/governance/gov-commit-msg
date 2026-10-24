@@ -78,9 +78,35 @@ while IFS= read -r line; do
 done < <(echo "$BODY_LINES" || true)
 
 if [ -n "$LONG_LINE" ]; then
-  echo "❌ 正文超行（上限 72 字符）"
-  echo "  $LONG_LINE"
-  exit 1
+  # 拒绝只会让人重写一遍，而且历史上「提交被拒但已 push」造成过空分支合并事故。
+  # 正文折行不改变语义，直接改好再放行；含 URL 的行保持原样。
+  echo "ℹ 正文超 72 字符，已自动折行：${LONG_LINE%% (*}"
+  python3 - "$COMMIT_MSG_FILE" <<'PY'
+import sys, textwrap
+path = sys.argv[1]
+lines = open(path, encoding="utf-8").read().splitlines()
+out, wrapped = [], 0
+for i, line in enumerate(lines):
+    if i == 0 or len(line) <= 72 or "://" in line or not line.strip():
+        out.append(line)
+        continue
+    stripped = line.lstrip()
+    prefix = line[: len(line) - len(stripped)]
+    if stripped.startswith(("- ", "* ")):
+        prefix += "  "
+    width = max(20, 72 - len(prefix))
+    parts = textwrap.wrap(
+        stripped, width=width, break_long_words=False, break_on_hyphens=False
+    )
+    if not parts:
+        out.append(line)
+        continue
+    out.append(line[: len(line) - len(stripped)] + parts[0])
+    out.extend(prefix + part for part in parts[1:])
+    wrapped += 1
+open(path, "w", encoding="utf-8").write("\n".join(out) + "\n")
+print(f"  auto-wrapped {wrapped} line(s)")
+PY
 fi
 
 exit 0
