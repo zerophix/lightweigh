@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "updated_at": "2026-10-23T09:46:01Z",
-  "next_action": "开工 Wave 0 基础组件 T-097/T-098/T-099（通用状态页、下拉刷新与滑删与无限滚动与搜索栏、骨架屏与长按菜单）",
-  "next_action_why": "Wave 0 组件被 Wave 1/2 多个任务复用，未完成则后续任务缺组件无法开工；GC-prototype-driven-dev 明确 Wave 0 必须最先做",
+  "updated_at": "2026-10-24T02:10:00Z",
+  "next_action": "本分支随 PR #42 合入 master；合入完成后由收尾 PR 统一把已交付任务置 done（T-081/082/084/091/096/099/102）并重算 03_TaskGraph 计数，避免多分支各自计数互相打架",
+  "next_action_why": "多分支各自 take 任务 + 各自同步计数，逐个合入会打乱 pending 数；统一收尾一次同步可让 GOV-DOCS-004 恢复绿色",
   "next_action_confirmed": true,
   "known_risks": [
     "任务无 ready AC 不得开工；in_progress 缺 definition_of_done 会触发 GOV-PROTO-004（DEC-048）。",
@@ -1740,11 +1740,11 @@
       "id": "T-102",
       "description": "sync: 网络状态与服务状态页",
       "why": "原型08 v-network/v-service · 新增 sync/NetworkStatus.kt sync/ServiceStatus.kt",
-      "status": "pending",
-      "assigned_to": "",
+      "status": "in_progress",
+      "assigned_to": "ai",
       "dec": "",
       "created_at": "2026-10-23T03:56:21Z",
-      "updated_at": "2026-10-23T09:50:00Z",
+      "updated_at": "2026-10-23T09:38:15Z",
       "notes": "",
       "prototype_ref": {
         "file": "design/prototypes/interactive/08-sync-network-help.html",
