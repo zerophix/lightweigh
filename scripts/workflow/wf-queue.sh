@@ -98,11 +98,17 @@ cmd_run() {
   fi
 
   local branches=() merged=() skipped=()
+  local explicit_mode=0
+  [ "${#EXPLICIT[@]}" -gt 0 ] && explicit_mode=1
   while read -r br; do
     [ -z "$br" ] && continue
-    if [ -z "$(worktree_of "$br")" ]; then
+    if [ -z "$(worktree_of "$br")" ] && [ "$explicit_mode" -eq 0 ]; then
       skipped+=("$br")
       continue
+    fi
+    # 显式模式下也要求远端分支存在
+    if ! git rev-parse -q --verify "origin/$br" >/dev/null; then
+      say "  [跳过] origin/$br 不存在"; continue
     fi
     branches+=("$br")
   done < <(collect_branches)
