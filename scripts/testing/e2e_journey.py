@@ -145,7 +145,8 @@ def shot(out: Path, name: str) -> Path:
 
 
 def slug(name: str) -> str:
-    return re.sub(r"[^0-9a-zA-Z_-]+", "-", name)[:40]
+    out = re.sub(r"[^0-9a-zA-Z_-]+", "-", name).strip("-")[:40]
+    return out or "journey"
 
 
 def cmd_probe(no_install: bool) -> int:
@@ -191,6 +192,16 @@ def cmd_run(journey_path: Path, no_install: bool, keep_data: bool) -> int:
         ok = True
         detail = []
 
+        scroll = step.get("scroll")
+        if scroll:
+            # 上滑露出屏幕外的入口（Compose 列表没有滚动时 tap 会"找不到"，不算 bug）
+            x = 540
+            y1, y2 = (1800, 700) if scroll == "up" else (700, 1800)
+            adb("shell", "input", "swipe", str(x), str(y1), str(x), str(y2), "300")
+            time.sleep(step.get("wait", 0.8))
+            xml = dump_xml()
+            detail.append(f"scroll {scroll}")
+
         if step.get("back"):
             adb("shell", "input", "keyevent", "4")
             time.sleep(step.get("wait", 1.0))
@@ -207,6 +218,8 @@ def cmd_run(journey_path: Path, no_install: bool, keep_data: bool) -> int:
                 if fg and fg != PKG:
                     ok = False
                     detail.append(f"点击后离开了 App（前台={fg}）")
+            elif step.get("optional"):
+                detail.append(f"tap {label!r} 不存在（可跳过）")
             else:
                 ok = False
                 detail.append(f"tap {label!r} 未找到")
