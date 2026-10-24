@@ -415,11 +415,13 @@ private fun WechatConsentRow(
         title = title,
         subtitle = desc,
         trailing = {
+            // 勾选指示器只表达状态，不再单独接收点击：
+            // 整行已是点击目标且带可见文本，重复的 clickable 会让 TalkBack
+            // 多出一个读不出名字的焦点（T-070 A11Y-002）。
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(QkRadius.Field))
                     .background(if (checked) QkColor.Primary else QkColor.Bg)
-                    .clickable(onClick = onClick)
                     .padding(horizontal = QkSpacing.Xs + QkSpacing.Xs, vertical = QkSpacing.Xs),
                 contentAlignment = Alignment.Center,
             ) {

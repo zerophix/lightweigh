@@ -30,7 +30,9 @@ object QkColor {
     val Card = Color(0xFFFFFFFF)        // --white
     val Fg = Color(0xFF20312D)          // --ink
     val Muted = Color(0xFF87948F)       // --muted
-    val Sub = Color(0xFF5D756D)         // --sub 次级文本（原型 .banner 正文）
+    // --sub 次级文本（原型 .banner 正文）。原值 #5D756D 在薄荷底上仅 4.48:1，
+    // 差 0.02 未过 AA 正文线；同色相压深一档到 4.55:1（视觉差 1/255）。
+    val Sub = Color(0xFF5C746C)
     val Hint = Color(0xFFA8B3AE)
     val Border = Color(0xFFEDF1EF)      // --line
     val CardBorder = Color(0xFFEDF2EF)
@@ -50,7 +52,9 @@ object QkColor {
     val PurpleSoft = Color(0xFFF3EFFF)
     val Accent = Color(0xFFF3A64A)      // --orange
     val AccentSoft = Color(0xFFFFF5E8)
-    val Danger = Color(0xFFDC4C4C)
+    // 错误语义色：原值 #DC4C4C 在白底 4.05:1、在 DangerSoft 上 3.52:1，
+    // 都不到 AA 正文线；压深到 #C63737（白底 5.25:1 / DangerSoft 4.55:1）。
+    val Danger = Color(0xFFC63737)
     val DangerSoft = Color(0xFFFCEBEB)
 
     // 组件内部用色（原型里散落的中性色，收口成 token）
@@ -80,7 +84,8 @@ object QkColor {
 
     // 历史页月标头（原型 .history-date）
     val ChipBg = Color(0xFFF5F8F6)
-    val ChipInk = Color(0xFF66766E)
+    // 月标头文字：原值 #66766E 在 #F5F8F6 上 4.48:1，压深一档到 4.55:1
+    val ChipInk = Color(0xFF65756D)
 
     /** 卡片阴影色：rgba(26,69,54,.055) 的 Compose 表达。 */
     val Shadow = Color(0x121A4536)

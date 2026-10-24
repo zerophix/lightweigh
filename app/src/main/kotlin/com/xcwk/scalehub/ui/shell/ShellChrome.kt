@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -46,7 +47,8 @@ fun QkTopBar(subtitle: String, modifier: Modifier = Modifier, onBell: () -> Unit
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .height(58.dp)
+            // 最小高度：品牌字标 + 副标题在 200% 字体缩放下可继续撑高
+            .heightIn(min = 58.dp)
             .padding(horizontal = 20.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -105,7 +107,8 @@ fun QkBottomNav(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(76.dp)
+                // 最小高度：页签图标 + 文字在 200% 字体缩放下可继续撑高
+                .heightIn(min = 76.dp)
                 .padding(horizontal = QkSpacing.Md),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceAround,
