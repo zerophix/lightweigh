@@ -71,6 +71,8 @@ fun MineScreen(
     var showAvatarSheet by rememberSaveable { mutableStateOf(false) }
     var showBirthSheet by rememberSaveable { mutableStateOf(false) }
     var showHeightSheet by rememberSaveable { mutableStateOf(false) }
+    // 接入波第四批：更多资料（T-054）覆盖我的页，返回即回本页
+    var showExtras by rememberSaveable { mutableStateOf(false) }
     val imagePicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         uri?.let { onIntent(MineIntent.AvatarChosen(it.toString())) }
     }
@@ -80,6 +82,11 @@ fun MineScreen(
         if (result.resultCode == android.app.Activity.RESULT_OK) {
             pendingCameraUri?.let { onIntent(MineIntent.AvatarChosen(it)) }
         }
+    }
+
+    if (showExtras) {
+        MineExtrasScreen(onBack = { showExtras = false })
+        return
     }
 
     Column(
@@ -249,6 +256,15 @@ fun MineScreen(
         // 入口卡（原型 mine 页第三张卡）
         QkSectionHead(title = "更多", modifier = Modifier.padding(top = QkSpacing.Lg))
         QkCard {
+            // 接入波第四批：更多资料（T-054）——个人简介 / 所在地 / 展示标签
+            QkListRow(
+                title = MINE_EXTRAS_ENTRY_TITLE,
+                subtitle = MINE_EXTRAS_ENTRY_HINT,
+                icon = QkIcons.Account,
+                glyphSize = 32.dp,
+                onClick = { showExtras = true },
+                trailing = { QkIcon(QkIcons.ChevronRight, size = 18.dp) },
+            )
             QkListRow(
                 title = "历史记录",
                 subtitle = "查看全部测量数据",
