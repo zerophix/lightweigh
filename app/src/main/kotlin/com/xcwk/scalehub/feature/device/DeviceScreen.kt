@@ -101,6 +101,21 @@ fun DeviceScreen(vm: DeviceViewModel = viewModel(factory = DeviceViewModel.Facto
         return
     }
 
+    // 接入波第四批：测量小贴士 / 最近测量（T-053）覆盖设备页，返回即回本页
+    var showTips by remember { mutableStateOf(false) }
+    if (showTips) {
+        DeviceTipsScreen(
+            // 设备页只持有扫描/绑定态，没有测量时间来源 → 传 null，页面如实显示「暂无记录」
+            recentTimeText = null,
+            onBack = { showTips = false },
+            onStartMeasure = {
+                showTips = false
+                vm.onIntent(DeviceIntent.ToggleScan)
+            },
+        )
+        return
+    }
+
     // 蓝牙开关态 + 权限门均由共享组件提供（ui/components/BleSupport.kt）
     val btEnabled = rememberBtEnabled()
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -160,6 +175,7 @@ fun DeviceScreen(vm: DeviceViewModel = viewModel(factory = DeviceViewModel.Facto
             onHelp = { showHelp = true },
             onOpenManage = { manageTarget = it },
             onOpenDetail = { showDetail = true },
+            onOpenTips = { showTips = true },
         )
     }
 
@@ -193,6 +209,7 @@ fun DeviceContent(
     onHelp: () -> Unit = {},
     onOpenManage: (WiringTarget) -> Unit = {},
     onOpenDetail: () -> Unit = {},
+    onOpenTips: () -> Unit = {},
 ) {
     // 配对流程三态整屏接管（原型 04-device.html）：
     // v-pairing「正在连接」/ v-pair-success「连接成功」/ v-pair-fail「连接失败」，
@@ -392,6 +409,12 @@ fun DeviceContent(
             modifier = Modifier.padding(top = QkSpacing.Lg),
         )
         QkCard(modifier = Modifier.padding(top = 2.dp)) {
+            // 接入波第四批：测量小贴士（T-053）——贴士与最近测量在独立页
+            QkListRow(
+                title = DEVICE_TIPS_ENTRY_TITLE,
+                subtitle = DEVICE_TIPS_ENTRY_HINT,
+                onClick = onOpenTips,
+            )
             // 接入波第三批：设备详情（T-105）排在管理项之前——它是设备的聚合入口
             QkListRow(
                 title = DEVICE_DETAIL_ENTRY_TITLE,
