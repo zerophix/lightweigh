@@ -67,8 +67,16 @@ tasks = {t["id"]: t for t in data.get("tasks", [])}
 # PR → 任务号（title/body 里的 T-xxx）
 pr_task = {}
 for p in prs:
-    text = f"{p.get('title','')}\n{p.get('body','')}"
-    for tid in set(re.findall(r"\bT-\d{3}\b", text)):
+    title = p.get('title', '') or ''
+    body = p.get('body', '') or ''
+    # 只认"交付声明"：标题里的任务号，或正文中明确写"关联任务"的那一行。
+    # 曾经的 bug：整段正文任意提及 T-xxx（如"与并行任务 T-093/T-094 无交集"）
+    # 都会被当成已交付 → 任务被误标 completed（2026-10-24 实测）。
+    ids = set(re.findall(r"\bT-\d{3}\b", title))
+    for line in body.splitlines():
+        if '关联任务' in line or 'related task' in line.lower():
+            ids.update(re.findall(r"\bT-\d{3}\b", line))
+    for tid in ids:
         pr_task.setdefault(tid, p)
 
 updated = []

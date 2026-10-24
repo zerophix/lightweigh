@@ -234,3 +234,33 @@ def test_precommit_allows_normal_source_commit(tmp_path):
 
     out = res.stdout + res.stderr
     assert "禁止在功能分支提交派生数据" not in out
+
+
+def test_reconcile_ignores_prose_mentions(tmp_path):
+    """正文里"与并行任务 T-093/T-094 无交集"不得把 T-093 标成 completed。"""
+    root = _board_repo(tmp_path, [_task("T-093", "pending")])
+    bindir = _fake_gh(tmp_path, [
+        {"number": 42, "title": "feat(sync): network status (T-102)",
+         "body": "与并行 sync 任务（T-093 / T-094）同包不同文件，无交集",
+         "mergedAt": "2026-10-24T04:00:00Z"},
+    ])
+
+    _run(RECONCILE, root=root, env_extra={"PATH": f"{bindir}:{os.environ['PATH']}"})
+
+    data = json.loads((root / ".ai" / "tasks.json").read_text())
+    assert data["tasks"][0]["status"] == "pending"
+
+
+def test_reconcile_accepts_explicit_task_row(tmp_path):
+    """正文「关联任务 | T-093」是交付声明，应回填。"""
+    root = _board_repo(tmp_path, [_task("T-093", "pending")])
+    bindir = _fake_gh(tmp_path, [
+        {"number": 99, "title": "feat(sync): help center",
+         "body": "| 关联任务 | T-093 |\n| 关联决策 | 无 |",
+         "mergedAt": "2026-10-24T04:00:00Z"},
+    ])
+
+    _run(RECONCILE, root=root, env_extra={"PATH": f"{bindir}:{os.environ['PATH']}"})
+
+    data = json.loads((root / ".ai" / "tasks.json").read_text())
+    assert data["tasks"][0]["status"] == "completed"
