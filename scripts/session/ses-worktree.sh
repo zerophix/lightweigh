@@ -124,6 +124,13 @@ cmd_add() {
     exit 1
   fi
 
+  # local.properties 被 gitignore（sdk.dir 是本机路径），不会随 checkout 带出；
+  # 缺它则新树 gradle 报 "SDK location not found"（2026-10-24 三次实测踩坑）。
+  if [ -f "$ROOT/local.properties" ] && [ ! -f "$wt/local.properties" ]; then
+    cp "$ROOT/local.properties" "$wt/local.properties"
+    echo "  已复制 local.properties（gitignore，不入库）"
+  fi
+
   echo "已创建 worktree"
   echo "  路径: $wt"
   echo "  分支: $branch"

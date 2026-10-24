@@ -1,6 +1,6 @@
 # 项目状态
 
-> 由 generate-status.py 自动生成。最后更新: 2026-10-24T02:31:48Z
+> 由 generate-status.py 自动生成。最后更新: 2026-10-24T03:20:02Z
 > 新 AI 启动时: `cat STATUS.md && bash scripts/session/ses-context-load.sh`
 
 ---
@@ -12,8 +12,8 @@
 | 名称 | 轻衡健康 Android（lightweigh） |
 | 版本 | 0.1.0 |
 | 文档语言 | zh-CN |
-| Git 分支 | chore/wave1-ac-batch-2 |
-| 最后提交 | 14c528a chore(tasks): mark merged wave1 tasks completed and sync counts |
+| Git 分支 | chore/process-decoupling |
+| 最后提交 | 86da5e4 refactor(governance): decouple heavy checks from fast git ops (DEC-063) |
 | 文档校验 | 运行: `bash scripts/governance/gov-validate.sh` |
 
 ## AI 交接
@@ -49,27 +49,27 @@
 最近 5 次提交：
 
 ```
+86da5e4 refactor(governance): decouple heavy checks from fast git ops (DEC-063)
+fe3e092 Merge pull request #49 from zerophix/chore/wave1-ac-batch-2
+116f3ee chore(status): local-ci evidence for ac batch (6/6 PASS)
 14c528a chore(tasks): mark merged wave1 tasks completed and sync counts
 577eec0 Merge remote-tracking branch 'origin/master' into chore/wave1-ac-batch-2
-4860cfb chore(tasks): add ready acceptance for wave1 batch T-072/073/074/075/100
-6025980 Merge pull request #48 from zerophix/feat/wave1-module-screens
-c99171d Merge remote-tracking branch 'origin/master' into feat/wave1-module-screens
 ```
 
 ## 工程指标
 
 | 指标 | 数量 |
 |------|------|
-| 决策日志 (DEC) | 62 |
+| 决策日志 (DEC) | 63 |
 | 设计笔记 (NOTE) | 10 |
 | 开发指南 (GC) | 9 |
 | 技术参考 (REF) | 1 |
 
 最近决策：
 
+- [DEC-063](docs/ai/decisions/DEC-063.md): DEC-063: 流程解耦 —— 重检查移到里程碑，快检查留给手指
 - [DEC-062](docs/ai/decisions/DEC-062.md): DEC-062: 治理检查改为 worktree 感知，使 DEC-050 的并发隔离真正可用
 - [DEC-061](docs/ai/decisions/DEC-061.md): DEC-061: Wave 1 新屏以呈现式组件交付，静态文案与运行时读数分离
-- [DEC-060](docs/ai/decisions/DEC-060.md): DEC-060: 僵尸任务规则改为按停滞时长判定，不再拦截认领中的任务
 
 最近笔记：
 
@@ -81,9 +81,9 @@ c99171d Merge remote-tracking branch 'origin/master' into feat/wave1-module-scre
 
 | 检查项 | 状态 | 详情 |
 |-------|------|------|
-| 本地门禁 (gov-local-ci) | 通过 | local-ci PASS @ 2026-10-24T02:31:48Z sha=14c528a branch=chore/wave1-ac-batch-2 [gradlew build:ok,gov-validate:ok,gov-custom-checks:ok,gov-secrets-scan:ok,gov-schema-guard:ok,gov-test-guard:ok] |
+| 本地门禁 (gov-local-ci) | 通过 | local-ci PASS @ 2026-10-24T03:20:02Z sha=86da5e4 branch=chore/process-decoupling [gradlew build:ok,gov-validate:ok,gov-custom-checks:ok,gov-secrets-scan:ok,gov-schema-guard:ok,gov-test-guard:ok] |
 | GitHub Actions | 无数据 | gh 不可用或无最近 run |
-| 文档校验 | 通过 | 来自 local-ci @ 2026-10-24T02:31:48Z sha=14c528a |
+| 文档校验 | 通过 | 来自 local-ci @ 2026-10-24T03:20:02Z sha=86da5e4 |
 | Git 钩子 | 未安装 | 安装: bash scripts/bootstrap/bs-install-hooks.sh |
 
 ## 反思
