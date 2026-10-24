@@ -1,6 +1,6 @@
 # 项目状态
 
-> 由 generate-status.py 自动生成。最后更新: 2026-10-24T04:07:04Z
+> 由 generate-status.py 自动生成。最后更新: 2026-10-24T10:34:49Z
 > 新 AI 启动时: `cat STATUS.md && bash scripts/session/ses-context-load.sh`
 
 ---
@@ -12,8 +12,8 @@
 | 名称 | 轻衡健康 Android（lightweigh） |
 | 版本 | 0.1.0 |
 | 文档语言 | zh-CN |
-| Git 分支 | refactor/dev-flow-core |
-| 最后提交 | e1b5b84 docs(governance): operational AGENTS.md and automation decision (DEC-065) |
+| Git 分支 | chore/integration-20261024-183333 |
+| 最后提交 | 8308527 chore(merge): chore/gov-hook-gate2 via queue 20261024-183333 |
 | 文档校验 | 运行: `bash scripts/governance/gov-validate.sh` |
 
 ## AI 交接
@@ -49,27 +49,27 @@
 最近 5 次提交：
 
 ```
-e1b5b84 docs(governance): operational AGENTS.md and automation decision (DEC-065)
-c510705 refactor(governance): decouple development from quality gates (DEC-064)
-1eb65e1 Merge pull request #51 from zerophix/chore/process-decoupling
-cfc4d70 Merge remote-tracking branch 'origin/master' into chore/process-decoupling
-4f0d06d fix(session): ses-worktree copies local.properties into new worktrees
+8308527 chore(merge): chore/gov-hook-gate2 via queue 20261024-183333
+914e1d1 chore(governance): brace variable before CJK in hook installer message
+4d828b3 chore(governance): install hooks as wrapper scripts
+d2847a1 chore(merge): chore/gov-commit-wrap via queue 20261024-181535
+3488eb7 fix(governance): wrap long commit bodies instead of rejecting them
 ```
 
 ## 工程指标
 
 | 指标 | 数量 |
 |------|------|
-| 决策日志 (DEC) | 65 |
+| 决策日志 (DEC) | 71 |
 | 设计笔记 (NOTE) | 10 |
 | 开发指南 (GC) | 9 |
 | 技术参考 (REF) | 1 |
 
 最近决策：
 
-- [DEC-065](docs/ai/decisions/DEC-065.md): DEC-065: 治理自动化 —— 把"任何 AI 都知道该做什么"变成可执行机制
-- [DEC-064](docs/ai/decisions/DEC-064.md): DEC-064: 开发与质量控制解耦，并发以任务为单位
-- [DEC-063](docs/ai/decisions/DEC-063.md): DEC-063: 流程解耦 —— 重检查移到里程碑，快检查留给手指
+- [DEC-071](docs/ai/decisions/DEC-071.md): DEC-071: 原型文案匹配率改为「按任务聚合 + 逐 view」作用域
+- [DEC-070](docs/ai/decisions/DEC-070.md): DEC-070: 禁止绕过 —— 用钩子取代自觉
+- [DEC-069](docs/ai/decisions/DEC-069.md): DEC-069: worktree 生命周期硬约束 —— 上限、登记、必删
 
 最近笔记：
 
@@ -81,9 +81,9 @@ cfc4d70 Merge remote-tracking branch 'origin/master' into chore/process-decoupli
 
 | 检查项 | 状态 | 详情 |
 |-------|------|------|
-| 本地门禁 (gov-local-ci) | 通过 | local-ci PASS @ 2026-10-24T04:07:04Z sha=c510705 branch=refactor/dev-flow-core [gradlew build:ok,gov-validate:ok,gov-custom-checks:ok,gov-secrets-scan:ok,gov-schema-guard:ok,gov-test-guard:ok] |
-| GitHub Actions | 失败 | ci @ 2026-10-24T04:02:06Z sha=e1b5b84 https://github.com/zerophix/lightweigh/actions/runs/40060722009 |
-| 文档校验 | 通过 | 来自 local-ci @ 2026-10-24T04:07:04Z sha=c510705 |
+| 本地门禁 (gov-local-ci) | 通过 | local-ci PASS @ 2026-10-24T10:34:48Z sha=8308527 branch=chore/integration-20261024-183333 [gov-validate:ok,gov-custom-checks:ok,gov-secrets-scan:ok,gov-schema-guard:ok,gov-test-guard:ok,gov-a11y-check:ok,gov-reachability-check:ok,gov-hook-doctor:ok] |
+| GitHub Actions | 无数据 | gh 不可用或无最近 run |
+| 文档校验 | 通过 | 来自 local-ci @ 2026-10-24T10:34:48Z sha=8308527 |
 | Git 钩子 | 未安装 | 安装: bash scripts/bootstrap/bs-install-hooks.sh |
 
 ## 反思
