@@ -21,7 +21,9 @@ CLAIM = Path(__file__).resolve().parents[2] / "scripts" / "workflow" / "wf-claim
 
 TASKS = {
     "tasks": [
-        {"id": "T-001", "target_files": ["app/src/a.kt", "app/src/b.kt"]},
+        # T-001 为原型映射任务（DEC-065 起必须强制认领）；T-002 为非原型任务
+        {"id": "T-001", "prototype_ref": {"file": "x.html", "views": ["v-a"]},
+         "target_files": ["app/src/a.kt", "app/src/b.kt"]},
         {"id": "T-002", "target_files": ["app/src/c.kt"]},
     ]
 }
@@ -235,9 +237,28 @@ def test_check_staged_passes_for_lock_owner(tmp_path):
     assert res.returncode == 0, res.stdout + res.stderr
 
 
-def test_check_staged_passes_when_no_lock(tmp_path):
-    # 锁不存在不拦（渐进式：认领是推荐而非强制）
+def test_check_staged_blocks_unclaimed_prototype_task(tmp_path):
+    """DEC-065: 原型映射任务未认领 → 拒绝（不再"锁不存在就放行"）。"""
     root = _make_git_root(tmp_path)
+    res = _run(root, "--check-staged", session="ses-B")
+    assert res.returncode != 0
+    assert "T-001" in res.stdout
+    assert "尚未认领" in res.stdout
+
+
+def test_check_staged_passes_unclaimed_non_prototype_task(tmp_path):
+    """非原型任务保持渐进：未认领不拦（避免历史流程一刀切卡死）。"""
+    root = _make_git_root(tmp_path)
+    _git(root, "reset", "-q")
+    _git(root, "add", "app/src/c.kt")  # 属于 T-002（无 prototype_ref）
+    res = _run(root, "--check-staged", session="ses-B")
+    assert res.returncode == 0, res.stdout + res.stderr
+
+
+def test_check_staged_skips_during_merge(tmp_path):
+    """合并进行中（MERGE_HEAD 存在）不拦：集成动作不是新开工。"""
+    root = _make_git_root(tmp_path)
+    (root / ".git" / "MERGE_HEAD").write_text("0" * 40 + "\n", encoding="utf-8")
     res = _run(root, "--check-staged", session="ses-B")
     assert res.returncode == 0, res.stdout + res.stderr
 
@@ -246,7 +267,8 @@ def test_check_staged_ignores_files_outside_target_files(tmp_path):
     root = _make_git_root(tmp_path)
     assert _run(root, "claim", "T-002", session="ses-A").returncode == 0
     _git(root, "reset", "-q")
-    _git(root, "add", "app/src/a.kt")  # 属于 T-001，不属于 T-002
+    (root / "app" / "src" / "other.kt").write_text("// x\n", encoding="utf-8")
+    _git(root, "add", "app/src/other.kt")  # 不属于任何任务
 
     res = _run(root, "--check-staged", session="ses-B")
     assert res.returncode == 0, res.stdout + res.stderr

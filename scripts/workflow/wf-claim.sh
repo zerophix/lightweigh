@@ -26,7 +26,7 @@
 #           再退回脚本相对路径；供测试与 worktree 使用）
 #
 # 退出码: claim 成功 0 / 已被他人持有 1；release 非持有者 1；
-#         --check-staged 被他人锁拦截 1。
+#         --check-staged 他人持锁 / 原型任务未认领 均拦截 1。
 #
 # 环境变量:
 #   WF_CLAIM_SESSION  覆盖 session id（测试或多会话手工指定）
@@ -465,6 +465,10 @@ PY
 
 # pre-commit 接口: 暂存文件命中某任务 target_files，且该任务锁被他人持有时拦截
 cmd_check_staged() {
+  # 合并提交（冲突解决/同步 master）属于集成动作，不是新开工，跳过认领检查
+  if [ -f "$ROOT/.git/MERGE_HEAD" ] || git -C "$ROOT" rev-parse -q --verify MERGE_HEAD >/dev/null 2>&1; then
+    return 0
+  fi
   local staged
   staged="$(git -C "$ROOT" diff --cached --name-only --diff-filter=ACMR 2>/dev/null || true)"
   if [ -z "$staged" ]; then
@@ -503,26 +507,32 @@ def owner_of(tid):
         return ''
 
 
-blocked = []
+blocked = []        # (tid, owner, files, kind)
 for task in tasks:
     targets = task.get('target_files') or []
     if not targets:
         continue
     tid = task.get('id', '')
     owner = owner_of(tid)
-    # 锁不存在 → 不拦（认领是推荐而非强制，渐进式收紧）
-    if not owner or owner == session:
-        continue
     hit = [f for f in files if f in targets]
-    if hit:
-        blocked.append((tid, owner, hit))
+    if not hit:
+        continue
+    if owner and owner != session:
+        blocked.append((tid, owner, hit, 'other'))
+    elif not owner and task.get('prototype_ref'):
+        # DEC-065 收紧: 原型映射任务（有 prototype_ref）必须先在锁内再动代码,
+        # 否则多 AI 家族会重复实现（2026-10-24 实测 4 个 PR 废弃）。
+        blocked.append((tid, '', hit, 'unclaimed'))
 
 if not blocked:
     sys.exit(0)
 
-print('[拒绝] 暂存文件属于其他会话已认领的任务（DEC-064 任务锁）:')
-for tid, owner, hit in blocked:
-    print('   {} 被 {} 持有:'.format(tid, owner))
+print('[拒绝] 任务认领检查未通过（DEC-064/065 任务锁）:')
+for tid, owner, hit, kind in blocked:
+    if kind == 'other':
+        print('   {} 已被 {} 持有:'.format(tid, owner))
+    else:
+        print('   {} 尚未认领（原型映射任务必须先认领）:'.format(tid))
     for f in hit:
         print('     - {}'.format(f))
 print('   查看锁: bash scripts/workflow/wf-claim.sh status <TASK-ID>')
