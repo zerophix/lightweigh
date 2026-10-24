@@ -181,6 +181,8 @@ T-082 单文件 **83%**，全部高于 30% 阈值且零 WARN —— 因为把原
 
 ## 5. 变更记录
 
+- 2026-10-23（DEC-061 执行记录 · T-102）：sync 网络/服务状态页交付——`feature/sync/NetworkStatus.kt` / `ServiceStatus.kt` 呈现式组件（`fun interface` 探测回调注入，UI 零系统网络依赖；共用 `SyncStatusPage` 版式内联于 NetworkStatus.kt 以守「只新建两文件」约束）+ `NetworkServiceStatusTest` 9 条（文案逐字 / 回调建状态 / 源码守卫），文案匹配率 54% / 54%（双 view 短语由两文件分散持有）。配套：新测试登记 `tests/android-test-registry.yaml`；任务板 take T-102 后经 `gov-validate --fix` 同步 `03_TaskGraph.md` pending 计数。编号取舍：新开 DEC-062 会与推送未合入的 `fix/worktree-aware-governance` 撞号，故改为向 DEC-061 追加执行记录（lifecycle-audit 要求源码变更随行 DEC + DevNotes，本条即 DevNotes 面）。门禁插曲：worktree 内 `gov-local-ci` 因根目录 `.git` 文件与 hooks 路径两项环境性误报无法 PASS（在途 DEC-062 正在修），本轮门禁改在本分支 tip 的干净 clone 运行取得 6/6 PASS，pre-push 同样在该 clone 通过后推送。
+
 - 2026-10-17（DEC-033）：CI 成本治理四项——同分支推送并发取消、纯文档变更跳过两个 Gradle 步骤（job 仍上报成功，避免分支保护的必填检查停在 Expected）、开启 `org.gradle.caching` 并把构建缓存落点与条目数打进日志、四个 job 加超时上限。同批结账两笔旧假设：模拟器 connected 测试（run 39035148017，v1→v5 迁移链 + 数据保留）通过，DEC-031 A3 的运行期疑问闭环；连续三轮 master 推送全绿，DEC-032 A1 的分流生效得到验证。并行会话遗留的 qk-verify worktree 经证据确认无独有提交后归档并移除。
 - 2026-10-17（收尾）：交接信署名失真修复——wf-inbox.sh 把 from 硬编码为 claude，而身份检测只存在于 ses-session-end.sh，于是任何平台发出的接力信都署 claude；两者改用 lib-platform.sh 的 detect_agent 统一检测（DEC-009 不冒充），并订正本批已发出的那封接力信署名。
 - 2026-10-17（DEC-032）：CI 插件解析真因定位与修复——runner 访问阿里云三个镜像全部 502，而 Gradle 解析遇 5xx 直接终止、不回退后续仓库，排首位的镜像令插件解析在第一个仓库即失败；settings.gradle.kts 两个 repositories 块改为按 `CI` 环境变量分流，CI 只用官方源、本地保留阿里云优先。同批更正 DEC-031 的根因判断（版本非主因），并撤掉临时探针步骤。
