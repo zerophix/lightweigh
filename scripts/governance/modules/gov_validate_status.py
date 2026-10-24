@@ -230,7 +230,7 @@ def check_hidden_dirs() -> None:
     print("\n--- R0f: 隐藏目录文件白名单校验 ---")
     ISSUES = 0
     HIDDEN_ALLOWED = {
-        ".cache": {"context.jsonl", "session-ledger.json", "session-marker.json", "session.lock", ".gitkeep", "local-ci-last.json"},
+        ".cache": {"context.jsonl", "session-ledger.json", "session-marker.json", "session.lock", ".gitkeep", "local-ci-last.json", "worktrees.jsonl", "jobs"},
         ".ai": {"tasks.json", "current-session.json", "staged-claims.json"},
     }
     for dir_name, allowed_files in HIDDEN_ALLOWED.items():
