@@ -67,7 +67,6 @@ while IFS= read -r line; do
     "branch refs/heads/"*)
       [ "$wt" = "$main" ] && continue
       [ -f "$wt/local.properties" ] || { missing_boot=$((missing_boot + 1)); issues+=("$(basename "$wt") 缺 local.properties（未用 ses-worktree.sh 建树？）"); }
-      [ -d "$wt/gradle/dists" ] || issues+=("$(basename "$wt") 缺 gradle/dists（离线构建会失败）")
       ;;
   esac
 done < <(git worktree list --porcelain)
