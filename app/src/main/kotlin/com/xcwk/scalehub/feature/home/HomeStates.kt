@@ -869,17 +869,8 @@ private fun HomeBrand(initial: String? = null, onAvatarClick: (() -> Unit)? = nu
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        QkIconBubble(
-            icon = QkIcons.Vegetable,
-            size = QkSpacing.Xl,
-            contentDescription = null,
-        )
-        Text(
-            text = HomeText.Brand,
-            style = MaterialTheme.typography.titleLarge,
-            color = QkColor.Primary,
-            modifier = Modifier.padding(start = QkSpacing.Sm),
-        )
+        // 字标已在顶栏（QkTopBar），这里不再重复「叶片 + 轻衡」，
+        // 否则首页会出现两行同样的品牌名（2026-10-24 实机截图确认）。
         if (initial != null) {
             Spacer(Modifier.weight(1f))
             val avatarModifier = if (onAvatarClick != null) {

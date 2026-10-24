@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import com.xcwk.scalehub.ui.QK_BRAND
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -53,22 +54,14 @@ fun QkTopBar(subtitle: String, modifier: Modifier = Modifier, onBell: () -> Unit
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(modifier = Modifier.weight(1f)) {
-            Row {
-                Text(
-                    "轻刻",
-                    color = QkColor.Primary,
-                    fontSize = 19.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    letterSpacing = (-0.5).sp,
-                )
-                Text(
-                    "健康",
-                    color = QkColor.Fg,
-                    fontSize = 19.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    letterSpacing = (-0.5).sp,
-                )
-            }
+            // 品牌字标：与原型一致，单词「轻衡」（旧名「轻衡健康」已废弃）
+            Text(
+                QK_BRAND,
+                color = QkColor.Primary,
+                fontSize = 19.sp,
+                fontWeight = FontWeight.ExtraBold,
+                letterSpacing = (-0.5).sp,
+            )
             Text(
                 subtitle,
                 style = MaterialTheme.typography.bodySmall,

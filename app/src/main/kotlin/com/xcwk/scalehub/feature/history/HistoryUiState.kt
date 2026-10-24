@@ -49,7 +49,7 @@ sealed interface HistoryIntent {
  * 按日视图导出当日；按月视图导出全部月份与行（含收起的）。
  */
 fun buildExportText(state: HistoryUiState): String = buildString {
-    appendLine("轻刻健康 · 测量记录导出")
+    appendLine("轻衡健康 · 测量记录导出")
     if (state.selectedDay != null) {
         appendLine(state.dayHeader ?: state.selectedDay)
         state.dayRows.forEach { appendLine(rowLine(it)) }
