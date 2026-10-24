@@ -132,7 +132,7 @@ cmd_run() {
       if [ "$shared_resolved" -eq 1 ] && ! git ls-files -u | grep -q .; then
         git add -A
         git commit -q --no-edit 2>/dev/null || git commit -q -m "chore(merge): $branch via queue $stamp"
-        say "  [合并] $branch（共享状态已取候选侧）"
+        say "  [合并] ${branch}（共享状态已取候选侧）"
         merged+=("$branch")
         continue
       fi
