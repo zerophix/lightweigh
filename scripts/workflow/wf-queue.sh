@@ -107,7 +107,7 @@ cmd_run() {
   # 1) 依次合并（分支间应无交集；冲突即停并指名）
   for branch in "${branches[@]}"; do
     say "  [合并] $branch"
-    if ! git merge --no-ff -q -m "merge($branch): via wf-queue $stamp" "origin/$branch" 2>/tmp/wf-queue-merge.log; then
+    if ! git merge --no-ff -q -m "chore(merge): $branch via queue $stamp" "origin/$branch" 2>/tmp/wf-queue-merge.log; then
       say "  ❌ 合并冲突：$branch"
       sed -n '1,8p' /tmp/wf-queue-merge.log | sed 's/^/      /'
       git merge --abort 2>/dev/null
