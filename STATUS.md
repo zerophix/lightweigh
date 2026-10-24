@@ -1,6 +1,6 @@
 # 项目状态
 
-> 由 generate-status.py 自动生成。最后更新: 2026-10-24T02:31:48Z
+> 由 generate-status.py 自动生成。最后更新: 2026-10-24T03:01:43Z
 > 新 AI 启动时: `cat STATUS.md && bash scripts/session/ses-context-load.sh`
 
 ---
@@ -12,8 +12,8 @@
 | 名称 | 轻衡健康 Android（lightweigh） |
 | 版本 | 0.1.0 |
 | 文档语言 | zh-CN |
-| Git 分支 | chore/wave1-ac-batch-2 |
-| 最后提交 | 14c528a chore(tasks): mark merged wave1 tasks completed and sync counts |
+| Git 分支 | chore/track-html-screens |
+| 最后提交 | c1e6cf4 chore(design): track 98 static html screen exports under design/prototypes/html-screens |
 | 文档校验 | 运行: `bash scripts/governance/gov-validate.sh` |
 
 ## AI 交接
@@ -49,11 +49,11 @@
 最近 5 次提交：
 
 ```
+c1e6cf4 chore(design): track 98 static html screen exports under design/prototypes/html-screens
+fe3e092 Merge pull request #49 from zerophix/chore/wave1-ac-batch-2
+116f3ee chore(status): local-ci evidence for ac batch (6/6 PASS)
 14c528a chore(tasks): mark merged wave1 tasks completed and sync counts
 577eec0 Merge remote-tracking branch 'origin/master' into chore/wave1-ac-batch-2
-4860cfb chore(tasks): add ready acceptance for wave1 batch T-072/073/074/075/100
-6025980 Merge pull request #48 from zerophix/feat/wave1-module-screens
-c99171d Merge remote-tracking branch 'origin/master' into feat/wave1-module-screens
 ```
 
 ## 工程指标
@@ -81,9 +81,9 @@ c99171d Merge remote-tracking branch 'origin/master' into feat/wave1-module-scre
 
 | 检查项 | 状态 | 详情 |
 |-------|------|------|
-| 本地门禁 (gov-local-ci) | 通过 | local-ci PASS @ 2026-10-24T02:31:48Z sha=14c528a branch=chore/wave1-ac-batch-2 [gradlew build:ok,gov-validate:ok,gov-custom-checks:ok,gov-secrets-scan:ok,gov-schema-guard:ok,gov-test-guard:ok] |
+| 本地门禁 (gov-local-ci) | 通过 | local-ci PASS @ 2026-10-24T03:01:43Z sha=c1e6cf4 branch=chore/track-html-screens [gradlew build:ok,gov-validate:ok,gov-custom-checks:ok,gov-secrets-scan:ok,gov-schema-guard:ok,gov-test-guard:ok] |
 | GitHub Actions | 无数据 | gh 不可用或无最近 run |
-| 文档校验 | 通过 | 来自 local-ci @ 2026-10-24T02:31:48Z sha=14c528a |
+| 文档校验 | 通过 | 来自 local-ci @ 2026-10-24T03:01:43Z sha=c1e6cf4 |
 | Git 钩子 | 未安装 | 安装: bash scripts/bootstrap/bs-install-hooks.sh |
 
 ## 反思
