@@ -8,6 +8,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.xcwk.scalehub.App
 import com.xcwk.scalehub.application.DataChange
 import com.xcwk.scalehub.application.DataRefreshBus
+import com.xcwk.scalehub.application.query.HomeGoalQuery
 import com.xcwk.scalehub.application.query.TrendBlockRead
 import com.xcwk.scalehub.application.query.TrendDirection
 import com.xcwk.scalehub.application.query.TrendQuery
@@ -32,6 +33,8 @@ class TrendViewModel(
     private val query: TrendQuery,
     private val zone: ZoneId = ZoneId.systemDefault(),
     private val refreshBus: DataRefreshBus? = null,
+    /** 档案侧栏（围度 / 目标进度）数据源；缺省时侧栏留空，不伪造目标。 */
+    private val archiveQuery: HomeGoalQuery? = null,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(TrendUiState())
@@ -69,11 +72,20 @@ class TrendViewModel(
         val s = _state.value
         val weight = query.block(s.range, s.segment, TrendSeriesKind.WEIGHT)
         val fat = query.block(s.range, s.segment, TrendSeriesKind.FAT)
+        // 档案侧栏与首页进度卡同源：腰围取最近一条腰围记录，目标取目标体重
+        val goal = archiveQuery?.state()
         _state.update {
             it.copy(
                 loading = false,
                 weight = toUi(weight, "体重", "公斤"),
                 fat = toUi(fat, "体脂", "%"),
+                archive = goal?.let { g ->
+                    MetricArchiveUi(
+                        waistCm = g.waistCm,
+                        currentWeight = g.latestWeight,
+                        targetWeight = g.targetWeight.takeIf { t -> t > 0f }?.toDouble(),
+                    )
+                },
             )
         }
     }
@@ -145,7 +157,11 @@ class TrendViewModel(
         val Factory = viewModelFactory {
             initializer {
                 val app = this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as App
-                TrendViewModel(app.container.trendQuery, refreshBus = app.container.dataRefreshBus)
+                TrendViewModel(
+                    app.container.trendQuery,
+                    refreshBus = app.container.dataRefreshBus,
+                    archiveQuery = app.container.homeGoalQuery,
+                )
             }
         }
     }
