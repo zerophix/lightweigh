@@ -18,7 +18,7 @@
 set -uo pipefail
 
 DIR="$(cd "$(dirname "$0")" && pwd)"
-ROOT="$(cd "$DIR/../.." && pwd)"
+ROOT="${WF_QUEUE_ROOT:-$(cd "$DIR/../.." && pwd)}"
 cd "$ROOT" || exit 1
 
 CMD="${1:-status}"
