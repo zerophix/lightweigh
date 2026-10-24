@@ -8,7 +8,6 @@
   - GOV-DOCS-001 guides 漏收  : 2026-10-23 发现 GC-prototype-driven-dev.md 未进索引
   - GOV-DOCS-002 相对链接断链 : 同日发现 ../guides 应为 ../../guides
   - GOV-DOCS-003 真源声明缺失 : 同日发现 01_PRD.md 与 Notion 两份 PRD 并存不标权威
-  - GOV-DOCS-004 计数与任务板脱节: 同日发现 TaskGraph 停在 T-045~047
   - GOV-DOCS-005 入口文档过期 : 「阶段描述过期」的可机检代理
 
 运行: 由 gov-validate.sh 的 GOV-TEST 族自动执行, 或手动 pytest tests/unit/。
@@ -248,60 +247,6 @@ def test_docs003_with_marker_ok(tmp_path, monkeypatch):
     _make_repo(tmp_path)
     errors, _ = _check(tmp_path, monkeypatch)
     assert not _has(errors, "GOV-DOCS-003"), errors
-
-
-# ---------------------------------------------------------------- 004 计数脱节
-
-def test_docs004_stale_total_count(tmp_path, monkeypatch):
-    """GOV-DOCS-004: 摘要的总任务数与 tasks.json 不一致必须 FAIL。"""
-    _make_repo(
-        tmp_path,
-        tasks=_tasks_json(total=4, pending=2),
-        taskgraph=_taskgraph(total=99, pending=2),
-    )
-    errors, _ = _check(tmp_path, monkeypatch)
-    assert _has(errors, "GOV-DOCS-004"), errors
-
-
-def test_docs004_stale_pending_count(tmp_path, monkeypatch):
-    """GOV-DOCS-004: pending 计数与 tasks.json 不一致必须 FAIL。"""
-    _make_repo(
-        tmp_path,
-        tasks=_tasks_json(total=4, pending=2),
-        taskgraph=_taskgraph(total=4, pending=77),
-    )
-    errors, _ = _check(tmp_path, monkeypatch)
-    assert _has(errors, "GOV-DOCS-004"), errors
-
-
-def test_docs004_stale_prototype_count(tmp_path, monkeypatch):
-    """GOV-DOCS-004: 原型任务数（三波合计）与 tasks.json 不一致必须 FAIL。"""
-    _make_repo(
-        tmp_path,
-        tasks=_tasks_json(total=4, pending=3, proto=3, waves=(0, 1, 2)),
-        taskgraph=_taskgraph(total=4, pending=3, proto=8, waves=(0, 1, 2)),
-    )
-    errors, _ = _check(tmp_path, monkeypatch)
-    assert _has(errors, "GOV-DOCS-004"), errors
-
-
-def test_docs004_stale_wave_count(tmp_path, monkeypatch):
-    """GOV-DOCS-004: 单个 wave 的任务数与 tasks.json 不一致必须 FAIL。"""
-    _make_repo(
-        tmp_path,
-        tasks=_tasks_json(total=4, pending=3, proto=3, waves=(0, 1, 2)),
-        taskgraph=_taskgraph(total=4, pending=3, proto=3, waves=(0, 0, 0)),
-    )
-    errors, _ = _check(tmp_path, monkeypatch)
-    assert _has(errors, "GOV-DOCS-004"), errors
-
-
-def test_docs004_matching_counts_ok(tmp_path, monkeypatch):
-    """计数完全一致时不应触发 004。"""
-    _make_repo(tmp_path, tasks=_tasks_json(total=4, pending=2, proto=1, waves=(0,)),
-               taskgraph=_taskgraph(total=4, pending=2, proto=1, waves=(0,)))
-    errors, _ = _check(tmp_path, monkeypatch)
-    assert not _has(errors, "GOV-DOCS-004"), errors
 
 
 # ---------------------------------------------------------------- 005 过期

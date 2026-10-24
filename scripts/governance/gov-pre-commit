@@ -99,6 +99,19 @@ print(claims.get(sys.argv[1], ''))
   fi
 fi
 
+# =============================================================
+# 阶段 0c: 任务锁软校验 (DEC-064) — 防止多 AI 重复实现同一任务
+#   规则: 暂存文件命中某任务 target_files，且该任务锁被"其他会话"持有
+#         → 拒绝提交；锁不存在时不拦（认领是推荐而非强制，渐进式收紧）。
+#   判断逻辑集中在 wf-claim.sh --check-staged，便于单测。
+# =============================================================
+CLAIM_SCRIPT="$ROOT/scripts/workflow/wf-claim.sh"
+if [ -f "$CLAIM_SCRIPT" ] && [ -f "$ROOT/.ai/tasks.json" ]; then
+  if ! bash "$CLAIM_SCRIPT" --root "$ROOT" --check-staged; then
+    exit 1
+  fi
+fi
+
 # Detect changes
 CHANGED_DOCS=$(git diff --cached --name-only --diff-filter=ACMR | grep '^docs/' || true)
 CHANGED_MD=$(git diff --cached --name-only --diff-filter=ACMR | grep '\.md$' || true)

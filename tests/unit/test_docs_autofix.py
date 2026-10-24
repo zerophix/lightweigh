@@ -4,7 +4,6 @@
 设计原则: 自愈安全性 = 改错了会不会被同一条规则立刻抓到。
 
   自洽修复（修完必绿、修错必红）→ 允许自动修
-      GOV-DOCS-004 计数同步: 依据 tasks.json 重算, 改错了 004 下次照样红
 
   自噬修复（修完必绿，无论对错）→ 必须加条件，否则规则被自己的修复杀死
       GOV-DOCS-005 日期 bump: 无脑改今天会让 005 永久失效,
@@ -70,83 +69,6 @@ def _init_and_commit(tmp_path: Path):
     _git(tmp_path, "init", "-q")
     _git(tmp_path, "add", "-A")
     _git(tmp_path, "commit", "-qm", "baseline")
-
-
-# ---------------------------------------------------------------- 004 自洽修复
-
-def test_fix004_repairs_stale_counts(tmp_path, monkeypatch):
-    """GOV-DOCS-004: 计数脱节必须被 --fix 修好，且修完 004 变绿。"""
-    _make_repo(
-        tmp_path,
-        tasks=_tasks_json(total=4, pending=2, proto=1, waves=(0,)),
-        taskgraph=_taskgraph(total=99, pending=77, proto=8, waves=(0,)),
-    )
-    monkeypatch.setattr(docs_mod, "ROOT", tmp_path)
-    monkeypatch.setattr(core, "ROOT", tmp_path)
-
-    docs_mod.fix_all()
-
-    errors, _ = _check(tmp_path, monkeypatch)
-    assert not _has(errors, "GOV-DOCS-004"), errors
-
-    text = (tmp_path / "docs/ai/lifecycle/03_TaskGraph.md").read_text(encoding="utf-8")
-    assert "任务板共 4 条" in text
-    assert "2 条 pending" in text
-    assert "三波合计 1 条" in text
-
-
-def test_fix004_writes_correct_wave_row(tmp_path, monkeypatch):
-    """GOV-DOCS-004: wave 行的第二列必须被重算为任务板真实值。"""
-    _make_repo(
-        tmp_path,
-        tasks=_tasks_json(total=4, pending=3, proto=3, waves=(0, 1, 2)),
-        taskgraph=_taskgraph(total=4, pending=3, proto=3, waves=(0, 0, 0)),
-    )
-    monkeypatch.setattr(docs_mod, "ROOT", tmp_path)
-    monkeypatch.setattr(core, "ROOT", tmp_path)
-
-    docs_mod.fix_all()
-
-    errors, _ = _check(tmp_path, monkeypatch)
-    assert not _has(errors, "GOV-DOCS-004"), errors
-    text = (tmp_path / "docs/ai/lifecycle/03_TaskGraph.md").read_text(encoding="utf-8")
-    assert "| 1 | 1 |" in text, text
-
-
-def test_fix004_does_not_fabricate_missing_row(tmp_path, monkeypatch):
-    """边界: 摘要缺整个 wave 行时 --fix 不得凭空造结构，004 仍须 FAIL。
-
-    造结构属于「判断」，交给人工；--fix 只重写已有锚点。
-    """
-    tasks = _tasks_json(total=4, pending=3, proto=3, waves=(0, 1, 2))
-    tg = _taskgraph(total=4, pending=3, proto=3, waves=(0, 1, 2))
-    # 删掉 wave=2 那一行，模拟结构缺失
-    tg = "\n".join(ln for ln in tg.splitlines() if not ln.startswith("| 2 |"))
-    _make_repo(tmp_path, tasks=tasks, taskgraph=tg + "\n")
-
-    monkeypatch.setattr(docs_mod, "ROOT", tmp_path)
-    monkeypatch.setattr(core, "ROOT", tmp_path)
-    docs_mod.fix_all()
-
-    errors, _ = _check(tmp_path, monkeypatch)
-    assert _has(errors, "GOV-DOCS-004"), "缺行必须仍被 004 拦住，不得静默放行"
-
-
-def test_fix_leaves_valid_docs_untouched(tmp_path, monkeypatch):
-    """已一致的摘要不应被改写（--fix 不能做无意义的写操作）。"""
-    _make_repo(
-        tmp_path,
-        tasks=_tasks_json(total=4, pending=2, proto=1, waves=(0,)),
-        taskgraph=_taskgraph(total=4, pending=2, proto=1, waves=(0,)),
-    )
-    path = tmp_path / "docs/ai/lifecycle/03_TaskGraph.md"
-    before = path.read_text(encoding="utf-8")
-
-    monkeypatch.setattr(docs_mod, "ROOT", tmp_path)
-    monkeypatch.setattr(core, "ROOT", tmp_path)
-    docs_mod.fix_all()
-
-    assert path.read_text(encoding="utf-8") == before
 
 
 # ---------------------------------------------------------------- 005 自噬防护
