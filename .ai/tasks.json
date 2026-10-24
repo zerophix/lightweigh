@@ -1156,12 +1156,12 @@
       "id": "T-084",
       "description": "ai: AI周总结与成员权限详情",
       "why": "原型20 v-weekly/v-member-detail · 新增 ai/AiWeeklySummary.kt ai/MemberPermissionDetail.kt",
-      "status": "in_progress",
+      "status": "completed",
       "assigned_to": "ai",
       "dec": "",
       "created_at": "2026-10-23T03:52:02Z",
-      "updated_at": "2026-10-23T09:38:12Z",
-      "notes": "",
+      "updated_at": "2026-10-24T02:35:00Z",
+      "notes": "已交付并合入 master（PR #45，2026-10-24）；local-ci 6/6 + JVM 单测 + gov-prototype-verify --strict 证据见各 PR",
       "prototype_ref": {
         "file": "design/prototypes/interactive/20-ai-members.html",
         "views": [
@@ -1391,12 +1391,12 @@
       "id": "T-091",
       "description": "settings: 语言与外观设置",
       "why": "原型24 v-language/v-appearance · 新增 settings/LanguageSettings.kt settings/AppearanceSettings.kt",
-      "status": "in_progress",
+      "status": "completed",
       "assigned_to": "ai",
       "dec": "",
       "created_at": "2026-10-23T03:52:35Z",
-      "updated_at": "2026-10-23T09:38:14Z",
-      "notes": "",
+      "updated_at": "2026-10-24T02:35:00Z",
+      "notes": "已交付并合入 master（PR #46，2026-10-24）；local-ci 6/6 + JVM 单测 + gov-prototype-verify --strict 证据见各 PR",
       "prototype_ref": {
         "file": "design/prototypes/interactive/24-remaining-gaps.html",
         "views": [
@@ -1574,12 +1574,12 @@
       "id": "T-096",
       "description": "privacy: 隐私授权流程（授权/已授权/未授权/咨询/规则）",
       "why": "原型10全部5屏 · 新增 privacy/PrivacyAuthFlow.kt",
-      "status": "in_progress",
+      "status": "completed",
       "assigned_to": "ai",
       "dec": "",
       "created_at": "2026-10-23T03:52:45Z",
-      "updated_at": "2026-10-23T09:38:37Z",
-      "notes": "",
+      "updated_at": "2026-10-24T02:35:00Z",
+      "notes": "已交付并合入 master（PR #44，2026-10-24）；local-ci 6/6 + JVM 单测 + gov-prototype-verify --strict 证据见各 PR",
       "prototype_ref": {
         "file": "design/prototypes/interactive/10-privacy-authorization.html",
         "views": [
@@ -1768,7 +1768,7 @@
       "id": "T-099",
       "description": "components: 组件补全（骨架屏/长按菜单）",
       "why": "原型09 v-skeleton/v-longpress · 新增 ui/components/QkSkeleton.kt QkLongPressMenu.kt",
-      "status": "pending",
+      "status": "completed",
       "assigned_to": "ai",
       "dec": "",
       "created_at": "2026-10-23T03:52:45Z",
@@ -1818,7 +1818,9 @@
           "单测通过且 gov-prototype-verify --strict 通过"
         ],
         "open_questions": []
-      }
+      },
+      "updated_at": "2026-10-24T02:35:00Z",
+      "notes": "已交付并合入 master（PR #48，2026-10-24）；local-ci 6/6 + JVM 单测 + gov-prototype-verify --strict 证据见各 PR"
     },
     {
       "id": "T-100",
@@ -1912,12 +1914,12 @@
       "id": "T-102",
       "description": "sync: 网络状态与服务状态页",
       "why": "原型08 v-network/v-service · 新增 sync/NetworkStatus.kt sync/ServiceStatus.kt",
-      "status": "in_progress",
+      "status": "completed",
       "assigned_to": "ai",
       "dec": "",
       "created_at": "2026-10-23T03:56:21Z",
-      "updated_at": "2026-10-23T09:38:15Z",
-      "notes": "",
+      "updated_at": "2026-10-24T02:35:00Z",
+      "notes": "已交付并合入 master（PR #42，2026-10-24）；local-ci 6/6 + JVM 单测 + gov-prototype-verify --strict 证据见各 PR",
       "prototype_ref": {
         "file": "design/prototypes/interactive/08-sync-network-help.html",
         "views": [
@@ -2062,5 +2064,9 @@
       "notes": ""
     }
   ],
-  "acceptance_schema": "GC-task-acceptance@1"
+  "acceptance_schema": "GC-task-acceptance@1",
+  "updated_at": "2026-10-24T02:35:00Z",
+  "next_action": "开工 Wave 1 新认领：T-072/073/074(auth)、T-075/100(guide) 验收已 ready，各自独立 worktree 并行；其余 Wave 1 任务待补 AC 后开工",
+  "next_action_why": "Wave 0 与首批 Wave 1（T-081/082/084/091/096/099/102）已全部合入 master；auth+guide 入口流 AC 已 ready 是当前唯一无冲突可并行的编码批次",
+  "next_action_confirmed": true
 }
