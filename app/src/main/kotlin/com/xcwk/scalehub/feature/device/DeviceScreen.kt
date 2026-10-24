@@ -101,6 +101,9 @@ fun DeviceScreen(vm: DeviceViewModel = viewModel(factory = DeviceViewModel.Facto
         return
     }
 
+    // 接入波第四批：首次连接向导（T-103 权限说明 → 确认设备 → 连接进度）
+    var showSetup by remember { mutableStateOf(false) }
+
     // 蓝牙开关态 + 权限门均由共享组件提供（ui/components/BleSupport.kt）
     val btEnabled = rememberBtEnabled()
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -139,6 +142,24 @@ fun DeviceScreen(vm: DeviceViewModel = viewModel(factory = DeviceViewModel.Facto
 
     // 授权成功即自动开扫（旧库 onRequestPermissionsResult → prepareScan）
     BlePermissionGate(onGranted = { vm.onIntent(DeviceIntent.ToggleScan) }) { granted, requestPermission ->
+        if (showSetup) {
+            DeviceSetupRoute(
+                permissionGranted = granted,
+                scanning = state.scanning,
+                found = state.found,
+                onRequestPermission = requestPermission,
+                onStartScan = { if (!state.scanning) vm.onIntent(DeviceIntent.ToggleScan) },
+                onStopScan = { if (state.scanning) vm.onIntent(DeviceIntent.ToggleScan) },
+                // 确认即真实绑定（既有 DeviceIntent.Bind 路径，不另造一套连接）
+                onBind = { vm.onIntent(DeviceIntent.Bind(it)) },
+                onBack = { showSetup = false },
+                onOpenFirmware = {
+                    showSetup = false
+                    manageTarget = WiringTarget.Firmware
+                },
+            )
+            return@BlePermissionGate
+        }
         DeviceContent(
             state = state,
             permissionGranted = granted,
@@ -160,6 +181,7 @@ fun DeviceScreen(vm: DeviceViewModel = viewModel(factory = DeviceViewModel.Facto
             onHelp = { showHelp = true },
             onOpenManage = { manageTarget = it },
             onOpenDetail = { showDetail = true },
+            onOpenSetup = { showSetup = true },
         )
     }
 
@@ -193,6 +215,7 @@ fun DeviceContent(
     onHelp: () -> Unit = {},
     onOpenManage: (WiringTarget) -> Unit = {},
     onOpenDetail: () -> Unit = {},
+    onOpenSetup: () -> Unit = {},
 ) {
     // 配对流程三态整屏接管（原型 04-device.html）：
     // v-pairing「正在连接」/ v-pair-success「连接成功」/ v-pair-fail「连接失败」，
@@ -392,6 +415,12 @@ fun DeviceContent(
             modifier = Modifier.padding(top = QkSpacing.Lg),
         )
         QkCard(modifier = Modifier.padding(top = 2.dp)) {
+            // 首次连接向导（T-103）：权限说明 → 确认设备 → 连接进度
+            QkListRow(
+                title = DEVICE_SETUP_ENTRY_TITLE,
+                subtitle = DEVICE_SETUP_ENTRY_HINT,
+                onClick = onOpenSetup,
+            )
             // 接入波第三批：设备详情（T-105）排在管理项之前——它是设备的聚合入口
             QkListRow(
                 title = DEVICE_DETAIL_ENTRY_TITLE,

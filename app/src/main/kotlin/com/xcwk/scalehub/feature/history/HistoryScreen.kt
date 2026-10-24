@@ -64,6 +64,7 @@ fun HistoryScreen(
     onBack: () -> Unit = {},
     onOpenReport: (Long) -> Unit = {},
     onOpenCompare: () -> Unit = {},
+    onOpenDetail: (Long) -> Unit = onOpenReport,
 ) {
     val context = LocalContext.current
     var showDayPicker by rememberSaveable { mutableStateOf(false) }
@@ -151,7 +152,7 @@ fun HistoryScreen(
             QkCard(modifier = Modifier.padding(top = QkSpacing.Sm)) {
                 state.dayRows.forEachIndexed { index, row ->
                     if (index > 0) QkDivider()
-                    HistoryLine(row = row, onOpenReport = onOpenReport, onDelete = { onIntent(HistoryIntent.AskDelete(row.time)) })
+                    HistoryLine(row = row, onOpenDetail = onOpenDetail, onDelete = { onIntent(HistoryIntent.AskDelete(row.time)) })
                 }
             }
         } else {
@@ -166,7 +167,7 @@ fun HistoryScreen(
                     QkCard(modifier = Modifier.padding(top = QkSpacing.Sm)) {
                         month.rows.forEachIndexed { index, row ->
                             if (index > 0) QkDivider()
-                            HistoryLine(row = row, onOpenReport = onOpenReport, onDelete = { onIntent(HistoryIntent.AskDelete(row.time)) })
+                            HistoryLine(row = row, onOpenDetail = onOpenDetail, onDelete = { onIntent(HistoryIntent.AskDelete(row.time)) })
                         }
                     }
                 }
@@ -220,11 +221,11 @@ fun HistoryScreen(
  * 体脂放副行——原型本列只显示当前指标，本应用两个指标都要可见，按主副分层。
  */
 @Composable
-private fun HistoryLine(row: HistoryRowUi, onOpenReport: (Long) -> Unit, onDelete: () -> Unit) {
+private fun HistoryLine(row: HistoryRowUi, onOpenDetail: (Long) -> Unit, onDelete: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onOpenReport(row.time) }   // 需求：点击一条打开该次测量的体测报告
+            .clickable { onOpenDetail(row.time) }   // 需求：点击一条先看该次测量详情
             .padding(vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {

@@ -185,6 +185,16 @@ fun SettingsScreen(
             )
         }
 
+        // 显示：外观（主题模式）与语言（T-091 两屏，入口文案见 SettingsEntriesRoute 登记表）
+        QkSectionHead(title = "显示", modifier = Modifier.padding(top = QkSpacing.Lg))
+        QkCard(modifier = Modifier.padding(top = 2.dp)) {
+            SettingsEntryRows(
+                group = SettingsEntryGroup.Display,
+                onOpenEntry = onOpenEntry,
+                maintenanceActive = maintenanceActive,
+            )
+        }
+
         QkSectionHead(title = "其他", modifier = Modifier.padding(top = QkSpacing.Lg))
         QkCard(modifier = Modifier.padding(top = 2.dp)) {
             QkListRow(

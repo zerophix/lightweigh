@@ -119,7 +119,7 @@ fun AiWeeklySummaryScreen(
         if (!state.hasData) {
             // 通用空态（Wave 0 / T-097）：只渲染文案，不产生任何数值
             QkEmptyState(
-                title = "本周暂无 AI 周总结",
+                title = AiWeeklyEntry.EMPTY_TITLE,
                 description = "完成一次测量后，AI 会根据已授权的记录生成周总结。",
                 icon = QkIcons.Ai,
                 modifier = Modifier.padding(top = QkSpacing.Xl),
