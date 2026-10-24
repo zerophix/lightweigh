@@ -159,9 +159,33 @@ def _check_counts() -> None:
     text = _read(doc)
     for claim in expected:
         if claim not in text:
-            fail(
+            msg = (
                 f"GOV-DOCS-004: 03_TaskGraph.md 与任务板不一致或缺失的表述「{claim}」"
             )
+            if _on_feature_branch(ROOT):
+                # DEC-063: 计数在特性分支降级为 WARN。多分支各自 take 任务时
+                # 计数副本必然互相打架，逐分支强制只会制造合并后的重复重算；
+                # 合入门禁仍是 local-ci（master 语义，ERROR），守门强度不降。
+                _warn(msg + "（特性分支降级 WARN，合入时 master 强制）")
+            else:
+                fail(msg)
+
+
+def _on_feature_branch(root: Path) -> bool:
+    """当前分支是否为特性分支。判据交给 git，保守降级：
+
+    - `feat|fix|docs|refactor|chore|test|ci/*` → True（计数类降 WARN）
+    - master / main / HEAD（CI 检出）/ 非 git 目录 / git 不可用 → False（ERROR）
+    """
+    try:
+        r = subprocess.run(
+            ["git", "-C", str(root), "rev-parse", "--abbrev-ref", "HEAD"],
+            capture_output=True, text=True, timeout=10,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return False
+    branch = (r.stdout or "").strip()
+    return bool(re.match(r"^(feat|fix|docs|refactor|chore|test|ci)/", branch))
 
 
 # ---------------------------------------------------------------- 005 时效
