@@ -232,7 +232,7 @@ private val RingSize: Dp = QkSpacing.Xl * 6
 private val RingStroke: Dp = QkSpacing.Sm
 
 /** 设备行圆形头像（原型 .av 48px）。 */
-private val DeviceAvatarSize: Dp = QkSpacing.Xl * 2
+private val FirmwareAvatarSize: Dp = QkSpacing.Xl * 2
 
 /** 就绪页圆形图标（原型 .statepage .sic 88px）。 */
 private val ReadyIconSize: Dp = QkSpacing.Xl * 3 + QkSpacing.Lg
@@ -354,7 +354,7 @@ private fun FirmwareDeviceRow(state: FirmwareUiState) {
     ) {
         Box(
             modifier = Modifier
-                .size(DeviceAvatarSize)
+                .size(FirmwareAvatarSize)
                 .clip(CircleShape)
                 .background(QkColor.Card),
             contentAlignment = Alignment.Center,
