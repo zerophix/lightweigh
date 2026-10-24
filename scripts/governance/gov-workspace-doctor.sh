@@ -338,7 +338,22 @@ def orphan_safety(p):
         if "gitdir:" in content and any(g in content for g in gitdirs):
             return True, ".git 指向本仓库已失效的 worktree"
         return False, ".git 指向其它仓库，不自动删除"
-    return False, "无 .git（归属不明），不自动删除"
+    # 无 .git：只有「已被 git worktree remove 摘掉注册、但目录里只剩构建缓存」
+    # 这一种可以自动删。剩下的内容一旦出现源码/文档，一律交人。
+    ignorable = {
+        ".gradle", ".gradle-user", ".kotlin", ".idea", ".cxx", "build",
+        "local.properties", ".cache", ".pytest_cache", ".ruff_cache",
+    }
+    leftovers = []
+    for child in children:
+        if child.name in ignorable:
+            continue
+        if child.name.startswith(".gradle") or child.name.startswith(".kotlin"):
+            continue
+        leftovers.append(child.name)
+    if not leftovers:
+        return True, "无 .git，仅剩构建缓存（worktree remove 后的壳）"
+    return False, "无 .git 且含非缓存内容（%s），交人确认" % ", ".join(sorted(leftovers)[:3])
 
 
 def remove_worktree(path, branch):
