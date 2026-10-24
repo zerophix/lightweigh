@@ -1,12 +1,27 @@
 #!/usr/bin/env python3
 """GOV-PROTO-001~003: AI 协议检查"""
-import json, re
+import json, os, re
 from datetime import datetime, timezone
 from pathlib import Path
 from .gov_validate_core import ROOT, DOCS, MEMORY_FILE, errors, fail
 
 
 def check_protocol() -> None:
+    # DEC-063: 纯删除类 push（git push --delete）等零代码动作豁免墙钟门禁（仅 001/002）。
+    # pre-push 钩子检测到全删除 refspec 时注入该环境变量；
+    # 003/004（任务板健康）与 session 边界（session-end / local-ci）仍强制。
+    skip_wallclock = os.environ.get("GOV_SKIP_WALLCLOCK") == "1"
+    if skip_wallclock:
+        print()
+        print("--- GOV-PROTO-001/002: [SKIP] GOV_SKIP_WALLCLOCK=1（零代码动作豁免，DEC-063）---")
+    _check_wallclock_relays(skip_wallclock)
+    _check_task_board()
+
+
+def _check_wallclock_relays(skip: bool) -> None:
+    """GOV-PROTO-001/002（墙钟接力门禁）。DEC-063: skip=True 时跳过（零代码动作豁免）。"""
+    if skip:
+        return
     print()
     print("--- GOV-PROTO-001: 收件箱 48h 未读 ---")
     inbox_dir = DOCS / "ai" / "inbox"
@@ -67,6 +82,8 @@ def check_protocol() -> None:
             except (ValueError, TypeError):
                 pass
 
+def _check_task_board() -> None:
+    """GOV-PROTO-003/004（任务板健康，不受墙钟豁免影响）。"""
     print()
     print("--- GOV-PROTO-003: 僵尸任务检测 ---")
     tasks_file = ROOT / ".ai" / "tasks.json"

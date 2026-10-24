@@ -74,7 +74,7 @@ bash scripts/bootstrap/bs-install-hooks.sh   # 安装 simplified pre-commit（DE
 | 层 | 行为 |
 |----|------|
 | pre-commit | `gov-pre-commit-simplified`：**多会话守卫**（主共享树+并发会话→强制 worktree，逃生 `ALLOW_MAIN_TREE=1`，DEC-054）、禁 master、可选会话归属、源码时 compile + custom-checks |
-| pre-push | 分支名 + 全量 validate（可被 `--no-verify` 绕过） |
+| pre-push | 分支名 + 秒级文档校验 + 密钥扫描；pytest 移 local-ci、删除类 push 豁免墙钟（DEC-063，可被 `--no-verify` 绕过） |
 | Actions | `ci.yml`：push 到 master/main/**特性分支通配**（feat/fix/chore/…）与 **PR**（DEC-049）；文档变更仍可跳过重型构建（DEC-033） |
 | Dependabot | `.github/dependabot.yml`：gradle + github-actions 周更（DEC-049） |
 | 密钥扫描 | `gov-secrets-scan.sh`（gitleaks）接入 local-ci / pre-push / CI `secrets-scan` job；本地缺二进制软警告，有则硬失败 |
