@@ -1,6 +1,6 @@
 # 项目状态
 
-> 由 generate-status.py 自动生成。最后更新: 2026-10-23T09:30:29Z
+> 由 generate-status.py 自动生成。最后更新: 2026-10-24T02:13:19Z
 > 新 AI 启动时: `cat STATUS.md && bash scripts/session/ses-context-load.sh`
 
 ---
@@ -12,8 +12,8 @@
 | 名称 | 轻衡健康 Android（lightweigh） |
 | 版本 | 0.1.0 |
 | 文档语言 | zh-CN |
-| Git 分支 | feat/wave1-history-trend |
-| 最后提交 | a403e12 chore(tasks): unblock T-099 with prototype-based acceptance |
+| Git 分支 | chore/wave1-ac-batch-2 |
+| 最后提交 | 23facbd fix(governance): strip hook git env from the test runner (DEC-062) |
 | 文档校验 | 运行: `bash scripts/governance/gov-validate.sh` |
 
 ## AI 交接
@@ -51,27 +51,27 @@
 最近 5 次提交：
 
 ```
-a403e12 chore(tasks): unblock T-099 with prototype-based acceptance
-116f8ad chore(status): local-ci evidence after wave one delivery
-29d193c chore(tasks): mark wave zero states and components tasks done
-25a5593 feat(history): deliver wave 1 detail edit and metric screens (DEC-061)
-f8649fa chore(tasks): record wave 1 acceptance and trace fields
+23facbd fix(governance): strip hook git env from the test runner (DEC-062)
+e061a97 test(governance): sanitize git env in worktree tests
+c4078f2 fix(governance): reuse main worktree secrets binary (DEC-062)
+3811606 fix(governance): make root checks worktree aware (DEC-062)
+d9ba3f1 Merge pull request #38 from zerophix/chore/wave1-ac-batch
 ```
 
 ## 工程指标
 
 | 指标 | 数量 |
 |------|------|
-| 决策日志 (DEC) | 61 |
+| 决策日志 (DEC) | 62 |
 | 设计笔记 (NOTE) | 10 |
 | 开发指南 (GC) | 9 |
 | 技术参考 (REF) | 1 |
 
 最近决策：
 
+- [DEC-062](docs/ai/decisions/DEC-062.md): DEC-062: 治理检查改为 worktree 感知，使 DEC-050 的并发隔离真正可用
 - [DEC-061](docs/ai/decisions/DEC-061.md): DEC-061: Wave 1 新屏以呈现式组件交付，静态文案与运行时读数分离
 - [DEC-060](docs/ai/decisions/DEC-060.md): DEC-060: 僵尸任务规则改为按停滞时长判定，不再拦截认领中的任务
-- [DEC-059](docs/ai/decisions/DEC-059.md): DEC-059: 原型任务规则改名 GOV-PTASK，消除与 AI 协议规则的编号碰撞
 
 最近笔记：
 
@@ -83,10 +83,10 @@ f8649fa chore(tasks): record wave 1 acceptance and trace fields
 
 | 检查项 | 状态 | 详情 |
 |-------|------|------|
-| 本地门禁 (gov-local-ci) | 通过 | local-ci PASS @ 2026-10-23T09:30:29Z sha=a403e12 branch=feat/wave1-history-trend [gradlew build:ok,gov-validate:ok,gov-custom-checks:ok,gov-secrets-scan:ok,gov-schema-guard:ok,gov-test-guard:ok] |
-| GitHub Actions | 进行中 | ci @ 2026-10-23T09:28:30Z sha=116f8ad https://github.com/zerophix/lightweigh/actions/runs/39932096524 |
-| 文档校验 | 通过 | 来自 local-ci @ 2026-10-23T09:30:29Z sha=a403e12 |
-| Git 钩子 | 通过 | 安装: bash scripts/bootstrap/bs-install-hooks.sh |
+| 本地门禁 (gov-local-ci) | 失败 | local-ci FAIL @ 2026-10-24T02:13:19Z sha=23facbd branch=chore/wave1-ac-batch-2 [gradlew build:ok,gov-validate:fail,gov-custom-checks:ok,gov-secrets-scan:ok,gov-schema-guard:ok,gov-test-guard:ok] |
+| GitHub Actions | 无数据 | gh 不可用或无最近 run |
+| 文档校验 | 失败 | 来自 local-ci @ 2026-10-24T02:13:19Z sha=23facbd |
+| Git 钩子 | 未安装 | 安装: bash scripts/bootstrap/bs-install-hooks.sh |
 
 ## 反思
 

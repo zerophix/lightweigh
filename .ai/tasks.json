@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "updated_at": "2026-10-23T09:46:01Z",
-  "next_action": "开工 Wave 0 基础组件 T-097/T-098/T-099（通用状态页、下拉刷新与滑删与无限滚动与搜索栏、骨架屏与长按菜单）",
-  "next_action_why": "Wave 0 组件被 Wave 1/2 多个任务复用，未完成则后续任务缺组件无法开工；GC-prototype-driven-dev 明确 Wave 0 必须最先做",
+  "updated_at": "2026-10-24T01:50:00Z",
+  "next_action": "推进 Wave 1：T-072/073/074(auth) + T-075/100(guide) 验收已 ready，可在独立 worktree 认领编码；等人类合入 PR #45~#48",
+  "next_action_why": "Wave 0 已全部交付（#35/#36/#48 在途）；本批 5 条为 Wave 1 入口流集群，文件互不重叠、与在途 PR 无冲突，可并行开工",
   "next_action_confirmed": true,
   "known_risks": [
     "任务无 ready AC 不得开工；in_progress 缺 definition_of_done 会触发 GOV-PROTO-004（DEC-048）。",
@@ -597,7 +597,7 @@
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:51:34Z",
-      "updated_at": "2026-10-23T03:51:34Z",
+      "updated_at": "2026-10-24T01:50:00Z",
       "notes": "",
       "prototype_ref": {
         "file": "design/prototypes/interactive/01-login.html",
@@ -617,7 +617,41 @@
       "ac_refs": [
         "AC-J1-01 登录后进入主路径"
       ],
-      "prd_ref": "https://app.notion.com/p/40141bd50f8a8131aad6f95b74dcf436"
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a8131aad6f95b74dcf436",
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "登录主路径（手机号+验证码/密码）已存在，入口页为 feature/auth/AuthScreen.kt",
+          "原型01 定义 v-email / v-wechat / v-guest / v-guest-done 四个 view"
+        ],
+        "when": [
+          "在登录页选择邮箱登录、微信登录或访客模式，并完成对应页面交互"
+        ],
+        "then": [
+          "邮箱登录页展示「用邮箱登录」+「未注册的邮箱将自动创建账号」提示 + 邮箱/密码输入 + 「登录」+「其他方式登录」（v-email 原文）",
+          "微信登录页展示「使用微信账号登录」+ 授权说明「轻衡将获得你的微信昵称与头像」+ 昵称/头像用途行 + 「微信授权登录」「使用其他方式」（v-wechat 原文）",
+          "访客页展示警示「访客模式下数据仅保存在本机，更换设备将丢失」与「数据仅存本机，卸载或换设备将丢失」「无法云同步，无法多设备查看」+ 「进入体验」「返回登录」（v-guest 原文）",
+          "访客落地页展示「你正在以访客身份浏览」+ 引导文案「登录后可同步数据、连接设备、使用 AI 健康助手。」+「登录 / 注册」入口（v-guest-done 原文）"
+        ],
+        "forbidden": [
+          "改 PasswordLogin.kt / AuthGateViewModel.kt 既有登录逻辑（主路径归既有流程）；AuthScreen/AuthUiState 仅允许新增挂载点与状态字段",
+          "在 UI 层直接调用账号/网络 SDK：注册、微信授权等真实动作经回调交既有 auth 流程（同 T-096 呈现式先例）",
+          "硬编码颜色/间距（必须 Qk token，--strict 拦截）",
+          "编造 AC 编号"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-072 --strict",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "definition_of_done": [
+          "auth/EmailLogin.kt 与 auth/GuestMode.kt 存在且可编译",
+          "原型四个 view 布局与文案一致（v-email/v-wechat/v-guest/v-guest-done）",
+          "登录方式切换状态机/表单校验为纯函数且有 JVM 单测",
+          "无硬编码颜色与间距（--strict 通过）",
+          ":app:testDebugUnitTest 通过"
+        ],
+        "open_questions": []
+      }
     },
     {
       "id": "T-073",
@@ -627,7 +661,7 @@
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:51:34Z",
-      "updated_at": "2026-10-23T03:51:34Z",
+      "updated_at": "2026-10-24T01:50:00Z",
       "notes": "",
       "prototype_ref": {
         "file": "design/prototypes/interactive/01-login.html",
@@ -644,7 +678,43 @@
       "ac_refs": [
         "AC-J1-02 密码重置与账号找回可达"
       ],
-      "prd_ref": "https://app.notion.com/p/40141bd50f8a8131aad6f95b74dcf436"
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a8131aad6f95b74dcf436",
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "账号体系已支持验证码登录（原型01 v-phone/v-verify 已实现）",
+          "原型01 定义 v-reset；原型21 定义 v-choose/v-phone-verify/v-email-verify/v-set-password/v-success/v-done"
+        ],
+        "when": [
+          "用户从登录页进入「忘记密码」，选择手机号或邮箱找回，完成验证并设置新密码"
+        ],
+        "then": [
+          "重置密码页展示「为账号 138****0000 重置密码」+ 验证码 +「58s 后重发」倒计时 + 新密码/确认新密码 +「确认重置」（v-reset 原文）",
+          "找回方式选择页展示手机号 138****0000 与邮箱 l***@example.com 两个掩码入口 +「两种方式都不可用？请联系客服协助找回。」+「联系客服」（v-choose 原文）",
+          "手机验证页展示「验证码将发送至 +86 138****0000」+ 倒计时 +「验证成功后才能设置新密码，请勿泄露验证码。」+「验证并继续」（v-phone-verify 原文）",
+          "邮箱验证页展示「验证链接已发送至 l***@example.com」+ 链接验证说明 +「或输入邮件中的验证码」+「没收到邮件？请检查垃圾箱，或重新发送。」（v-email-verify 原文）",
+          "设置新密码页展示规则三条「8 位以上」「含字母和数字」「两次一致」+「新密码不能与旧密码相同」+「修改密码后，其他设备的登录状态将失效。」+「确认重置」（v-set-password 原文）",
+          "成功页展示「密码已重置」「请用新密码重新登录。」「其他设备的登录状态已失效。」+「返回登录」（v-success 原文）"
+        ],
+        "forbidden": [
+          "在 UI 层直接发验证码/改密码：验证与重置请求经回调交既有 auth 流程",
+          "密码明文出现在日志或状态展示",
+          "硬编码颜色/间距；改既有密码登录实现",
+          "编造 AC 编号"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-073 --strict",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "definition_of_done": [
+          "auth/PasswordReset.kt 与 auth/AccountRecovery.kt 存在且可编译",
+          "原型 v-reset + 原型21 五屏布局与文案一致",
+          "找回步骤状态机（方式选择→验证→设密→成功）与密码规则校验为纯函数且有 JVM 单测",
+          "无硬编码颜色与间距（--strict 通过）",
+          ":app:testDebugUnitTest 通过"
+        ],
+        "open_questions": []
+      }
     },
     {
       "id": "T-074",
@@ -654,7 +724,7 @@
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:51:34Z",
-      "updated_at": "2026-10-23T03:51:34Z",
+      "updated_at": "2026-10-24T01:50:00Z",
       "notes": "",
       "prototype_ref": {
         "file": "design/prototypes/interactive/14-account-lifecycle.html",
@@ -676,7 +746,44 @@
       "ac_refs": [
         "AC-S5 对外展示名一律「轻衡」"
       ],
-      "prd_ref": "https://app.notion.com/p/40241bd50f8a81978bd4c99ada828be1"
+      "prd_ref": "https://app.notion.com/p/40241bd50f8a81978bd4c99ada828be1",
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "App 已有版本管理/会话失效等既有信号源，本任务为呈现式 UI",
+          "原型14 定义 v-forceupdate/v-minver/v-privacy-lock/v-codeerr/v-expired/v-multidevice/v-healthinfo 七个 view（v-hub 为演示枢纽，不实现）"
+        ],
+        "when": [
+          "系统触发对应边界事件（强制更新、最低版本、隐私未同意、验证码错误、登录过期、异地登录、健康数据说明入口）时展示相应页面/弹层"
+        ],
+        "then": [
+          "强制更新页展示「当前 v0.1.0 已停止服务，需更新至 v0.2.0」+ 仅「立即更新」，无「稍后」（v-forceupdate 原文）",
+          "最低版本页展示「轻衡需要 Android 8.0 及以上」+「查看升级方法」「返回」（v-minver 原文）",
+          "隐私锁页展示「需先同意《隐私政策》才能使用设备与数据功能。」+「功能暂不可用」+「去同意隐私政策」（v-privacy-lock 原文）",
+          "验证码错误页展示「验证码错误，还可尝试 4 次」+ 倒计时 +「5 次错误后需等待 10 分钟再试。」（v-codeerr 原文）",
+          "登录过期页展示「登录状态已失效」「重新登录后继续同步，本地记录不丢失。」+「稍后」「重新登录」（v-expired 原文）",
+          "多设备页展示登录时间与设备名「你的账号于 10月22日 09:12 在「iPhone 15 Pro」登录。非本人操作请立即改密码。」+「是我的」「不是我，改密码」（v-multidevice 原文）",
+          "健康数据说明页展示五问五答（收集哪些数据/如何使用/存储与加密/谁能看到/保留多久）+「健康数据属敏感个人信息，详见《隐私政策》。」+「我知道了」（v-healthinfo 原文）"
+        ],
+        "forbidden": [
+          "在 UI 层直接检查版本/清会话/改口令：触发与响应经回调交既有流程",
+          "强制更新页出现可跳过入口",
+          "硬编码颜色/间距；对外展示名非「轻衡」（AC-S5）",
+          "编造 AC 编号"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-074 --strict",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "definition_of_done": [
+          "auth/AccountLifecycle.kt 存在且可编译",
+          "原型七个 view 布局与文案一致",
+          "边界事件→页面的分发逻辑为纯函数且有 JVM 单测（含「强更无跳过」断言）",
+          "无硬编码颜色与间距（--strict 通过）",
+          ":app:testDebugUnitTest 通过"
+        ],
+        "open_questions": []
+      }
     },
     {
       "id": "T-075",
@@ -686,7 +793,7 @@
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:51:46Z",
-      "updated_at": "2026-10-23T03:51:46Z",
+      "updated_at": "2026-10-24T01:50:00Z",
       "notes": "",
       "prototype_ref": {
         "file": "design/prototypes/interactive/02-onboarding-permission.html",
@@ -707,7 +814,42 @@
       "ac_refs": [
         "AC-V5 权限用时申请：先说明再系统弹窗"
       ],
-      "prd_ref": "https://app.notion.com/p/40141bd50f8a81cdbbedcb4fb9228eca"
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a81cdbbedcb4fb9228eca",
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "启动路径已有 GuideScreen（原型19 引导三部曲），本任务补启动边界（闪屏/条款/权限）",
+          "原型02 定义 v-splash/v-terms/v-permissions/v-granted/v-denied 五个 view"
+        ],
+        "when": [
+          "冷启动进入闪屏→条款同意→权限说明→系统授权→授权结果分支（允许/拒绝）"
+        ],
+        "then": [
+          "闪屏页展示「轻衡」+「让健康，轻一点。」（v-splash 原文）",
+          "条款页展示两个勾选「我已阅读并同意《用户协议》」「我已阅读并同意《隐私政策》」+「未同意前，我们不会收集任何个人数据。」+「同意并继续」「不同意，退出应用」；未全部勾选时「同意并继续」不可用（v-terms 原文）",
+          "权限说明页先说明再触发系统弹窗：蓝牙「用于搜索并连接体脂秤」、附近设备「Android 12+ 发现体脂秤所需」、通知「可选，用于测量提醒」+「继续（触发系统授权）」（v-permissions 原文，AC-V5 权限用时申请）",
+          "授权完成页展示「权限已就绪」「现在可以连接体脂秤了。」+ 更新提示弹窗「发现新版本 v0.2.0」「稍后」「立即更新」（v-granted 原文）",
+          "拒绝页展示「你拒绝了蓝牙权限，暂时无法连接设备。」+ 两步开启方法「设置 › 应用 › 轻衡 › 权限 › 蓝牙」+「去设置开启」「暂不连接」（v-denied 原文）"
+        ],
+        "forbidden": [
+          "Screen 直接调用系统权限 API 或 ConnectivityManager：请求与跳设置经传入回调（呈现式）",
+          "未同意条款前请求任何权限",
+          "硬编码颜色/间距",
+          "编造 AC 编号"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-075 --strict",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "definition_of_done": [
+          "guide/SplashScreen.kt 与 guide/PermissionFlow.kt 存在且可编译",
+          "原型五个 view 布局与文案一致",
+          "条款勾选可用性与授权结果分支为纯函数且有 JVM 单测",
+          "无硬编码颜色与间距（--strict 通过）",
+          ":app:testDebugUnitTest 通过"
+        ],
+        "open_questions": []
+      }
     },
     {
       "id": "T-076",
@@ -1628,11 +1770,11 @@
       "id": "T-099",
       "description": "components: 组件补全（骨架屏/长按菜单）",
       "why": "原型09 v-skeleton/v-longpress · 新增 ui/components/QkSkeleton.kt QkLongPressMenu.kt",
-      "status": "in_progress",
+      "status": "pending",
       "assigned_to": "ai",
       "dec": "",
       "created_at": "2026-10-23T03:52:45Z",
-      "updated_at": "2026-10-23T09:46:01Z",
+      "updated_at": "2026-10-23T09:45:00Z",
       "notes": "",
       "prototype_ref": {
         "file": "design/prototypes/interactive/09-components-demo.html",
@@ -1690,7 +1832,7 @@
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:56:21Z",
-      "updated_at": "2026-10-23T03:56:21Z",
+      "updated_at": "2026-10-24T01:50:00Z",
       "notes": "",
       "prototype_ref": {
         "file": "design/prototypes/interactive/01-login.html",
@@ -1708,7 +1850,41 @@
       "ac_refs": [
         "AC-J1-04 引导资料表单补全"
       ],
-      "prd_ref": "https://app.notion.com/p/40141bd50f8a8131aad6f95b74dcf436"
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a8131aad6f95b74dcf436",
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "登录/注册已完成（T-072 邮箱/微信/游客，或既有手机号路径）",
+          "原型01 定义 v-onboard-age / v-onboard-height / v-done 三个 view"
+        ],
+        "when": [
+          "登录成功进入资料完善两步表单：年龄与性别 → 身高 → 完成页"
+        ],
+        "then": [
+          "第 1/2 步展示「完善资料，让参考更适合你」+ 用途说明「年龄与性别用于计算 BMI、体脂率的个性化参考区间」+ 年龄输入 + 性别「男/女/不告知」+「下一步」（v-onboard-age 原文）",
+          "第 2/2 步展示「你的身高是多少？」+「用于身体成分与 BMI 计算」+ 身高值（示例 168 cm）+「完成，开始使用」+「稍后在我的里补充」（v-onboard-height 原文）",
+          "完成页展示「登录成功，欢迎回来」+「资料已完善，现在可以连接体脂秤开始第一次测量了。」+ 重新走流程/回登录入口（v-done 原文）",
+          "「不告知」为合法性别选项，选择后不阻塞下一步"
+        ],
+        "forbidden": [
+          "UI 层直接落库：资料保存经回调交既有流程",
+          "硬编码颜色/间距；对外展示名非「轻衡」（AC-S5）",
+          "改登录主路径既有实现",
+          "编造 AC 编号"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-100 --strict",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "definition_of_done": [
+          "guide/ProfileSetup.kt 存在且可编译",
+          "原型三个 view 布局与文案一致",
+          "两步表单校验（年龄范围/身高范围/「不告知」合法）为纯函数且有 JVM 单测",
+          "无硬编码颜色与间距（--strict 通过）",
+          ":app:testDebugUnitTest 通过"
+        ],
+        "open_questions": []
+      }
     },
     {
       "id": "T-101",
