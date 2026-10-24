@@ -178,6 +178,24 @@ cmd_add() {
       >> "$ROOT/.cache/worktrees.jsonl" 2>/dev/null || true
   fi
 
+  # 创建即自检：把"能不能用"的判断放在产生时刻，而不是等到第一次提交被拒
+  # 只校验"主树具备、新树就该具备"的东西，避免在未引导的仓库里误报
+  local selfcheck_ok=1
+  if [ -f "$ROOT/local.properties" ] && [ ! -f "$wt/local.properties" ]; then
+    echo "  ❌ 缺 local.properties（gradle 会报 SDK location not found）" >&2
+    selfcheck_ok=0
+  fi
+  if [ "$(git -C "$ROOT" config --get core.hooksPath 2>/dev/null)" = "scripts/hooks" ] \
+     && [ ! -x "$wt/scripts/hooks/pre-commit" ]; then
+    echo "  ❌ 新树缺可执行的 scripts/hooks/pre-commit（钩子不会生效）" >&2
+    selfcheck_ok=0
+  fi
+  if [ "$selfcheck_ok" -eq 0 ]; then
+    echo "❌ worktree 自检未通过：${wt}（修好后删除重建）" >&2
+    exit 1
+  fi
+  echo "  自检: local.properties ✅  core.hooksPath=scripts/hooks ✅"
+
   echo "已创建 worktree"
   echo "  路径: $wt"
   echo "  分支: $branch"

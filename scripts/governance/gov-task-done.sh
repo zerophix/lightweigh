@@ -243,6 +243,25 @@ def main(argv):
     checks = collect_checks(task, root, dry)
     exit_code = EXIT_OK if dry else (EXIT_FAIL if any(c["status"] == "FAIL" for c in checks) else EXIT_OK)
 
+    # 通过即落证据：完成状态必须能追到「谁、在哪个提交、跑了什么、结果如何」。
+    # 合并队列置 completed 时读这份证据，缺证据会显式标注 evidence=absent。
+    if exit_code == EXIT_OK and not dry:
+        evidence_dir = root / ".ai" / "evidence"
+        evidence_dir.mkdir(parents=True, exist_ok=True)
+        sha = subprocess.run(["git", "rev-parse", "HEAD"], cwd=str(root),
+                             capture_output=True, text=True).stdout.strip()
+        payload = {
+            "task": task_id,
+            "git_sha": sha,
+            "verified_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "checks": [{"type": c.get("type"), "name": c.get("name"),
+                        "status": c.get("status"), "detail": c.get("detail")} for c in checks],
+        }
+        (evidence_dir / f"{task_id}.json").write_text(
+            json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        if not json_mode:
+            print(f"[evidence] 已写入 .ai/evidence/{task_id}.json (sha={sha[:7]})")
+
     if json_mode:
         payload = {
             "task": task_id,

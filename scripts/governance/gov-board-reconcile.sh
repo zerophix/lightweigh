@@ -53,11 +53,18 @@ print(json.dumps(out))
 " "$DAYS"
 )"
 
-DRY="$DRY" JSON="$JSON" PRS_JSON="$PRS_JSON" BRANCHES="$BRANCHES" TASKS="$TASKS" python3 - <<'PY'
+# 任务归属的第一权威是提交上的 trailer（Task: T-053），分支名只是兜底：
+# 分支可以随便命名，提交 trailer 是 git 原生可解析的事实。
+TRAILERS=""
+for b in ${BRANCHES:-}; do
+  TRAILERS="$TRAILERS $(git log --format='%(trailers:key=Task,valueonly,separator=%x2C)' "origin/$b" 2>/dev/null | tr ',' ' ')"
+done
+DRY="$DRY" JSON="$JSON" PRS_JSON="$PRS_JSON" BRANCHES="$BRANCHES" TASKS="$TASKS" TRAILERS="$TRAILERS" python3 - <<'PY'
 import json, os, re, sys
 from pathlib import Path
 
 root = Path.cwd()
+ROOT_DIR = root
 tasks_path = root / ".ai" / "tasks.json"
 prs = json.loads(os.environ.get("PRS_JSON") or "[]")
 dry = os.environ.get("DRY") == "1"
@@ -74,9 +81,12 @@ branch_ids = set()
 for t in (os.environ.get("TASKS") or "").split():
     if re.fullmatch(r"[Tt]-?\d{3}", t):
         branch_ids.add("T-" + re.sub(r"[Tt]-?", "", t))
+from_trailers = set(re.findall(r"T-\d{3}", os.environ.get("TRAILERS") or ""))
+from_branches = set()
 for b in (os.environ.get("BRANCHES") or "").split():
-    branch_ids.update(re.findall(r"[tT]-?(\d{3})", b))
-    branch_ids.update("T-" + m for m in re.findall(r"[tT]-?(\d{3})", b))
+    from_branches.update("T-" + m for m in re.findall(r"[tT]-?(\d{3})", b))
+# trailer 存在时以它为准：分支名只用来兜底没有 trailer 的旧提交。
+branch_ids |= (from_trailers or from_branches)
 
 pr_task = {}
 for p in prs:
@@ -104,7 +114,13 @@ for tid in sorted(branch_ids):
     if acc.get("status") != "ready":
         continue
     t["status"] = "completed"
-    t["notes"] = (t.get("notes") or "") + "\n已由合并队列按分支名回填（DEC-071）"
+    ev = ROOT_DIR / ".ai" / "evidence" / f"{tid}.json"
+    if ev.exists():
+        t["evidence"] = str(ev.relative_to(ROOT_DIR))
+    else:
+        t["evidence"] = "absent"
+        t["notes"] = (t.get("notes") or "") + "\n完成但缺 DoD 证据（gov-task-done 未跑）"
+    t["notes"] = (t.get("notes") or "") + "\n已由合并队列按提交 trailer 回填（DEC-073）"
     updated.append((tid, 0, "queue"))
 
 for tid, p in sorted(pr_task.items()):

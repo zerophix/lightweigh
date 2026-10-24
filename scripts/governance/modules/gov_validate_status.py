@@ -89,7 +89,13 @@ def check_status() -> None:
     # 反思已迁至 docs/guides/GC-engineering-reflections.md（自愿追加，不再强制、不阻塞推送）。
     # README 改用标准结构，不再要求「当前状态/反思」节；实时状态见 STATUS.md。
     hooks_missing = []
-    hooks_dir = _git_hooks_dir()
+    # DEC-073: core.hooksPath 指向仓内 scripts/hooks 时，钩子是版本化文件，
+    # 不再有"安装到 .git/hooks"这一步；此时校验包装器是否齐全即可。
+    configured = subprocess.run(
+        ["git", "config", "--get", "core.hooksPath"],
+        cwd=ROOT, capture_output=True, text=True, timeout=10,
+    ).stdout.strip()
+    hooks_dir = (ROOT / configured) if configured else _git_hooks_dir()
     for hook in ("pre-commit", "commit-msg", "pre-push"):
         if not (hooks_dir / hook).is_file():
             hooks_missing.append(hook)
