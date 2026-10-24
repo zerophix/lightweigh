@@ -1,9 +1,5 @@
 {
   "version": 1,
-  "updated_at": "2026-10-23T12:06:10Z",
-  "next_action": "等人类裁定 PR #44 vs PR #41 的 privacy 双实现归属（同组文件两个实现不可同合，详见 PR #44 ⚠️ 节）",
-  "next_action_why": "GC-multi-agent-collab 规定两会话改同一文件由人类裁定；裁定后按结果 merge 或关闭 PR #44，无需开新任务",
-  "next_action_confirmed": false,
   "known_risks": [
     "任务无 ready AC 不得开工；in_progress 缺 definition_of_done 会触发 GOV-PROTO-004（DEC-048）。",
     "分支保护 / GitHub Pro / 公开仓：人类明确不做。权威合入门禁改为本地 `bash scripts/governance/gov-local-ci.sh` + pre-push validate；master 已含 DEC-045..047（merge 9cfc46d）。真机 APK 验收仍须人类。",
@@ -1742,11 +1738,11 @@
       "id": "T-102",
       "description": "sync: 网络状态与服务状态页",
       "why": "原型08 v-network/v-service · 新增 sync/NetworkStatus.kt sync/ServiceStatus.kt",
-      "status": "pending",
-      "assigned_to": "",
+      "status": "in_progress",
+      "assigned_to": "ai",
       "dec": "",
       "created_at": "2026-10-23T03:56:21Z",
-      "updated_at": "2026-10-23T09:50:00Z",
+      "updated_at": "2026-10-23T09:38:15Z",
       "notes": "",
       "prototype_ref": {
         "file": "design/prototypes/interactive/08-sync-network-help.html",
