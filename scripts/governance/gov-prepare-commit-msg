@@ -50,22 +50,42 @@ root = Path.cwd()
 locks = root / ".ai" / "locks"
 if not locks.is_dir():
     sys.exit(0)
+
+# 只认「本次会话自己持有」的锁：历史遗留锁不能给每次提交都打上任务号。
+try:
+    session = json.loads((root / ".ai" / "current-session.json").read_text(encoding="utf-8")).get("session_id") or ""
+except Exception:
+    session = ""
+
 staged = subprocess.run(["git", "diff", "--cached", "--name-only"],
                         capture_output=True, text=True).stdout.split()
+if not staged:
+    sys.exit(0)
+
+try:
+    tasks = {t["id"]: t for t in json.loads((root / ".ai" / "tasks.json").read_text(encoding="utf-8"))["tasks"]}
+except Exception:
+    tasks = {}
+
 hit = []
 for lock in sorted(locks.iterdir()):
     if not lock.is_dir() or not lock.name.startswith("T-"):
         continue
-    meta = lock / "meta.json"
-    files = []
-    if meta.exists():
-        try:
-            files = json.loads(meta.read_text(encoding="utf-8")).get("files") or []
-        except Exception:
-            files = []
-    if not files or any(f in staged for f in files):
-        hit.append(lock.name)
-print(" ".join(hit))
+    owner = ""
+    try:
+        owner = (lock / "owner").read_text(encoding="utf-8").strip()
+    except OSError:
+        pass
+    if session and owner and owner != session:
+        continue
+    targets = [str(t) for t in (tasks.get(lock.name, {}).get("target_files") or [])]
+    if not targets:
+        continue
+    for f in staged:
+        if any(f == t or f.startswith(t.rstrip("/") + "/") for t in targets):
+            hit.append(lock.name)
+            break
+print(" ".join(sorted(set(hit))))
 PY
 )"
   if [ -n "${TASKS:-}" ]; then
