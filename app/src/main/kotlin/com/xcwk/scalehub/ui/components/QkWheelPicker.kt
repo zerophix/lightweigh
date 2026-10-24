@@ -25,6 +25,10 @@ import androidx.compose.ui.unit.sp
 /**
  * 滚轮选择器（旧库 Wheel :630-662 移植，M4 视觉轮）：
  * 44dp 行高 ×5 行视窗，滚动停稳后按中心行回调索引；选中行用主题 token 高亮。
+ *
+ * 行高随系统字体缩放同比放大（[LocalDensity.fontScale]）：几何量是滚动停稳
+ * 判定的唯一依据，若行高锁死 44dp，200% 字体下文字会被裁掉；同比放大既保住
+ * 「滚动值 / 行高 = 索引」的算法，又不裁字。
  */
 @Composable
 fun QkWheelPicker(
@@ -33,8 +37,8 @@ fun QkWheelPicker(
     modifier: Modifier = Modifier,
     onIndex: (Int) -> Unit,
 ) {
-    val itemHeight = 44.dp
     val density = androidx.compose.ui.platform.LocalDensity.current
+    val itemHeight = 44.dp * density.fontScale.coerceAtLeast(1f)
     val itemPx = with(density) { itemHeight.roundToPx() }.coerceAtLeast(1)
     val scroll = remember(labels.size) {
         androidx.compose.foundation.ScrollState(

@@ -237,7 +237,7 @@ fun MainShell() {
                         color = QkColor.Fg,
                         modifier = Modifier.weight(1f),
                     )
-                    QkIconButton("×") { showQuick = false }
+                    QkIconButton("×", contentDescription = "关闭") { showQuick = false }
                 }
 
                 QuickAiRow(

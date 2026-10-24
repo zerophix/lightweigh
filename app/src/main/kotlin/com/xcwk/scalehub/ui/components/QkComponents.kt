@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -39,6 +40,8 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -353,16 +356,28 @@ fun QkTextField(
     }
 }
 
-/** 圆形图标按钮（原型 .icon-btn）。 */
+/**
+ * 圆形图标按钮（原型 .icon-btn）。
+ *
+ * 无障碍（T-070）：按钮内只有图标字形，TalkBack 读不到任何信息，
+ * 故 [contentDescription] 是**必填**参数（`gov-a11y-check.py` 的 A11Y-001 强制），
+ * 并由 `semantics` 挂到可点击容器上。
+ */
 @Composable
-fun QkIconButton(glyph: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
+fun QkIconButton(
+    glyph: String,
+    contentDescription: String,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+) {
     Box(
         modifier = modifier
             .size(36.dp)
             .clip(CircleShape)
             .background(QkColor.Card)
             .border(1.dp, QkColor.Border, CircleShape)
-            .clickable(onClick = onClick),
+            .clickable(onClick = onClick)
+            .semantics { this.contentDescription = contentDescription },
         contentAlignment = Alignment.Center,
     ) {
         Text(glyph, color = QkColor.IconInk, style = MaterialTheme.typography.titleMedium)
@@ -436,7 +451,8 @@ fun QkSegmented(
             Box(
                 modifier = Modifier
                     .weight(1f)
-                    .height(34.dp)
+                    // 最小高度而非固定高度：200% 字体缩放下胶囊可以撑高，不裁字
+                    .heightIn(min = 34.dp)
                     .clip(RoundedCornerShape(QkRadius.SegmentItem))
                     .background(if (active) QkColor.Card else Color.Transparent)
                     .clickable { onSelect(index) },
