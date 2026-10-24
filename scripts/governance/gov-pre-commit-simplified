@@ -105,6 +105,17 @@ except: print('')
 fi
 
 # =============================================================
+# 2b. 任务锁软校验 (DEC-064): 暂存文件命中某任务 target_files 且锁被
+#     其他会话持有时拒绝提交；锁不存在不拦（认领是推荐，非强制）。
+# =============================================================
+CLAIM_SCRIPT="$ROOT/scripts/workflow/wf-claim.sh"
+if [ -f "$CLAIM_SCRIPT" ] && [ -f "$ROOT/.ai/tasks.json" ]; then
+  if ! bash "$CLAIM_SCRIPT" --root "$ROOT" --check-staged; then
+    exit 1
+  fi
+fi
+
+# =============================================================
 # 3. 源码变更？→ 编译 + custom-checks（含 gov-code-check）
 # =============================================================
 STAGED=$(git diff --cached --name-only --diff-filter=ACMR || true)

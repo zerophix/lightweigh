@@ -11,20 +11,10 @@ cd "$ROOT"
 BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
 VALIDATE_SCRIPT="$ROOT/scripts/governance/gov-validate.sh"
 
-# DEC-063 流程解耦:
-# - pytest 全量执行从 push 移到 local-ci（合入门禁, DEC-048)——push 只做秒级检查
-# - 纯删除类 push(git push --delete)额外豁免墙钟门禁(001/002): 无代码变更, 重检查零价值
+# DEC-064 开发/质量解耦:
+# - push 只做秒级检查(分支名 + 文档校验 + 密钥扫描), pytest 移到 local-ci(合入门禁)
+# - 墙钟门禁(001/002)已退役, 不再需要删除类 push 的豁免分支
 export GOV_VALIDATE_QUICK=1
-ALL_DELETE=1
-while read -r _local _lsha _remote _rsha; do
-  case "${_lsha:-}" in
-    *[!0]*) ALL_DELETE=0 ;;
-  esac
-done
-if [ "$ALL_DELETE" -eq 1 ]; then
-  export GOV_SKIP_WALLCLOCK=1
-  echo "  (纯删除/空 refspec push: 豁免墙钟门禁, DEC-063)"
-fi
 
 echo ""
 echo "=== pre-push 审计 ==="
