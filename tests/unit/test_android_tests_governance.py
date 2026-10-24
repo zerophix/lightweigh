@@ -121,6 +121,23 @@ def test_atest005_unregistered_test(tmp_path, monkeypatch):
     assert _has(errors, "GOV-ATEST-005"), errors
 
 
+def test_atest005_feature_branch_downgrades_to_warn(tmp_path, monkeypatch):
+    """DEC-065: 特性分支未注册降级 WARN（功能分支不得写共享注册表）。"""
+    import subprocess
+    _make_config(tmp_path)
+    _make_test(tmp_path, "app", "com/x/SampleTest.kt")
+    _make_registry(tmp_path, [])
+    git = ["git", "-c", "user.email=t@t", "-c", "user.name=t"]
+    subprocess.run([*git, "init", "-q"], cwd=tmp_path, check=True)
+    subprocess.run([*git, "add", "-A"], cwd=tmp_path, check=True)
+    subprocess.run([*git, "commit", "-qm", "b"], cwd=tmp_path, check=True)
+    subprocess.run(["git", "checkout", "-qb", "feat/x"], cwd=tmp_path, check=True)
+
+    errors = _check(tmp_path, monkeypatch)
+
+    assert not _has(errors, "GOV-ATEST-005"), errors
+
+
 def test_atest005_zombie_registry(tmp_path, monkeypatch):
     """GOV-ATEST-005: 注册表登记但磁盘不存在的僵尸条目必须 FAIL。"""
     _make_config(tmp_path)
