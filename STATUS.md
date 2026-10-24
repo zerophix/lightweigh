@@ -1,6 +1,6 @@
 # 项目状态
 
-> 由 generate-status.py 自动生成。最后更新: 2026-10-24T11:49:17Z
+> 由 generate-status.py 自动生成。最后更新: 2026-10-24T12:17:33Z
 > 新 AI 启动时: `cat STATUS.md && bash scripts/session/ses-context-load.sh`
 
 ---
@@ -12,8 +12,8 @@
 | 名称 | 轻衡健康 Android（lightweigh） |
 | 版本 | 0.1.0 |
 | 文档语言 | zh-CN |
-| Git 分支 | chore/integration-20261024-194759 |
-| 最后提交 | c2d3dcc chore(merge): chore/gov-trailer-fix via queue 20261024-194759 |
+| Git 分支 | chore/integration-20261024-201354 |
+| 最后提交 | 29eedc2 chore(merge): fix/bt-permission-refresh via queue 20261024-201354 |
 | 文档校验 | 运行: `bash scripts/governance/gov-validate.sh` |
 
 ## AI 交接
@@ -49,11 +49,11 @@
 最近 5 次提交：
 
 ```
+29eedc2 chore(merge): fix/bt-permission-refresh via queue 20261024-201354
+8ce01d4 test(e2e): check journeys that a machine can actually walk
+8d409fc fix(device): refresh BLE permission state after the system dialog
+509951c chore(board): reconcile tasks from merged PRs
 c2d3dcc chore(merge): chore/gov-trailer-fix via queue 20261024-194759
-7036364 fix(governance): only tag commits whose task lock is ours
-824e67d chore(board): reconcile tasks from merged PRs
-2450698 chore(merge): chore/gov-evidence via queue 20261024-194000
-9c8b9e8 chore(merge): chore/gov-hookspath via queue 20261024-194000
 ```
 
 ## 工程指标
@@ -81,9 +81,9 @@ c2d3dcc chore(merge): chore/gov-trailer-fix via queue 20261024-194759
 
 | 检查项 | 状态 | 详情 |
 |-------|------|------|
-| 本地门禁 (gov-local-ci) | 通过 | local-ci PASS @ 2026-10-24T11:49:17Z sha=c2d3dcc branch=chore/integration-20261024-194759 [gov-validate:ok,gov-custom-checks:ok,gov-secrets-scan:ok,gov-schema-guard:ok,gov-test-guard:ok,gov-a11y-check:ok,gov-reachability-check:ok,gov-hook-doctor:ok] |
+| 本地门禁 (gov-local-ci) | 通过 | local-ci PASS @ 2026-10-24T12:17:33Z sha=29eedc2 branch=chore/integration-20261024-201354 [gradlew :app:testDebugUnitTest:ok,gov-validate:ok,gov-custom-checks:ok,gov-secrets-scan:ok,gov-schema-guard:ok,gov-test-guard:ok,gov-a11y-check:ok,gov-reachability-check:ok,gov-hook-doctor:ok] |
 | GitHub Actions | 无数据 | gh 不可用或无最近 run |
-| 文档校验 | 通过 | 来自 local-ci @ 2026-10-24T11:49:17Z sha=c2d3dcc |
+| 文档校验 | 通过 | 来自 local-ci @ 2026-10-24T12:17:33Z sha=29eedc2 |
 | Git 钩子 | 未安装 | 安装: bash scripts/bootstrap/bs-install-hooks.sh |
 
 ## 反思
