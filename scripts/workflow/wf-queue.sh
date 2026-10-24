@@ -114,6 +114,10 @@ cmd_run() {
   fi
 
   git worktree add -q --detach "$candidate" origin/master || { say "无法创建候选 worktree"; return 2; }
+  # local.properties 是 gitignore 的本机文件；缺它 gradle 直接报 SDK location not found
+  if [ -f "$ROOT/local.properties" ] && [ ! -f "$candidate/local.properties" ]; then
+    cp "$ROOT/local.properties" "$candidate/local.properties"
+  fi
   cd "$candidate" || return 2
   git checkout -q -b "$name"
 
