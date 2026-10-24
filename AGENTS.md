@@ -138,6 +138,7 @@ bash scripts/session/ses-session-end.sh
 | 钩子生效（hooksPath 指向版本化目录） | `gov-hook-doctor`（local-ci 全车道） | `bash scripts/governance/gov-hook-doctor.sh` |
 | 工作区卫生（worktree/分支/锁） | `gov-workspace-doctor`（会话结束 + 手动） | `gov-workspace-doctor.sh` |
 | 派生数据不手写 | 合并队列（单一写者） | `gov-board-sync.sh --dry` |
+| 用户路径可走通 | **手动/预发**：`e2e_all.sh`（需设备，不进 local-ci） | `bash scripts/testing/e2e_all.sh` |
 | 慢命令不阻塞 | **约定**（见 §2；靠纪律，无强制） | — |
 
 > 标"约定"的规则没有机械执行者——不要假装它被强制。
@@ -176,6 +177,7 @@ python3 scripts/governance/gov-a11y-check.py       # 无障碍静态检查（秒
 python3 scripts/governance/gov-preview-check.py    # 预览覆盖检查（秒级）
 python3 scripts/governance/gov-reachability-check.py  # 屏可达性审计（秒级，基线只减不增）
 bash scripts/governance/gov-hook-doctor.sh         # 钩子配置检查（hooksPath + 包装器）
+bash scripts/testing/e2e_all.sh                   # 用户路径走查（需设备；唯一能证明点得通）
 bash scripts/governance/gov-board-sync.sh          # 派生物同步（合并队列内部调用）
 ```
 
