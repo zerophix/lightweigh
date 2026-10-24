@@ -917,12 +917,12 @@
       "id": "T-077",
       "description": "measure: 测量状态机补全（检查/稳定/计算/离开/无效/保存失败）",
       "why": "原型12全部8屏 · 改 MeasureScreen.kt MeasureViewModel.kt 状态分支",
-      "status": "pending",
+      "status": "completed",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:51:46Z",
       "updated_at": "2026-10-23T03:51:46Z",
-      "notes": "",
+      "notes": "\n已由合并队列按分支名回填（DEC-071）",
       "prototype_ref": {
         "file": "design/prototypes/interactive/12-measure-full.html",
         "views": [
@@ -938,7 +938,9 @@
       },
       "target_files": [
         "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/MeasureScreen.kt",
-        "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/MeasureViewModel.kt"
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/MeasureViewModel.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/MeasureFlow.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/MeasureFlowScreen.kt"
       ],
       "wave": 2,
       "module": "measure",
@@ -1485,12 +1487,12 @@
       "id": "T-086",
       "description": "member: 成员管理扩展（编辑/保存失败/无记录/无设备）",
       "why": "原型13 v-edit-member/v-savefail/v-member-norecord/v-member-nodevice · 改 MembersScreen.kt",
-      "status": "pending",
+      "status": "completed",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:52:02Z",
       "updated_at": "2026-10-23T03:52:02Z",
-      "notes": "",
+      "notes": "\n已由合并队列按分支名回填（DEC-071）",
       "prototype_ref": {
         "file": "design/prototypes/interactive/13-members-plans.html",
         "views": [
@@ -1501,7 +1503,9 @@
         ]
       },
       "target_files": [
-        "app/src/main/kotlin/com/xcwk/scalehub/feature/member/MembersScreen.kt"
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/member/MembersScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/member/MemberProfile.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/member/MemberProfileViewModel.kt"
       ],
       "wave": 2,
       "module": "member",
