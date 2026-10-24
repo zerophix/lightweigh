@@ -1487,7 +1487,7 @@
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:52:22Z",
-      "updated_at": "2026-10-23T03:52:22Z",
+      "updated_at": "2026-10-24T13:20:00Z",
       "notes": "",
       "prototype_ref": {
         "file": "design/prototypes/interactive/23-family-invite.html",
@@ -1508,7 +1508,46 @@
       "ac_refs": [
         "AC-J1-15 家庭邀请流程"
       ],
-      "prd_ref": "https://app.notion.com/p/40141bd50f8a8131aad6f95b74dcf436"
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a8131aad6f95b74dcf436",
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "家庭共享入口与成员列表已存在（原型23 v-hub），本任务从「邀请家人」入口接续，覆盖邀请、接受、撤销三段",
+          "原型23 定义 v-invite / v-invite-done / v-accept / v-accept-confirm / v-accept-done / v-revoke 六个 view",
+          "新增文件 app/src/main/kotlin/com/xcwk/scalehub/feature/member/FamilyInvite.kt"
+        ],
+        "when": [
+          "家庭成员页点击「邀请家人」生成邀请码并发送；被邀请人输入邀请码、确认授权范围后加入；之后邀请人在成员详情页调整或撤销共享权限"
+        ],
+        "then": [
+          "邀请页展示标题「邀请家人」+ 副标题「生成邀请码，分享给家人」+「邀请码（24 小时内有效）」+ 码值「QH8K2M」+「复制」+「分享给家人」+ 权限区「共享权限设置」三项「允许查看测量记录」「允许查看身体报告」「允许查看 AI 解读」+ 说明「邀请码仅用于身份验证，」「不包含任何健康数据。」+ 主按钮「发送邀请」（v-invite 原文）",
+          "邀请已发送页展示标题「邀请已发送」+ 状态「等待家人接受邀请」「待接受邀请」+「邀请码 QH8K2M」+「24 小时后过期」+「待接受」+ 说明「家人接受后，你可以在」+ 入口名「家庭共享」+「管理他的查看权限。」+「返回家庭共享」「重新生成邀请码」（v-invite-done 原文）",
+          "接受页展示标题「接受邀请」+「输入邀请码」+「向家人索取邀请码后输入」+ 输入项「邀请码」+ 说明「接受邀请后，对方可以查看你授权的数据。」「你可以随时在设置中撤销。」+ 主按钮「接受邀请」（v-accept 原文）",
+          "确认加入页展示标题「确认加入」+ 头像字「悦」+「林悦 邀请你加入」+「林悦的家庭」+ 授权清单「对方将可以查看」三项「你的测量记录」「你的身体报告」「AI 解读（未授权）」+ 说明「接受后对方可以查看你的健康数据，」「你可以随时在设置中撤销共享。」+「确认加入」「取消」（v-accept-confirm 原文）",
+          "已加入页展示标题「已加入」+「现在可以查看林悦的健康数据」+「你现在可以」三项「查看林悦的测量记录」「查看林悦的身体报告」「查看林悦的趋势图」+ 说明「你的数据仍然独立保存，」「不会自动共享给对方。」+「进入家庭共享」（v-accept-done 原文）",
+          "撤销共享页展示标题「撤销共享」+ 成员「妈」「妈妈」+「当前可查看：测量记录 + 身体报告」+「调整查看权限」三项「查看测量记录」「查看身体报告」「查看 AI 解读」+ 提示「关闭全部权限后，」「妈妈将无法再查看你的数据。」+「保存权限」「撤销全部共享」；二次确认弹层展示「撤销全部共享？」「妈妈将立即无法查看你的任何健康数据。」「此操作可重新邀请恢复。」「取消」「确认撤销」（v-revoke 原文）",
+          "邀请码剩余有效期（24 小时倒计时）与权限勾选状态为纯函数，倒计时归零后邀请码置为不可用且只能「重新生成邀请码」"
+        ],
+        "forbidden": [
+          "在呈现式 Composable 内直接调用系统分享、剪贴板、网络或数据库 API：生成/复制/分享邀请码、接受邀请、保存或撤销权限一律经传入回调",
+          "硬编码颜色或间距（必须 QkColor / QkSpacing token，--strict 拦截）",
+          "改动既有家庭共享入口与成员列表文件（本任务只新建 FamilyInvite.kt）",
+          "在撤销二次确认缺失时直接执行撤销，或把邀请码当作身份凭证自动通过验证",
+          "编造 AC 编号"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-088 --strict",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "definition_of_done": [
+          "member/FamilyInvite.kt 存在且可编译",
+          "原型六个 view 布局与文案一致（v-invite / v-invite-done / v-accept / v-accept-confirm / v-accept-done / v-revoke）",
+          "邀请码有效期、权限勾选与撤销可用性判定为纯函数且有 JVM 单测",
+          "无硬编码颜色与间距（--strict 通过）",
+          ":app:testDebugUnitTest 通过"
+        ],
+        "open_questions": []
+      }
     },
     {
       "id": "T-089",
@@ -1518,7 +1557,7 @@
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:52:22Z",
-      "updated_at": "2026-10-23T03:52:22Z",
+      "updated_at": "2026-10-24T13:20:00Z",
       "notes": "",
       "prototype_ref": {
         "file": "design/prototypes/interactive/07-mine-settings.html",
@@ -1537,7 +1576,44 @@
       "ac_refs": [
         "AC-S5 账号注销流程"
       ],
-      "prd_ref": "https://app.notion.com/p/40241bd50f8a81978bd4c99ada828be1"
+      "prd_ref": "https://app.notion.com/p/40241bd50f8a81978bd4c99ada828be1",
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "「我的 - 设置」入口已存在（原型07 设置页），本任务从「注销账号」入口接续",
+          "原型07 定义 v-closure-apply / v-closure-verify / v-closure-processing / v-closure-result 四个 view",
+          "新增文件 app/src/main/kotlin/com/xcwk/scalehub/feature/mine/AccountClosure.kt"
+        ],
+        "when": [
+          "在设置页点击「注销账号」阅读后果说明并点「我已了解，下一步」，输入验证码点「确认注销」进入冷静期，冷静期内可撤销或等到期后看结果"
+        ],
+        "then": [
+          "注销须知页展示标题「注销账号」+「注销前，请了解」+ 警示「注销是不可逆操作。」+ 后果项「全部测量记录将删除」「本地与云端均不可恢复」「AI 对话与家庭成员关联将解除」+「我已了解，下一步」「再想想」（v-closure-apply 原文）",
+          "身份验证页展示标题「身份验证」+「验证是你本人」+「验证码将发送至」+ 脱敏手机号「138****0000」+ 输入项「验证码」+ 重发倒计时「58s 后重发」+ 提示「验证后进入 7 天冷静期，期间登录可撤销。」+ 主按钮「确认注销」（v-closure-verify 原文）",
+          "处理中页展示标题「注销申请已提交」「注销申请处理中」+「账号进入」「7 天冷静期」「，期间登录可撤销。」+「剩余冷静期」+ 倒计时「6天 14时」+ 说明「冷静期内数据仍受保护，不会被使用。」+ 撤销入口「撤销注销，恢复账号」（v-closure-processing 原文）",
+          "结果页展示标题「账号已注销」+「你的账号与相关数据已按规则删除。」+「感谢你曾使用轻衡。」+ 结束入口「返回（演示结束）」（v-closure-result 原文）",
+          "冷静期剩余天数与验证码倒计时为纯函数：冷静期 > 0 时必须展示撤销入口，归零后才允许进入结果页"
+        ],
+        "forbidden": [
+          "在呈现式 Composable 内直接调用验证码服务、网络或数据库 API：发送验证码、提交注销、撤销注销一律经传入回调",
+          "跳过身份验证或跳过 7 天冷静期直接展示「账号已注销」",
+          "硬编码颜色或间距（必须 QkColor / QkSpacing token，--strict 拦截）",
+          "改动既有设置页文件（本任务只新建 AccountClosure.kt）",
+          "编造 AC 编号"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-089 --strict",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "definition_of_done": [
+          "mine/AccountClosure.kt 存在且可编译",
+          "原型四个 view 布局与文案一致（v-closure-apply / v-closure-verify / v-closure-processing / v-closure-result）",
+          "冷静期倒计时、验证码重发倒计时与撤销入口可用性判定为纯函数且有 JVM 单测",
+          "无硬编码颜色与间距（--strict 通过）",
+          ":app:testDebugUnitTest 通过"
+        ],
+        "open_questions": []
+      }
     },
     {
       "id": "T-090",
@@ -1547,7 +1623,7 @@
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:52:22Z",
-      "updated_at": "2026-10-23T03:52:22Z",
+      "updated_at": "2026-10-24T13:20:00Z",
       "notes": "",
       "prototype_ref": {
         "file": "design/prototypes/interactive/07-mine-settings.html",
@@ -1565,7 +1641,42 @@
       "ac_refs": [
         "AC-S5 关于页与隐私政策"
       ],
-      "prd_ref": "https://app.notion.com/p/40241bd50f8a81978bd4c99ada828be1"
+      "prd_ref": "https://app.notion.com/p/40241bd50f8a81978bd4c99ada828be1",
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "「我的 - 设置」入口已存在（原型07 设置页），本任务补关于页与隐私详情页的展示",
+          "原型07 定义 v-about / v-privacy 两个 view",
+          "新增文件 app/src/main/kotlin/com/xcwk/scalehub/feature/mine/AboutScreen.kt、app/src/main/kotlin/com/xcwk/scalehub/feature/mine/PrivacyDetail.kt"
+        ],
+        "when": [
+          "在设置页点击「关于轻衡」查看版本与协议入口；再进入「隐私政策」查看数据管理项并触发删除全部健康数据的二次确认"
+        ],
+        "then": [
+          "关于页展示标题「关于轻衡」+ 应用名「轻衡」+「v0.1.0 · 让健康轻一点」+ 条目「用户协议」「隐私政策」「第三方 SDK 清单」+ 版权行「© 2026 轻衡 · MIT License」（v-about 原文）",
+          "隐私详情页展示标题「隐私与数据管理」+「AI 数据设置」「撤回授权 · 关闭个性化」+「导出健康数据」「CSV · 加密链接 24h 有效」+「数据同步」「端到端加密」+「个性化分析」+「删除全部健康数据」「不可恢复」+ 提示「删除、注销是不同操作，详见「数据删除与保留规则」。」+「删除全部健康数据？」「全部测量记录与报告将被删除，」「不可恢复」「。建议先导出。」+「取消」「确认删除」（v-privacy 原文）",
+          "版本号、协议链接与 SDK 清单入口来自传入参数，不在界面内写死业务数据"
+        ],
+        "forbidden": [
+          "在呈现式 Composable 内直接调用系统浏览器、文件系统、网络或数据库 API：打开协议、导出数据、删除数据一律经传入回调",
+          "硬编码颜色或间距（必须 QkColor / QkSpacing token，--strict 拦截）",
+          "改动既有设置页文件（本任务只新建 AboutScreen.kt 与 PrivacyDetail.kt）",
+          "省略删除数据的二次确认，或把「删除全部健康数据」与「注销账号」混为同一操作",
+          "编造 AC 编号"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-090 --strict",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "definition_of_done": [
+          "mine/AboutScreen.kt 与 mine/PrivacyDetail.kt 存在且可编译",
+          "原型两个 view 布局与文案一致（v-about / v-privacy）",
+          "版本号格式化与删除确认可用性判定为纯函数且有 JVM 单测",
+          "无硬编码颜色与间距（--strict 通过）",
+          ":app:testDebugUnitTest 通过"
+        ],
+        "open_questions": []
+      }
     },
     {
       "id": "T-091",
@@ -1631,7 +1742,7 @@
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:52:35Z",
-      "updated_at": "2026-10-23T03:52:35Z",
+      "updated_at": "2026-10-24T13:20:00Z",
       "notes": "",
       "prototype_ref": {
         "file": "design/prototypes/interactive/26-final-gaps.html",
@@ -1649,7 +1760,43 @@
       "ac_refs": [
         "AC-S5 SDK 列表与数据恢复"
       ],
-      "prd_ref": "https://app.notion.com/p/40241bd50f8a81978bd4c99ada828be1"
+      "prd_ref": "https://app.notion.com/p/40241bd50f8a81978bd4c99ada828be1",
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "设置页入口已存在（原型26 / 原型24 的 settings 视图），本任务补 SDK 清单、数据恢复与维护模式三个独立页面",
+          "原型26 定义 v-sdk-list；原型24 定义 v-recovery / v-maintenance（本任务原型跨两个文件）",
+          "新增文件 app/src/main/kotlin/com/xcwk/scalehub/feature/settings/SdkListScreen.kt、DataRecovery.kt、MaintenanceScreen.kt"
+        ],
+        "when": [
+          "在隐私页进入「第三方 SDK 清单」查看各 SDK 用途与收集项；在设置页选择「数据恢复」的恢复范围并发起恢复；服务不可用时展示维护模式页"
+        ],
+        "then": [
+          "SDK 清单页展示标题「第三方 SDK」+ 说明「以下第三方 SDK 用于实现对应功能，」「我们要求其遵守本隐私政策。」+ 条目「微信 OpenSDK」「用途：微信登录与分享」「收集：openid、昵称、头像」+「极光推送 JPush」「用途：测量提醒通知」「收集：设备标识（可关闭）」+「阿里云 OSS」「用途：健康数据加密云存储」「收集：加密后的测量数据」+「Glide」「用途：图片加载」「收集：无个人数据」+ 页脚「点击可查看各 SDK 的隐私政策链接与数据处理说明。」+「返回」（原型26 v-sdk-list 原文）",
+          "数据恢复页展示标题「数据恢复」+「从云端重新拉取历史数据」+ 云状态「云端数据可用」「最近同步：10月21日 07:30」+「恢复选项」三项「恢复全部数据」「从云端拉取所有历史记录」「恢复最近 30 天」「仅拉取近 30 天记录」「恢复指定日期范围」「自定义起止日期」+ 警示「恢复操作将」「覆盖本地现有数据」「，」「建议先备份。」+「开始恢复」「取消」（原型24 v-recovery 原文）",
+          "维护模式页展示标题「服务维护中」+「我们正在升级服务，预计」「30 分钟」「内恢复。」+ 说明「期间测量和查看数据不受影响，」「仅云同步和 AI 功能暂停。」+「预计恢复时间：」「14:30」+「受影响功能：云同步 · AI 解读 · 周总结」+「稍后再试」「查看状态公告」（原型24 v-maintenance 原文）",
+          "恢复范围三选一与互斥选中、指定日期范围的合法性（起 <= 止且不早于最早同步日）为纯函数；维护模式下按受影响功能清单禁用对应入口"
+        ],
+        "forbidden": [
+          "在呈现式 Composable 内直接调用网络、云存储、DB 或包管理器 API：拉取历史数据、读取 SDK 清单、查询服务状态一律经传入回调",
+          "硬编码颜色或间距（必须 QkColor / QkSpacing token，--strict 拦截）",
+          "改动既有设置页文件（本任务只新建 SdkListScreen.kt / DataRecovery.kt / MaintenanceScreen.kt）",
+          "在未提示「覆盖本地现有数据」的情况下直接执行恢复；维护模式下仍放行云同步与 AI 入口",
+          "编造 AC 编号"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-092 --strict",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "definition_of_done": [
+          "settings/SdkListScreen.kt、DataRecovery.kt、MaintenanceScreen.kt 存在且可编译",
+          "原型三个 view 布局与文案一致（v-sdk-list / v-recovery / v-maintenance）",
+          "恢复范围选择与日期范围校验、维护模式功能可用性判定为纯函数且有 JVM 单测",
+          "无硬编码颜色与间距（--strict 通过）",
+          ":app:testDebugUnitTest 通过"
+        ],
+        "open_questions": []
+      }
     },
     {
       "id": "T-093",
@@ -1659,7 +1806,7 @@
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:52:35Z",
-      "updated_at": "2026-10-23T03:52:35Z",
+      "updated_at": "2026-10-24T13:20:00Z",
       "notes": "",
       "prototype_ref": {
         "file": "design/prototypes/interactive/08-sync-network-help.html",
@@ -1682,7 +1829,47 @@
       "ac_refs": [
         "AC-N3 帮助中心与反馈流程"
       ],
-      "prd_ref": "https://app.notion.com/p/40141bd50f8a8134bec9f5290e1bd659"
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a8134bec9f5290e1bd659",
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "同步/网络异常态已存在（原型08 v-offline 等），本任务补帮助中心、反馈与诊断三条支线",
+          "原型08 定义 v-help / v-faq / v-feedback / v-feedback-submit / v-feedback-success / v-feedback-fail / v-diag 七个 view",
+          "新增文件 app/src/main/kotlin/com/xcwk/scalehub/feature/sync/HelpCenter.kt、app/src/main/kotlin/com/xcwk/scalehub/feature/sync/FeedbackFlow.kt"
+        ],
+        "when": [
+          "在同步异常页点击「帮助与反馈」进入帮助中心，打开一条常见问题；再提交意见反馈（成功或失败），并按需上传诊断日志"
+        ],
+        "then": [
+          "帮助中心页展示标题「帮助与反馈」+「常见问题」三条「为什么测量结果有波动？」「设备连接失败怎么办？」「数据没有同步」+「上传诊断日志」「帮助排查问题」+「意见反馈」（v-help 原文）",
+          "FAQ 详情页展示标题「测量结果有波动」+ 问题「为什么同一天测量结果会有波动？」+ 答案「体重一天内自然波动 1–2 kg 是正常的，来自水分、进食和排泄。」+「如何减少波动：」+「· 每天同一时段测量」「· 测量前避免大量饮水或进食」「· 保持测量条件一致」+「建议关注 7 天或 30 天平均趋势，而不是单次数值。」+「体脂秤为估算设备，数据仅供参考。」+ 评价「没解决」「解决了」（v-faq 原文）",
+          "反馈填写页展示标题「意见反馈」+「问题类型」三选一「测量」「连接」「其他」+「描述」+ 占位「描述你遇到的问题或建议…」+ 隐私说明「默认不收集健康数据，诊断日志需单独授权。」+「模拟失败」「提交」（v-feedback 原文）",
+          "提交中页展示标题「正在提交反馈…」+「请勿关闭页面」+「模拟完成 → 成功」（v-feedback-submit 原文）",
+          "提交成功页展示标题「反馈已提交」+「工单号」+「#FB-20261022」+「1–2 个工作日内回复。」+「返回帮助中心」「继续反馈」（v-feedback-success 原文）",
+          "提交失败页展示标题「反馈提交失败」+「网络开小差了，反馈未发送。」+「填写内容已保留。」+「重新提交」「返回修改」（v-feedback-fail 原文）",
+          "诊断授权页展示标题「诊断信息」+「上传诊断日志？」+「用于更快定位问题。」+「应用运行日志」「不含健康数据与个人信息」+「蓝牙连接日志」「测量数值」「可关闭」+「日志 30 天后自动删除，可随时撤回。」+「同意并上传」（v-diag 原文）",
+          "反馈可用性（类型已选且有描述非空白）、重试与保留草稿判定、诊断项授权状态为纯函数；失败态必须保留已填内容"
+        ],
+        "forbidden": [
+          "在呈现式 Composable 内直接调用系统日志、蓝牙、网络或数据库 API：提交反馈、上传诊断日志、拉取 FAQ 一律经传入回调",
+          "在诊断项未授权时上传日志，或把健康数据写入日志与反馈内容",
+          "硬编码颜色或间距（必须 QkColor / QkSpacing token，--strict 拦截）",
+          "改动既有同步/网络异常态文件（本任务只新建 HelpCenter.kt 与 FeedbackFlow.kt）",
+          "编造 AC 编号"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-093 --strict",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "definition_of_done": [
+          "sync/HelpCenter.kt 与 sync/FeedbackFlow.kt 存在且可编译",
+          "原型七个 view 布局与文案一致（v-help / v-faq / v-feedback / v-feedback-submit / v-feedback-success / v-feedback-fail / v-diag）",
+          "反馈提交流程状态机（填写→提交中→成功/失败→重试）与诊断授权判定为纯函数且有 JVM 单测",
+          "无硬编码颜色与间距（--strict 通过）",
+          ":app:testDebugUnitTest 通过"
+        ],
+        "open_questions": []
+      }
     },
     {
       "id": "T-094",
@@ -2245,8 +2432,8 @@
     }
   ],
   "acceptance_schema": "GC-task-acceptance@1",
-  "updated_at": "2026-10-24T13:00:00Z",
-  "next_action": "派发 Wave 2 产品任务：T-078/T-079/T-080/T-085/T-087（AC 已 ready，target_files 不重叠，可 3 路并行）",
+  "updated_at": "2026-10-24T13:20:00Z",
+  "next_action": "并行派发：T-085/T-087（本批已 ready）→ wave3: T-088/089/090/092/093（AC 已 ready）",
   "next_action_why": "上一批（T-072/073/074/075/100）已合入 master；本批 AC 已按原型逐字生成并通过校验",
   "next_action_confirmed": true
 }
