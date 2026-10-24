@@ -164,9 +164,12 @@ cmd_run() {
     if ! git merge --no-ff -q -m "chore(merge): $branch via queue $stamp" "origin/$branch" 2>/tmp/wf-queue-merge.log; then
       # 先尝试中和共享状态冲突（取候选侧）
       local shared_resolved=1
+      # board 分支是共享状态的授权写者 → 取 theirs；其他分支一律取候选侧(ours)
+      local side="--ours"
+      case "$branch" in chore/board-*) side="--theirs" ;; esac
       for f in "${SHARED_PATHS[@]}"; do
         if git ls-files -u -- "$f" | grep -q .; then
-          git checkout --ours -- "$f" 2>/dev/null && git add "$f" 2>/dev/null || shared_resolved=0
+          git checkout "$side" -- "$f" 2>/dev/null && git add "$f" 2>/dev/null || shared_resolved=0
         fi
       done
       if git ls-files -u | grep -q "staged-claims"; then git rm -qf .ai/staged-claims.json 2>/dev/null; fi
