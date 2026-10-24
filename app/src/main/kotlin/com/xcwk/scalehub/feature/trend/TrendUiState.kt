@@ -32,6 +32,8 @@ data class TrendUiState(
     val loading: Boolean = true,
     val weight: TrendBlockUi? = null,
     val fat: TrendBlockUi? = null,
+    /** 档案侧栏（围度 / 目标进度）：首页目标查询的事实源，无档案数据时为 null。 */
+    val archive: MetricArchiveUi? = null,
 )
 
 sealed interface TrendIntent {

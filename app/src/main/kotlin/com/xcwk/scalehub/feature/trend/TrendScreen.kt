@@ -65,6 +65,13 @@ fun TrendScreen(
     var showMetricSheet by rememberSaveable { mutableStateOf(false) }
     var showRangeSheet by rememberSaveable { mutableStateOf(false) }
     var customRange by rememberSaveable { mutableStateOf(false) }
+    // 接入波第四批：身体指标与档案（T-055）覆盖趋势页，返回即回本页
+    var showArchive by rememberSaveable { mutableStateOf(false) }
+
+    if (showArchive) {
+        MetricArchiveScreen(state = state, onBack = { showArchive = false })
+        return
+    }
 
     val metric = trendMetricOf(metricId)
     val block = when (metricId) {
@@ -214,6 +221,20 @@ fun TrendScreen(
             QkListRow(
                 title = TrendText.AllRecords,
                 onClick = onOpenHistory,
+                showDivider = true,
+                trailing = {
+                    Text(
+                        TrendText.Chevron,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = QkColor.Hint,
+                    )
+                },
+            )
+            // 接入波第四批：身体指标与档案（T-055）——八项指标详情 / 围度 / 目标进度
+            QkListRow(
+                title = METRIC_ARCHIVE_ENTRY_TITLE,
+                subtitle = METRIC_ARCHIVE_ENTRY_HINT,
+                onClick = { showArchive = true },
                 showDivider = false,
                 trailing = {
                     Text(
