@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "note": "每条教训必须三选一落地：代码拒绝 / 测试变红 / 命令级检查。enforced=false 的会被 wf-autopilot status 持续点名。",
+  "lessons": [
+    {"id":"L-001","symptom":"手工 git worktree add 建树→缺 local.properties / gradle dists→构建失败","check":"pre-commit 拒绝缺引导文件的 worktree","enforced":true,"since":"2026-10-24"},
+    {"id":"L-002","symptom":"手工跨分支合并→共享状态冲突、绕过批次验证","check":"pre-commit 拒绝非队列的跨分支合并","enforced":true,"since":"2026-10-24"},
+    {"id":"L-003","symptom":"清理时删掉正在验证的队列候选→验证中断(exit 127)","check":"队列运行锁 + health 检测锁后跳过候选","enforced":false,"since":"2026-10-24"},
+    {"id":"L-004","symptom":"任务板被 PR 正文散文提及误标 completed","check":"tests/unit/test_hidden_failures.py::test_reconcile_ignores_prose_mentions","enforced":true,"since":"2026-10-24"},
+    {"id":"L-005","symptom":"shell 中 $var 紧跟中文→set -u 下 unbound variable","check":"tests/unit/test_shell_lint.py::test_no_unbraced_var_adjacent_to_cjk","enforced":true,"since":"2026-10-24"},
+    {"id":"L-006","symptom":"队列候选缺 local.properties→gradle 报 SDK not found","check":"wf-queue 复制 local.properties + test_queue_e2e","enforced":true,"since":"2026-10-24"},
+    {"id":"L-007","symptom":"队列合并提交信息 type 非法→commit-msg 拒绝，整批中止","check":"tests/unit/test_shell_lint.py::test_queue_merge_message_is_valid_commit_subject","enforced":true,"since":"2026-10-24"},
+    {"id":"L-008","symptom":"worktree 堆积到 12 个，无人清理","check":"ses-worktree 上限 3 + 合入即删 + health --fix","enforced":true,"since":"2026-10-24"},
+    {"id":"L-009","symptom":"health 排除 *-queue-* 导致 4 个残留目录漏报","check":"health 孤儿扫描包含未注册候选目录","enforced":false,"since":"2026-10-24"},
+    {"id":"L-010","symptom":"3 个代理并发冷构建互相拖慢(4m41s)","check":"local-ci 全局构建锁","enforced":true,"since":"2026-10-24"},
+    {"id":"L-011","symptom":"治理工作挤占产品开发（产品:治理 低于 2:1）","check":"wf-autopilot status 显示每批比例并报警","enforced":false,"since":"2026-10-24"},
+    {"id":"L-012","symptom":"治理修复进关键路径，一修就是半小时，产品停摆","check":"约定：限时 10 分钟，超时记录 TODO 并绕行","enforced":false,"since":"2026-10-24"},
+    {"id":"L-013","symptom":"交付 19 个屏但无导航入口→用户点不到（假交付）","check":"接入波任务 + 可达性验收（Route 存在且有入口）","enforced":false,"since":"2026-10-24"}
+  ]
+}

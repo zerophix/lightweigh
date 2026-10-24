@@ -37,7 +37,11 @@ import com.xcwk.scalehub.ui.theme.QkTheme
  * auth — 游客门 Screen（需求 3.1：协议勾选先行，验证码/登录/游客三路）。
  */
 @Composable
-fun AuthScreen(state: AuthUiState, onIntent: (AuthIntent) -> Unit) {
+fun AuthScreen(
+    state: AuthUiState,
+    onIntent: (AuthIntent) -> Unit,
+    onOpenAuthFlow: () -> Unit = {},
+) {
     Column(modifier = Modifier.fillMaxSize().padding(24.dp).verticalScroll(rememberScrollState())) {
         Text("轻刻健康", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(top = 32.dp))
         Text(
@@ -175,6 +179,13 @@ fun AuthScreen(state: AuthUiState, onIntent: (AuthIntent) -> Unit) {
                 modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                 onClick = { onIntent(AuthIntent.EnterGuest) },
             )
+            // 接入层入口：邮箱 / 访客 / 找回等呈现式屏由 AuthFlowRoute 串成链
+            QkButton(
+                text = "其他方式登录",
+                style = QkButtonStyle.Ghost,
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                onClick = onOpenAuthFlow,
+            )
         }
     }
 
@@ -205,6 +216,9 @@ fun AuthScreen(state: AuthUiState, onIntent: (AuthIntent) -> Unit) {
 @Composable
 private fun AuthScreenPreview() {
     QkTheme {
-        AuthScreen(state = AuthUiState(loading = false, agreed = true, phone = "13800138000")) {}
+        AuthScreen(
+            state = AuthUiState(loading = false, agreed = true, phone = "13800138000"),
+            onIntent = {},
+        )
     }
 }
