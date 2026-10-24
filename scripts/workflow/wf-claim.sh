@@ -103,7 +103,7 @@ ensure_session() {
       mkdir -p "$ROOT/.ai"
       sid="ses-$(date '+%Y%m%d-%H%M%S')-auto"
       printf '{"session_id": "%s", "timestamp": %s}\n' "$sid" "$(date +%s)" > "$f"
-      echo "  已自动创建会话: $sid（建议先跑 ses-session-begin.sh）" >&2
+      echo "  已自动创建会话: ${sid}（建议先跑 ses-session-begin.sh）" >&2
       ;;
   esac
   echo "$sid"

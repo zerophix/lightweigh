@@ -132,6 +132,27 @@ else
 fi
 
 # 车道 → gradle 步骤（空 = 跳过 gradle）
+
+# ---- 全局构建锁（DEC-069）：多 worktree 并发时串行化 gradle，避免 daemon 争抢 ----
+BUILD_LOCK="$ROOT/.cache/build.lock.d"
+acquire_build_lock() {
+  local waited=0
+  while ! mkdir "$BUILD_LOCK" 2>/dev/null; do
+    # 超过 40 分钟视为僵尸锁
+    if [ -d "$BUILD_LOCK" ] && [ -n "$(find "$BUILD_LOCK" -maxdepth 0 -mmin +40 2>/dev/null)" ]; then
+      rm -rf "$BUILD_LOCK" 2>/dev/null || true
+      continue
+    fi
+    [ "$waited" -eq 0 ] && echo "  [锁] 等待其他构建完成（.cache/build.lock.d）…"
+    waited=$((waited + 2))
+    [ "$waited" -gt 1800 ] && { echo "  [锁] 超时 30 分钟，放弃"; return 1; }
+    sleep 2
+  done
+  echo $$ > "$BUILD_LOCK/pid" 2>/dev/null || true
+  return 0
+}
+release_build_lock() { rm -rf "$BUILD_LOCK" 2>/dev/null || true; }
+
 GRADLE_TASK=""
 case "$LANE" in
   A) GRADLE_TASK="" ;;
