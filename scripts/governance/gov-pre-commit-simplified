@@ -132,7 +132,9 @@ STAGED=$(git diff --cached --name-only --diff-filter=ACMR || true)
 #     功能分支手改 = 每次合并必冲突（2026-10-24 实测 5 轮）。
 # =============================================================
 SHARED_DERIVED=$(echo "$STAGED" | grep -E '^(\.ai/tasks\.json|STATUS\.md|tests/android-test-registry\.yaml|docs/ai/lifecycle/03_TaskGraph\.md|docs/ai/lifecycle/06_Metrics\.md|docs/index\.md)$' || true)
-if [ -n "$SHARED_DERIVED" ]; then
+BOARD_BRANCH=0
+case "$BRANCH" in chore/board-*) BOARD_BRANCH=1 ;; esac
+if [ -n "$SHARED_DERIVED" ] && [ "$BOARD_BRANCH" -eq 0 ]; then
   echo "❌ 禁止在功能分支提交派生数据（单一写者，DEC-064/067）："
   echo "$SHARED_DERIVED" | sed 's/^/    /'
   echo "   取消暂存: git restore --staged <file>"
