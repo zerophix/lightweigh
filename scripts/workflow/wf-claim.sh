@@ -90,6 +90,25 @@ SESSION_FILE="$ROOT/.ai/current-session.json"
 # ---------- 工具函数 ----------
 
 # 当前 session id: 环境变量 > .ai/current-session.json > unknown-session
+ensure_session() {
+  # 测试/编排可用 WF_CLAIM_SESSION 显式指定（优先级最高）
+  if [ -n "${WF_CLAIM_SESSION:-}" ]; then echo "$WF_CLAIM_SESSION"; return; fi
+  # 认领必须在真实会话下发生；否则 owner 会写成 unknown-session，
+  # 后续 pre-commit 归属检查会拒绝提交（2026-10-24 三个代理都踩过）。
+  local f="$ROOT/.ai/current-session.json"
+  local sid=""
+  [ -f "$f" ] && sid="$(python3 -c "import json;print(json.load(open('$f')).get('session_id',''))" 2>/dev/null || true)"
+  case "$sid" in
+    ""|unknown-session|None)
+      mkdir -p "$ROOT/.ai"
+      sid="ses-$(date '+%Y%m%d-%H%M%S')-auto"
+      printf '{"session_id": "%s", "timestamp": %s}\n' "$sid" "$(date +%s)" > "$f"
+      echo "  已自动创建会话: ${sid}（建议先跑 ses-session-begin.sh）" >&2
+      ;;
+  esac
+  echo "$sid"
+}
+
 current_session() {
   if [ -n "${WF_CLAIM_SESSION:-}" ]; then
     printf '%s' "$WF_CLAIM_SESSION"
@@ -209,7 +228,7 @@ cmd_claim() {
   fi
 
   local session branch created lock_dir
-  session="$(current_session)"
+  session="$(ensure_session)"
   branch="$(current_branch)"
   created="$(now_utc)"
   lock_dir="$LOCK_ROOT/$tid"

@@ -77,12 +77,23 @@ HINT
 WT_LIMIT="${WF_WORKTREE_LIMIT:-3}"
 
 count_task_worktrees() {
-  # 统计除主仓以外的 worktree 数
-  local n=0 main
+  # 只统计"任务" worktree：排除主仓、队列候选（*-queue-* / chore/integration-*）、
+  # 以及基础设施分支（chore/board-*）。否则 3 任务批次 + 候选 + 收尾分支 = 5，
+  # 会被误判超限（2026-10-24 实测，逼得每个批次都要 --force）。
+  local n=0 main wt br
   main="$(git rev-parse --show-toplevel 2>/dev/null)"
   while IFS= read -r line; do
     case "$line" in
-      "worktree "*) [ "${line#worktree }" = "$main" ] || n=$((n + 1)) ;;
+      "worktree "*) wt="${line#worktree }" ;;
+      "branch refs/heads/"*)
+        br="${line#branch refs/heads/}"
+        [ "$wt" = "$main" ] && continue
+        case "$br" in
+          chore/integration-*|chore/board-*|chore/fix-*) continue ;;
+        esac
+        case "$wt" in *-queue-*) continue ;; esac
+        n=$((n + 1))
+        ;;
     esac
   done < <(git worktree list --porcelain)
   echo "$n"
@@ -134,7 +145,7 @@ cmd_add() {
   local current
   current="$(count_task_worktrees)"
   if [ "$force" -ne 1 ] && [ "$current" -ge "$WT_LIMIT" ]; then
-    echo "❌ 当前有 ${current} 个任务 worktree（上限 ${WT_LIMIT}），拒绝继续创建。" >&2
+    echo "❌ 当前有 ${current} 个任务 worktree（上限 ${WT_LIMIT}；不含队列候选/收尾分支），拒绝继续创建。" >&2
     echo "   先清理: bash scripts/session/ses-worktree.sh clean" >&2
     echo "   或查审计: bash scripts/governance/gov-workspace-doctor.sh" >&2
     echo "   确需临时突破: 加 --force（不推荐）" >&2
@@ -157,6 +168,12 @@ cmd_add() {
   if [ -f "$ROOT/local.properties" ] && [ ! -f "$wt/local.properties" ]; then
     cp "$ROOT/local.properties" "$wt/local.properties"
     echo "  已复制 local.properties（gitignore，不入库）"
+  fi
+  # Gradle 分发包按 PROJECT 目录存放（gitignore）：不带过去则 wrapper 要联网下载
+  if [ -d "$ROOT/gradle/dists" ] && [ ! -d "$wt/gradle/dists" ]; then
+    mkdir -p "$wt/gradle"
+    cp -R "$ROOT/gradle/dists" "$wt/gradle/dists" 2>/dev/null && \
+      echo "  已复制 gradle/dists（离线可用）"
   fi
 
   # 登记：谁、什么时候、为哪个分支创建（供 status/doctor 审计年龄）
