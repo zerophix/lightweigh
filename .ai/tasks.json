@@ -301,12 +301,12 @@
       "id": "T-048",
       "description": "P1-7: 趋势扩展（自定义日期范围/聚合模式/5扩展指标：骨骼肌/水分/基础代谢/肌肉/蛋白质）",
       "why": "",
-      "status": "pending",
+      "status": "completed",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-21T10:29:08Z",
       "updated_at": "2026-10-21T10:29:08Z",
-      "notes": "；AC 已补，strict 当前 18% 文案匹配，需按原型补齐 TrendScreen/TrendExtensions 文案",
+      "notes": "；AC 已补，strict 当前 18% 文案匹配，需按原型补齐 TrendScreen/TrendExtensions 文案\n已由合并队列按分支名回填（DEC-071）",
       "prototype_ref": {
         "file": "design/prototypes/interactive/05-history-trend.html",
         "views": [
