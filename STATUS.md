@@ -1,6 +1,6 @@
 # 项目状态
 
-> 由 generate-status.py 自动生成。最后更新: 2026-10-24T10:34:49Z
+> 由 generate-status.py 自动生成。最后更新: 2026-10-24T11:41:23Z
 > 新 AI 启动时: `cat STATUS.md && bash scripts/session/ses-context-load.sh`
 
 ---
@@ -12,8 +12,8 @@
 | 名称 | 轻衡健康 Android（lightweigh） |
 | 版本 | 0.1.0 |
 | 文档语言 | zh-CN |
-| Git 分支 | chore/integration-20261024-183333 |
-| 最后提交 | 8308527 chore(merge): chore/gov-hook-gate2 via queue 20261024-183333 |
+| Git 分支 | chore/integration-20261024-194000 |
+| 最后提交 | 2450698 chore(merge): chore/gov-evidence via queue 20261024-194000 |
 | 文档校验 | 运行: `bash scripts/governance/gov-validate.sh` |
 
 ## AI 交接
@@ -49,11 +49,11 @@
 最近 5 次提交：
 
 ```
-8308527 chore(merge): chore/gov-hook-gate2 via queue 20261024-183333
-914e1d1 chore(governance): brace variable before CJK in hook installer message
-4d828b3 chore(governance): install hooks as wrapper scripts
-d2847a1 chore(merge): chore/gov-commit-wrap via queue 20261024-181535
-3488eb7 fix(governance): wrap long commit bodies instead of rejecting them
+2450698 chore(merge): chore/gov-evidence via queue 20261024-194000
+9c8b9e8 chore(merge): chore/gov-hookspath via queue 20261024-194000
+0d6ee16 feat(governance): attribute tasks by commit trailer, record evidence
+1509b58 chore(governance): version the git hooks instead of installing copies
+9390e71 chore(board): reconcile tasks from merged PRs
 ```
 
 ## 工程指标
@@ -81,9 +81,9 @@ d2847a1 chore(merge): chore/gov-commit-wrap via queue 20261024-181535
 
 | 检查项 | 状态 | 详情 |
 |-------|------|------|
-| 本地门禁 (gov-local-ci) | 通过 | local-ci PASS @ 2026-10-24T10:34:48Z sha=8308527 branch=chore/integration-20261024-183333 [gov-validate:ok,gov-custom-checks:ok,gov-secrets-scan:ok,gov-schema-guard:ok,gov-test-guard:ok,gov-a11y-check:ok,gov-reachability-check:ok,gov-hook-doctor:ok] |
+| 本地门禁 (gov-local-ci) | 通过 | local-ci PASS @ 2026-10-24T11:41:23Z sha=2450698 branch=chore/integration-20261024-194000 [gov-validate:ok,gov-custom-checks:ok,gov-secrets-scan:ok,gov-schema-guard:ok,gov-test-guard:ok,gov-a11y-check:ok,gov-reachability-check:ok,gov-hook-doctor:ok] |
 | GitHub Actions | 无数据 | gh 不可用或无最近 run |
-| 文档校验 | 通过 | 来自 local-ci @ 2026-10-24T10:34:48Z sha=8308527 |
+| 文档校验 | 通过 | 来自 local-ci @ 2026-10-24T11:41:23Z sha=2450698 |
 | Git 钩子 | 未安装 | 安装: bash scripts/bootstrap/bs-install-hooks.sh |
 
 ## 反思
