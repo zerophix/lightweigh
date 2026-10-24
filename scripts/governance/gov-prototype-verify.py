@@ -15,10 +15,18 @@ gov-prototype-verify.py — 原型→任务→代码 闭环验证
 
 --strict: 缺 target_files 或代码不匹配时返回非零（用于门禁）
 默认模式：只报告，不失败（用于检查）
+
+文案匹配率的作用域（T-106 / DEC-071）
+  聚合：先把任务**全部已存在目标文件**的文本聚成一份，再做比对。
+        旧实现逐文件比对全任务的 view 文案，多文件薄封装任务必然被稀释出假 WARN。
+  逐 view：聚合文本按 view 分别求率，判定「是否参考过原型」看是否至少一个 view 达标。
+        旧实现把全部 view 文案并成一个分母，单文件承载多个 view 时同样被稀释。
+  阈值（COPY_MATCH_THRESHOLD）不变，只有分母与执行单元从「文件」换到「任务 + view」。
 """
 import json
 import re
 import sys
+from collections import namedtuple
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent.parent
@@ -29,6 +37,12 @@ PROTOTYPE_DIR = ROOT / "design" / "prototypes" / "interactive"
 HARDCODED_COLOR = re.compile(r"Color\(0x[0-9A-Fa-f]{6,8}\)")
 # 硬编码 dp 检测（禁止裸 14.dp 等，必须用 QkSpacing）
 HARDCODED_DP = re.compile(r"(?<!Qk)\b\d+\.dp\b")
+
+# 文案匹配率阈值：单个 view 至少 30% 的文案落在任务目标文件里，才算「参考过原型」
+COPY_MATCH_THRESHOLD = 0.3
+
+# 单个 view 的文案匹配结果
+ViewCopyRatio = namedtuple("ViewCopyRatio", ["view_id", "hits", "total", "ratio"])
 
 
 def load_tasks():
@@ -116,6 +130,74 @@ def check_schema(task):
     return errors, warnings
 
 
+def aggregate_target_text(target_paths):
+    """把任务全部已存在目标文件的文本聚合成一份代码文本。
+
+    聚合是「按任务」而非「按文件」求匹配率的前提：多文件任务里每个文件往往只
+    承载一个 view 的文案，逐文件成率会把分母撑成全任务 view 而分子只有一个文件，
+    于是任何薄封装文件都低分（T-098 的 4 条假 WARN 即此）。
+    """
+    return "\n".join(p.read_text(encoding="utf-8") for p in target_paths)
+
+
+def view_copy_ratios(code, all_views, views):
+    """逐 view 计算原型文案在聚合代码中的匹配率。返回 [ViewCopyRatio]。
+
+    每个 view 各自成率（不跨 view 混算分母）；原型里不存在的 view 由 schema
+    校验负责报错，这里直接跳过，避免凭空造分母。
+    """
+    ratios = []
+    for view_id in views:
+        view = all_views.get(view_id)
+        if not view:
+            continue
+        phrases = view["phrases"]
+        if not phrases:
+            continue
+        hits = sum(1 for p in phrases if p in code)
+        ratios.append(ViewCopyRatio(view_id, hits, len(phrases), hits / len(phrases)))
+    return ratios
+
+
+def check_copy_scope(task_id, target_paths, all_views, views):
+    """按任务作用域检查原型文案落地情况。返回 (warnings, info)。
+
+    判定口径与告警文案的语义一致：告警说的是「可能未参考原型」，因此只要**有一个**
+    声明 view 的文案达到阈值，就证明该任务确实参考了原型；只有全部 view 都低于
+    阈值时才告警。逐 view 而非并集分母，是为了让「一文件承载多 view 中的少数几个」
+    不被非本任务 view 稀释（T-097 的 13% 假 WARN 即此）。
+    """
+    if not target_paths or not views:
+        return [], []
+
+    code = aggregate_target_text(target_paths)
+    ratios = view_copy_ratios(code, all_views, views)
+    if not ratios:
+        return [], []
+
+    matched = [r for r in ratios if r.ratio >= COPY_MATCH_THRESHOLD]
+    top = max(r.ratio for r in ratios)
+    detail = "，".join(f"{r.view_id} {r.ratio:.0%}" for r in ratios)
+
+    if matched:
+        return [], [
+            f"{task_id}: 原型文案落地 {len(matched)}/{len(ratios)} view"
+            f"（最高 {top:.0%}，阈值 {COPY_MATCH_THRESHOLD:.0%}）: {detail}"
+        ]
+
+    if len(ratios) == 1:
+        only = ratios[0]
+        return [
+            f"{task_id}: view {only.view_id} 原型文案匹配率 {only.ratio:.0%}"
+            f"（{only.hits}/{only.total}）低于 {COPY_MATCH_THRESHOLD:.0%}，可能未参考原型"
+        ], []
+
+    return [
+        f"{task_id}: {len(ratios)} 个声明 view 的原型文案匹配率均低于 "
+        f"{COPY_MATCH_THRESHOLD:.0%}（最高 {top:.0%}: {detail}），可能未参考原型"
+    ], []
+
+
 def verify_task(task, strict=False):
     """验证单个任务的完整闭环。返回 (errors, warnings, info)。"""
     errors, warnings = check_schema(task)
@@ -175,26 +257,12 @@ def verify_task(task, strict=False):
                 f"检查是否复用了设计系统"
             )
 
-        # 反向检查：原型文案是否出现在代码中
-        all_phrases = set()
-        for v in views:
-            if v in all_views:
-                all_phrases.update(all_views[v]["phrases"])
-
-        if all_phrases and existing_targets:
-            # 检查至少 30% 的原型文案出现在代码中
-            code_has = sum(1 for p in all_phrases if p in code)
-            ratio = code_has / len(all_phrases) if all_phrases else 0
-            if ratio < 0.3 and all_phrases:
-                warnings.append(
-                    f"{task['id']}: {tf_path.name} 原型文案匹配率 "
-                    f"{ratio:.0%}（{code_has}/{len(all_phrases)}），"
-                    f"可能未参考原型"
-                )
-            else:
-                info.append(
-                    f"{task['id']}: {tf_path.name} 原型文案匹配率 {ratio:.0%}"
-                )
+    # 反向检查：原型文案是否出现在任务的目标文件里（按任务聚合 + 逐 view，见文件头）
+    copy_warnings, copy_info = check_copy_scope(
+        task["id"], existing_targets, all_views, views
+    )
+    warnings.extend(copy_warnings)
+    info.extend(copy_info)
 
     return errors, warnings, info
 
