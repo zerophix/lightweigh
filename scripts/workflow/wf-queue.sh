@@ -89,6 +89,11 @@ cmd_run() {
     say "⚠️ 主树有未提交改动（队列只用 origin/master，不影响本次；但建议先处理）"
   fi
 
+  # 启动前先回收已合入的 worktree/分支（每轮都做，不依赖上一轮收尾）
+  if [ -x "$ROOT/scripts/session/ses-worktree.sh" ]; then
+    bash "$ROOT/scripts/session/ses-worktree.sh" clean >/dev/null 2>&1 || true
+  fi
+
   local branches=() merged=() skipped=()
   while read -r br; do
     [ -z "$br" ] && continue
