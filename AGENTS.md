@@ -133,7 +133,7 @@ bash scripts/session/ses-session-end.sh
 | 无障碍（a11y 名 / 固定高度裁剪 / 对比度） | `gov-a11y-check`（local-ci 全车道） | `python3 scripts/governance/gov-a11y-check.py` |
 | 预览覆盖（每个对外屏有 @Preview） | `gov-validate` → `check_previews` | `python3 scripts/governance/gov-preview-check.py` |
 | 屏可达性（点不到的屏不得新增） | `gov-reachability-check`（local-ci 全车道，棘轮基线） | `python3 scripts/governance/gov-reachability-check.py` |
-| 钩子副本不漂移（改了源就重装） | `gov-hook-doctor`（local-ci 全车道） | `bash scripts/governance/gov-hook-doctor.sh` |
+| 钩子生效（hooksPath 指向版本化目录） | `gov-hook-doctor`（local-ci 全车道） | `bash scripts/governance/gov-hook-doctor.sh` |
 | 工作区卫生（worktree/分支/锁） | `gov-workspace-doctor`（会话结束 + 手动） | `gov-workspace-doctor.sh` |
 | 派生数据不手写 | 合并队列（单一写者） | `gov-board-sync.sh --dry` |
 | 慢命令不阻塞 | **约定**（见 §2；靠纪律，无强制） | — |
@@ -173,7 +173,7 @@ bash scripts/governance/gov-validate.sh            # 文档/协议校验（秒�
 python3 scripts/governance/gov-a11y-check.py       # 无障碍静态检查（秒级）
 python3 scripts/governance/gov-preview-check.py    # 预览覆盖检查（秒级）
 python3 scripts/governance/gov-reachability-check.py  # 屏可达性审计（秒级，基线只减不增）
-bash scripts/governance/gov-hook-doctor.sh         # 钩子副本一致性（漂移即失败）
+bash scripts/governance/gov-hook-doctor.sh         # 钩子配置检查（hooksPath + 包装器）
 bash scripts/governance/gov-board-sync.sh          # 派生物同步（合并队列内部调用）
 ```
 

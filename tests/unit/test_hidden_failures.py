@@ -1,7 +1,7 @@
-"""隐形失效防护（DEC-067）测试：钩子副本漂移 + 任务板回填。
+"""隐形失效防护（DEC-067/073）测试：钩子配置 + 任务板回填。
 
 这两项都是"没有报错但已经失效"的典型：
-  - 钩子副本过期 → 以为有门禁，实际跑旧版
+  - 钩子配置错位（副本过期 / hooksPath 指错）→ 以为有门禁，实际跑旧版
   - 合并后不回填任务板 → 已交付任务被再次派发（重复实现）
 """
 import json
@@ -39,66 +39,78 @@ def test_scripts_syntax():
 # ---------------------------------------------------------------- 钩子漂移
 
 def _hook_repo(tmp_path: Path) -> Path:
+    """最小仓库：源脚本 + 版本化包装器目录（DEC-073）。"""
     root = tmp_path / "repo"
     (root / "scripts" / "governance").mkdir(parents=True)
-    (root / "scripts" / "bootstrap").mkdir(parents=True)
-    (root / "scripts" / "governance" / "gov-pre-push").write_text("#!/bin/sh\necho new\n")
-    installer = root / "scripts" / "bootstrap" / "bs-install-hooks.sh"
-    installer.write_text("#!/bin/sh\nexit 0\n")
-    installer.chmod(installer.stat().st_mode | stat.S_IEXEC)
+    (root / "scripts" / "hooks").mkdir(parents=True)
+    sources = {
+        "gov-pre-commit-simplified": "pre-commit",
+        "gov-commit-msg": "commit-msg",
+        "gov-pre-push": "pre-push",
+        "gov-prepare-commit-msg": "prepare-commit-msg",
+    }
+    for src, name in sources.items():
+        (root / "scripts" / "governance" / src).write_text("#!/bin/sh\nexit 0\n")
+        wrapper = root / "scripts" / "hooks" / name
+        wrapper.write_text(
+            "#!/usr/bin/env bash\n"
+            f'exec bash "$(git rev-parse --show-toplevel)/scripts/governance/{src}" "$@"\n'
+        )
+        wrapper.chmod(0o755)
     _git(root, "init", "-q")
-    _git(root, "add", "-A")
-    _git(root, "commit", "-qm", "init")
+    _git(root, "config", "core.hooksPath", "scripts/hooks")
     return root
 
 
-def _install_copy(root: Path, content: str):
-    hooks = root / ".git" / "hooks"
-    hooks.mkdir(parents=True, exist_ok=True)
-    p = hooks / "pre-push"
-    p.write_text(content)
-    p.chmod(0o755)
-
-
-def test_hook_doctor_detects_drift(tmp_path):
+def test_hook_doctor_ok_when_wrappers_in_place(tmp_path):
     root = _hook_repo(tmp_path)
-    _install_copy(root, "#!/bin/sh\necho OLD\n")
-
-    res = _run(HOOK_DOCTOR, root=root)
-
-    assert res.returncode == 1
-    assert "DRIFT" in res.stdout
-
-
-def test_hook_doctor_ok_when_identical(tmp_path):
-    root = _hook_repo(tmp_path)
-    src = (root / "scripts" / "governance" / "gov-pre-push").read_text()
-    _install_copy(root, src)
 
     res = _run(HOOK_DOCTOR, root=root)
 
     assert res.returncode == 0, res.stdout + res.stderr
-    assert "一致" in res.stdout
+    assert "钩子配置正确" in res.stdout
 
 
-def test_hook_doctor_detects_missing(tmp_path):
+def test_hook_doctor_detects_wrong_hooks_path(tmp_path):
     root = _hook_repo(tmp_path)
+    _git(root, "config", "core.hooksPath", ".git/hooks")
 
     res = _run(HOOK_DOCTOR, root=root)
 
     assert res.returncode == 1
-    assert "MISSING" in res.stdout
+    assert "core.hooksPath" in res.stdout
+
+
+def test_hook_doctor_detects_missing_wrapper(tmp_path):
+    root = _hook_repo(tmp_path)
+    (root / "scripts" / "hooks" / "pre-push").unlink()
+
+    res = _run(HOOK_DOCTOR, root=root)
+
+    assert res.returncode == 1
+    assert "缺少包装器" in res.stdout
+
+
+def test_hook_doctor_detects_wrapper_pointing_elsewhere(tmp_path):
+    root = _hook_repo(tmp_path)
+    wrapper = root / "scripts" / "hooks" / "commit-msg"
+    wrapper.write_text("#!/usr/bin/env bash\nexit 0\n")
+
+    res = _run(HOOK_DOCTOR, root=root)
+
+    assert res.returncode == 1
+    assert "未指向源" in res.stdout
 
 
 def test_hook_doctor_json(tmp_path):
     root = _hook_repo(tmp_path)
-    _install_copy(root, "#!/bin/sh\necho OLD\n")
+    _git(root, "config", "core.hooksPath", ".git/hooks")
 
     res = _run(HOOK_DOCTOR, "--json", root=root)
 
     data = json.loads(res.stdout)
-    assert data["drift"], data
-    assert data["drift"][0]["hook"] == "pre-push"
+    assert data["ok"] is False
+    assert any("core.hooksPath" in i for i in data["issues"]), data
 
 
 # ---------------------------------------------------------------- 任务板回填

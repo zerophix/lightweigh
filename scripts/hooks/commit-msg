@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# 版本化 git 钩子（DEC-073）：core.hooksPath 指向本目录。
+# 不再向 .git/hooks 拷贝副本 —— 副本会随安装时机固定成某一版，改动不生效。
+set -uo pipefail
+root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+src="$root/scripts/governance/gov-commit-msg"
+if [ ! -f "$src" ]; then
+  echo "[hook] 源脚本缺失: $src" >&2
+  exit 1
+fi
+exec bash "$src" "$@"
