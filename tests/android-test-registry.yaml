@@ -317,5 +317,9 @@ commands:
   path: app/src/test/kotlin/com/xcwk/scalehub/feature/mine/AboutPrivacyDetailTest.kt
   status: stable
   type: gradle-test
+- description: 自动登记（gov-registry-sync）
+  path: app/src/test/kotlin/com/xcwk/scalehub/feature/mine/AccountSecurityTest.kt
+  status: stable
+  type: gradle-test
 configs: []
 orphans: []
