@@ -13,7 +13,7 @@
 """
 import os, re, yaml
 from pathlib import Path
-from .gov_validate_core import ROOT, errors, fail
+from .gov_validate_core import ROOT, errors, fail, on_feature_branch
 from .gov_emoji import EMOJI_RE, contains_emoji
 
 GOV_CONFIG = ROOT / "scripts" / "governance" / "gov-config.sh"
@@ -129,11 +129,20 @@ def check_all() -> None:
     # 正向: 已注册但磁盘不存在 = 僵尸
     registered_paths = {(dp / fname).relative_to(ROOT).as_posix() for dp, fname in files}
     zombies = [p for p in reg if p not in registered_paths]
-    if unregistered:
-        for p in unregistered:
-            fail(f"GOV-ATEST-005: 磁盘测试未在 android-test-registry.yaml 注册: {p}")
-    if zombies:
-        for p in zombies:
-            fail(f"GOV-ATEST-005: 注册表僵尸条目（测试文件不存在）: {p}")
-    if not unregistered and not zombies:
+    # DEC-065: 注册表是派生数据，功能分支不允许写共享文件（单一写者）→
+    # 特性分支降级 WARN，由合并队列/收尾统一补注册；master/CI 仍 ERROR。
+    soft = on_feature_branch(ROOT)
+    for p in unregistered:
+        msg = f"GOV-ATEST-005: 磁盘测试未在 android-test-registry.yaml 注册: {p}"
+        if soft:
+            print(f"  [WARN] {msg}（特性分支，合并时由收尾补注册）")
+        else:
+            fail(msg)
+    for p in zombies:
+        msg = f"GOV-ATEST-005: 注册表僵尸条目（测试文件不存在）: {p}"
+        if soft:
+            print(f"  [WARN] {msg}（特性分支）")
+        else:
+            fail(msg)
+    if not unregistered and not zombies and not soft:
         print("  [PASS] 所有 Android 测试文件已在注册表登记，无僵尸条目")
