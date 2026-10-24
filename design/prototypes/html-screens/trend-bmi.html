@@ -1,0 +1,83 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BMI趋势 - 轻刻健康</title>
+<style>
+:root{--brand:#21a675;--deep:#147d58;--bg:#f5f8f5;--text:#202923;--muted:#89938c;--line:#edf1ed;--blue:#6596e8}
+*{box-sizing:border-box}body{margin:0;background:#eaf0eb;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}button{font:inherit;cursor:pointer}
+.app{max-width:430px;min-height:100vh;margin:auto;background:var(--bg);padding-bottom:28px}
+.header{background:#fff;padding:20px 20px 18px}.nav{height:32px;display:flex;align-items:center;justify-content:space-between}.back{border:0;background:none;font-size:25px;color:#26342b;padding:0 8px 0 0}.title{font-size:17px;font-weight:700}.help{width:34px;height:34px;border:1px solid var(--line);border-radius:11px;background:white;color:#68766d}
+.eyebrow{font-size:12px;color:var(--muted);margin-top:20px}.value{display:flex;align-items:baseline;gap:7px;margin-top:6px}.value strong{font-size:40px;letter-spacing:-1px}.value span{font-size:13px;color:#7c887f}.change{display:inline-block;margin-top:9px;padding:6px 9px;background:#e8f7ee;border-radius:8px;color:var(--deep);font-size:11px}.desc{font-size:11px;color:#8c978e;line-height:1.65;margin-top:10px}
+.period{display:flex;gap:4px;background:#f0f4f0;border-radius:12px;padding:4px;margin-top:20px}.period button{flex:1;padding:9px 0;border:0;border-radius:9px;background:transparent;color:#7c887f;font-size:12px}.period button.active{background:#fff;color:var(--deep);font-weight:650;box-shadow:0 1px 4px #142a1c0b}
+.content{padding:16px}.card{background:#fff;border:1px solid #edf1ed;border-radius:18px;padding:17px;margin-bottom:13px}.head{display:flex;align-items:center;justify-content:space-between}.head h2{margin:0;font-size:15px}.head button{border:0;background:none;color:#89938c;font-size:12px}
+.chart{width:100%;display:block;margin-top:18px}.labels{display:flex;justify-content:space-between;color:#98a29a;font-size:10px;margin-top:4px}
+.selected{display:flex;justify-content:space-between;align-items:center;background:#f4f8f5;padding:12px 13px;border-radius:12px;margin-top:14px}.selected small{display:block;font-size:11px;color:#89938c}.selected strong{display:block;margin-top:4px;font-size:19px}.right{text-align:right}.right strong{font-size:12px;color:var(--deep)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);margin-top:18px}.stat{padding:0 8px;border-right:1px solid var(--line)}.stat:first-child{padding-left:0}.stat:last-child{border:0}.stat label{font-size:11px;color:#89938c}.stat strong{display:block;font-size:18px;margin-top:7px}.stat small{font-size:10px;color:#89938c;font-weight:400}
+.record{display:flex;align-items:center;padding:13px 0;border-bottom:1px solid #f0f3f0}.record:last-child{border:0;padding-bottom:0}.date{width:53px;flex-shrink:0}.date b{font-size:13px}.date small,.record-info small{display:block;font-size:10px;color:#939d95;margin-top:4px}.record-info{flex:1}.record-info b{font-size:13px;font-weight:550}.record-value{text-align:right;font-size:15px;font-weight:700}.record-value small{display:block;font-size:10px;color:#939d95;font-weight:400;margin-top:4px}.arrow{margin-left:8px;color:#aab4ac;font-size:19px}
+.bmi-scale{display:flex;height:9px;border-radius:8px;overflow:hidden;margin-top:17px}.bmi-scale span:nth-child(1){width:25%;background:#83c8a2}.bmi-scale span:nth-child(2){width:25%;background:#55b987}.bmi-scale span:nth-child(3){width:25%;background:#f0c16d}.bmi-scale span:nth-child(4){width:25%;background:#e58d7f}.scale-labels{display:flex;justify-content:space-between;gap:4px;margin-top:8px;font-size:10px;color:#8b968e}.current-band{font-size:12px;margin-top:14px;padding:11px;background:#eef7f0;border-radius:10px;color:#4c765b;line-height:1.6}
+.tip{display:flex;gap:10px;padding:13px;border-radius:13px;background:#edf6f0;color:#597361;font-size:11px;line-height:1.75}.footnote{font-size:10px;color:#9aa49c;line-height:1.7;padding:5px 4px 0}
+.toast{position:fixed;bottom:25px;left:50%;transform:translateX(-50%);background:#25352b;color:white;border-radius:12px;padding:11px 15px;font-size:12px;white-space:nowrap;opacity:0;pointer-events:none;transition:.2s}.toast.show{opacity:1}
+@media(min-width:500px){.app{margin:18px auto;border-radius:26px;overflow:hidden;box-shadow:0 12px 45px #21352712;min-height:calc(100vh - 36px)}}
+</style>
+</head>
+<body><div class="app">
+<header class="header">
+<div class="nav"><button class="back" onclick="history.length>1?history.back():location.href='metrics-overview.html'">‹</button><div class="title">BMI 趋势</div><button class="help" onclick="document.getElementById('bmiExplain').scrollIntoView({behavior:'smooth'})">i</button></div>
+<div class="eyebrow">最近一次测量 · 2026年10月22日</div>
+<div class="value"><strong>23.7</strong><span>kg/m²</span></div>
+<div class="change" id="change">近 7 天下降 0.3</div>
+<div class="desc">BMI 是根据体重和身高计算的体重指数，不直接测量体脂率或肌肉量。</div>
+<div class="period" id="period"><button class="active" data-p="week">近 7 天</button><button data-p="month">近 30 天</button><button data-p="quarter">近 3 个月</button><button data-p="year">近 1 年</button></div>
+</header>
+<main class="content">
+<section class="card">
+<div class="head"><h2>BMI 变化趋势</h2><button onclick="showToast('图表为模拟数据')">图表说明 ⓘ</button></div>
+<svg class="chart" viewBox="0 0 340 180" role="img" aria-label="BMI趋势图">
+<g stroke="#edf1ed"><line x1="36" y1="25" x2="328" y2="25"/><line x1="36" y1="61" x2="328" y2="61"/><line x1="36" y1="97" x2="328" y2="97"/><line x1="36" y1="133" x2="328" y2="133"/></g>
+<g fill="#9aa49c" font-size="10"><text x="1" y="28">24.5</text><text x="1" y="64">24.0</text><text x="1" y="100">23.5</text><text x="1" y="136">23.0</text></g>
+<path id="area" d="" fill="#6596e8" opacity=".12"/><path id="line" d="" fill="none" stroke="#6596e8" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><g id="points"></g>
+</svg>
+<div class="labels" id="labels"></div>
+<div class="selected"><div><small id="selectedDate">10/22 · 最新记录</small><strong><span id="selectedValue">23.7</span> <small style="display:inline">kg/m²</small></strong></div><div class="right"><small>较前一次</small><strong id="selectedChange">−0.1</strong></div></div>
+<div class="stats"><div class="stat"><label>周期最高</label><strong id="max">24.1</strong><small> BMI</small></div><div class="stat"><label>周期最低</label><strong id="min">23.7</strong><small> BMI</small></div><div class="stat"><label>周期平均</label><strong id="avg">23.9</strong><small> BMI</small></div></div>
+</section>
+<section class="card" id="bmiExplain">
+<div class="head"><h2>了解 BMI</h2><button onclick="showToast('可扩展完整指标说明页')">详细说明 ›</button></div>
+<div class="bmi-scale"><span></span><span></span><span></span><span></span></div>
+<div class="scale-labels"><span>偏低</span><span>参考区间</span><span>偏高</span><span>较高</span></div>
+<div class="current-band"><b>当前数值：23.7</b><br>此处仅展示数值位置，不自动判定健康状态。适用参考范围需结合地区标准、年龄和具体人群。</div>
+<p style="font-size:12px;line-height:1.8;color:#68766d;margin:13px 0 0">BMI 通常由体重（kg）除以身高（m）的平方计算。它不能区分脂肪与肌肉，也不能单独反映脂肪分布，因此应结合其他身体指标理解。</p>
+</section>
+<section class="card">
+<div class="head"><h2>最近测量记录</h2><button onclick="location.href='history-list.html'">全部记录 ›</button></div>
+<div class="record"><div class="date"><b>22日</b><small>周四</small></div><div class="record-info"><b>早晨测量</b><small>08:15 · 设备测量</small></div><div class="record-value">23.7<small>−0.1</small></div><span class="arrow">›</span></div>
+<div class="record"><div class="date"><b>21日</b><small>周三</small></div><div class="record-info"><b>早晨测量</b><small>07:52 · 设备测量</small></div><div class="record-value">23.8<small>−0.1</small></div><span class="arrow">›</span></div>
+<div class="record"><div class="date"><b>20日</b><small>周二</small></div><div class="record-info"><b>晚间测量</b><small>20:34 · 设备测量</small></div><div class="record-value">23.9<small>无明显变化</small></div><span class="arrow">›</span></div>
+</section>
+<div class="tip"><span>ⓘ</span><div><b>阅读趋势的小建议</b><br>短期 BMI 波动通常与体重变化有关。建议确认个人身高资料准确，并结合体脂率、肌肉量及长期趋势进行观察。</div></div>
+<div class="footnote">演示数据不代表真实用户测量结果。本页面不用于疾病诊断；BMI 也不适合单独用于评估所有年龄和人群的身体状况。</div>
+</main></div><div class="toast" id="toast"></div>
+<script>
+const sets={
+week:{v:[24.1,24.0,24.0,23.9,23.8,23.8,23.7],l:['10/16','10/17','10/18','10/19','10/20','10/21','10/22'],c:'近 7 天下降 0.3'},
+month:{v:[24.5,24.4,24.3,24.2,24.1,24.0,23.9,23.8,23.8,23.7],l:['09/23','09/26','09/29','10/02','10/05','10/08','10/11','10/14','10/18','10/22'],c:'近 30 天下降 0.8'},
+quarter:{v:[25.1,24.9,24.8,24.6,24.5,24.3,24.1,24.0,23.9,23.7],l:['07/24','08/02','08/12','08/22','09/01','09/11','09/21','10/01','10/11','10/22'],c:'近 3 个月下降 1.4'},
+year:{v:[26.2,25.9,25.6,25.3,25.0,24.7,24.5,24.2,24.0,23.7],l:['11月','12月','1月','2月','3月','4月','5月','6月','8月','10月'],c:'近 1 年下降 2.5'}
+};
+function showToast(s){let e=document.getElementById('toast');e.textContent=s;e.classList.add('show');clearTimeout(window.t);window.t=setTimeout(()=>e.classList.remove('show'),2000)}
+function draw(d){
+let min=Math.min(...d.v)-.15,max=Math.max(...d.v)+.15,L=36,R=328,T=25,B=133;
+let ps=d.v.map((v,i)=>({x:L+(R-L)*i/(d.v.length-1),y:B-(v-min)/(max-min)*(B-T),v}));
+let path=ps.map((p,i)=>(i?'L':'M')+p.x.toFixed(1)+' '+p.y.toFixed(1)).join(' ');
+document.getElementById('line').setAttribute('d',path);document.getElementById('area').setAttribute('d',path+' L '+R+' '+B+' L '+L+' '+B+' Z');
+document.getElementById('points').innerHTML=ps.map((p,i)=>`<circle cx="${p.x}" cy="${p.y}" r="${i===ps.length-1?5:4}" fill="#6596e8" stroke="white" stroke-width="2" style="cursor:pointer" onclick="selectPoint(${i})"/>`).join('');
+document.getElementById('labels').innerHTML=d.l.map(x=>'<span>'+x+'</span>').join('');window.d=d;window.ps=ps;
+document.getElementById('max').textContent=Math.max(...d.v).toFixed(1);document.getElementById('min').textContent=Math.min(...d.v).toFixed(1);document.getElementById('avg').textContent=(d.v.reduce((a,b)=>a+b,0)/d.v.length).toFixed(1);selectPoint(ps.length-1);
+}
+function selectPoint(i){let p=window.ps[i],d=window.d,prev=d.v[Math.max(0,i-1)],diff=p.v-prev;document.getElementById('selectedDate').textContent=d.l[i];document.getElementById('selectedValue').textContent=p.v.toFixed(1);document.getElementById('selectedChange').textContent=(diff>0?'+':'')+diff.toFixed(1)}
+document.querySelectorAll('#period button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#period button').forEach(x=>x.classList.toggle('active',x===b));document.getElementById('change').textContent=sets[b.dataset.p].c;draw(sets[b.dataset.p])});
+draw(sets.week);
+</script></body></html>

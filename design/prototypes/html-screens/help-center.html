@@ -1,0 +1,126 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>帮助中心 - 轻刻健康</title>
+<style>
+:root{--green:#21a675;--deep:#147d58;--bg:#f5f8f5;--text:#20332b;--muted:#7d8982;--line:#e8eee9}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;color:var(--text)}
+.app{max-width:430px;min-height:100vh;margin:auto;padding-bottom:32px}
+header{height:58px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:0 20px}
+header button{border:0;background:none;font-size:25px;cursor:pointer}
+h1{font-size:18px;margin:0}
+main{padding:18px 16px}
+.hero{background:linear-gradient(135deg,#e5f7ee,#f5fbf7);border-radius:18px;padding:20px 17px;margin-bottom:16px}
+.hero h2{font-size:20px;margin:0 0 8px}
+.hero p{font-size:12px;line-height:1.7;color:#688075;margin:0 0 15px}
+.search{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #e2ece5;border-radius:12px;padding:0 12px}
+.search span{color:var(--muted);font-size:18px}
+.search input{width:100%;border:0;outline:none;padding:13px 0;font:inherit;font-size:13px;background:transparent}
+.section-title{font-size:15px;font-weight:650;margin:22px 2px 12px}
+.categories{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.category{border:1px solid transparent;border-radius:13px;background:#fff;padding:14px 3px 12px;text-align:center;cursor:pointer;color:var(--text)}
+.category.active{border-color:var(--green);background:#eef9f3}
+.category .ico{font-size:23px;margin-bottom:8px}
+.category span{font-size:11px;white-space:nowrap}
+.card{background:#fff;border-radius:16px;padding:0 16px;margin-bottom:14px}
+.faq{border-bottom:1px solid var(--line)}
+.faq:last-child{border-bottom:0}
+.question{width:100%;border:0;background:none;padding:16px 0;display:flex;justify-content:space-between;align-items:center;text-align:left;gap:10px;color:var(--text);font:inherit;cursor:pointer}
+.question strong{font-size:13px;font-weight:600;line-height:1.5}
+.arrow{color:var(--muted);font-size:18px;flex-shrink:0;transition:transform .2s}
+.answer{display:none;font-size:12px;line-height:1.85;color:#718078;padding:0 0 16px}
+.faq.open .answer{display:block}
+.faq.open .arrow{transform:rotate(90deg)}
+.empty{display:none;text-align:center;padding:28px 12px;color:var(--muted);font-size:13px}
+.support{background:#fff;border-radius:16px;padding:17px;display:flex;align-items:center;gap:12px}
+.support-icon{width:43px;height:43px;border-radius:14px;background:#e6f7ef;color:var(--green);display:grid;place-items:center;font-size:21px;flex-shrink:0}
+.support-content{flex:1}
+.support strong{font-size:13px}
+.support p{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.6}
+.support button{border:1px solid #cfe9da;background:#fff;color:var(--deep);border-radius:10px;padding:8px 10px;font-size:11px;white-space:nowrap}
+.notice{font-size:11px;color:var(--muted);line-height:1.7;margin:14px 3px}
+</style>
+</head>
+<body>
+<div class="app">
+<header><button onclick="history.length>1?history.back():location.href='profile-home.html'" aria-label="返回">‹</button><h1>帮助中心</h1></header>
+<main>
+<section class="hero">
+<h2>有什么可以帮你？</h2>
+<p>查找测量、设备连接、健康数据和账号相关问题的解决方法。</p>
+<div class="search"><span>⌕</span><input id="searchInput" type="search" placeholder="搜索问题，例如：连接不上体脂秤" oninput="filterFaq()"></div>
+</section>
+
+<div class="section-title">问题分类</div>
+<div class="categories">
+<button class="category active" data-category="all" onclick="selectCategory('all',this)"><div class="ico">▦</div><span>全部问题</span></button>
+<button class="category" data-category="device" onclick="selectCategory('device',this)"><div class="ico">⚖</div><span>设备测量</span></button>
+<button class="category" data-category="data" onclick="selectCategory('data',this)"><div class="ico">▥</div><span>数据同步</span></button>
+<button class="category" data-category="account" onclick="selectCategory('account',this)"><div class="ico">♙</div><span>账号隐私</span></button>
+</div>
+
+<div class="section-title">常见问题</div>
+<section class="card" id="faqList">
+<div class="faq" data-category="device" data-keywords="蓝牙 连接 体脂秤 搜索不到 配对">
+<button class="question" onclick="toggleFaq(this)"><strong>为什么搜索不到我的体脂秤？</strong><span class="arrow">›</span></button>
+<div class="answer">请先确认体脂秤已安装电池并处于可连接状态，手机蓝牙已开启，手机与设备距离适当。部分设备需要先唤醒秤体才能被发现。若仍无法连接，请查看设备型号对应的说明书。原型页面不会实际扫描蓝牙设备。</div>
+</div>
+<div class="faq" data-category="device" data-keywords="测量 体脂 数据 不准确 结果 误差">
+<button class="question" onclick="toggleFaq(this)"><strong>为什么每次测量结果不完全一样？</strong><span class="arrow">›</span></button>
+<div class="answer">体重及身体成分估算可能受到测量时间、饮水、运动、进食、脚底接触和设备条件影响。建议尽量在相近时间、相似条件下测量，并关注长期趋势，而不是只比较单次结果。体脂秤的身体成分数据属于估算值，不能替代医学诊断。</div>
+</div>
+<div class="faq" data-category="data" data-keywords="同步 失败 云端 上传 网络 待同步">
+<button class="question" onclick="toggleFaq(this)"><strong>测量记录为什么一直显示待同步？</strong><span class="arrow">›</span></button>
+<div class="answer">请先检查网络状态和账号登录状态，再查看同步状态详情中的失败提示。重试前不要卸载应用或清理应用数据，以免影响尚未备份的本地记录。<br><a href="sync-status-detail.html" style="color:#147d58">查看同步状态详情 →</a></div>
+</div>
+<div class="faq" data-category="data" data-keywords="冲突 本地 云端 记录 覆盖">
+<button class="question" onclick="toggleFaq(this)"><strong>同步冲突时应该保留哪个版本？</strong><span class="arrow">›</span></button>
+<div class="answer">先核对两份记录的修改时间和具体差异，再根据实际需要选择。若不确定哪份数据正确，可以暂缓处理，避免在确认前覆盖重要记录。<br><a href="sync-conflict-resolution.html" style="color:#147d58">了解冲突处理 →</a></div>
+</div>
+<div class="faq" data-category="account" data-keywords="账号 登录 换手机">
+<button class="question" onclick="toggleFaq(this)"><strong>更换手机后如何找回健康记录？</strong><span class="arrow">›</span></button>
+<div class="answer">请使用原账号登录，并确认历史记录是否已成功同步。若部分记录只保存在旧设备中，能否恢复取决于旧设备数据和实际备份情况。请勿在确认备份前删除旧设备上的应用数据。</div>
+</div>
+<div class="faq" data-category="account" data-keywords="隐私 数据 删除 导出 授权">
+<button class="question" onclick="toggleFaq(this)"><strong>如何导出或申请删除我的数据？</strong><span class="arrow">›</span></button>
+<div class="answer">可以从个人中心进入隐私与数据管理，查看授权、导出和删除相关入口。正式产品应清楚说明数据范围、处理方式、身份核验和申请进度。当前原型不执行真实的数据导出或删除操作。</div>
+</div>
+<div class="empty" id="empty">没有找到匹配的问题，试试其他关键词。</div>
+</section>
+
+<section class="support">
+<div class="support-icon">✉</div>
+<div class="support-content"><strong>仍然没有解决？</strong><p>告诉我们遇到的问题，帮助我们改进轻刻健康。</p></div>
+<button onclick="location.href='feedback-submit.html'">意见反馈</button>
+</section>
+<p class="notice">以上帮助内容为原型示例。正式上线前应补充真实产品说明、设备型号差异、客服服务时间及隐私政策链接。</p>
+</main>
+</div>
+<script>
+let currentCategory='all';
+function toggleFaq(btn){btn.parentElement.classList.toggle('open')}
+function selectCategory(category,button){
+ currentCategory=category;
+ document.querySelectorAll('.category').forEach(el=>el.classList.remove('active'));
+ button.classList.add('active');
+ filterFaq();
+}
+function filterFaq(){
+ const q=document.getElementById('searchInput').value.trim().toLowerCase();
+ let count=0;
+ document.querySelectorAll('.faq').forEach(el=>{
+  const matchCategory=currentCategory==='all'||el.dataset.category===currentCategory;
+  const text=(el.innerText+' '+el.dataset.keywords).toLowerCase();
+  const visible=matchCategory&&text.includes(q);
+  el.style.display=visible?'block':'none';
+  if(visible)count++;
+ });
+ document.getElementById('empty').style.display=count?'none':'block';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>编辑记录 - 轻衡健康</title>
+<style>
+:root{--g:#21a675;--gd:#147d58;--bg:#f5f8f5;--text:#202923;--muted:#87928a;--line:#e7ece8}
+*{box-sizing:border-box}body{margin:0;background:#e9eeea;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:var(--text)}
+button,input,select,textarea{font:inherit}button{cursor:pointer}
+.app{max-width:430px;min-height:100vh;margin:auto;background:var(--bg);padding-bottom:95px}
+header{height:58px;background:white;display:flex;align-items:center;justify-content:space-between;padding:0 20px}
+header button{border:0;background:none;color:var(--muted);font-size:14px}header strong{font-size:16px}
+main{padding:20px 17px}.intro{font-size:12px;color:var(--muted);line-height:1.8;margin:0 2px 17px}
+.card{padding:17px;background:white;border:1px solid var(--line);border-radius:16px;margin-bottom:13px}
+.card-title{font-size:14px;font-weight:650;margin-bottom:16px}
+.field{margin-bottom:17px}.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:12px;color:#657168;margin-bottom:9px}
+.field input,.field select,.field textarea{width:100%;border:1px solid #e3e9e4;border-radius:11px;padding:12px;background:#fbfcfb;color:var(--text);font-size:13px;outline:none}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:#8dd3ad}
+.field textarea{resize:vertical;min-height:82px;line-height:1.6}
+.unit{position:relative}.unit input{padding-right:54px}.unit span{position:absolute;right:13px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--muted)}
+.readonly{padding:13px;background:#f6f8f6;border-radius:10px;font-size:13px;color:#657168}
+.notice{padding:13px;border-radius:12px;background:#edf7f0;color:#567b63;font-size:11px;line-height:1.8;margin-top:13px}
+footer{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;padding:13px 17px calc(15px + env(safe-area-inset-bottom));display:flex;gap:10px;background:#ffffffed;border-top:1px solid var(--line)}
+footer button{height:47px;border-radius:13px;font-size:14px;font-weight:600}
+.cancel{width:105px;background:white;border:1px solid var(--line);color:var(--text)}
+.save{flex:1;background:var(--g);border:0;color:white}
+.toast{position:fixed;bottom:83px;left:50%;transform:translateX(-50%);background:#25352b;color:white;padding:11px 15px;border-radius:10px;font-size:12px;opacity:0;transition:.2s;white-space:nowrap}.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="app">
+<header><button onclick="notify('返回记录详情')">‹ 返回</button><strong>编辑记录</strong><button onclick="resetForm()">重置</button></header>
+<main>
+<p class="intro">可修改记录所属成员、测量时间和备注。设备测得的原始身体成分数据为只读，避免手动修改影响历史趋势。</p>
+
+<section class="card">
+<div class="card-title">记录信息</div>
+<div class="field"><label for="member">所属健康档案</label><select id="member"><option>我的档案</option><option>家庭成员 A</option><option>家庭成员 B</option></select></div>
+<div class="field"><label for="date">测量日期</label><input id="date" type="date" value="2026-10-22"></div>
+<div class="field"><label for="time">测量时间</label><input id="time" type="time" value="08:32"></div>
+<div class="field"><label>设备来源</label><div class="readonly">轻衡智能体脂秤 · 蓝牙测量</div></div>
+</section>
+
+<section class="card">
+<div class="card-title">测量数据（只读）</div>
+<div class="field"><label>体重</label><div class="unit"><input value="62.4" readonly><span>kg</span></div></div>
+<div class="field"><label>体脂率</label><div class="unit"><input value="21.8" readonly><span>%</span></div></div>
+<div class="field"><label>BMI</label><div class="unit"><input value="22.1" readonly><span></span></div></div>
+<div class="notice">如发现测量值异常，建议重新测量并保留原始记录，不要直接改写设备数据。</div>
+</section>
+
+<section class="card">
+<div class="card-title">备注</div>
+<div class="field"><label for="note">添加个人备注（选填）</label><textarea id="note" maxlength="200" placeholder="例如：晨起空腹测量、运动后测量……"></textarea></div>
+<div style="text-align:right;font-size:11px;color:#87928a" id="count">0 / 200</div>
+</section>
+</main>
+<footer><button class="cancel" onclick="notify('已取消编辑')">取消</button><button class="save" onclick="saveRecord()">保存修改</button></footer>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+const defaults={member:"我的档案",date:"2026-10-22",time:"08:32",note:""};
+const ids=["member","date","time","note"];
+function notify(t){const e=document.getElementById("toast");e.textContent=t;e.classList.add("show");clearTimeout(window.tt);window.tt=setTimeout(()=>e.classList.remove("show"),2200)}
+document.getElementById("note").addEventListener("input",e=>document.getElementById("count").textContent=e.target.value.length+" / 200");
+function resetForm(){document.getElementById("member").value=defaults.member;document.getElementById("date").value=defaults.date;document.getElementById("time").value=defaults.time;document.getElementById("note").value=defaults.note;document.getElementById("count").textContent="0 / 200";notify("已恢复原始表单")}
+function saveRecord(){const d=document.getElementById("date").value,t=document.getElementById("time").value;if(!d||!t){notify("请填写完整的测量日期和时间");return}if(d>"2026-10-22"){notify("测量日期不能晚于当前日期");return}notify("原型演示：修改已通过表单校验")}
+</script>
+</body>
+</html>

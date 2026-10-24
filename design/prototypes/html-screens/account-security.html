@@ -1,0 +1,40 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>账号与安全 - 轻刻健康</title>
+<style>
+:root{--g:#21a675;--d:#147d58;--bg:#f5f8f5;--text:#24362d;--muted:#84928b;--line:#e7eee9;--red:#cb5d53}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:var(--text);font-size:14px}.app{max-width:430px;min-height:100vh;margin:auto;padding-bottom:35px}.header{padding:20px;display:flex;align-items:center;gap:13px}.back{width:40px;height:40px;border:0;border-radius:12px;background:white;font-size:23px;cursor:pointer}.header h1{font-size:21px;margin:0}.header p{font-size:12px;color:var(--muted);margin:5px 0 0}.section{padding:0 20px;margin-bottom:16px}.title{font-size:15px;font-weight:700;margin:0 0 11px}.card{background:white;border:1px solid #edf1ee;border-radius:18px;padding:16px}.status{display:flex;align-items:center;gap:12px}.shield{width:44px;height:44px;background:#e7f6ed;color:var(--d);display:grid;place-items:center;border-radius:14px;font-size:22px}.statusmain{flex:1}.statusmain b{display:block;font-size:14px}.statusmain span{display:block;font-size:11px;color:var(--muted);margin-top:5px}.pill{font-size:10px;background:#e5f6eb;color:var(--d);padding:5px 8px;border-radius:7px}.row{display:flex;align-items:center;gap:12px;padding:15px 0;border-bottom:1px solid var(--line);cursor:pointer}.row:first-child{padding-top:1px}.row:last-child{border:0;padding-bottom:1px}.ico{width:35px;height:35px;display:grid;place-items:center;background:#f0f6f1;border-radius:11px;color:var(--d);font-size:17px;flex-shrink:0}.main{flex:1}.main b{display:block;font-size:13px}.main small{display:block;color:var(--muted);font-size:11px;margin-top:5px;line-height:1.5}.value{font-size:11px;color:var(--muted)}.arrow{font-size:19px;color:#a2ada5}.notice{font-size:11px;color:var(--muted);line-height:1.8}.danger{color:var(--red)}.danger .ico{background:#fff0ee;color:var(--red)}.btn{width:100%;border:1px solid var(--line);background:white;color:#63736a;border-radius:12px;padding:13px;cursor:pointer}.modalback{display:none;position:fixed;inset:0;background:#17251db0;align-items:center;justify-content:center;padding:24px}.modal{background:white;border-radius:20px;padding:22px;width:100%;max-width:360px}.modal h2{font-size:18px;margin:0 0 10px}.modal p{font-size:12px;color:var(--muted);line-height:1.8}.modalactions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:18px}.modalactions button{padding:12px;border:0;border-radius:11px;background:#eef3ef;color:var(--text);cursor:pointer}.modalactions .confirm{background:var(--g);color:white}.toast{display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#24362d;color:white;padding:12px 16px;border-radius:12px;white-space:nowrap}
+</style>
+</head>
+<body>
+<main class="app">
+<header class="header"><button class="back" onclick="location.href='profile-home.html'">‹</button><div><h1>账号与安全</h1><p>保护你的账户和个人数据</p></div></header>
+<section class="section"><div class="card"><div class="status"><div class="shield">◇</div><div class="statusmain"><b>账户安全状态</b><span>当前为演示账户，尚未连接真实认证服务</span></div><span class="pill">原型模式</span></div></div></section>
+<section class="section"><div class="title">登录与验证</div><div class="card">
+<div class="row" onclick="action('登录手机号','需要接入服务端身份验证与手机号脱敏展示')"><div class="ico">☎</div><div class="main"><b>登录手机号</b><small>查看或更换绑定手机号</small></div><span class="value">未绑定</span><span class="arrow">›</span></div>
+<div class="row" onclick="action('验证码登录','真实短信验证码服务尚未接入')"><div class="ico">▤</div><div class="main"><b>登录验证</b><small>短信验证码与身份校验</small></div><span class="arrow">›</span></div>
+<div class="row" onclick="action('第三方登录','第三方授权流程尚未接入')"><div class="ico">↗</div><div class="main"><b>第三方登录</b><small>管理已授权的第三方账号</small></div><span class="value">未连接</span><span class="arrow">›</span></div>
+</div></section>
+<section class="section"><div class="title">登录设备与会话</div><div class="card">
+<div class="row" onclick="action('登录设备','正式版本应展示设备名称、登录时间和会话状态')"><div class="ico">▣</div><div class="main"><b>登录设备管理</b><small>查看近期登录设备和活动会话</small></div><span class="arrow">›</span></div>
+<div class="row" onclick="action('退出登录','正式版本应撤销服务端会话并清理本地凭证')"><div class="ico">⇥</div><div class="main"><b>退出当前账号</b><small>退出后需要重新验证身份</small></div><span class="arrow">›</span></div>
+</div></section>
+<section class="section"><div class="title">账号管理</div><div class="card">
+<div class="row danger" onclick="showModal()"><div class="ico">!</div><div class="main"><b>注销账号</b><small>了解注销影响、数据处理和恢复期限</small></div><span class="arrow">›</span></div>
+</div></section>
+<section class="section"><div class="notice">安全设计要求：敏感操作需要重新验证身份；验证码应设置有效期、频率限制和防滥用措施。注销流程应明确数据保留、删除范围、关联家庭共享以及不可逆操作的后果。此页面不会真正退出或注销账户。</div></section>
+<div class="modalback" id="modal"><div class="modal"><h2>申请注销账号</h2><p>正式版本需要展示注销影响、数据导出与保留规则，并要求用户完成身份验证及明确确认。此处仅演示确认步骤，不会删除任何账号或数据。</p><div class="modalactions"><button onclick="hideModal()">暂不操作</button><button class="confirm" onclick="hideModal();toast('原型演示：未提交注销申请')">我已了解</button></div></div></div>
+<div class="toast" id="toast"></div>
+</main>
+<script>
+function action(title,detail){const t=document.getElementById('toast');t.textContent=title+'：'+detail;t.style.display='block';setTimeout(()=>t.style.display='none',2600)}
+function showModal(){document.getElementById('modal').style.display='flex'}
+function hideModal(){document.getElementById('modal').style.display='none'}
+function toast(s){const t=document.getElementById('toast');t.textContent=s;t.style.display='block';setTimeout(()=>t.style.display='none',2000)}
+document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')hideModal()});
+</script>
+</body>
+</html>

@@ -1,0 +1,69 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>指标说明 - 轻刻健康</title>
+<style>
+:root{--g:#21a675;--deep:#147d58;--bg:#f5f8f5;--text:#202923;--sub:#839087;--line:#e9eee9}
+*{box-sizing:border-box}body{margin:0;background:#eaf0eb;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}
+button{font:inherit;cursor:pointer}.app{max-width:430px;min-height:100vh;margin:auto;background:var(--bg);padding-bottom:30px}.top{height:58px;background:#fff;display:flex;align-items:center;padding:0 20px;gap:15px;border-bottom:1px solid var(--line)}.back{border:0;background:none;font-size:27px;padding:0}.title{font-size:17px;font-weight:750}
+.hero{padding:24px 20px 18px}.eyebrow{font-size:11px;letter-spacing:1.4px;color:var(--g);font-weight:800}.hero h1{font-size:25px;margin:8px 0}.hero p{font-size:13px;color:var(--sub);line-height:1.8;margin:0}
+.selector{display:flex;gap:8px;overflow-x:auto;padding:0 16px 15px;scrollbar-width:none}.selector::-webkit-scrollbar{display:none}.tab{flex-shrink:0;border:1px solid #e1e9e1;background:white;color:#67746a;border-radius:12px;padding:10px 14px;font-size:12px}.tab.active{background:#e6f6ed;border-color:#bce7ce;color:var(--deep);font-weight:750}
+.content{margin:0 16px;background:#fff;border-radius:19px;padding:19px 17px;box-shadow:0 4px 18px #1c352506}.metric-top{display:flex;align-items:center;gap:13px}.icon{width:47px;height:47px;border-radius:15px;background:#e5f7ed;display:grid;place-items:center;color:var(--deep);font-size:18px;font-weight:800}.name{font-size:17px;font-weight:800}.unit{font-size:11px;color:var(--sub);margin-top:5px}.description{font-size:13px;line-height:1.85;color:#526056;margin:17px 0}
+.subhead{font-size:13px;font-weight:800;margin:21px 0 11px}.range-row{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid #eff3ef}.range-row:last-child{border-bottom:0}.range-mark{width:9px;height:9px;border-radius:3px;flex-shrink:0;background:#9abda7}.range-label{flex:1;font-size:12px}.range-value{font-size:12px;font-weight:750;text-align:right}.range-note{font-size:10px;color:var(--sub);margin-top:4px}
+.notice{padding:13px 14px;background:#fff7e9;border:1px solid #f5e5c5;border-radius:13px;font-size:11px;line-height:1.8;color:#7b6136;margin-top:16px}.notice strong{display:block;font-size:12px;margin-bottom:4px}.tips{margin:0 16px 14px;padding:17px;background:#fff;border-radius:17px}.tips h3{font-size:14px;margin:0 0 12px}.tip{display:flex;gap:10px;margin:12px 0;font-size:12px;line-height:1.7;color:#526056}.bullet{width:21px;height:21px;display:grid;place-items:center;flex-shrink:0;border-radius:7px;background:#eaf7f0;color:var(--deep);font-size:11px;font-weight:800}
+.disclaimer{margin:15px 20px 0;color:#8b958d;font-size:10px;line-height:1.8}.toast{display:none;position:fixed;bottom:25px;left:50%;transform:translateX(-50%);background:#24372c;color:#fff;padding:11px 15px;border-radius:10px;font-size:12px;white-space:nowrap}
+@media(min-width:431px){.app{box-shadow:0 10px 40px #17291c12}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top"><button class="back" onclick="history.length>1?history.back():toast('这是独立页面原型')">‹</button><div class="title">指标说明与参考</div></header>
+<section class="hero"><div class="eyebrow">UNDERSTAND YOUR DATA</div><h1>读懂身体指标</h1><p>了解指标的含义、常见参考信息和使用边界。单次结果不能完整反映健康状况，建议结合长期趋势观察。</p></section>
+<nav class="selector" id="tabs">
+<button class="tab active" data-key="bmi" onclick="showMetric('bmi',this)">BMI</button>
+<button class="tab" data-key="weight" onclick="showMetric('weight',this)">体重</button>
+<button class="tab" data-key="fat" onclick="showMetric('fat',this)">体脂率</button>
+<button class="tab" data-key="muscle" onclick="showMetric('muscle',this)">肌肉量</button>
+<button class="tab" data-key="water" onclick="showMetric('water',this)">水分率</button>
+<button class="tab" data-key="visceral" onclick="showMetric('visceral',this)">内脏脂肪</button>
+<button class="tab" data-key="bmr" onclick="showMetric('bmr',this)">基础代谢</button>
+<button class="tab" data-key="score" onclick="showMetric('score',this)">身体评分</button>
+</nav>
+<section class="content">
+<div class="metric-top"><div class="icon" id="metricIcon">BMI</div><div><div class="name" id="metricName">身体质量指数</div><div class="unit" id="metricUnit">kg/m² · 由体重和身高计算</div></div></div>
+<p class="description" id="metricDesc">BMI 是体重与身高平方的比值，用于成人群体的体重分类参考。它不能直接区分脂肪和肌肉，也不能单独用于判断个人健康状态。</p>
+<div class="subhead" id="rangeTitle">常见成人参考分类</div>
+<div id="rangeRows">
+<div class="range-row"><span class="range-mark"></span><div class="range-label">偏低<div class="range-note">低于常见成人参考区间</div></div><div class="range-value">＜ 18.5</div></div>
+<div class="range-row"><span class="range-mark" style="background:#21a675"></span><div class="range-label">常见参考区间<div class="range-note">仅用于一般成人初步分类</div></div><div class="range-value">18.5–23.9</div></div>
+<div class="range-row"><span class="range-mark" style="background:#e7b15a"></span><div class="range-label">偏高<div class="range-note">应结合其他健康信息理解</div></div><div class="range-value">≥ 24.0</div></div>
+</div>
+<div class="notice"><strong>使用提醒</strong><span id="noticeText">以上为常见成人 BMI 分类参考，并不适用于所有年龄和人群。孕妇、儿童青少年、运动员等情况需要采用相应的评估方式。</span></div>
+</section>
+<section class="tips"><h3>如何更合理地观察</h3>
+<div class="tip"><span class="bullet">1</span><span>尽量在相近时间、相近测量条件下记录，减少短期波动的干扰。</span></div>
+<div class="tip"><span class="bullet">2</span><span>关注连续数周或数月的趋势，不要仅凭单日变化下结论。</span></div>
+<div class="tip"><span class="bullet">3</span><span>结合个人情况和专业建议理解结果；体脂秤的部分指标属于算法估算值。</span></div>
+</section>
+<p class="disclaimer">本页面提供一般健康信息，不构成医学诊断或治疗建议。具体参考区间应结合适用人群、地区指南、设备说明和算法来源确定。正式产品上线前，应由产品及医学合规人员审核各项文案与阈值。</p>
+<div class="toast" id="toast"></div>
+</div>
+<script>
+const data={
+bmi:{icon:'BMI',name:'身体质量指数',unit:'kg/m² · 由体重和身高计算',desc:'BMI 是体重与身高平方的比值，用于成人群体的体重分类参考。它不能直接区分脂肪和肌肉，也不能单独用于判断个人健康状态。',title:'常见成人参考分类',rows:[['偏低','低于常见成人参考区间','＜ 18.5'],['常见参考区间','仅用于一般成人初步分类','18.5–23.9'],['偏高','应结合其他健康信息理解','≥ 24.0']],notice:'以上为常见成人 BMI 分类参考，并不适用于所有年龄和人群。孕妇、儿童青少年、运动员等情况需要采用相应的评估方式。'},
+weight:{icon:'重',name:'体重',unit:'kg · 直接测量值',desc:'体重反映身体总质量，可能受饮水、进食、排便、运动和测量时间影响。单日增减不一定代表脂肪发生了同等变化。',title:'如何理解体重',rows:[['单次记录','反映测量当时的体重','查看具体数值'],['短期变化','可能包含水分和胃肠内容物变化','结合连续记录'],['长期趋势','更适合观察体重变化方向','按周或月观察']],notice:'不建议仅依据某个固定体重值判断健康。合理目标需要结合身高、年龄、身体状况及专业建议。'},
+fat:{icon:'脂',name:'体脂率',unit:'% · 设备算法估算值',desc:'体脂率是估算的脂肪质量占体重的比例。不同设备的算法、测量条件和人群适用性可能不同。',title:'参考信息如何确定',rows:[['年龄','不同年龄阶段的参考情况不同','需结合年龄'],['性别','常见参考资料可能采用不同分组','需核对适用范围'],['设备算法','生物电阻抗等算法会影响估算结果','优先查看厂商说明']],notice:'本原型不提供统一的体脂率正常阈值。正式产品应采用来源明确、适用人群清楚的参考资料。'},
+muscle:{icon:'肌',name:'肌肉量',unit:'kg · 设备算法估算值',desc:'体脂秤显示的肌肉量通常是基于设备算法推算的结果，不一定等同于医学影像或其他方法测得的骨骼肌质量。',title:'解读时需要考虑',rows:[['测量条件','水分变化可能影响估算结果','尽量保持一致'],['个人差异','身高、年龄和身体组成都会影响数值','结合个人基线'],['变化趋势','同一设备连续测量更便于比较','关注长期变化']],notice:'不要把不同品牌设备的估算值直接视为完全可比的数据。'},
+water:{icon:'水',name:'水分率',unit:'% · 设备算法估算值',desc:'水分率是设备对身体水分占比的估算。饮水、出汗、运动、进食和测量时间均可能影响结果。',title:'观察时的注意事项',rows:[['测量时点','一天内的水分状态可能发生变化','固定测量时段'],['短期波动','不一定意味着身体成分发生明显变化','避免过度解读'],['异常不适','症状比单一设备读数更重要','必要时寻求专业帮助']],notice:'水分率不能代替临床水合状态评估。如出现明显不适，应依据症状寻求医疗帮助。'},
+visceral:{icon:'内',name:'内脏脂肪等级',unit:'等级 · 依赖设备厂商算法',desc:'内脏脂肪等级通常是设备根据特定算法生成的分级指标。不同品牌的等级定义、计算方式和范围可能并不相同。',title:'参考等级的来源',rows:[['设备说明书','确认等级的定义和范围','优先参考厂商'],['同设备趋势','比较相同设备生成的连续记录','观察变化方向'],['临床评估','不能仅凭设备等级判断疾病风险','必要时咨询医生']],notice:'不要把一个厂商的内脏脂肪等级直接套用到另一个厂商，也不要将其作为诊断结果。'},
+bmr:{icon:'代',name:'基础代谢',unit:'kcal/日 · 算法估算值',desc:'基础代谢是身体在基础生理条件下维持生命活动所需能量的估算概念。体脂秤上的结果通常来自预测公式或设备算法。',title:'正确理解基础代谢',rows:[['估算结果','可能受公式、年龄、身高、体重等影响','并非直接测量'],['每日总消耗','通常还包括活动和食物热效应等','不等于基础代谢'],['饮食规划','不能直接将基础代谢值当作每日摄入目标','综合评估需求']],notice:'不建议只凭基础代谢估算值自行制定严格的热量限制。个体营养需求应综合活动量与健康状况判断。'},
+score:{icon:'评',name:'身体评分',unit:'分 · 设备算法综合结果',desc:'身体评分通常是设备将多个输入指标按特定规则组合后的结果。分值含义和变化幅度高度依赖厂商算法。',title:'评分应如何使用',rows:[['评分规则','确认设备评分的组成与算法版本','查看厂商说明'],['分值变化','小幅变化可能来自输入指标波动','结合各项指标'],['跨设备比较','不同设备的分数可能无法直接比较','以同设备趋势为主']],notice:'身体评分不是通用医学指标，也不应单独用于判断健康水平或决定医疗行为。'}
+};
+function showMetric(key,el){document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t===el));const d=data[key];document.getElementById('metricIcon').textContent=d.icon;document.getElementById('metricName').textContent=d.name;document.getElementById('metricUnit').textContent=d.unit;document.getElementById('metricDesc').textContent=d.desc;document.getElementById('rangeTitle').textContent=d.title;document.getElementById('noticeText').textContent=d.notice;document.getElementById('rangeRows').innerHTML=d.rows.map((r,i)=>'<div class="range-row"><span class="range-mark" style="background:'+(i===1?'#21a675':i===2?'#e7b15a':'#9abda7')+'"></span><div class="range-label">'+r[0]+'<div class="range-note">'+r[1]+'</div></div><div class="range-value">'+r[2]+'</div></div>').join('');}
+function toast(s){const t=document.getElementById('toast');t.textContent=s;t.style.display='block';setTimeout(()=>t.style.display='none',2000)}
+</script>
+</body>
+</html>

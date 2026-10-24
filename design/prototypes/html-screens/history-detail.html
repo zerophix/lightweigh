@@ -1,0 +1,100 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>测量详情 - 轻衡健康</title>
+<style>
+:root{--g:#21a675;--gd:#147d58;--bg:#f5f8f5;--text:#202923;--muted:#87928a;--line:#e7ece8}
+*{box-sizing:border-box}
+body{margin:0;background:#e9eeea;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:var(--text)}
+button{font:inherit;cursor:pointer}
+.app{max-width:430px;min-height:100vh;margin:auto;background:var(--bg);padding-bottom:35px}
+header{height:58px;background:white;display:flex;align-items:center;justify-content:space-between;padding:0 20px}
+header button{border:0;background:none;color:var(--muted);font-size:14px}
+header strong{font-size:16px}
+main{padding:20px 17px}
+.meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
+.meta-date{font-size:12px;color:var(--muted)}
+.tag{background:#e7f6ed;color:var(--gd);padding:6px 9px;border-radius:20px;font-size:11px}
+.hero{padding:22px 20px;border-radius:20px;background:linear-gradient(135deg,#e2f5e9,#f4faf5);border:1px solid #dcefe2}
+.label{font-size:13px;color:#66806e}
+.weight{font-size:45px;font-weight:700;margin:12px 0 5px;letter-spacing:-1px}
+.weight small{font-size:15px;font-weight:400;color:#66806e}
+.change{font-size:12px;color:#66806e}
+.hero-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:21px;padding-top:17px;border-top:1px solid #cde6d5}
+.hero-stats span{display:block;font-size:11px;color:#66806e}
+.hero-stats strong{display:block;margin-top:7px;font-size:15px}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin:23px 2px 12px}
+.section-title{font-size:15px;font-weight:650}
+.link{border:0;background:none;color:var(--gd);font-size:12px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.metric{padding:15px;background:white;border:1px solid var(--line);border-radius:15px}
+.metric-label{font-size:12px;color:var(--muted)}
+.metric-value{font-size:24px;font-weight:700;margin:12px 0 7px}
+.metric-value small{font-size:12px;font-weight:400;color:var(--muted)}
+.metric-state{font-size:11px;color:var(--gd)}
+.metric-state.neutral{color:var(--muted)}
+.info{padding:16px;background:white;border:1px solid var(--line);border-radius:15px}
+.info-row{display:flex;justify-content:space-between;gap:15px;padding:11px 0;border-bottom:1px solid var(--line);font-size:12px}
+.info-row:last-child{border-bottom:0}
+.info-row span{color:var(--muted)}
+.info-row strong{text-align:right;font-weight:550}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:22px}
+.action{height:45px;border-radius:12px;background:white;border:1px solid var(--line);color:var(--text);font-size:13px}
+.action.primary{background:var(--g);border-color:var(--g);color:white}
+.disclaimer{font-size:11px;line-height:1.8;color:var(--muted);margin:16px 3px}
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);padding:11px 15px;background:#25352b;color:white;border-radius:10px;font-size:13px;opacity:0;transition:.2s;white-space:nowrap}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="app">
+<header><button onclick="notify('返回历史记录')">‹ 返回</button><strong>测量详情</strong><button onclick="notify('原型演示：更多操作')">···</button></header>
+<main>
+<div class="meta"><span class="meta-date">2026 年 10 月 22 日 · 08:32</span><span class="tag">测量成功</span></div>
+
+<section class="hero">
+<div class="label">体重</div>
+<div class="weight">62.4 <small>kg</small></div>
+<div class="change">较上次测量下降 0.3 kg</div>
+<div class="hero-stats">
+<div><span>BMI</span><strong>22.1</strong></div>
+<div><span>体脂率</span><strong>21.8%</strong></div>
+<div><span>身体评分</span><strong>82 分</strong></div>
+</div>
+</section>
+
+<div class="section-head"><div class="section-title">身体成分指标</div><button class="link" onclick="notify('查看指标趋势')">查看趋势 ›</button></div>
+<section class="grid">
+<div class="metric"><div class="metric-label">体脂率</div><div class="metric-value">21.8<small>%</small></div><div class="metric-state">参考范围内</div></div>
+<div class="metric"><div class="metric-label">肌肉量</div><div class="metric-value">45.2<small> kg</small></div><div class="metric-state neutral">估算指标</div></div>
+<div class="metric"><div class="metric-label">体水分率</div><div class="metric-value">55.6<small>%</small></div><div class="metric-state neutral">估算指标</div></div>
+<div class="metric"><div class="metric-label">内脏脂肪等级</div><div class="metric-value">6<small> 级</small></div><div class="metric-state neutral">算法输出</div></div>
+<div class="metric"><div class="metric-label">基础代谢</div><div class="metric-value">1450<small> kcal</small></div><div class="metric-state neutral">算法估算</div></div>
+<div class="metric"><div class="metric-label">骨量</div><div class="metric-value">2.8<small> kg</small></div><div class="metric-state neutral">算法估算</div></div>
+</section>
+
+<div class="section-head"><div class="section-title">测量信息</div></div>
+<section class="info">
+<div class="info-row"><span>测量成员</span><strong>我的档案</strong></div>
+<div class="info-row"><span>测量设备</span><strong>轻衡智能体脂秤</strong></div>
+<div class="info-row"><span>设备连接</span><strong>蓝牙</strong></div>
+<div class="info-row"><span>记录状态</span><strong>已保存 · 本地记录</strong></div>
+<div class="info-row"><span>数据来源</span><strong>设备测量与算法估算</strong></div>
+</section>
+
+<div class="actions">
+<button class="action" onclick="notify('原型演示：打开记录编辑')">编辑记录</button>
+<button class="action primary" onclick="notify('原型演示：打开历史报告')">查看历史报告</button>
+</div>
+<p class="disclaimer">演示数据仅用于界面预览。身体成分指标可能由算法估算，参考区间需结合年龄、性别及产品采用的标准进行展示，不用于疾病诊断。</p>
+</main>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+function notify(t){const e=document.getElementById("toast");e.textContent=t;e.classList.add("show");clearTimeout(window.tt);window.tt=setTimeout(()=>e.classList.remove("show"),2200)}
+</script>
+</body>
+</html>

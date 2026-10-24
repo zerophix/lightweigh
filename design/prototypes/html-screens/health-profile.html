@@ -1,0 +1,42 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>健康档案 - 轻刻健康</title>
+<style>
+:root{--g:#21a675;--d:#147d58;--bg:#f5f8f5;--text:#24362d;--muted:#84928b;--line:#e7eee9}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:var(--text);font-size:14px}.app{max-width:430px;min-height:100vh;margin:auto;padding-bottom:34px}.header{padding:20px;display:flex;align-items:center;gap:13px}.back{width:40px;height:40px;border:0;border-radius:12px;background:white;font-size:23px;cursor:pointer}.header h1{font-size:21px;margin:0}.header p{font-size:12px;color:var(--muted);margin:5px 0 0}.section{padding:0 20px;margin-bottom:15px}.banner{background:linear-gradient(135deg,#e3f6eb,#f8fcf9);border:1px solid #d8eee1;border-radius:18px;padding:17px}.banner b{font-size:15px}.banner p{font-size:12px;color:#6e8074;line-height:1.7;margin:7px 0 0}.card{background:white;border:1px solid #edf1ee;border-radius:18px;padding:16px}.head{display:flex;justify-content:space-between;align-items:center;margin:0 0 12px}.head h2{font-size:15px;margin:0}.edit{border:0;background:none;color:var(--g);font-size:12px;cursor:pointer}.field{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid var(--line);gap:12px}.field:last-child{border:0;padding-bottom:0}.field:first-child{padding-top:0}.fieldname{font-size:13px}.fieldhint{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5}.value{font-size:13px;color:#607067;text-align:right;max-width:54%;overflow-wrap:anywhere}.emptyvalue{color:#a0aaa3}.field input,.field select{width:112px;max-width:54%;padding:9px;border:1px solid #dfe8e1;border-radius:10px;background:white;color:var(--text);font:inherit;font-size:13px;text-align:right;outline:none}.toggle{width:43px;height:25px;border:0;border-radius:20px;background:#cbd7cf;padding:3px;cursor:pointer}.toggle i{display:block;width:19px;height:19px;background:white;border-radius:50%;transition:transform .2s}.toggle.on{background:var(--g)}.toggle.on i{transform:translateX(18px)}.source{font-size:10px;background:#edf7f0;color:var(--d);padding:5px 7px;border-radius:7px}.notice{font-size:11px;color:var(--muted);line-height:1.8}.btn{width:100%;padding:14px;border:0;border-radius:13px;background:var(--g);color:white;font-weight:650;cursor:pointer}.toast{display:none;position:fixed;bottom:23px;left:50%;transform:translateX(-50%);background:#24362d;color:white;padding:12px 16px;border-radius:12px;white-space:nowrap}
+</style>
+</head>
+<body>
+<main class="app">
+<header class="header"><button class="back" onclick="location.href='profile-home.html'">‹</button><div><h1>健康档案</h1><p>管理测量相关的基础信息</p></div></header>
+<section class="section"><div class="banner"><b>让健康数据更有参考价值</b><p>完善必要的基础资料，有助于理解测量结果。请只填写你愿意提供的信息，未填写的项目不会自动补全。</p></div></section>
+<section class="section"><div class="card"><div class="head"><h2>基础资料</h2><button class="edit" onclick="location.href='profile-edit.html'">编辑个人资料 →</button></div>
+<div class="field"><div><div class="fieldname">身高</div><div class="fieldhint">可能用于 BMI 等指标计算</div></div><span class="value" id="heightValue">未填写</span></div>
+<div class="field"><div><div class="fieldname">出生日期</div><div class="fieldhint">可选信息</div></div><span class="value" id="birthdayValue">未填写</span></div>
+<div class="field"><div><div class="fieldname">性别</div><div class="fieldhint">部分算法可能将其作为输入参数</div></div><span class="value" id="genderValue">未透露</span></div>
+</div></section>
+<section class="section"><div class="card"><div class="head"><h2>测量偏好</h2><span class="source">本机演示</span></div>
+<div class="field"><div><div class="fieldname">默认体重单位</div><div class="fieldhint">影响界面显示，不修改原始测量值</div></div><select id="weightUnit"><option value="kg">千克（kg）</option><option value="lb">磅（lb）</option></select></div>
+<div class="field"><div><div class="fieldname">显示体脂相关指标</div><div class="fieldhint">可控制是否在档案页面展示相关入口</div></div><button class="toggle on" id="fatToggle" aria-label="显示体脂指标" onclick="this.classList.toggle('on')"><i></i></button></div>
+<div class="field"><div><div class="fieldname">显示历史测量概览</div><div class="fieldhint">展示历史记录入口</div></div><button class="toggle on" id="historyToggle" aria-label="显示历史测量概览" onclick="this.classList.toggle('on')"><i></i></button></div>
+</div></section>
+<section class="section"><div class="card"><div class="head"><h2>健康数据来源</h2></div>
+<div class="field"><div><div class="fieldname">设备测量结果</div><div class="fieldhint">体重、阻抗等设备实际提供的数据</div></div><span class="value">设备记录</span></div>
+<div class="field"><div><div class="fieldname">算法计算指标</div><div class="fieldhint">依赖算法版本、输入数据与适用条件</div></div><span class="value">算法结果</span></div>
+<div class="field"><div><div class="fieldname">个人填写资料</div><div class="fieldhint">例如身高、出生日期等</div></div><span class="value">用户填写</span></div>
+</div></section>
+<section class="section"><div class="notice">体脂率、肌肉量等身体成分指标会受到设备、测量条件和算法的影响，不能仅凭单次结果判断健康状况。当前页面未读取真实设备或云端数据，也不会修改历史测量记录。</div></section>
+<section class="section"><button class="btn" onclick="save()">保存档案偏好</button></section>
+<div class="toast" id="toast"></div>
+</main>
+<script>
+function toast(s){const t=document.getElementById('toast');t.textContent=s;t.style.display='block';setTimeout(()=>t.style.display='none',1800)}
+try{const p=JSON.parse(sessionStorage.getItem('demoProfile')||'null');if(p){if(p.height)document.getElementById('heightValue').textContent=p.height+' '+(p.heightUnit==='in'?'in':'cm');if(p.birthday)document.getElementById('birthdayValue').textContent=p.birthday;if(p.gender)document.getElementById('genderValue').textContent=p.gender}}catch(e){}
+try{const pref=JSON.parse(sessionStorage.getItem('demoHealthPrefs')||'null');if(pref){document.getElementById('weightUnit').value=pref.weightUnit||'kg';document.getElementById('fatToggle').classList.toggle('on',pref.showFat!==false);document.getElementById('historyToggle').classList.toggle('on',pref.showHistory!==false)}}catch(e){}
+function save(){const p={weightUnit:document.getElementById('weightUnit').value,showFat:document.getElementById('fatToggle').classList.contains('on'),showHistory:document.getElementById('historyToggle').classList.contains('on')};try{sessionStorage.setItem('demoHealthPrefs',JSON.stringify(p))}catch(e){}toast('档案偏好已模拟保存')}
+</script>
+</body>
+</html>

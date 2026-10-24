@@ -1,0 +1,101 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>加入家庭 - 轻刻健康</title>
+<style>
+:root{--g:#21a675;--d:#147d58;--t:#20332b;--m:#7d8982;--line:#e5ece7}
+*{box-sizing:border-box}
+body{margin:0;background:#f5f8f5;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;color:var(--t)}
+.app{max-width:430px;min-height:100vh;min-height:100dvh;margin:auto;background:white;display:flex;flex-direction:column}
+header{height:58px;display:flex;align-items:center;gap:12px;padding:0 20px;border-bottom:1px solid var(--line)}
+header button{border:0;background:none;font-size:27px;cursor:pointer}
+header h1{font-size:17px;margin:0}
+main{flex:1;padding:25px 22px}
+.hero{text-align:center;padding:14px 0 26px}
+.icon{width:76px;height:76px;margin:0 auto 17px;border-radius:24px;background:#e7f7ed;color:var(--d);display:grid;place-items:center;font-size:33px}
+h2{font-size:22px;margin:0 0 9px}
+.hero p{font-size:12px;line-height:1.9;color:var(--m);max-width:300px;margin:0 auto}
+.field{margin-top:20px}
+label{display:block;font-size:12px;font-weight:650;margin-bottom:10px}
+.input{height:54px;border:1px solid var(--line);border-radius:12px;padding:0 13px;display:flex;align-items:center}
+.input:focus-within{border-color:var(--g)}
+input{width:100%;border:0;outline:0;font:inherit;font-size:17px;letter-spacing:2px;text-transform:uppercase}
+.hint{font-size:10px;line-height:1.8;color:#9aa49c;margin-top:8px}
+.preview{display:none;margin-top:21px;border:1px solid var(--line);border-radius:14px;padding:15px}
+.preview-head{display:flex;align-items:center;gap:11px}
+.avatar{width:45px;height:45px;border-radius:14px;background:#e7f7ed;color:var(--d);display:grid;place-items:center;font-size:22px}
+.preview strong{display:block;font-size:13px;margin-bottom:5px}
+.preview small{font-size:10px;color:var(--m)}
+.preview p{font-size:11px;line-height:1.8;color:var(--m);margin:13px 0 0}
+.notice{margin-top:22px;padding:13px;background:#f6faf7;border-radius:11px;font-size:11px;line-height:1.9;color:#728176}
+.error{display:none;color:#d95353;font-size:11px;line-height:1.7;margin-top:9px}
+.result{display:none;margin-top:16px;background:#e7f7ee;color:var(--d);border-radius:11px;padding:13px;font-size:12px;line-height:1.9}
+.actions{padding:0 22px 26px}
+.primary{width:100%;border:0;border-radius:13px;background:var(--g);color:white;padding:14px;font:inherit;font-size:14px;font-weight:650;cursor:pointer}
+.secondary{width:100%;border:1px solid var(--line);border-radius:13px;background:white;color:var(--d);padding:13px;font:inherit;font-size:13px;cursor:pointer;margin-top:10px}
+</style>
+</head>
+<body>
+<div class="app">
+<header><button onclick="history.length>1?history.back():location.href='family-switch.html'" aria-label="返回">‹</button><h1>加入家庭</h1></header>
+<main>
+<section class="hero">
+<div class="icon">⌂</div>
+<h2>加入家人的健康空间</h2>
+<p>输入家庭管理员提供的邀请码，查看邀请信息后再确认是否加入。</p>
+</section>
+<div class="field">
+<label for="code">家庭邀请码</label>
+<div class="input"><input id="code" maxlength="12" placeholder="请输入邀请码" autocomplete="off" autocapitalize="characters"></div>
+<div class="hint">请核对邀请码来源。正式产品中的邀请码应具有有效期，并能由管理员撤销。</div>
+<div class="error" id="error">请输入有效格式的邀请码（4–12 位字母或数字）。</div>
+</div>
+<div class="preview" id="preview">
+<div class="preview-head"><div class="avatar">⌂</div><div><strong>健康家庭（演示信息）</strong><small>家庭管理员：示例账号</small></div></div>
+<p>这是本地展示的示例邀请信息，不代表邀请码真实有效，也未查询任何家庭成员资料。</p>
+</div>
+<div class="notice">加入家庭后，你的健康数据不会因此自动对其他成员开放。任何数据共享都应有清楚的授权范围，并提供撤销方式。</div>
+<div class="result" id="result" role="status"></div>
+</main>
+<div class="actions">
+<button class="primary" onclick="verifyCode()">验证邀请码</button>
+<button class="secondary" onclick="joinFamily()">确认加入家庭</button>
+<button class="secondary" onclick="location.href='family-invitation-status.html'">查看邀请状态页面</button>
+</div>
+</div>
+<script>
+const codeInput=document.getElementById('code');
+let verified=false;
+codeInput.addEventListener('input',()=>{
+ codeInput.value=codeInput.value.replace(/[^a-zA-Z0-9]/g,'').toUpperCase();
+ verified=false;
+ document.getElementById('preview').style.display='none';
+ document.getElementById('result').style.display='none';
+});
+function verifyCode(){
+ const code=codeInput.value.trim();
+ const error=document.getElementById('error');
+ if(!/^[A-Z0-9]{4,12}$/.test(code)){
+  error.style.display='block';return;
+ }
+ error.style.display='none';
+ verified=true;
+ document.getElementById('preview').style.display='block';
+ const result=document.getElementById('result');
+ result.style.display='block';
+ result.textContent='格式检查通过。注意：原型没有查询服务端，无法确认邀请码是否真实存在、过期或已撤销。';
+}
+function joinFamily(){
+ const result=document.getElementById('result');
+ result.style.display='block';
+ if(!verified){
+  result.textContent='请先验证邀请码格式，再确认加入。';return;
+ }
+ result.textContent='加入家庭流程演示完成。尚未真正加入任何家庭，服务端成员关系和数据权限均未改变。';
+}
+</script>
+</body>
+</html>

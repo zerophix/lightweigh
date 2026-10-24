@@ -1,0 +1,123 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>注册账号 - 轻刻健康</title>
+<style>
+:root{--green:#21a675;--deep:#147d58;--bg:#f5f8f5;--text:#20332b;--muted:#7d8982;--line:#e5ece7;--red:#d95e5e}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;color:var(--text)}
+.app{max-width:430px;min-height:100vh;min-height:100dvh;margin:auto;background:#fff;padding:0 25px 27px;display:flex;flex-direction:column}
+header{height:58px;display:flex;align-items:center}
+header button{border:0;background:none;font-size:27px;cursor:pointer;padding:0 8px 0 0}
+main{flex:1}
+h1{font-size:26px;margin:26px 0 9px}
+.subtitle{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:29px}
+.step{display:flex;align-items:center;gap:8px;margin-bottom:27px}
+.step span{font-size:11px;color:var(--muted)}
+.step b{font-size:11px;color:var(--deep);background:#e6f7ef;border-radius:20px;padding:6px 10px}
+.field{margin-bottom:19px}
+.label{display:block;font-size:12px;font-weight:600;margin-bottom:9px}
+.input{height:49px;border:1px solid var(--line);border-radius:12px;display:flex;align-items:center;gap:10px;padding:0 13px}
+.input:focus-within{border-color:var(--green)}
+.prefix{font-size:13px;color:#53665b}
+input[type="tel"],input[type="password"],input[type="text"]{min-width:0;width:100%;border:0;outline:0;font:inherit;font-size:14px;color:var(--text);background:transparent}
+input::placeholder{color:#b1bbb5}
+.show{border:0;background:none;color:var(--deep);font-size:12px;cursor:pointer;white-space:nowrap}
+.hint{font-size:11px;color:var(--muted);line-height:1.7;margin-top:8px}
+.rules{background:#f7faf7;border-radius:11px;padding:12px 13px;margin-top:9px}
+.rules p{font-size:11px;color:#86938a;margin:0 0 7px}
+.rules p:last-child{margin-bottom:0}
+.rules p.ok{color:var(--deep)}
+.rules p.ok:before{content:"✓ "}
+.rules p:not(.ok):before{content:"○ "}
+.check{display:flex;gap:8px;align-items:flex-start;font-size:11px;color:var(--muted);line-height:1.8;margin:23px 0}
+.check input{accent-color:var(--green);margin-top:4px}
+a{color:var(--deep);text-decoration:none}
+.primary{width:100%;border:0;border-radius:13px;background:var(--green);color:#fff;padding:14px;font:inherit;font-size:15px;font-weight:650;cursor:pointer}
+.error{display:none;color:var(--red);font-size:11px;line-height:1.6;margin-top:7px}
+.message{display:none;background:#e6f7ef;color:var(--deep);font-size:12px;line-height:1.7;padding:12px;border-radius:11px;margin-top:13px}
+.bottom{text-align:center;font-size:12px;color:var(--muted);margin-top:25px}
+.bottom a{font-weight:650}
+.foot{text-align:center;font-size:10px;color:#a0aaa3;line-height:1.7;margin-top:25px}
+</style>
+</head>
+<body>
+<div class="app">
+<header><button onclick="history.length>1?history.back():location.href='account-login.html'" aria-label="返回">‹</button></header>
+<main>
+<h1>创建你的账号</h1>
+<p class="subtitle">只需几步，开启属于你的健康管理旅程。</p>
+<div class="step"><b>01 填写账号信息</b><span>—</span><span>02 验证手机号</span></div>
+
+<form id="registerForm">
+<div class="field">
+<label class="label" for="phone">手机号</label>
+<div class="input"><span class="prefix">+86</span><input id="phone" type="tel" inputmode="numeric" maxlength="11" autocomplete="tel" placeholder="请输入中国大陆手机号" required></div>
+<div class="error" id="phoneError">请输入有效的 11 位中国大陆手机号。</div>
+</div>
+
+<div class="field">
+<label class="label" for="password">设置登录密码</label>
+<div class="input"><input id="password" type="password" minlength="8" maxlength="64" autocomplete="new-password" placeholder="请设置 8–64 位密码" required><button class="show" type="button" onclick="toggle('password',this)">显示</button></div>
+<div class="rules">
+<p id="ruleLength">至少 8 位字符</p>
+<p id="ruleMix">同时包含字母和数字</p>
+</div>
+<div class="error" id="passwordError">请设置符合规则的密码。</div>
+</div>
+
+<div class="field">
+<label class="label" for="confirm">确认密码</label>
+<div class="input"><input id="confirm" type="password" minlength="8" maxlength="64" autocomplete="new-password" placeholder="请再次输入密码" required><button class="show" type="button" onclick="toggle('confirm',this)">显示</button></div>
+<div class="error" id="confirmError">两次输入的密码不一致。</div>
+</div>
+
+<label class="check">
+<input type="checkbox" id="agreement">
+<span>我已阅读并同意 <a href="javascript:void(0)" onclick="alert('此处应展示正式的用户服务协议。')">《用户服务协议》</a>与 <a href="javascript:void(0)" onclick="alert('此处应展示正式的隐私政策。')">《隐私政策》</a>。</span>
+</label>
+<div class="error" id="agreementError">请先确认并同意相关协议。</div>
+
+<button class="primary" type="submit">下一步：验证手机号</button>
+<div class="message" id="message" role="status"></div>
+</form>
+
+<div class="bottom">已有账号？ <a href="account-login.html">返回登录</a></div>
+</main>
+<div class="foot">请使用本人可正常接收短信的手机号。<br>当前为前端原型，不会创建真实账号或存储密码。</div>
+</div>
+<script>
+const password=document.getElementById('password');
+const confirmInput=document.getElementById('confirm');
+function toggle(id,button){
+ const input=document.getElementById(id);
+ input.type=input.type==='password'?'text':'password';
+ button.textContent=input.type==='password'?'显示':'隐藏';
+}
+function updateRules(){
+ const val=password.value;
+ document.getElementById('ruleLength').classList.toggle('ok',val.length>=8);
+ document.getElementById('ruleMix').classList.toggle('ok',/[A-Za-z]/.test(val)&&/\d/.test(val));
+}
+password.addEventListener('input',updateRules);
+document.getElementById('registerForm').addEventListener('submit',event=>{
+ event.preventDefault();
+ ['phoneError','passwordError','confirmError','agreementError'].forEach(id=>document.getElementById(id).style.display='none');
+ const phone=document.getElementById('phone').value.trim();
+ const pass=password.value;
+ const confirm=confirmInput.value;
+ let valid=true;
+ if(!/^1[3-9]\d{9}$/.test(phone)){document.getElementById('phoneError').style.display='block';valid=false}
+ if(pass.length<8||!/[A-Za-z]/.test(pass)||!/\d/.test(pass)){document.getElementById('passwordError').style.display='block';valid=false}
+ if(pass!==confirm){document.getElementById('confirmError').style.display='block';valid=false}
+ if(!document.getElementById('agreement').checked){document.getElementById('agreementError').style.display='block';valid=false}
+ if(!valid)return;
+ /* 仅用 URL 参数向下一个原型传递测试手机号；正式系统应由安全的服务端注册流程管理验证状态。 */
+ location.href='account-verification.html?phone='+encodeURIComponent(phone)+'&scene=register';
+});
+</script>
+</body>
+</html>

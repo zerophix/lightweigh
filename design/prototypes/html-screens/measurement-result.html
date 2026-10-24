@@ -1,0 +1,194 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>测量结果 - 轻衡健康</title>
+<style>
+:root{--green:#21A675;--dark:#147D58;--bg:#F5F8F5;--text:#202923;--muted:#87928A;--line:#E6EDE7;--white:#fff}
+*{box-sizing:border-box}
+body{margin:0;background:#E9EEEA;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:var(--text)}
+button{font:inherit;cursor:pointer}
+.app{max-width:430px;min-height:100vh;margin:auto;background:var(--bg);padding-bottom:30px}
+header{height:58px;background:white;display:flex;align-items:center;justify-content:space-between;padding:0 20px}
+.back,.more{border:0;background:none}.back{font-size:26px}.more{font-size:20px;color:var(--muted)}
+.title{font-size:16px;font-weight:650}
+.main{padding:20px 18px}
+.date{color:var(--muted);font-size:12px;margin-bottom:15px}
+.hero{position:relative;overflow:hidden;padding:22px 20px 20px;border-radius:22px;background:linear-gradient(135deg,#E1F5E9,#F4FAF5 75%);border:1px solid #DDEFE3}
+.hero-top{display:flex;align-items:center;justify-content:space-between}
+.hero-label{font-size:13px;color:#587364}
+.pill{font-size:11px;color:var(--dark);background:#D4EFDF;padding:6px 9px;border-radius:20px}
+.big-weight{margin-top:19px;font-size:48px;font-weight:700;letter-spacing:-1.5px;line-height:1.15}
+.big-weight small{font-size:17px;font-weight:500;letter-spacing:0;color:#587364}
+.change{margin-top:8px;font-size:12px;color:#587364}
+.hero-bottom{display:flex;gap:0;margin-top:22px;padding-top:16px;border-top:1px solid #CDE5D6}
+.hero-stat{flex:1}
+.hero-stat+.hero-stat{padding-left:15px;border-left:1px solid #CDE5D6}
+.stat-label{font-size:11px;color:#6F8B79}
+.stat-value{margin-top:7px;font-size:16px;font-weight:650}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin:24px 2px 12px}
+.section-title{font-size:16px;font-weight:650}
+.section-link{border:0;background:none;color:var(--dark);font-size:12px}
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.metric{padding:16px 14px;border-radius:16px;background:white;border:1px solid var(--line)}
+.metric-top{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted)}
+.metric-dot{width:8px;height:8px;border-radius:3px;background:#79C69C}
+.metric:nth-child(2) .metric-dot{background:#F0B56D}
+.metric:nth-child(3) .metric-dot{background:#77B5D8}
+.metric:nth-child(4) .metric-dot{background:#A99ADB}
+.metric-value{margin:12px 0 4px;font-size:24px;font-weight:700;letter-spacing:-.5px}
+.metric-value small{font-size:12px;font-weight:400;color:var(--muted)}
+.metric-state{font-size:11px;color:var(--dark)}
+.metric-state.warn{color:#BD8535}
+.assessment{margin-top:18px;padding:17px;border-radius:17px;background:white;border:1px solid var(--line)}
+.assessment-head{display:flex;align-items:center;gap:10px}
+.assessment-icon{width:35px;height:35px;display:grid;place-items:center;border-radius:11px;background:#E8F7EF;color:var(--dark);font-size:17px}
+.assessment-title{font-size:14px;font-weight:650}
+.assessment p{margin:12px 0 0;color:#667269;font-size:13px;line-height:1.8}
+.disclaimer{margin:15px 3px 0;color:var(--muted);font-size:11px;line-height:1.7}
+.bottom{display:flex;gap:11px;padding:15px 18px 20px}
+.primary,.secondary{height:49px;border-radius:14px;font-weight:600}
+.primary{flex:1;border:0;background:var(--green);color:white}
+.secondary{padding:0 17px;border:1px solid var(--line);background:white;color:#536057}
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#25352B;color:white;padding:11px 16px;border-radius:11px;font-size:13px;opacity:0;pointer-events:none;transition:.2s;white-space:nowrap}
+.toast.show{opacity:1}
+.overlay{display:none;position:fixed;inset:0;background:#17251C66;align-items:flex-end;justify-content:center}
+.overlay.show{display:flex}
+.sheet{max-width:430px;width:100%;padding:23px 20px 30px;background:white;border-radius:22px 22px 0 0}
+.sheet h2{margin:0 0 10px;font-size:18px}
+.sheet p{font-size:14px;line-height:1.7;color:var(--muted);margin:0 0 20px}
+.sheet button{width:100%;height:46px;border-radius:12px}
+.confirm{background:var(--green);color:white;border:0}
+.keep{margin-top:10px;border:1px solid var(--line);background:white}
+</style>
+</head>
+<body>
+<main class="app">
+<header>
+<button class="back" onclick="back()" aria-label="返回">‹</button>
+<div class="title">测量结果</div>
+<button class="more" onclick="openShare()">···</button>
+</header>
+
+<section class="main">
+<div class="date" id="measureDate">今日测量 · 08:32</div>
+
+<section class="hero">
+<div class="hero-top">
+<span class="hero-label">本次体重</span>
+<span class="pill">测量成功</span>
+</div>
+<div class="big-weight">62.4 <small>kg</small></div>
+<div class="change">较上次测量 <strong>−0.3 kg</strong></div>
+
+<div class="hero-bottom">
+<div class="hero-stat">
+<div class="stat-label">BMI</div>
+<div class="stat-value">22.1</div>
+</div>
+<div class="hero-stat">
+<div class="stat-label">体脂率</div>
+<div class="stat-value">21.8%</div>
+</div>
+<div class="hero-stat">
+<div class="stat-label">身体评分</div>
+<div class="stat-value">82 分</div>
+</div>
+</div>
+</section>
+
+<div class="section-head">
+<div class="section-title">身体成分</div>
+<button class="section-link" onclick="showToast('进入全部指标详情')">查看全部 ›</button>
+</div>
+
+<div class="metrics">
+<div class="metric">
+<div class="metric-top"><span class="metric-dot"></span>体脂率</div>
+<div class="metric-value">21.8<small>%</small></div>
+<div class="metric-state">参考范围内</div>
+</div>
+<div class="metric">
+<div class="metric-top"><span class="metric-dot"></span>肌肉量</div>
+<div class="metric-value">45.2<small> kg</small></div>
+<div class="metric-state">持续关注变化</div>
+</div>
+<div class="metric">
+<div class="metric-top"><span class="metric-dot"></span>体水分率</div>
+<div class="metric-value">55.6<small>%</small></div>
+<div class="metric-state">参考范围内</div>
+</div>
+<div class="metric">
+<div class="metric-top"><span class="metric-dot"></span>内脏脂肪</div>
+<div class="metric-value">6<small> 级</small></div>
+<div class="metric-state warn">建议持续关注</div>
+</div>
+</div>
+
+<section class="assessment">
+<div class="assessment-head">
+<div class="assessment-icon">✳</div>
+<div class="assessment-title">本次测量摘要</div>
+</div>
+<p>
+本次体重较上次略有下降。单次数据不能完全反映身体变化，
+建议结合连续多日的测量趋势进行观察，并尽量在相近的时间和条件下测量。
+</p>
+</section>
+
+<p class="disclaimer">
+以上为原型演示数据，不代表真实测量结果。身体成分估算会受到测量条件等因素影响，
+相关指标仅供健康管理参考，不能用于疾病诊断。
+</p>
+</section>
+
+<footer class="bottom">
+<button class="secondary" onclick="confirmDelete()">删除记录</button>
+<button class="primary" onclick="showToast('原型演示：已保存本次记录')">完成并返回首页</button>
+</footer>
+</main>
+
+<div class="toast" id="toast" role="status"></div>
+<div class="overlay" id="overlay" onclick="outsideClose(event)">
+<section class="sheet" role="dialog" aria-modal="true">
+<h2 id="dialogTitle">删除这条测量记录？</h2>
+<p id="dialogText">删除后，这条记录将从当前健康档案中移除。此操作无法直接撤销。</p>
+<button class="confirm" id="confirmButton" onclick="confirmAction()">确认删除</button>
+<button class="keep" onclick="closeDialog()">暂不删除</button>
+</section>
+</div>
+
+<script>
+let action="delete";
+function showToast(message){
+const el=document.getElementById("toast");
+el.textContent=message;el.classList.add("show");
+clearTimeout(window.toastTimer);
+window.toastTimer=setTimeout(()=>el.classList.remove("show"),2200);
+}
+function openDialog(title,text,confirm,which){
+action=which;
+document.getElementById("dialogTitle").textContent=title;
+document.getElementById("dialogText").textContent=text;
+document.getElementById("confirmButton").textContent=confirm;
+document.getElementById("overlay").classList.add("show");
+}
+function confirmDelete(){
+openDialog("删除这条测量记录？","删除后，这条记录将从当前健康档案中移除。此操作无法直接撤销。","确认删除","delete");
+}
+function openShare(){
+openDialog("分享测量结果","正式版本可在这里生成分享图片。分享前应展示数据范围与隐私提示。","模拟生成分享内容","share");
+}
+function confirmAction(){
+closeDialog();
+if(action==="delete")showToast("原型演示：记录已删除");
+else showToast("原型演示：分享内容已准备");
+}
+function closeDialog(){document.getElementById("overlay").classList.remove("show")}
+function outsideClose(e){if(e.target.id==="overlay")closeDialog()}
+function back(){showToast("原型演示：返回测量记录")}
+</script>
+</body>
+</html>

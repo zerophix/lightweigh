@@ -1,0 +1,183 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>体脂率趋势 - 轻刻健康</title>
+<style>
+:root{--brand:#21a675;--deep:#147d58;--bg:#f5f8f5;--text:#202923;--muted:#89938c;--line:#edf1ed;--orange:#e5a04e}
+*{box-sizing:border-box}
+body{margin:0;background:#eaf0eb;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}
+button{font:inherit;cursor:pointer}
+.app{max-width:430px;min-height:100vh;margin:auto;background:var(--bg);padding-bottom:28px}
+.header{background:#fff;padding:20px 20px 18px}
+.nav{display:flex;align-items:center;justify-content:space-between;height:32px}
+.back{border:0;background:none;font-size:25px;color:#26342b;padding:0 8px 0 0}
+.title{font-size:17px;font-weight:700}
+.help{width:34px;height:34px;border:1px solid var(--line);border-radius:11px;background:white;color:#68766d}
+.metric-head{display:flex;align-items:center;gap:12px;margin-top:21px}
+.metric-icon{width:46px;height:46px;border-radius:15px;background:#fff0df;color:#cf8732;display:grid;place-items:center;font-size:22px}
+.metric-name{font-size:13px;color:#738077}
+.current{display:flex;align-items:baseline;gap:5px;margin-top:3px}
+.current strong{font-size:37px;line-height:1.15;letter-spacing:-1px}
+.current span{font-size:13px;color:#7c887f}
+.badge{display:inline-block;margin-top:9px;padding:6px 9px;background:#fff4e5;color:#a96e28;border-radius:8px;font-size:11px}
+.subnote{margin-top:10px;font-size:11px;line-height:1.6;color:#8c978e}
+.period{display:flex;gap:4px;background:#f0f4f0;border-radius:12px;padding:4px;margin-top:20px}
+.period button{flex:1;padding:9px 0;border:0;border-radius:9px;background:transparent;color:#7c887f;font-size:12px}
+.period button.active{background:#fff;color:var(--deep);font-weight:650;box-shadow:0 1px 4px #142a1c0b}
+.content{padding:16px}
+.card{background:#fff;border:1px solid #edf1ed;border-radius:18px;padding:17px;margin-bottom:13px}
+.card-head{display:flex;align-items:center;justify-content:space-between}
+.card-head h2{margin:0;font-size:15px;font-weight:700}
+.card-head button{border:0;background:none;color:#89938c;font-size:12px}
+.chart{width:100%;display:block;margin-top:18px}
+.axis-labels{display:flex;justify-content:space-between;color:#98a29a;font-size:10px;margin-top:4px}
+.point-detail{display:flex;align-items:center;justify-content:space-between;padding:12px 13px;background:#f5f8f5;border-radius:12px;margin-top:14px}
+.point-detail small{display:block;color:#89938c;font-size:11px}
+.point-detail strong{display:block;font-size:19px;margin-top:4px}
+.point-right{text-align:right}
+.point-right strong{font-size:12px;color:var(--deep)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);margin-top:18px}
+.stat{padding:0 8px;border-right:1px solid var(--line)}
+.stat:first-child{padding-left:0}
+.stat:last-child{border-right:0}
+.stat-label{font-size:11px;color:#89938c}
+.stat-value{font-size:18px;font-weight:700;margin-top:7px}
+.stat-value small{font-size:10px;color:#89938c;font-weight:400}
+.stat-sub{font-size:10px;color:#a0a9a1;margin-top:4px}
+.record{display:flex;align-items:center;padding:13px 0;border-bottom:1px solid #f0f3f0}
+.record:last-child{border-bottom:0;padding-bottom:0}
+.record-date{width:53px;flex-shrink:0}
+.record-date b{font-size:13px}
+.record-date small{display:block;font-size:10px;color:#939d95;margin-top:4px}
+.record-info{flex:1}
+.record-info b{font-size:13px;font-weight:550}
+.record-info small{display:block;font-size:10px;color:#939d95;margin-top:4px}
+.record-value{text-align:right;font-size:15px;font-weight:700}
+.record-value small{display:block;font-size:10px;color:#939d95;margin-top:4px;font-weight:400}
+.arrow{font-size:19px;color:#aab4ac;margin-left:8px}
+.explain{font-size:12px;line-height:1.8;color:#68766d;margin-top:12px}
+.range-bar{display:flex;gap:4px;margin-top:15px}
+.range-seg{height:7px;flex:1;border-radius:8px;background:#e6eee8}
+.range-seg:nth-child(2){background:#a8d9b9}
+.range-seg:nth-child(3){background:#f1d6a5}
+.range-seg:nth-child(4){background:#e8b1a6}
+.range-caption{display:flex;justify-content:space-between;gap:6px;margin-top:9px;font-size:10px;color:#929d94}
+.notice{background:#fff8ec;border:1px solid #f8ebd2;border-radius:14px;padding:13px;color:#826a47;font-size:11px;line-height:1.75;margin-top:13px}
+.source{display:flex;gap:10px;padding:13px;background:#eef6f0;border-radius:13px;color:#5b7462;font-size:11px;line-height:1.7}
+.source-icon{font-size:16px}
+.footnote{font-size:10px;color:#9aa49c;line-height:1.7;padding:5px 4px 0}
+.toast{position:fixed;bottom:25px;left:50%;transform:translateX(-50%);background:#25352b;color:white;border-radius:12px;padding:11px 15px;font-size:12px;white-space:nowrap;opacity:0;pointer-events:none;transition:.2s}
+.toast.show{opacity:1}
+@media(min-width:500px){.app{margin:18px auto;border-radius:26px;overflow:hidden;box-shadow:0 12px 45px #21352712;min-height:calc(100vh - 36px)}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="header">
+  <div class="nav">
+    <button class="back" onclick="history.length>1?history.back():location.href='metrics-overview.html'">‹</button>
+    <div class="title">体脂率趋势</div>
+    <button class="help" onclick="document.getElementById('explanation').scrollIntoView({behavior:'smooth'})">i</button>
+  </div>
+  <div class="metric-head">
+    <div class="metric-icon">◉</div>
+    <div>
+      <div class="metric-name">最近一次体脂率</div>
+      <div class="current"><strong>21.8</strong><span>%</span></div>
+      <div class="badge">近 30 天下降 1.2 个百分点</div>
+    </div>
+  </div>
+  <div class="subnote">测量时间：2026年10月22日 08:15<br>体脂率是估算值，建议在相近的时间和身体状态下持续测量。</div>
+  <div class="period" id="period">
+    <button class="active" data-period="week">近 7 天</button>
+    <button data-period="month">近 30 天</button>
+    <button data-period="quarter">近 3 个月</button>
+    <button data-period="year">近 1 年</button>
+  </div>
+</header>
+<main class="content">
+  <section class="card">
+    <div class="card-head"><h2>体脂率变化</h2><button onclick="showToast('折线为模拟数据')">图表说明 ⓘ</button></div>
+    <svg class="chart" id="fatChart" viewBox="0 0 340 185" role="img" aria-label="体脂率趋势图">
+      <g stroke="#edf1ed" stroke-width="1">
+        <line x1="36" y1="25" x2="328" y2="25"/><line x1="36" y1="62" x2="328" y2="62"/><line x1="36" y1="99" x2="328" y2="99"/><line x1="36" y1="136" x2="328" y2="136"/>
+      </g>
+      <g fill="#9aa49c" font-size="10"><text x="1" y="28">24%</text><text x="1" y="65">23%</text><text x="1" y="102">22%</text><text x="1" y="139">21%</text></g>
+      <path id="areaPath" d="M36 38 L84 49 L132 56 L180 72 L228 82 L276 101 L328 110 L328 136 L36 136 Z" fill="#e5a04e" opacity=".12"/>
+      <path id="linePath" d="M36 38 L84 49 L132 56 L180 72 L228 82 L276 101 L328 110" fill="none" stroke="#e5a04e" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+      <g id="points"></g>
+    </svg>
+    <div class="axis-labels" id="chartLabels"><span>10/16</span><span>10/17</span><span>10/18</span><span>10/19</span><span>10/20</span><span>10/21</span><span>10/22</span></div>
+    <div class="point-detail">
+      <div><small id="pointDate">10月22日 · 最新记录</small><strong><span id="pointValue">21.8</span><span style="font-size:11px;font-weight:400"> %</span></strong></div>
+      <div class="point-right"><small>较前一次测量</small><strong id="pointChange">−0.2 个百分点</strong></div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="stat-label">周期最高</div><div class="stat-value" id="maxValue">23.0<small> %</small></div><div class="stat-sub">测量记录</div></div>
+      <div class="stat"><div class="stat-label">周期最低</div><div class="stat-value" id="minValue">21.8<small> %</small></div><div class="stat-sub">测量记录</div></div>
+      <div class="stat"><div class="stat-label">周期平均</div><div class="stat-value" id="avgValue">22.4<small> %</small></div><div class="stat-sub">测量记录</div></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><h2>最近测量</h2><button onclick="location.href='history-list.html'">全部记录 ›</button></div>
+    <div class="record"><div class="record-date"><b>22日</b><small>周四</small></div><div class="record-info"><b>早晨测量</b><small>08:15 · 设备测量</small></div><div class="record-value">21.8%<small>−0.2 个百分点</small></div><span class="arrow">›</span></div>
+    <div class="record"><div class="record-date"><b>21日</b><small>周三</small></div><div class="record-info"><b>早晨测量</b><small>07:52 · 设备测量</small></div><div class="record-value">22.0%<small>−0.1 个百分点</small></div><span class="arrow">›</span></div>
+    <div class="record"><div class="record-date"><b>20日</b><small>周二</small></div><div class="record-info"><b>晚间测量</b><small>20:34 · 设备测量</small></div><div class="record-value">22.1%<small>+0.2 个百分点</small></div><span class="arrow">›</span></div>
+    <div class="record"><div class="record-date"><b>18日</b><small>周日</small></div><div class="record-info"><b>早晨测量</b><small>08:06 · 设备测量</small></div><div class="record-value">21.9%<small>−0.3 个百分点</small></div><span class="arrow">›</span></div>
+  </section>
+
+  <section class="card" id="explanation">
+    <div class="card-head"><h2>了解体脂率</h2><button onclick="showToast('原型演示：完整指标帮助页待接入')">更多说明 ›</button></div>
+    <div class="explain">体脂率表示脂肪质量占体重的比例。它与体重、肌肉量等指标共同反映身体组成情况。家用体脂秤通常通过生物电阻抗等方式估算，数值可能受饮水、运动、进食和测量条件影响。</div>
+    <div class="range-bar"><div class="range-seg"></div><div class="range-seg"></div><div class="range-seg"></div><div class="range-seg"></div></div>
+    <div class="range-caption"><span>偏低</span><span>参考区间</span><span>偏高</span><span>较高</span></div>
+    <div class="notice"><b>关于参考区间</b><br>体脂率的参考范围需要结合性别、年龄及所采用的标准判断。本原型不根据演示数值判定用户是否健康；正式版本应明确参考标准和适用人群，无法判断时不显示结论。</div>
+  </section>
+
+  <div class="source"><span class="source-icon">ⓘ</span><div><b>数据来源与准确性</b><br>页面展示的体脂率及趋势均为模拟数据。正式版本应标明数据来自体脂秤测量或算法估算，并保留算法版本、测量时间和记录来源，以便追溯。</div></div>
+  <div class="footnote">本页面用于健康数据记录与趋势观察，不用于疾病诊断或治疗决策。不同设备采用的计算模型可能不同，跨设备数据不一定能直接比较。</div>
+</main>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const dataSets={
+ week:{v:[22.8,22.6,22.7,22.3,22.2,22.0,21.8],labels:['10/16','10/17','10/18','10/19','10/20','10/21','10/22'],change:'近 7 天下降 1.0 个百分点'},
+ month:{v:[23.0,22.9,22.8,22.7,22.6,22.5,22.4,22.3,22.0,21.8],labels:['09/23','09/26','09/29','10/02','10/05','10/08','10/11','10/14','10/18','10/22'],change:'近 30 天下降 1.2 个百分点'},
+ quarter:{v:[24.3,24.0,23.8,23.6,23.5,23.2,23.0,22.8,22.4,21.8],labels:['07/24','08/02','08/12','08/22','09/01','09/11','09/21','10/01','10/11','10/22'],change:'近 3 个月下降 2.5 个百分点'},
+ year:{v:[26.1,25.7,25.3,24.9,24.6,24.1,23.8,23.4,22.7,21.8],labels:['11月','12月','1月','2月','3月','4月','5月','6月','8月','10月'],change:'近 1 年下降 4.3 个百分点'}
+};
+function showToast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>el.classList.remove('show'),2200)}
+function draw(data){
+ const vals=data.v,left=36,right=328,top=25,bottom=136;
+ const min=Math.min(...vals)-.2,max=Math.max(...vals)+.2;
+ const pts=vals.map((v,i)=>({x:left+(right-left)*i/(vals.length-1),y:bottom-(v-min)/(max-min)*(bottom-top),v}));
+ const path=pts.map((p,i)=>(i?'L':'M')+p.x.toFixed(1)+' '+p.y.toFixed(1)).join(' ');
+ document.getElementById('linePath').setAttribute('d',path);
+ document.getElementById('areaPath').setAttribute('d',path+' L '+right+' '+bottom+' L '+left+' '+bottom+' Z');
+ document.getElementById('points').innerHTML=pts.map((p,i)=>`<circle cx="${p.x}" cy="${p.y}" r="${i===pts.length-1?5:4}" fill="#e5a04e" stroke="#fff" stroke-width="2" style="cursor:pointer" onclick="selectPoint(${i})"><title>${data.labels[i]}：${p.v.toFixed(1)}%</title></circle>`).join('');
+ document.getElementById('chartLabels').innerHTML=data.labels.map(x=>'<span>'+x+'</span>').join('');
+ window.currentFatData=data;window.currentFatPoints=pts;selectPoint(pts.length-1);
+ document.getElementById('maxValue').innerHTML=Math.max(...vals).toFixed(1)+'<small> %</small>';
+ document.getElementById('minValue').innerHTML=Math.min(...vals).toFixed(1)+'<small> %</small>';
+ document.getElementById('avgValue').innerHTML=(vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1)+'<small> %</small>';
+}
+function selectPoint(i){
+ const d=window.currentFatData,p=window.currentFatPoints[i];
+ document.getElementById('pointDate').textContent=d.labels[i]+' · 选中记录';
+ document.getElementById('pointValue').textContent=p.v.toFixed(1);
+ const prev=d.v[Math.max(0,i-1)],diff=p.v-prev;
+ document.getElementById('pointChange').textContent=(diff>0?'+':'')+diff.toFixed(1)+' 个百分点';
+}
+document.querySelectorAll('#period button').forEach(btn=>btn.addEventListener('click',()=>{
+ document.querySelectorAll('#period button').forEach(b=>b.classList.toggle('active',b===btn));
+ document.querySelector('.badge').textContent=dataSets[btn.dataset.period].change;
+ draw(dataSets[btn.dataset.period]);
+}));
+draw(dataSets.week);
+</script>
+</body>
+</html>

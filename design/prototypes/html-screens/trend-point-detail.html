@@ -1,0 +1,63 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>测量数据详情 - 轻刻健康</title>
+<style>
+:root{--g:#21a675;--deep:#147d58;--bg:#f5f8f5;--text:#202923;--sub:#849087;--line:#e9eee9;--soft:#eaf7f0}
+*{box-sizing:border-box}body{margin:0;background:#eaf0eb;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}
+button{font:inherit;cursor:pointer}.app{max-width:430px;min-height:100vh;margin:auto;background:var(--bg);padding-bottom:30px}
+.top{height:58px;display:flex;align-items:center;padding:0 20px;gap:14px;background:white;border-bottom:1px solid var(--line)}.back{border:0;background:none;font-size:27px;padding:0}.title{font-size:17px;font-weight:750;flex:1}.more{border:0;background:none;color:var(--sub);font-size:21px}
+.head{padding:23px 20px 16px}.eyebrow{font-size:11px;letter-spacing:1.3px;color:var(--g);font-weight:800}.head h1{font-size:23px;margin:8px 0}.date{font-size:12px;color:var(--sub);display:flex;gap:7px;align-items:center}.dot{width:5px;height:5px;border-radius:50%;background:var(--g)}
+.hero{margin:0 16px;padding:21px;border-radius:20px;background:linear-gradient(135deg,#e0f5e8,#f3fbf5);position:relative;overflow:hidden}.hero:after{content:"";position:absolute;width:145px;height:145px;border:24px solid #ffffff55;border-radius:50%;right:-44px;top:-52px}.metric-label{font-size:13px;color:#477a60;font-weight:650}.value-row{display:flex;align-items:baseline;gap:7px;margin:12px 0}.value{font-size:43px;font-weight:800;letter-spacing:-1.5px;color:#175d40}.unit{font-size:15px;color:#57816a}.change{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;background:#fff;border-radius:9px;color:#26865c;font-size:12px;font-weight:700}.change.down{color:#26865c}.compare{font-size:11px;color:#64836e;margin-top:10px}.chart-card{background:white;border-radius:18px;margin:14px 16px 0;padding:18px 16px}.card-title{font-size:14px;font-weight:750}.card-sub{font-size:11px;color:var(--sub);margin-top:5px}.chart{margin-top:12px;width:100%;height:auto;display:block}.axis{display:flex;justify-content:space-between;font-size:10px;color:#9aa59b;margin-top:4px}.section-title{margin:22px 20px 12px;font-size:15px;font-weight:750}.metrics{margin:0 16px;padding:2px 15px;background:white;border-radius:17px}.metric{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid #f0f3f0;gap:12px}.metric:last-child{border:0}.metric-left{display:flex;align-items:center;gap:11px}.metric-icon{width:37px;height:37px;border-radius:12px;display:grid;place-items:center;background:#eaf7f0;color:var(--deep);font-size:13px;font-weight:800}.metric-name{font-size:13px;font-weight:650}.metric-note{font-size:10px;color:var(--sub);margin-top:4px}.metric-right{text-align:right}.metric-val{font-size:14px;font-weight:750}.metric-unit{font-size:10px;color:var(--sub);margin-left:3px}.source{margin:14px 16px 0;padding:15px;background:white;border-radius:16px}.source-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;margin:5px 0 13px}.source-row:last-child{margin-bottom:0}.source-label{color:var(--sub)}.source-value{font-weight:650}.pill{background:#eaf7f0;color:var(--deep);padding:5px 8px;border-radius:7px;font-size:10px}.footnote{font-size:10px;line-height:1.7;color:#89958b;margin:14px 20px}.actions{display:flex;gap:10px;margin:18px 16px 0}.action{flex:1;border-radius:13px;padding:13px;border:1px solid #dfe8e0;background:white;color:#415147;font-size:13px;font-weight:650}.action.primary{background:var(--g);color:white;border-color:var(--g)}.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#24372c;color:white;padding:11px 15px;border-radius:10px;font-size:12px;display:none;white-space:nowrap;z-index:5}
+@media(min-width:431px){.app{box-shadow:0 10px 40px #17291c12}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top"><button class="back" onclick="history.length>1?history.back():toast('这是独立页面原型')">‹</button><div class="title">数据点详情</div><button class="more" onclick="toast('更多操作：编辑或删除记录（原型未接入）')">•••</button></header>
+<section class="head"><div class="eyebrow">MEASUREMENT DETAIL</div><h1>这一天的身体数据</h1><div class="date"><span class="dot"></span><span id="dateLabel">2026年10月22日 星期四 · 08:15</span></div></section>
+<section class="hero">
+<div class="metric-label" id="heroLabel">体重</div>
+<div class="value-row"><span class="value" id="heroValue">62.40</span><span class="unit" id="heroUnit">kg</span></div>
+<div class="change" id="changeBadge">↓ 0.30 kg</div>
+<div class="compare" id="compareText">较上一次测量 · 2026年10月19日</div>
+</section>
+<section class="chart-card">
+<div class="card-title">近期变化</div><div class="card-sub">展示同一指标最近 7 次演示数据</div>
+<svg class="chart" viewBox="0 0 340 140" role="img" aria-label="体重趋势折线图">
+<defs><linearGradient id="area" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#21a675" stop-opacity=".18"/><stop offset="100%" stop-color="#21a675" stop-opacity="0"/></linearGradient></defs>
+<g stroke="#edf1ed" stroke-width="1"><line x1="24" y1="20" x2="324" y2="20"/><line x1="24" y1="50" x2="324" y2="50"/><line x1="24" y1="80" x2="324" y2="80"/><line x1="24" y1="110" x2="324" y2="110"/></g>
+<path d="M24 45 L74 58 L124 40 L174 70 L224 61 L274 82 L324 92 L324 112 L24 112Z" fill="url(#area)"/>
+<path d="M24 45 L74 58 L124 40 L174 70 L224 61 L274 82 L324 92" fill="none" stroke="#21a675" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<g fill="#fff" stroke="#21a675" stroke-width="2"><circle cx="24" cy="45" r="4"/><circle cx="74" cy="58" r="4"/><circle cx="124" cy="40" r="4"/><circle cx="174" cy="70" r="4"/><circle cx="224" cy="61" r="4"/><circle cx="274" cy="82" r="4"/></g>
+<circle cx="324" cy="92" r="8" fill="#21a675" opacity=".17"/><circle cx="324" cy="92" r="4.5" fill="#fff" stroke="#21a675" stroke-width="2.5"/>
+</svg>
+<div class="axis"><span>10月4日</span><span>10月10日</span><span>10月16日</span><span>10月22日</span></div>
+</section>
+<div class="section-title">本次测量的其他指标</div>
+<section class="metrics">
+<div class="metric"><div class="metric-left"><div class="metric-icon">脂</div><div><div class="metric-name">体脂率</div><div class="metric-note">设备估算值</div></div></div><div class="metric-right"><span class="metric-val">23.8</span><span class="metric-unit">%</span></div></div>
+<div class="metric"><div class="metric-left"><div class="metric-icon">肌</div><div><div class="metric-name">肌肉量</div><div class="metric-note">设备估算值</div></div></div><div class="metric-right"><span class="metric-val">45.2</span><span class="metric-unit">kg</span></div></div>
+<div class="metric"><div class="metric-left"><div class="metric-icon">BMI</div><div><div class="metric-name">BMI</div><div class="metric-note">由体重与个人身高计算</div></div></div><div class="metric-right"><span class="metric-val">22.1</span><span class="metric-unit">kg/m²</span></div></div>
+<div class="metric"><div class="metric-left"><div class="metric-icon">水</div><div><div class="metric-name">水分率</div><div class="metric-note">设备估算值</div></div></div><div class="metric-right"><span class="metric-val">54.6</span><span class="metric-unit">%</span></div></div>
+<div class="metric"><div class="metric-left"><div class="metric-icon">代</div><div><div class="metric-name">基础代谢</div><div class="metric-note">算法估算，不是每日摄入目标</div></div></div><div class="metric-right"><span class="metric-val">1460</span><span class="metric-unit">kcal/日</span></div></div>
+</section>
+<div class="section-title">记录信息</div>
+<section class="source">
+<div class="source-row"><span class="source-label">记录时间</span><span class="source-value">08:15:32</span></div>
+<div class="source-row"><span class="source-label">记录来源</span><span class="source-value">蓝牙体脂秤</span></div>
+<div class="source-row"><span class="source-label">数据状态</span><span class="pill">演示数据 · 已保存</span></div>
+<div class="source-row"><span class="source-label">记录编号</span><span class="source-value">DEMO-20261022-001</span></div>
+</section>
+<p class="footnote">本页数值均为原型演示数据，不代表真实测量结果。体脂率、肌肉量、水分率和基础代谢等通常为设备算法估算值，不应单独用于医学诊断。实际可查看的指标取决于设备能力和数据完整性。</p>
+<div class="actions"><button class="action" onclick="toast('原型演示：此处可返回趋势图')">返回趋势</button><button class="action primary" onclick="toast('原型演示：记录详情跳转尚未接入')">查看完整记录</button></div>
+<div class="toast" id="toast"></div>
+</div>
+<script>
+function toast(s){const el=document.getElementById('toast');el.textContent=s;el.style.display='block';clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>el.style.display='none',2300)}
+</script>
+</body>
+</html>

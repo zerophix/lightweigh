@@ -1,0 +1,93 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>同步状态详情 - 轻刻健康</title>
+<style>
+:root{--green:#21a675;--deep:#147d58;--bg:#f5f8f5;--text:#20332b;--muted:#7d8982;--line:#e8eee9;--orange:#e6a23c;--red:#df6262}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;color:var(--text)}
+.app{max-width:430px;min-height:100vh;margin:auto;background:var(--bg);padding-bottom:32px}
+header{height:58px;display:flex;align-items:center;gap:12px;padding:0 20px;background:#fff;border-bottom:1px solid var(--line)}
+.back{border:0;background:none;font-size:25px;color:var(--text);cursor:pointer;padding:0}
+header h1{font-size:18px;margin:0;font-weight:650}
+main{padding:18px 16px}
+.card{background:#fff;border-radius:18px;padding:18px;margin-bottom:14px}
+.status{display:flex;align-items:center;gap:14px}
+.status-icon{width:52px;height:52px;border-radius:17px;background:#e6f7ef;color:var(--green);display:grid;place-items:center;font-size:25px;flex-shrink:0}
+h2{font-size:17px;margin:0 0 7px}
+p{margin:0;color:var(--muted);font-size:13px;line-height:1.7}
+.pill{display:inline-block;background:#e6f7ef;color:var(--deep);border-radius:20px;padding:4px 9px;font-size:11px;margin-top:7px}
+.section-title{font-size:15px;font-weight:650;margin:22px 2px 12px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 0;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0;padding-bottom:0}
+.row:first-child{padding-top:0}
+.row-left{display:flex;align-items:center;gap:11px}
+.symbol{width:38px;height:38px;border-radius:12px;background:#f0f6f2;display:grid;place-items:center;font-size:18px}
+.name{font-size:14px;font-weight:600;margin-bottom:4px}
+.value{font-size:12px;color:var(--muted)}
+.state{font-size:12px;color:var(--deep);white-space:nowrap}
+.state.wait{color:var(--orange)}
+button{font:inherit;cursor:pointer}
+.primary{width:100%;border:0;background:var(--green);color:#fff;border-radius:13px;padding:14px;font-size:15px;font-weight:600;margin-top:15px}
+.primary:disabled{opacity:.65}
+.secondary{border:1px solid #dce9e0;color:var(--deep);background:#fff;border-radius:10px;padding:8px 12px;font-size:12px}
+.progress{height:7px;background:#edf2ee;border-radius:8px;overflow:hidden;margin:15px 0 9px}
+.progress span{display:block;width:72%;height:100%;background:var(--green);border-radius:8px;transition:width .3s}
+.note{font-size:12px;color:var(--muted);line-height:1.7;padding:0 3px}
+a{color:var(--deep);text-decoration:none}
+.toast{display:none;margin-top:12px;padding:11px;background:#e6f7ef;color:var(--deep);border-radius:10px;font-size:12px}
+</style>
+</head>
+<body>
+<div class="app">
+<header><button class="back" onclick="history.length>1?history.back():location.href='privacy-cloud-sync.html'" aria-label="返回">‹</button><h1>同步状态详情</h1></header>
+<main>
+<section class="card">
+<div class="status">
+<div class="status-icon">↻</div>
+<div><h2 id="mainStatus">同步状态正常</h2><p id="lastTime">最近同步：今天 08:42</p><span class="pill" id="statusPill">连接状态：演示中</span></div>
+</div>
+<div class="progress"><span id="progressBar"></span></div>
+<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted)"><span id="progressText">同步队列已处理 8 / 10 项</span><span id="progressPercent">80%</span></div>
+<button class="primary" id="syncBtn" onclick="startSync()">立即同步</button>
+<div class="toast" id="toast" role="status"></div>
+</section>
+
+<div class="section-title">数据同步明细</div>
+<section class="card">
+<div class="row"><div class="row-left"><div class="symbol">⚖</div><div><div class="name">测量记录</div><div class="value">最近更新：今天 08:40</div></div></div><span class="state">已同步</span></div>
+<div class="row"><div class="row-left"><div class="symbol">📈</div><div><div class="name">指标趋势</div><div class="value">最近更新：今天 08:40</div></div></div><span class="state">已同步</span></div>
+<div class="row"><div class="row-left"><div class="symbol">👥</div><div><div class="name">家庭成员设置</div><div class="value">最近更新：昨天 21:16</div></div></div><span class="state">已同步</span></div>
+<div class="row"><div class="row-left"><div class="symbol">🎯</div><div><div class="name">行动计划</div><div class="value">有 2 项等待同步</div></div></div><span class="state wait">待同步</span></div>
+<div class="row"><div class="row-left"><div class="symbol">📝</div><div><div class="name">个人偏好</div><div class="value">最近更新：今天 08:30</div></div></div><span class="state">已同步</span></div>
+</section>
+
+<div class="section-title">同步记录</div>
+<section class="card">
+<div class="row"><div><div class="name">自动同步</div><div class="value">今天 08:42 · 状态正常</div></div><span class="state">完成</span></div>
+<div class="row"><div><div class="name">自动同步</div><div class="value">今天 07:15 · 状态正常</div></div><span class="state">完成</span></div>
+<div class="row"><div><div class="name">自动同步</div><div class="value">昨天 22:08 · 状态正常</div></div><span class="state">完成</span></div>
+</section>
+<p class="note">原型说明：以上时间、队列和同步状态均为示例数据。点击同步只会模拟进度，不会连接云端、读取健康数据或上传记录。</p>
+</main>
+</div>
+<script>
+let busy=false;
+function startSync(){
+ if(busy)return;
+ busy=true;
+ const btn=document.getElementById('syncBtn'),bar=document.getElementById('progressBar'),text=document.getElementById('progressText'),percent=document.getElementById('progressPercent'),title=document.getElementById('mainStatus'),pill=document.getElementById('statusPill'),toast=document.getElementById('toast');
+ btn.disabled=true;btn.textContent='模拟同步中…';title.textContent='正在处理同步队列';pill.textContent='演示状态';toast.style.display='none';
+ let n=0;
+ const timer=setInterval(()=>{
+  n++;
+  bar.style.width=(n*10)+'%';text.textContent='同步队列已处理 '+n+' / 10 项';percent.textContent=(n*10)+'%';
+  if(n>=10){clearInterval(timer);busy=false;btn.disabled=false;btn.textContent='再次模拟同步';title.textContent='演示同步已完成';pill.textContent='仅前端模拟';document.getElementById('lastTime').textContent='本次操作：刚刚（模拟）';toast.textContent='演示流程已结束。实际数据没有上传或变更。';toast.style.display='block';}
+ },180);
+}
+</script>
+</body>
+</html>

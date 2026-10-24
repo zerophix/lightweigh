@@ -1,0 +1,61 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>历史记录 - 轻衡健康</title>
+<style>
+:root{--g:#21a675;--gd:#147d58;--bg:#f5f8f5;--text:#202923;--muted:#87928a;--line:#e7ece8}
+*{box-sizing:border-box}body{margin:0;background:#e9eeea;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:var(--text)}button{font:inherit;cursor:pointer}
+.app{max-width:430px;min-height:100vh;margin:auto;background:var(--bg);padding-bottom:30px}
+header{height:58px;background:white;display:flex;align-items:center;justify-content:space-between;padding:0 20px}header button{border:0;background:none;color:var(--muted);font-size:14px}header strong{font-size:16px}
+main{padding:20px 16px}.summary{padding:17px;background:#e5f5e9;border:1px solid #d5ebdc;border-radius:17px}.summary small{font-size:12px;color:#62806d}.summary strong{display:block;font-size:26px;margin:9px 0 4px}.summary p{font-size:11px;color:#62806d;margin:0}
+.section-head{display:flex;justify-content:space-between;align-items:center;margin:22px 2px 12px}.section-head strong{font-size:14px}.section-head span{font-size:11px;color:var(--muted)}
+.record{background:white;border:1px solid var(--line);border-radius:15px;padding:16px;margin-bottom:10px}
+.top{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}.status{padding:5px 8px;background:#e8f6ed;color:var(--gd);border-radius:20px}
+.weight{font-size:27px;font-weight:700;margin:13px 0 4px}.weight small{font-size:12px;color:var(--muted);font-weight:400}.meta{font-size:11px;color:var(--muted)}
+.metrics{display:flex;gap:24px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}.metrics span{display:block;font-size:10px;color:var(--muted)}.metrics b{display:block;font-size:12px;margin-top:5px}
+.load{width:100%;height:43px;margin-top:6px;border:1px solid var(--line);border-radius:12px;background:white;color:#657168;font-size:12px}
+.load:disabled{opacity:.65;cursor:default}
+.skeleton{background:white;border:1px solid var(--line);border-radius:15px;padding:17px;margin-bottom:10px}
+.shimmer{height:10px;border-radius:8px;background:linear-gradient(90deg,#eef1ee 25%,#f8faf8 45%,#eef1ee 65%);background-size:200% 100%;animation:shine 1.3s infinite;margin-bottom:12px}
+.shimmer.large{height:28px;width:45%}.shimmer.short{width:35%}.shimmer.medium{width:65%;margin-bottom:0}
+@keyframes shine{to{background-position:-200% 0}}
+.state{padding:22px 15px;text-align:center;background:white;border-radius:15px;border:1px solid var(--line);font-size:12px;color:var(--muted);line-height:1.8}
+.state button{display:block;margin:10px auto 0;border:0;background:#e8f6ed;color:var(--gd);padding:8px 15px;border-radius:9px}
+.hidden{display:none}
+.toast{position:fixed;bottom:25px;left:50%;transform:translateX(-50%);padding:10px 14px;background:#25352b;color:white;border-radius:10px;font-size:12px;opacity:0;transition:.2s;white-space:nowrap}.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="app">
+<header><button onclick="toast('返回上一页')">‹ 返回</button><strong>历史记录</strong><button onclick="changeState()">状态演示</button></header>
+<main>
+<section class="summary"><small>当前已记录</small><strong>128 条</strong><p>包含本地记录与已同步记录 · 示例数据</p></section>
+<div class="section-head"><strong>测量记录</strong><span id="count">已显示 3 条</span></div>
+<div id="list">
+<article class="record"><div class="top"><span>今天 · 08:32</span><span class="status">已同步</span></div><div class="weight">62.4 <small>kg</small></div><div class="meta">我的档案 · 轻衡智能体脂秤</div><div class="metrics"><div><span>体脂率</span><b>21.8%</b></div><div><span>BMI</span><b>22.1</b></div><div><span>肌肉量</span><b>45.2 kg</b></div></div></article>
+<article class="record"><div class="top"><span>昨天 · 08:04</span><span class="status">已同步</span></div><div class="weight">62.7 <small>kg</small></div><div class="meta">我的档案 · 轻衡智能体脂秤</div><div class="metrics"><div><span>体脂率</span><b>22.1%</b></div><div><span>BMI</span><b>22.2</b></div><div><span>肌肉量</span><b>45.0 kg</b></div></div></article>
+<article class="record"><div class="top"><span>10 月 20 日 · 07:50</span><span class="status">待同步</span></div><div class="weight">62.9 <small>kg</small></div><div class="meta">我的档案 · 轻衡智能体脂秤</div><div class="metrics"><div><span>体脂率</span><b>22.3%</b></div><div><span>BMI</span><b>22.3</b></div><div><span>肌肉量</span><b>44.9 kg</b></div></div></article>
+</div>
+<div id="loading" class="hidden">
+<div class="skeleton"><div class="shimmer short"></div><div class="shimmer large"></div><div class="shimmer medium"></div></div>
+<div class="skeleton"><div class="shimmer short"></div><div class="shimmer large"></div><div class="shimmer medium"></div></div>
+</div>
+<div id="error" class="state hidden">加载失败，网络可能暂时不可用。<button onclick="retry()">重新加载</button></div>
+<div id="end" class="state hidden">已加载全部记录<br>没有更早的记录了</div>
+<button id="loadBtn" class="load" onclick="loadMore()">加载更早的记录</button>
+</main>
+</div>
+<div id="toast" class="toast" role="status"></div>
+<script>
+let page=1,mode="normal",busy=false;
+function toast(s){const e=document.getElementById("toast");e.textContent=s;e.classList.add("show");clearTimeout(window.tt);window.tt=setTimeout(()=>e.classList.remove("show"),2000)}
+function showMode(m){mode=m;document.getElementById("loading").classList.toggle("hidden",m!=="loading");document.getElementById("error").classList.toggle("hidden",m!=="error");document.getElementById("end").classList.toggle("hidden",m!=="end");document.getElementById("loadBtn").classList.toggle("hidden",m==="error"||m==="end"||m==="loading");document.getElementById("list").classList.toggle("hidden",m==="loading"||m==="error");}
+function changeState(){if(mode==="normal")showMode("loading");else if(mode==="loading")showMode("error");else if(mode==="error")showMode("end");else showMode("normal")}
+function loadMore(){if(busy||mode!=="normal")return;busy=true;showMode("loading");setTimeout(()=>{busy=false;page++;if(page>=3){showMode("end")}else{const el=document.createElement("article");el.className="record";el.innerHTML='<div class="top"><span>10 月 '+(22-page)+' 日 · 08:10</span><span class="status">已同步</span></div><div class="weight">63.0 <small>kg</small></div><div class="meta">我的档案 · 轻衡智能体脂秤</div><div class="metrics"><div><span>体脂率</span><b>22.3%</b></div><div><span>BMI</span><b>22.3</b></div><div><span>肌肉量</span><b>44.9 kg</b></div></div>';document.getElementById("list").appendChild(el);document.getElementById("count").textContent="已显示 "+(page+2)+" 条";showMode("normal");toast("已加载更多记录（演示）")}},800)}
+function retry(){showMode("loading");setTimeout(()=>{showMode("normal");toast("重新加载完成（演示）")},700)}
+</script>
+</body>
+</html>

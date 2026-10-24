@@ -1,0 +1,52 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>云端同步控制 - 轻刻健康</title>
+<style>
+:root{--g:#21a675;--d:#147d58;--bg:#f5f8f5;--text:#24362d;--muted:#84928b;--line:#e7eee9}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:var(--text);font-size:14px}.app{max-width:430px;min-height:100vh;margin:auto;padding-bottom:35px}.header{padding:20px;display:flex;align-items:center;gap:13px}.back{width:40px;height:40px;border:0;border-radius:12px;background:white;font-size:23px;cursor:pointer}.header h1{font-size:21px;margin:0}.header p{font-size:12px;color:var(--muted);margin:5px 0 0}.section{padding:0 20px;margin-bottom:15px}.hero{background:linear-gradient(135deg,#e2f6e9,#f8fcf9);border:1px solid #d8eee1;border-radius:19px;padding:18px}.hero-top{display:flex;align-items:center;gap:13px}.cloud{width:46px;height:46px;border-radius:15px;background:#d2efdd;display:grid;place-items:center;color:var(--d);font-size:23px}.hero-main{flex:1}.hero-main b{display:block;font-size:15px}.hero-main small{display:block;color:#6e8074;font-size:11px;margin-top:5px;line-height:1.5}.switch{width:46px;height:27px;border:0;border-radius:20px;background:#cbd7cf;padding:3px;cursor:pointer;flex-shrink:0}.switch i{display:block;width:21px;height:21px;border-radius:50%;background:white;transition:transform .2s}.switch.on{background:var(--g)}.switch.on i{transform:translateX(19px)}.sync-status{margin-top:17px;padding-top:13px;border-top:1px solid #d7eade;display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#687a6e}.pill{background:#e4f6eb;color:var(--d);padding:5px 8px;border-radius:7px;font-size:10px}.title{font-size:15px;font-weight:700;margin:0 0 11px}.card{background:white;border:1px solid #edf1ee;border-radius:18px;padding:16px}.row{display:flex;align-items:center;gap:11px;padding:13px 0;border-bottom:1px solid var(--line)}.row:first-child{padding-top:0}.row:last-child{border:0;padding-bottom:0}.ico{width:36px;height:36px;border-radius:11px;background:#edf8f1;color:var(--d);display:grid;place-items:center;font-size:17px;flex-shrink:0}.main{flex:1}.main b{display:block;font-size:13px}.main small{display:block;font-size:11px;color:var(--muted);line-height:1.5;margin-top:5px}.arrow{border:0;background:none;color:#8c9a90;font-size:20px;cursor:pointer}.statusline{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--line);font-size:12px}.statusline:last-child{border:0}.muted{color:var(--muted)}.value{color:#65776b}.notice{font-size:11px;color:var(--muted);line-height:1.8}.btn{width:100%;border:0;border-radius:13px;background:var(--g);color:white;padding:14px;font-weight:650;cursor:pointer}.btn.light{margin-top:9px;background:#e8f6ee;color:var(--d)}.toast{display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#25372e;color:white;padding:12px 16px;border-radius:12px;white-space:nowrap}.modalback{display:none;position:fixed;inset:0;background:#17251db0;align-items:center;justify-content:center;padding:24px}.modal{background:white;border-radius:19px;padding:22px;width:100%;max-width:360px}.modal h2{font-size:18px;margin:0 0 9px}.modal p{font-size:12px;color:var(--muted);line-height:1.8}.actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:16px}.actions button{border:0;border-radius:11px;padding:12px;background:#edf3ee;cursor:pointer}.actions .primary{background:var(--g);color:white}
+</style>
+</head>
+<body>
+<main class="app">
+<header class="header"><button class="back" onclick="location.href='privacy-data-home.html'">‹</button><div><h1>云端同步控制</h1><p>管理本地与云端的数据同步偏好</p></div></header>
+<section class="section"><div class="hero">
+<div class="hero-top"><div class="cloud">☁</div><div class="hero-main"><b>云端数据同步</b><small id="syncDescription">当前为原型演示，未连接真实云端服务</small></div><button class="switch on" id="syncSwitch" aria-label="云端同步开关" onclick="askSyncToggle()"><i></i></button></div>
+<div class="sync-status"><span>当前演示状态</span><span class="pill" id="syncPill">未连接云端</span></div>
+</div></section>
+<section class="section"><div class="title">同步内容偏好</div><div class="card">
+<div class="row"><div class="ico">▤</div><div class="main"><b>测量记录</b><small>体重及记录中实际包含的测量数据</small></div><button class="switch on" data-key="measurements" aria-label="同步测量记录" onclick="toggleCategory(this)"><i></i></button></div>
+<div class="row"><div class="ico">▥</div><div class="main"><b>指标趋势与报告</b><small>趋势汇总及相关报告数据</small></div><button class="switch on" data-key="reports" aria-label="同步指标趋势与报告" onclick="toggleCategory(this)"><i></i></button></div>
+<div class="row"><div class="ico">✓</div><div class="main"><b>行动计划与任务</b><small>计划配置、任务状态与复盘</small></div><button class="switch on" data-key="plans" aria-label="同步行动计划与任务" onclick="toggleCategory(this)"><i></i></button></div>
+<div class="row"><div class="ico">♙</div><div class="main"><b>个人偏好</b><small>单位、展示选项等应用偏好</small></div><button class="switch" data-key="preferences" aria-label="同步个人偏好" onclick="toggleCategory(this)"><i></i></button></div>
+</div></section>
+<section class="section"><div class="title">同步状态</div><div class="card">
+<div class="statusline"><span class="muted">最近同步时间</span><span class="value" id="lastSync">暂无真实同步记录</span></div>
+<div class="statusline"><span class="muted">待同步项目</span><span class="value" id="pendingCount">仅为演示数据</span></div>
+<div class="statusline"><span class="muted">同步冲突</span><span class="value" id="conflictState">未读取真实状态</span></div>
+<div class="row" style="cursor:pointer" onclick="showConflict()"><div class="ico">⇄</div><div class="main"><b>冲突处理说明</b><small>了解本地和云端记录不一致时的处理原则</small></div><button class="arrow" aria-label="查看冲突说明">›</button></div>
+</div></section>
+<section class="section"><button class="btn" onclick="manualSync()">模拟立即同步</button><button class="btn light" onclick="savePreferences()">保存同步偏好</button><p class="notice">关闭同步偏好不会自动删除已经上传的数据；正式产品需要明确停止同步后的数据保留规则。重新同步前应检查身份、权限、数据版本与冲突情况，不应默认覆盖任一方的数据。</p></section>
+<div class="modalback" id="modal"><div class="modal"><h2 id="modalTitle">同步设置确认</h2><p id="modalText"></p><div class="actions"><button onclick="closeModal()">取消</button><button class="primary" onclick="confirmAction()">确认</button></div></div></div>
+<div class="toast" id="toast"></div>
+</main>
+<script>
+let pendingAction=null;
+function toast(s){const t=document.getElementById('toast');t.textContent=s;t.style.display='block';setTimeout(()=>t.style.display='none',2000)}
+function openModal(title,detail,action){pendingAction=action;document.getElementById('modalTitle').textContent=title;document.getElementById('modalText').textContent=detail;document.getElementById('modal').style.display='flex'}
+function closeModal(){document.getElementById('modal').style.display='none';pendingAction=null}
+function confirmAction(){if(pendingAction)pendingAction();closeModal()}
+function askSyncToggle(){const btn=document.getElementById('syncSwitch');const enabled=btn.classList.contains('on');openModal(enabled?'关闭同步偏好？':'开启同步偏好？',enabled?'关闭后，正式产品应停止后续同步任务；此前已上传的数据不会因此自动删除。':'正式产品应先确认账户身份、同步权限和冲突状态。当前只模拟开启偏好。',()=>{btn.classList.toggle('on',!enabled);updateStatus();toast('同步偏好已模拟变更')})}
+function toggleCategory(btn){const enabled=btn.classList.contains('on');btn.classList.toggle('on',!enabled);toast('已调整本页内容偏好')}
+function updateStatus(){const on=document.getElementById('syncSwitch').classList.contains('on');document.getElementById('syncPill').textContent=on?'未连接云端':'同步偏好已关闭';document.getElementById('syncDescription').textContent=on?'已开启演示同步偏好；未连接真实云端服务':'已关闭演示同步偏好；本页面不会执行真实同步'}
+function manualSync(){if(!document.getElementById('syncSwitch').classList.contains('on'))return toast('请先开启同步偏好');openModal('模拟立即同步','当前原型没有连接后端，无法读取或上传真实数据。确认后只更新演示状态。',()=>{document.getElementById('lastSync').textContent='刚刚（原型模拟）';document.getElementById('pendingCount').textContent='0 项（模拟）';document.getElementById('conflictState').textContent='未检测真实冲突';toast('同步状态已模拟更新')})}
+function showConflict(){openModal('本地与云端冲突','正式实现应比较记录标识、版本号和更新时间，明确提供保留本地、保留云端或逐项核对等方案。不要在未经用户理解的情况下静默覆盖记录。',()=>toast('已查看冲突处理说明'))}
+function savePreferences(){const p={enabled:document.getElementById('syncSwitch').classList.contains('on'),categories:{}};document.querySelectorAll('.switch[data-key]').forEach(b=>p.categories[b.dataset.key]=b.classList.contains('on'));try{sessionStorage.setItem('demoCloudSyncPrefs',JSON.stringify(p))}catch(e){}toast('同步偏好已模拟保存')}
+try{const p=JSON.parse(sessionStorage.getItem('demoCloudSyncPrefs')||'null');if(p){document.getElementById('syncSwitch').classList.toggle('on',p.enabled!==false);if(p.categories)document.querySelectorAll('.switch[data-key]').forEach(b=>{if(p.categories[b.dataset.key]!==undefined)b.classList.toggle('on',!!p.categories[b.dataset.key])});updateStatus()}}catch(e){}
+document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
+</script>
+</body>
+</html>

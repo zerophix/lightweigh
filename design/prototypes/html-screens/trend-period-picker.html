@@ -1,0 +1,60 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>选择时间范围 - 轻刻健康</title>
+<style>
+:root{--g:#21a675;--deep:#147d58;--bg:#f5f8f5;--text:#202923;--sub:#859087;--line:#e8eee8;--soft:#eaf7f0}
+*{box-sizing:border-box}body{margin:0;background:#eaf0eb;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}
+button,input{font:inherit}.app{max-width:430px;min-height:100vh;margin:auto;background:var(--bg);padding-bottom:100px}
+.top{height:58px;display:flex;align-items:center;padding:0 20px;gap:15px;background:#fff;border-bottom:1px solid var(--line)}.back{border:0;background:none;font-size:27px;padding:0}.title{font-size:17px;font-weight:700}
+.intro{padding:25px 20px 18px}.tag{font-size:11px;color:var(--g);font-weight:800;letter-spacing:1.4px}.intro h1{font-size:25px;margin:8px 0}.intro p{font-size:13px;color:var(--sub);margin:0;line-height:1.7}
+.card{margin:0 16px 14px;padding:18px;background:#fff;border-radius:18px;box-shadow:0 3px 16px #193b2505}.card-head{font-size:14px;font-weight:750;margin-bottom:14px}.options{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.option{border:1px solid var(--line);background:#fff;border-radius:13px;text-align:left;padding:14px 13px;min-height:77px;color:var(--text)}.option b{display:block;font-size:14px}.option span{display:block;color:var(--sub);font-size:11px;margin-top:7px}.option.active{border-color:var(--g);background:var(--soft);box-shadow:inset 0 0 0 1px var(--g)}.option.active b{color:var(--deep)}
+.custom{display:none}.custom.show{display:block}.date-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.date-field label{display:block;font-size:12px;color:var(--sub);margin-bottom:8px}.date-field input{width:100%;padding:12px 9px;border:1px solid #dfe7df;border-radius:11px;background:#fbfcfb;color:var(--text);font-size:12px;min-width:0}.date-field input:focus{outline:2px solid #b8e9d0;border-color:var(--g)}.hint{font-size:11px;color:var(--sub);line-height:1.7;margin-top:12px}
+.summary{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#f3f8f3;border-radius:12px;padding:13px}.summary label{font-size:11px;color:var(--sub)}.summary strong{font-size:13px;display:block;margin-top:5px}.calendar{font-size:21px;color:var(--g)}
+.bottom{position:fixed;bottom:0;left:50%;transform:translateX(-50%);max-width:430px;width:100%;background:#fff;padding:13px 20px calc(16px + env(safe-area-inset-bottom));box-shadow:0 -6px 24px #193b250a}.apply{border:0;border-radius:14px;background:var(--g);color:#fff;font-weight:750;width:100%;padding:15px}.toast{position:fixed;bottom:92px;left:50%;transform:translateX(-50%);background:#25382d;color:white;border-radius:10px;padding:11px 15px;font-size:12px;white-space:nowrap;display:none;z-index:3}
+@media(min-width:431px){.app{box-shadow:0 10px 40px #17291c12}.bottom{bottom:18px;border-radius:18px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top"><button class="back" onclick="history.length>1?history.back():toast('这是独立页面原型')">‹</button><div class="title">时间范围</div></header>
+<section class="intro"><div class="tag">TREND SETTINGS</div><h1>想看哪段时间？</h1><p>选择合适的观察周期，了解身体指标近期变化或长期趋势。</p></section>
+<section class="card"><div class="card-head">快捷选择</div><div class="options" id="options">
+<button class="option" data-period="7" onclick="choose(this)"><b>近 7 天</b><span>观察最近一周</span></button>
+<button class="option active" data-period="30" onclick="choose(this)"><b>近 30 天</b><span>了解近期变化</span></button>
+<button class="option" data-period="90" onclick="choose(this)"><b>近 3 个月</b><span>观察阶段性趋势</span></button>
+<button class="option" data-period="365" onclick="choose(this)"><b>近 1 年</b><span>回顾长期变化</span></button>
+<button class="option" data-period="custom" onclick="choose(this)" style="grid-column:1/-1"><b>自定义时间</b><span>按起止日期筛选记录</span></button>
+</div></section>
+<section class="card custom" id="customCard"><div class="card-head">自定义日期</div><div class="date-row">
+<div class="date-field"><label for="start">开始日期</label><input id="start" type="date"></div>
+<div class="date-field"><label for="end">结束日期</label><input id="end" type="date"></div>
+</div><div class="hint" id="dateHint">最多选择连续 365 天。结束日期不能早于开始日期。</div></section>
+<section class="card"><div class="card-head">当前选择</div><div class="summary"><div><label>观察区间</label><strong id="summaryRange">近 30 天</strong></div><span class="calendar">▦</span></div><div class="hint" id="summaryHint">将展示最近 30 天内的可用测量记录。没有记录的日期不会自动补成真实测量值。</div></section>
+<div class="bottom"><button class="apply" onclick="applyRange()">应用时间范围</button></div><div class="toast" id="toast"></div>
+</div>
+<script>
+const today=new Date();today.setHours(0,0,0,0);
+const iso=d=>{const x=new Date(d.getTime()-d.getTimezoneOffset()*60000);return x.toISOString().slice(0,10)};
+const fmt=s=>{if(!s)return'未选择';const [y,m,d]=s.split('-');return y+'年'+Number(m)+'月'+Number(d)+'日'};
+const startInput=document.getElementById('start'),endInput=document.getElementById('end');
+endInput.value=iso(today);const defaultStart=new Date(today);defaultStart.setDate(defaultStart.getDate()-29);startInput.value=iso(defaultStart);
+let period='30';
+function choose(el){document.querySelectorAll('.option').forEach(x=>x.classList.remove('active'));el.classList.add('active');period=el.dataset.period;document.getElementById('customCard').classList.toggle('show',period==='custom');updateSummary()}
+function updateSummary(){const s=startInput.value,e=endInput.value;let label='',hint='';
+if(period==='custom'){label=s&&e?fmt(s)+' 至 '+fmt(e):'请选择起止日期';hint='自定义区间会筛选该日期范围内的记录。';}
+else{const names={'7':'近 7 天','30':'近 30 天','90':'近 3 个月','365':'近 1 年'};label=names[period];hint='仅显示区间内实际存在的测量记录。'}
+document.getElementById('summaryRange').textContent=label;document.getElementById('summaryHint').textContent=hint}
+startInput.addEventListener('change',()=>{if(startInput.value)endInput.min=startInput.value;updateSummary()});endInput.addEventListener('change',()=>{if(endInput.value)startInput.max=endInput.value;updateSummary()});
+function applyRange(){let s,e;if(period==='custom'){s=startInput.value;e=endInput.value;if(!s||!e){toast('请先选择完整的起止日期');return}if(s>e){toast('结束日期不能早于开始日期');return}if(e>iso(today)){toast('结束日期不能晚于今天');return}const diff=(new Date(e)-new Date(s))/86400000;if(diff>365){toast('自定义范围最多连续 365 天');return}}
+else{e=iso(today);const d=new Date(today);d.setDate(d.getDate()-Number(period)+1);s=iso(d)}
+toast('已选择：'+s+' 至 '+e+'（原型演示）')}
+function toast(s){const el=document.getElementById('toast');el.textContent=s;el.style.display='block';clearTimeout(window.tt);window.tt=setTimeout(()=>el.style.display='none',2400)}
+updateSummary();
+</script>
+</body>
+</html>

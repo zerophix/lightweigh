@@ -1,0 +1,92 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>家庭成员 - 轻刻健康</title>
+<style>
+:root{--green:#21a675;--deep:#147d58;--bg:#f5f8f5;--text:#24332c;--muted:#84928a;--line:#edf1ed;--card:#fff;--orange:#d58a32}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;color:var(--text);font-size:14px}
+.app{width:100%;max-width:430px;min-height:100vh;margin:auto;background:var(--bg);padding-bottom:28px}
+.header{height:58px;display:flex;align-items:center;padding:0 20px;gap:14px;background:#fff}
+.back{border:0;background:none;font-size:24px;color:var(--text);cursor:pointer;padding:0}.title{font-size:17px;font-weight:700;flex:1}.header-action{border:0;background:none;color:var(--deep);font-weight:600;cursor:pointer}
+.hero{padding:23px 20px 20px;background:linear-gradient(135deg,#e8f7ef,#f5fbf7)}
+.eyebrow{font-size:12px;color:var(--deep);font-weight:700;letter-spacing:1px}.hero h1{font-size:25px;margin:9px 0 6px}.hero p{margin:0;color:#718178;line-height:1.6}
+.summary{display:flex;gap:10px;margin-top:18px}.stat{flex:1;background:#ffffffc9;border:1px solid #ffffff;border-radius:14px;padding:12px}.stat b{font-size:22px;display:block}.stat span{font-size:12px;color:var(--muted);display:block;margin-top:4px}
+.content{padding:18px 16px}.section-title{display:flex;align-items:center;justify-content:space-between;margin:4px 2px 12px}.section-title strong{font-size:15px}.section-title span{font-size:12px;color:var(--muted)}
+.card{background:var(--card);border-radius:18px;padding:4px 15px;box-shadow:0 3px 14px #20392a06}
+.member{display:flex;align-items:center;gap:12px;padding:15px 0;border-bottom:1px solid var(--line)}.member:last-child{border:0}
+.avatar{width:44px;height:44px;border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;flex-shrink:0;background:#e1f3e8;color:var(--deep)}
+.avatar.blue{background:#e5efff;color:#4778c5}.avatar.orange{background:#fff0dc;color:#bd7c27}.avatar.purple{background:#f0e8ff;color:#8256b8}
+.info{flex:1;min-width:0}.name-row{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.name{font-weight:700;font-size:14px}.sub{font-size:12px;color:var(--muted);margin-top:6px}
+.role{font-size:10px;padding:3px 7px;border-radius:6px;background:#e7f7ef;color:var(--deep)}.role.member-role{background:#f1f3f1;color:#728077}.role.pending{background:#fff3df;color:#b57822}
+.arrow{font-size:20px;color:#aab5ae;background:none;border:0;cursor:pointer;padding:5px}
+.invite{margin-top:15px;width:100%;height:48px;border-radius:14px;border:1px dashed #8bcbb0;background:#eff9f3;color:var(--deep);font-size:14px;font-weight:700;cursor:pointer}
+.note{margin-top:15px;padding:13px 14px;border-radius:13px;background:#edf5f0;color:#6f8075;font-size:12px;line-height:1.7}
+.bottom-links{display:flex;gap:10px;margin-top:14px}.link-card{flex:1;border:0;border-radius:13px;background:white;padding:14px 12px;text-align:left;cursor:pointer;color:var(--text)}.link-card b{display:block;font-size:13px}.link-card span{display:block;margin-top:6px;color:var(--muted);font-size:11px}
+.toast{position:fixed;bottom:25px;left:50%;transform:translateX(-50%);background:#26372d;color:#fff;padding:12px 18px;border-radius:12px;font-size:13px;display:none;z-index:5;max-width:90%;text-align:center}
+@media(min-width:500px){body{padding:20px 0}.app{border-radius:24px;overflow:hidden;box-shadow:0 8px 40px #1a342012}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="header">
+    <button class="back" onclick="history.back()" aria-label="返回">‹</button>
+    <div class="title">家庭成员</div>
+    <button class="header-action" onclick="showToast('原型提示：家庭设置页面可通过 family-settings.html 打开')">管理</button>
+  </header>
+  <section class="hero">
+    <div class="eyebrow">MY FAMILY</div>
+    <h1>健康同行一家人</h1>
+    <p>一起关注健康变化，让每位家人都被看见。</p>
+    <div class="summary">
+      <div class="stat"><b id="memberCount">4</b><span>家庭成员</span></div>
+      <div class="stat"><b>3</b><span>已加入</span></div>
+      <div class="stat"><b>1</b><span>待接受邀请</span></div>
+    </div>
+  </section>
+  <main class="content">
+    <div class="section-title"><strong>已加入成员</strong><span>共 3 人</span></div>
+    <section class="card">
+      <div class="member">
+        <div class="avatar">林</div>
+        <div class="info"><div class="name-row"><span class="name">林先生</span><span class="role">家庭管理员</span></div><div class="sub">账号本人 · 全部家庭管理权限</div></div>
+        <button class="arrow" onclick="openDetail('林先生')">›</button>
+      </div>
+      <div class="member">
+        <div class="avatar blue">陈</div>
+        <div class="info"><div class="name-row"><span class="name">陈女士</span><span class="role member-role">普通成员</span></div><div class="sub">已加入 · 可查看已授权的数据</div></div>
+        <button class="arrow" onclick="openDetail('陈女士')">›</button>
+      </div>
+      <div class="member">
+        <div class="avatar purple">林</div>
+        <div class="info"><div class="name-row"><span class="name">林同学</span><span class="role member-role">普通成员</span></div><div class="sub">已加入 · 可查看已授权的数据</div></div>
+        <button class="arrow" onclick="openDetail('林同学')">›</button>
+      </div>
+    </section>
+    <div class="section-title" style="margin-top:22px"><strong>邀请中</strong><span>等待对方确认</span></div>
+    <section class="card">
+      <div class="member">
+        <div class="avatar orange">周</div>
+        <div class="info"><div class="name-row"><span class="name">周女士</span><span class="role pending">待接受</span></div><div class="sub">邀请已发送 · 邀请有效期以正式规则为准</div></div>
+        <button class="arrow" onclick="showInviteActions()">›</button>
+      </div>
+    </section>
+    <button class="invite" onclick="location.href='family-invite.html'">＋ 邀请家庭成员</button>
+    <div class="bottom-links">
+      <button class="link-card" onclick="location.href='family-settings.html'"><b>家庭设置　›</b><span>名称、管理与家庭信息</span></button>
+      <button class="link-card" onclick="location.href='family-switch.html'"><b>切换家庭　›</b><span>查看其他家庭空间</span></button>
+    </div>
+    <div class="note">成员角色决定家庭管理权限，健康数据是否可见还取决于单独的数据授权。家庭成员身份不代表自动获得对方全部健康记录的访问权。</div>
+  </main>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+let toastTimer;
+function showToast(text){const el=document.getElementById('toast');el.textContent=text;el.style.display='block';clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.style.display='none',2600)}
+function openDetail(name){showToast('原型演示：打开 '+name+' 的成员详情；未读取真实家庭数据。')}
+function showInviteActions(){showToast('原型演示：可在邀请状态页查看或撤回邀请。')}
+</script>
+</body>
+</html>

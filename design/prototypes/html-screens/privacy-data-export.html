@@ -1,0 +1,52 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>健康数据导出 - 轻刻健康</title>
+<style>
+:root{--g:#21a675;--d:#147d58;--bg:#f5f8f5;--text:#24362d;--muted:#84928b;--line:#e7eee9}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:var(--text);font-size:14px}.app{max-width:430px;min-height:100vh;margin:auto;padding-bottom:35px}.header{padding:20px;display:flex;align-items:center;gap:13px}.back{width:40px;height:40px;border:0;border-radius:12px;background:white;font-size:23px;cursor:pointer}.header h1{font-size:21px;margin:0}.header p{font-size:12px;color:var(--muted);margin:5px 0 0}.section{padding:0 20px;margin-bottom:15px}.intro{background:#eaf7ef;color:#5b7766;border-radius:15px;padding:14px;font-size:12px;line-height:1.8}.card{background:white;border:1px solid #edf1ee;border-radius:18px;padding:16px}.title{font-size:15px;font-weight:700;margin:0 0 13px}.choice{display:flex;align-items:center;gap:11px;padding:13px 0;border-bottom:1px solid var(--line)}.choice:last-child{border:0;padding-bottom:0}.check{width:21px;height:21px;border:1.5px solid #cbd8d0;border-radius:6px;accent-color:var(--g);flex-shrink:0}.choice-main{flex:1}.choice-main b{font-size:13px}.choice-main small{display:block;font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5}.label{display:block;font-size:12px;color:#64736a;margin:14px 0 8px}.select,.input{width:100%;border:1px solid #dfe8e1;border-radius:11px;background:white;padding:12px;font:inherit;color:var(--text);outline:none}.range{display:grid;grid-template-columns:1fr 1fr;gap:9px}.formats{display:grid;grid-template-columns:1fr 1fr;gap:10px}.format{border:1px solid var(--line);border-radius:13px;background:white;padding:13px;text-align:left;cursor:pointer;color:var(--text)}.format.active{border-color:var(--g);background:#eef9f2}.format b{font-size:13px}.format small{display:block;color:var(--muted);font-size:11px;margin-top:5px}.estimate{display:flex;justify-content:space-between;gap:12px;padding:12px;background:#f6faf6;border-radius:12px;font-size:12px;color:#627267;margin-top:13px}.estimate strong{color:var(--d)}.btn{width:100%;border:0;border-radius:13px;background:var(--g);color:white;padding:14px;font-weight:650;cursor:pointer}.btn.light{margin-top:9px;background:#e8f6ee;color:var(--d)}.note{font-size:11px;color:var(--muted);line-height:1.8}.modalback{display:none;position:fixed;inset:0;background:#17251db0;align-items:center;justify-content:center;padding:24px}.modal{background:white;border-radius:19px;padding:22px;width:100%;max-width:360px}.modal h2{font-size:18px;margin:0 0 9px}.modal p{font-size:12px;color:var(--muted);line-height:1.8}.bar{height:7px;border-radius:9px;background:#e3eee6;overflow:hidden;margin:14px 0}.bar div{height:100%;width:0;background:var(--g);transition:width .5s}.actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}.actions button{border:0;border-radius:11px;padding:12px;background:#edf3ee;cursor:pointer}.actions .primary{background:var(--g);color:white}.toast{display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#25372e;color:white;padding:12px 16px;border-radius:12px;white-space:nowrap}
+</style>
+</head>
+<body>
+<main class="app">
+<header class="header"><button class="back" onclick="location.href='privacy-data-home.html'">‹</button><div><h1>健康数据导出</h1><p>选择需要获取的数据副本</p></div></header>
+<section class="section"><div class="intro">你可以按需选择自己的数据类别和时间范围。正式导出前应验证账户身份，并明确文件内容、保存位置和安全风险。</div></section>
+<section class="section"><div class="card"><div class="title">01 · 选择数据类别</div>
+<label class="choice"><input class="check data-check" type="checkbox" value="measurements" checked><span class="choice-main"><b>身体测量记录</b><small>体重、体脂及记录中实际包含的测量字段</small></span></label>
+<label class="choice"><input class="check data-check" type="checkbox" value="trends" checked><span class="choice-main"><b>指标趋势与汇总</b><small>按所选范围整理的指标变化数据</small></span></label>
+<label class="choice"><input class="check data-check" type="checkbox" value="profile"><span class="choice-main"><b>个人资料</b><small>用户填写的身高、生日等资料</small></span></label>
+<label class="choice"><input class="check data-check" type="checkbox" value="plans"><span class="choice-main"><b>行动计划与完成记录</b><small>计划配置、任务状态与复盘内容</small></span></label>
+<label class="choice"><input class="check data-check" type="checkbox" value="devices"><span class="choice-main"><b>设备信息</b><small>当前账户关联的设备信息，不包含其他账户数据</small></span></label>
+</div></section>
+<section class="section"><div class="card"><div class="title">02 · 时间范围</div>
+<label class="choice"><input class="check" type="radio" name="period" value="all" checked><span class="choice-main"><b>全部可导出记录</b><small>在正式服务中按账户权限确定数据范围</small></span></label>
+<label class="choice"><input class="check" type="radio" name="period" value="year"><span class="choice-main"><b>最近一年</b><small>仅包含过去一年的相关记录</small></span></label>
+<label class="choice"><input class="check" type="radio" name="period" value="custom"><span class="choice-main"><b>自定义日期</b><small>指定起止日期</small></span></label>
+<div class="range"><div><label class="label" for="start">开始日期</label><input class="input" type="date" id="start"></div><div><label class="label" for="end">结束日期</label><input class="input" type="date" id="end"></div></div>
+</div></section>
+<section class="section"><div class="card"><div class="title">03 · 文件格式</div><div class="formats">
+<button class="format active" data-format="CSV" onclick="chooseFormat(this)"><b>CSV 表格</b><small>适合查看和分析结构化数据</small></button>
+<button class="format" data-format="JSON" onclick="chooseFormat(this)"><b>JSON 数据</b><small>适合保留结构化字段</small></button>
+</div><div class="estimate"><span>预计导出范围</span><strong id="estimate">2 类数据 · 全部记录</strong></div></div></section>
+<section class="section"><button class="btn" onclick="previewExport()">预览导出申请</button><button class="btn light" onclick="location.href='privacy-data-home.html'">返回</button><p class="note">原型不会生成真实文件。正式版本应限制下载链接有效期，保护导出文件，避免通过不安全的公共链接传递健康数据。</p></section>
+<div class="modalback" id="modal"><div class="modal"><h2>导出申请预览</h2><p id="summary"></p><div class="bar"><div id="barFill"></div></div><p id="state">当前只进行前端预览，未提交真实申请。</p><div class="actions"><button onclick="closeModal()">返回修改</button><button class="primary" onclick="simulate()">模拟提交</button></div></div></div>
+<div class="toast" id="toast"></div>
+</main>
+<script>
+let format='CSV';
+function chooseFormat(btn){format=btn.dataset.format;document.querySelectorAll('.format').forEach(x=>x.classList.toggle('active',x===btn));updateEstimate()}
+function selectedData(){return [...document.querySelectorAll('.data-check:checked')].map(x=>x.value)}
+function period(){return document.querySelector('input[name="period"]:checked').value}
+function updateEstimate(){const names=selectedData();const p=period();document.getElementById('estimate').textContent=names.length+' 类数据 · '+({all:'全部记录',year:'最近一年',custom:'自定义日期'})[p]}
+document.querySelectorAll('.data-check,input[name="period"]').forEach(x=>x.addEventListener('change',updateEstimate));
+function previewExport(){const data=selectedData();if(!data.length)return toast('请至少选择一种数据类别');if(period()==='custom'){const s=document.getElementById('start').value,e=document.getElementById('end').value;if(!s||!e)return toast('请选择完整日期范围');if(s>e)return toast('开始日期不能晚于结束日期')}const labels={measurements:'身体测量记录',trends:'指标趋势与汇总',profile:'个人资料',plans:'行动计划与完成记录',devices:'设备信息'};const p=period();const range=p==='custom'?document.getElementById('start').value+' 至 '+document.getElementById('end').value:({all:'全部可导出记录',year:'最近一年'})[p];document.getElementById('summary').textContent='数据类别：'+data.map(x=>labels[x]).join('、')+'。时间范围：'+range+'。文件格式：'+format+'。';document.getElementById('state').textContent='正式服务还需完成身份验证与数据范围检查。当前不会读取真实数据或创建文件。';document.getElementById('barFill').style.width='0';document.getElementById('modal').style.display='flex'}
+function simulate(){const data={categories:selectedData(),period:period(),start:document.getElementById('start').value,end:document.getElementById('end').value,format};try{sessionStorage.setItem('demoExportRequest',JSON.stringify(data))}catch(e){}document.getElementById('barFill').style.width='100%';document.getElementById('state').textContent='已记录本页模拟申请。未生成文件、未上传数据。';toast('仅模拟申请，不会生成文件')}
+function closeModal(){document.getElementById('modal').style.display='none'}
+function toast(s){const t=document.getElementById('toast');t.textContent=s;t.style.display='block';setTimeout(()=>t.style.display='none',1800)}
+document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
+updateEstimate();
+</script>
+</body>
+</html>

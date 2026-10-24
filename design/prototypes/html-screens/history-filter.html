@@ -1,0 +1,122 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>筛选记录 - 轻衡健康</title>
+<style>
+:root{--g:#21a675;--gd:#147d58;--bg:#f5f8f5;--text:#202923;--muted:#87928a;--line:#e7ece8}
+*{box-sizing:border-box}
+body{margin:0;background:#e9eeea;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:var(--text)}
+button,input{font:inherit}
+button{cursor:pointer}
+.app{max-width:430px;min-height:100vh;margin:auto;background:var(--bg);padding-bottom:90px}
+header{height:58px;background:white;display:flex;align-items:center;justify-content:space-between;padding:0 20px}
+header button{border:0;background:none;color:var(--muted);font-size:14px}
+header strong{font-size:16px}
+main{padding:21px 18px}
+.section{margin-bottom:25px}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.section-title{font-size:15px;font-weight:650}
+.hint{font-size:11px;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:9px}
+.chip{padding:10px 14px;border:1px solid var(--line);border-radius:11px;background:white;color:#637067;font-size:12px}
+.chip.active{border-color:#b9e4cc;background:#e8f6ed;color:var(--gd);font-weight:600}
+.date-box{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.date-field{padding:13px;border:1px solid var(--line);border-radius:13px;background:white}
+.date-field label{display:block;font-size:11px;color:var(--muted);margin-bottom:8px}
+.date-field input{width:100%;border:0;background:transparent;color:var(--text);font-size:13px;outline:none}
+.member-list{background:white;border:1px solid var(--line);border-radius:15px;padding:0 14px}
+.member{display:flex;align-items:center;gap:11px;padding:14px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.member:last-child{border:0}
+.avatar{width:39px;height:39px;border-radius:14px;background:#e7f5eb;color:var(--gd);display:grid;place-items:center;font-size:15px;font-weight:650}
+.avatar.blue{background:#e9f1fb;color:#547bb0}
+.avatar.orange{background:#fff0df;color:#b77d34}
+.member-copy{flex:1}
+.member-name{font-size:13px;font-weight:600}
+.member-desc{font-size:11px;color:var(--muted);margin-top:4px}
+.radio{width:19px;height:19px;border:1.5px solid #cbd5ce;border-radius:50%;display:grid;place-items:center}
+.member.selected .radio{border-color:var(--g)}
+.member.selected .radio:after{content:"";width:10px;height:10px;border-radius:50%;background:var(--g)}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:15px;background:white;border:1px solid var(--line);border-radius:13px}
+.toggle-copy strong{font-size:13px}
+.toggle-copy p{font-size:11px;color:var(--muted);margin:5px 0 0}
+.switch{width:42px;height:24px;border:0;border-radius:20px;background:#cbd4cd;padding:3px;transition:.2s}
+.switch:after{content:"";display:block;width:18px;height:18px;border-radius:50%;background:white;transition:.2s}
+.switch.on{background:var(--g)}
+.switch.on:after{transform:translateX(18px)}
+footer{position:fixed;bottom:0;left:50%;transform:translateX(-50%);max-width:430px;width:100%;display:flex;gap:10px;padding:13px 18px calc(15px + env(safe-area-inset-bottom));background:#ffffffed;border-top:1px solid var(--line)}
+footer button{height:47px;border-radius:13px;font-size:14px;font-weight:600}
+.reset{width:100px;border:1px solid var(--line);background:white;color:#58635b}
+.apply{flex:1;border:0;background:var(--g);color:white}
+.toast{position:fixed;bottom:85px;left:50%;transform:translateX(-50%);padding:10px 14px;background:#25352b;color:white;border-radius:10px;font-size:12px;opacity:0;transition:.2s;white-space:nowrap}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="app">
+<header><button onclick="toast('返回历史记录')">‹ 返回</button><strong>筛选记录</strong><button onclick="resetAll()">重置</button></header>
+<main>
+<section class="section">
+<div class="section-head"><div class="section-title">时间范围</div><span class="hint">选择记录日期</span></div>
+<div class="chips" id="ranges">
+<button class="chip active" data-range="7" onclick="chooseRange(this)">近 7 天</button>
+<button class="chip" data-range="30" onclick="chooseRange(this)">近 30 天</button>
+<button class="chip" data-range="90" onclick="chooseRange(this)">近 3 个月</button>
+<button class="chip" data-range="all" onclick="chooseRange(this)">全部时间</button>
+<button class="chip" data-range="custom" onclick="chooseRange(this)">自定义</button>
+</div>
+</section>
+
+<section class="section" id="customDates" hidden>
+<div class="section-head"><div class="section-title">自定义日期</div></div>
+<div class="date-box">
+<div class="date-field"><label for="startDate">开始日期</label><input id="startDate" type="date" value="2026-10-01"></div>
+<div class="date-field"><label for="endDate">结束日期</label><input id="endDate" type="date" value="2026-10-22"></div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-head"><div class="section-title">家庭成员</div><span class="hint">可选择一位成员</span></div>
+<div class="member-list">
+<div class="member selected" data-member="me" onclick="chooseMember(this)">
+<div class="avatar">我</div><div class="member-copy"><div class="member-name">我的档案</div><div class="member-desc">当前健康档案</div></div><div class="radio"></div>
+</div>
+<div class="member" data-member="family1" onclick="chooseMember(this)">
+<div class="avatar blue">家</div><div class="member-copy"><div class="member-name">家庭成员 A</div><div class="member-desc">家庭健康档案</div></div><div class="radio"></div>
+</div>
+<div class="member" data-member="family2" onclick="chooseMember(this)">
+<div class="avatar orange">家</div><div class="member-copy"><div class="member-name">家庭成员 B</div><div class="member-desc">家庭健康档案</div></div><div class="radio"></div>
+</div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-head"><div class="section-title">记录状态</div></div>
+<div class="chips" id="statuses">
+<button class="chip active" data-status="all" onclick="chooseStatus(this)">全部状态</button>
+<button class="chip" data-status="complete" onclick="chooseStatus(this)">数据完整</button>
+<button class="chip" data-status="pending" onclick="chooseStatus(this)">待同步</button>
+</div>
+</section>
+
+<div class="toggle-row">
+<div class="toggle-copy"><strong>仅显示有效记录</strong><p>隐藏未完成或无效的测量数据</p></div>
+<button class="switch on" id="validSwitch" aria-label="仅显示有效记录" onclick="this.classList.toggle('on')"></button>
+</div>
+</main>
+<footer><button class="reset" onclick="resetAll()">重置条件</button><button class="apply" onclick="applyFilters()">查看筛选结果</button></footer>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+let range="7",member="me",status="all";
+function toast(msg){const e=document.getElementById("toast");e.textContent=msg;e.classList.add("show");clearTimeout(window.tt);window.tt=setTimeout(()=>e.classList.remove("show"),2000)}
+function chooseRange(btn){range=btn.dataset.range;document.querySelectorAll("#ranges .chip").forEach(x=>x.classList.toggle("active",x===btn));document.getElementById("customDates").hidden=range!=="custom"}
+function chooseMember(el){member=el.dataset.member;document.querySelectorAll(".member").forEach(x=>x.classList.toggle("selected",x===el))}
+function chooseStatus(btn){status=btn.dataset.status;document.querySelectorAll("#statuses .chip").forEach(x=>x.classList.toggle("active",x===btn))}
+function resetAll(){range="7";member="me";status="all";document.querySelectorAll("#ranges .chip").forEach(x=>x.classList.toggle("active",x.dataset.range==="7"));document.querySelectorAll("#statuses .chip").forEach(x=>x.classList.toggle("active",x.dataset.status==="all"));document.querySelectorAll(".member").forEach(x=>x.classList.toggle("selected",x.dataset.member==="me"));document.getElementById("customDates").hidden=true;document.getElementById("validSwitch").classList.add("on");toast("筛选条件已重置")}
+function applyFilters(){if(range==="custom"&&document.getElementById("startDate").value>document.getElementById("endDate").value){toast("开始日期不能晚于结束日期");return}toast("已应用筛选条件（原型演示）")}
+</script>
+</body>
+</html>

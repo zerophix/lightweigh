@@ -1,0 +1,45 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>数据删除申请 - 轻刻健康</title>
+<style>
+:root{--g:#21a675;--d:#147d58;--bg:#f5f8f5;--text:#24362d;--muted:#84928b;--line:#e7eee9;--red:#c4574f}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:var(--text);font-size:14px}.app{max-width:430px;min-height:100vh;margin:auto;padding-bottom:35px}.header{padding:20px;display:flex;align-items:center;gap:13px}.back{width:40px;height:40px;border:0;border-radius:12px;background:white;font-size:23px;cursor:pointer}.header h1{font-size:21px;margin:0}.header p{font-size:12px;color:var(--muted);margin:5px 0 0}.section{padding:0 20px;margin-bottom:15px}.warning{background:#fff5e7;border:1px solid #f2dfc3;color:#8c632f;border-radius:15px;padding:14px;font-size:12px;line-height:1.8}.card{background:white;border:1px solid #edf1ee;border-radius:18px;padding:16px}.title{font-size:15px;font-weight:700;margin:0 0 12px}.item{display:flex;gap:11px;align-items:flex-start;padding:13px 0;border-bottom:1px solid var(--line)}.item:last-child{border:0;padding-bottom:0}.check{width:21px;height:21px;accent-color:var(--g);margin:1px 0 0;flex-shrink:0}.itemmain{flex:1}.itemmain b{font-size:13px}.itemmain small{display:block;font-size:11px;color:var(--muted);line-height:1.7;margin-top:5px}.tag{font-size:10px;color:#996c2f;background:#fff1db;border-radius:6px;padding:4px 6px;white-space:nowrap}.label{display:block;font-size:12px;color:#65736a;margin:14px 0 8px}select,textarea,input[type=text]{width:100%;border:1px solid #dfe8e1;border-radius:11px;background:white;padding:12px;font:inherit;color:var(--text);outline:none}textarea{min-height:80px;resize:vertical}.confirmline{display:flex;gap:10px;align-items:flex-start;font-size:12px;color:#5e6e64;line-height:1.8}.confirmline input{margin-top:3px;accent-color:var(--g)}.btn{width:100%;border:0;border-radius:13px;background:var(--red);color:white;padding:14px;font-weight:650;cursor:pointer}.btn:disabled{background:#d8dfda;color:#87928a;cursor:not-allowed}.btn.light{margin-top:9px;background:#e8f6ee;color:var(--d)}.note{font-size:11px;color:var(--muted);line-height:1.8}.modalback{display:none;position:fixed;inset:0;background:#17251db0;align-items:center;justify-content:center;padding:24px}.modal{background:white;border-radius:19px;padding:22px;width:100%;max-width:360px}.modal h2{font-size:18px;margin:0 0 10px}.modal p{font-size:12px;color:var(--muted);line-height:1.8}.actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:17px}.actions button{border:0;border-radius:11px;padding:12px;background:#edf3ee;cursor:pointer}.actions .danger{background:var(--red);color:white}.toast{display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#25372e;color:white;padding:12px 16px;border-radius:12px;white-space:nowrap}
+</style>
+</head>
+<body>
+<main class="app">
+<header class="header"><button class="back" onclick="location.href='privacy-data-home.html'">‹</button><div><h1>数据删除申请</h1><p>选择需要处理的数据范围</p></div></header>
+<section class="section"><div class="warning"><b>请先了解删除影响</b><br>删除可能影响历史趋势、报告、行动计划或其他依赖数据的功能。正式服务应明确区分删除申请、审核中、处理中、完成和无法删除等状态，并说明适用的数据保留规则。</div></section>
+<section class="section"><div class="card"><div class="title">01 · 选择删除范围</div>
+<label class="item"><input class="check" type="radio" name="scope" value="measurements"><span class="itemmain"><b>历史测量记录</b><small>选择账户内的测量记录。正式版本需说明相关趋势和报告会受到哪些影响。</small></span></label>
+<label class="item"><input class="check" type="radio" name="scope" value="plans"><span class="itemmain"><b>行动计划及复盘记录</b><small>删除所选计划相关的任务状态与复盘内容。</small></span></label>
+<label class="item"><input class="check" type="radio" name="scope" value="profile"><span class="itemmain"><b>个人资料</b><small>删除或清除可删除的个人资料字段，需说明必要账户信息是否仍需保留。</small></span></label>
+<label class="item"><input class="check" type="radio" name="scope" value="cloud"><span class="itemmain"><b>云端健康数据</b><small>提交云端数据删除申请；正式服务需要说明备份与保留规则。</small></span></label>
+<label class="item"><input class="check" type="radio" name="scope" value="account"><span class="itemmain"><b>申请注销整个账号</b><small>涉及账号访问、关联设备、家庭共享和数据处理规则。</small></span><span class="tag">影响较大</span></label>
+</div></section>
+<section class="section"><div class="card"><div class="title">02 · 申请信息</div>
+<label class="label" for="reason">申请原因（选填）</label><select id="reason"><option value="personal">个人原因</option><option value="privacy">隐私考虑</option><option value="incorrect">数据不准确</option><option value="other">其他原因</option></select>
+<label class="label" for="detail">补充说明（选填）</label><textarea id="detail" maxlength="300" placeholder="可以补充希望删除的数据范围或其他说明"></textarea>
+<div style="font-size:11px;color:var(--muted);text-align:right;margin-top:5px"><span id="chars">0</span>/300</div>
+</div></section>
+<section class="section"><div class="card"><label class="confirmline"><input id="understood" type="checkbox"><span>我已了解所选范围可能造成的影响，并理解正式服务可能需要进行身份验证、申请处理和结果通知。</span></label></div></section>
+<section class="section"><button class="btn" id="submit" disabled onclick="confirmRequest()">继续确认删除申请</button><button class="btn light" onclick="location.href='privacy-data-home.html'">暂不申请</button><p class="note">此页面不会删除本地或云端数据。正式删除流程需提供申请编号、处理状态、结果说明和适用的数据保留政策。</p></section>
+<div class="modalback" id="modal"><div class="modal"><h2>确认提交删除申请？</h2><p id="summary"></p><p>当前仅演示申请流程，不会向服务端提交请求，不会删除任何记录。</p><div class="actions"><button onclick="closeModal()">返回修改</button><button class="danger" onclick="simulateSubmit()">确认演示</button></div></div></div>
+<div class="toast" id="toast"></div>
+</main>
+<script>
+const understood=document.getElementById('understood'),submit=document.getElementById('submit');
+function validate(){submit.disabled=!(understood.checked&&document.querySelector('input[name="scope"]:checked'))}
+understood.addEventListener('change',validate);document.querySelectorAll('input[name="scope"]').forEach(x=>x.addEventListener('change',validate));
+document.getElementById('detail').addEventListener('input',e=>document.getElementById('chars').textContent=e.target.value.length);
+function confirmRequest(){const scope=document.querySelector('input[name="scope"]:checked');if(!scope)return toast('请先选择删除范围');if(!understood.checked)return toast('请先确认已了解删除影响');const labels={measurements:'历史测量记录',plans:'行动计划及复盘记录',profile:'个人资料',cloud:'云端健康数据',account:'申请注销整个账号'};document.getElementById('summary').textContent='你选择的范围：'+labels[scope.value]+'。原因：'+document.getElementById('reason').selectedOptions[0].text+'。';document.getElementById('modal').style.display='flex'}
+function closeModal(){document.getElementById('modal').style.display='none'}
+function simulateSubmit(){const data={scope:document.querySelector('input[name="scope"]:checked').value,reason:document.getElementById('reason').value,detail:document.getElementById('detail').value,submittedAt:new Date().toISOString(),status:'demo-only'};try{sessionStorage.setItem('demoDeletionRequest',JSON.stringify(data))}catch(e){}closeModal();toast('原型申请已模拟记录，数据未删除')}
+function toast(s){const t=document.getElementById('toast');t.textContent=s;t.style.display='block';setTimeout(()=>t.style.display='none',2000)}
+document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
+</script>
+</body>
+</html>

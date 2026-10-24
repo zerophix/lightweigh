@@ -1,0 +1,88 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>身体评分趋势 - 轻刻健康</title>
+<style>
+:root{--brand:#21a675;--deep:#147d58;--bg:#f5f8f5;--text:#202923;--muted:#89938c;--line:#edf1ed;--purple:#8b72d6}
+*{box-sizing:border-box}body{margin:0;background:#eaf0eb;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}button{font:inherit;cursor:pointer}
+.app{max-width:430px;min-height:100vh;margin:auto;background:var(--bg);padding-bottom:28px}
+.header{background:#fff;padding:20px 20px 18px}.nav{height:32px;display:flex;align-items:center;justify-content:space-between}.back{border:0;background:none;font-size:25px;padding:0 8px 0 0;color:#26342b}.title{font-size:17px;font-weight:700}.help{width:34px;height:34px;border:1px solid var(--line);border-radius:11px;background:#fff;color:#68766d}
+.score-area{display:flex;align-items:center;gap:20px;margin-top:23px}.dial{width:118px;height:118px;position:relative;flex-shrink:0}.dial svg{width:100%;height:100%;transform:rotate(-90deg)}.dial circle{fill:none;stroke-width:9}.dial .track{stroke:#edf1ed}.dial .progress{stroke:#8b72d6;stroke-linecap:round;stroke-dasharray:314;stroke-dashoffset:57;transition:stroke-dashoffset .3s}.dial-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}.dial-center strong{font-size:36px;line-height:1}.dial-center span{font-size:11px;color:#89938c;margin-top:5px}.score-info{flex:1}.score-info .label{font-size:12px;color:#7c887f}.change{display:inline-block;margin-top:9px;padding:6px 9px;background:#f0eaff;border-radius:8px;color:#715db5;font-size:11px}.score-info p{font-size:11px;color:#8c978e;line-height:1.65;margin:10px 0 0}
+.period{display:flex;gap:4px;background:#f0f4f0;border-radius:12px;padding:4px;margin-top:20px}.period button{flex:1;padding:9px 0;border:0;border-radius:9px;background:transparent;color:#7c887f;font-size:12px}.period button.active{background:#fff;color:var(--deep);font-weight:650;box-shadow:0 1px 4px #142a1c0b}
+.content{padding:16px}.card{background:#fff;border:1px solid #edf1ed;border-radius:18px;padding:17px;margin-bottom:13px}.head{display:flex;align-items:center;justify-content:space-between}.head h2{font-size:15px;margin:0}.head button{border:0;background:none;color:#89938c;font-size:12px}.chart{width:100%;display:block;margin-top:18px}.labels{display:flex;justify-content:space-between;color:#98a29a;font-size:10px;margin-top:4px}
+.selected{display:flex;justify-content:space-between;align-items:center;background:#f6f3ff;padding:12px 13px;border-radius:12px;margin-top:14px}.selected small{display:block;color:#89938c;font-size:11px}.selected strong{display:block;margin-top:4px;font-size:19px}.right{text-align:right}.right strong{font-size:12px;color:#715db5}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);margin-top:18px}.stat{padding:0 8px;border-right:1px solid var(--line)}.stat:first-child{padding-left:0}.stat:last-child{border:0}.stat label{font-size:11px;color:#89938c}.stat strong{display:block;font-size:18px;margin-top:7px}.stat small{font-size:10px;color:#89938c;font-weight:400}
+.factor{display:flex;align-items:center;gap:10px;margin-top:16px}.factor:first-of-type{margin-top:20px}.factor-name{width:65px;flex-shrink:0;font-size:12px;color:#66736a}.bar{height:7px;flex:1;background:#f0f2f0;border-radius:8px;overflow:hidden}.bar span{display:block;height:100%;border-radius:8px;background:#a997e6}.factor-value{width:36px;text-align:right;font-size:12px;font-weight:650}
+.record{display:flex;align-items:center;padding:13px 0;border-bottom:1px solid #f0f3f0}.record:last-child{border:0;padding-bottom:0}.date{width:53px;flex-shrink:0}.date b{font-size:13px}.date small,.info small{display:block;font-size:10px;color:#939d95;margin-top:4px}.info{flex:1}.info b{font-size:13px;font-weight:550}.rv{text-align:right;font-size:15px;font-weight:700}.rv small{display:block;font-size:10px;color:#939d95;font-weight:400;margin-top:4px}.arrow{margin-left:8px;color:#aab4ac;font-size:19px}
+.notice{display:flex;gap:9px;background:#f1edff;border-radius:14px;padding:13px;color:#685a92;font-size:11px;line-height:1.8}.footnote{font-size:10px;color:#9aa49c;line-height:1.7;padding:5px 4px 0}
+.toast{position:fixed;bottom:25px;left:50%;transform:translateX(-50%);background:#25352b;color:white;border-radius:12px;padding:11px 15px;font-size:12px;white-space:nowrap;opacity:0;pointer-events:none;transition:.2s}.toast.show{opacity:1}
+@media(min-width:500px){.app{margin:18px auto;border-radius:26px;overflow:hidden;box-shadow:0 12px 45px #21352712;min-height:calc(100vh - 36px)}}
+</style>
+</head>
+<body><div class="app">
+<header class="header">
+<div class="nav"><button class="back" onclick="history.length>1?history.back():location.href='metrics-overview.html'">‹</button><div class="title">身体评分趋势</div><button class="help" onclick="document.getElementById('explain').scrollIntoView({behavior:'smooth'})">i</button></div>
+<div class="score-area">
+<div class="dial"><svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="50"/><circle class="progress" id="dialProgress" cx="60" cy="60" r="50"/></svg><div class="dial-center"><strong id="score">82</strong><span>满分 100</span></div></div>
+<div class="score-info"><div class="label">最近一次身体评分</div><div class="change" id="change">较上期提升 2 分</div><p>2026年10月22日 08:15<br>评分结果依赖具体设备和算法版本。</p></div>
+</div>
+<div class="period" id="period"><button class="active" data-p="week">近 7 天</button><button data-p="month">近 30 天</button><button data-p="quarter">近 3 个月</button><button data-p="year">近 1 年</button></div>
+</header>
+<main class="content">
+<section class="card">
+<div class="head"><h2>评分变化</h2><button onclick="showToast('当前为模拟数据')">图表说明 ⓘ</button></div>
+<svg class="chart" viewBox="0 0 340 180" role="img" aria-label="身体评分趋势图">
+<g stroke="#edf1ed"><line x1="36" y1="25" x2="328" y2="25"/><line x1="36" y1="61" x2="328" y2="61"/><line x1="36" y1="97" x2="328" y2="97"/><line x1="36" y1="133" x2="328" y2="133"/></g>
+<g fill="#9aa49c" font-size="10"><text x="8" y="28">90</text><text x="8" y="64">85</text><text x="8" y="100">80</text><text x="8" y="136">75</text></g>
+<path id="area" d="" fill="#8b72d6" opacity=".12"/><path id="line" d="" fill="none" stroke="#8b72d6" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><g id="points"></g>
+</svg>
+<div class="labels" id="labels"></div>
+<div class="selected"><div><small id="selectedDate">10/22 · 最新记录</small><strong><span id="selectedValue">82</span> <small style="display:inline">分</small></strong></div><div class="right"><small>较前一次</small><strong id="selectedChange">+1 分</strong></div></div>
+<div class="stats"><div class="stat"><label>周期最高</label><strong id="max">82 <small>分</small></strong></div><div class="stat"><label>周期最低</label><strong id="min">78 <small>分</small></strong></div><div class="stat"><label>周期平均</label><strong id="avg">80 <small>分</small></strong></div></div>
+</section>
+<section class="card">
+<div class="head"><h2>相关指标概览</h2><button onclick="location.href='metrics-overview.html'">全部指标 ›</button></div>
+<div class="factor"><div class="factor-name">体重</div><div class="bar"><span style="width:72%"></span></div><div class="factor-value">68.4</div></div>
+<div class="factor"><div class="factor-name">体脂率</div><div class="bar"><span style="width:68%"></span></div><div class="factor-value">21.8%</div></div>
+<div class="factor"><div class="factor-name">肌肉量</div><div class="bar"><span style="width:76%"></span></div><div class="factor-value">50.2</div></div>
+<div class="factor"><div class="factor-name">水分率</div><div class="bar"><span style="width:70%"></span></div><div class="factor-value">55.6%</div></div>
+<p style="font-size:10px;line-height:1.7;color:#9aa49c;margin:13px 0 0">上方条形图仅为页面布局演示，并非身体评分的实际权重或评分依据。</p>
+</section>
+<section class="card">
+<div class="head"><h2>最近评分记录</h2><button onclick="location.href='history-list.html'">全部记录 ›</button></div>
+<div class="record"><div class="date"><b>22日</b><small>周四</small></div><div class="info"><b>早晨测量</b><small>08:15 · 设备测量</small></div><div class="rv">82分<small>+1分</small></div><span class="arrow">›</span></div>
+<div class="record"><div class="date"><b>21日</b><small>周三</small></div><div class="info"><b>早晨测量</b><small>07:52 · 设备测量</small></div><div class="rv">81分<small>+1分</small></div><span class="arrow">›</span></div>
+<div class="record"><div class="date"><b>20日</b><small>周二</small></div><div class="info"><b>晚间测量</b><small>20:34 · 设备测量</small></div><div class="rv">80分<small>无变化</small></div><span class="arrow">›</span></div>
+</section>
+<section class="card" id="explain">
+<div class="head"><h2>了解身体评分</h2><button onclick="showToast('可扩展完整指标说明页')">更多说明 ›</button></div>
+<p style="font-size:12px;line-height:1.85;color:#68766d;margin:12px 0 0">身体评分是特定设备或软件依据其算法，对部分身体组成指标进行综合计算后得到的分值。不同厂商的评分标准、参与计算的指标和权重可能不同。</p>
+<p style="font-size:12px;line-height:1.85;color:#68766d;margin:9px 0 0">评分适合在同一设备、同一算法口径下观察自身变化，不宜直接用于不同设备之间的比较，也不能代替专业健康评估。</p>
+</section>
+<div class="notice"><span>ⓘ</span><div><b>评分来源必须明确</b><br>正式上线时应展示评分提供方、算法版本、满分定义及计算依据。如果当前设备不提供身体评分，或应用没有经过验证的评分算法，应隐藏此项，而不是自行生成分数。</div></div>
+<div class="footnote">以上为模拟数据，不代表真实用户的健康水平。评分高低不构成医学诊断，也不应单独用于制定健康决策。</div>
+</main></div><div class="toast" id="toast"></div>
+<script>
+const sets={
+week:{v:[78,79,79,80,80,81,82],l:['10/16','10/17','10/18','10/19','10/20','10/21','10/22'],c:'较上期提升 2 分'},
+month:{v:[75,76,76,77,78,78,79,80,81,82],l:['09/23','09/26','09/29','10/02','10/05','10/08','10/11','10/14','10/18','10/22'],c:'近 30 天提升 7 分'},
+quarter:{v:[70,71,72,73,74,76,77,79,80,82],l:['07/24','08/02','08/12','08/22','09/01','09/11','09/21','10/01','10/11','10/22'],c:'近 3 个月提升 12 分'},
+year:{v:[65,67,68,70,72,74,76,78,80,82],l:['11月','12月','1月','2月','3月','4月','5月','6月','8月','10月'],c:'近 1 年提升 17 分'}
+};
+function showToast(s){let e=document.getElementById('toast');e.textContent=s;e.classList.add('show');clearTimeout(window.t);window.t=setTimeout(()=>e.classList.remove('show'),2000)}
+function draw(d){
+let lo=Math.min(...d.v)-2,hi=Math.max(...d.v)+2,L=36,R=328,T=25,B=133;
+let ps=d.v.map((v,i)=>({x:L+(R-L)*i/(d.v.length-1),y:B-(v-lo)/(hi-lo)*(B-T),v}));
+let path=ps.map((p,i)=>(i?'L':'M')+p.x.toFixed(1)+' '+p.y.toFixed(1)).join(' ');
+document.getElementById('line').setAttribute('d',path);document.getElementById('area').setAttribute('d',path+' L '+R+' '+B+' L '+L+' '+B+' Z');
+document.getElementById('points').innerHTML=ps.map((p,i)=>`<circle cx="${p.x}" cy="${p.y}" r="${i===ps.length-1?5:4}" fill="#8b72d6" stroke="white" stroke-width="2" style="cursor:pointer" onclick="selectPoint(${i})"/>`).join('');
+document.getElementById('labels').innerHTML=d.l.map(x=>'<span>'+x+'</span>').join('');window.d=d;window.ps=ps;
+document.getElementById('max').innerHTML=Math.max(...d.v)+' <small>分</small>';document.getElementById('min').innerHTML=Math.min(...d.v)+' <small>分</small>';document.getElementById('avg').innerHTML=(d.v.reduce((a,b)=>a+b,0)/d.v.length).toFixed(1)+' <small>分</small>';selectPoint(ps.length-1);
+}
+function selectPoint(i){let p=window.ps[i],d=window.d,prev=d.v[Math.max(0,i-1)],diff=p.v-prev;document.getElementById('selectedDate').textContent=d.l[i];document.getElementById('selectedValue').textContent=p.v;document.getElementById('selectedChange').textContent=(diff>0?'+':'')+diff+' 分';document.getElementById('score').textContent=p.v;document.getElementById('dialProgress').style.strokeDashoffset=314*(1-p.v/100)}
+document.querySelectorAll('#period button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#period button').forEach(x=>x.classList.toggle('active',x===b));document.getElementById('change').textContent=sets[b.dataset.p].c;draw(sets[b.dataset.p])});
+draw(sets.week);
+</script></body></html>

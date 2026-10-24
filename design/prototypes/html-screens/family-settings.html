@@ -1,0 +1,63 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>家庭设置 - 轻刻健康</title>
+<style>
+:root{--g:#21a675;--gd:#147d58;--bg:#f5f8f5;--text:#26352d;--muted:#87948c;--line:#edf1ed}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}.app{max-width:430px;min-height:100vh;margin:auto}.header{height:58px;background:#fff;display:flex;align-items:center;padding:0 20px;gap:14px}.back{border:0;background:none;font-size:25px;cursor:pointer}.title{font-weight:700;font-size:17px}
+.content{padding:20px 16px}.family-banner{background:linear-gradient(135deg,#e5f6ec,#f8fcf9);border-radius:20px;padding:22px 18px;display:flex;align-items:center;gap:15px}.family-icon{width:58px;height:58px;background:#fff;border-radius:18px;display:grid;place-items:center;font-size:28px}.family-name{font-size:19px;font-weight:750}.family-meta{font-size:12px;color:#74847a;margin-top:7px}
+.section-label{font-size:13px;font-weight:700;margin:24px 3px 11px}.card{background:#fff;border-radius:17px;padding:0 15px;box-shadow:0 3px 14px #26352d05}
+.row{display:flex;align-items:center;gap:12px;padding:16px 0;border-bottom:1px solid var(--line)}.row:last-child{border-bottom:0}.row-main{flex:1;min-width:0}.row-title{font-size:14px;font-weight:600}.row-sub{font-size:12px;color:var(--muted);margin-top:5px;line-height:1.5}.row-action{color:var(--gd);border:0;background:none;font-weight:600;cursor:pointer;white-space:nowrap}.chevron{font-size:20px;color:#aab5ae}
+.field-label{font-size:12px;color:var(--muted);display:block;margin-bottom:8px}.field{width:100%;border:1px solid #e4ebe5;border-radius:11px;height:44px;padding:0 12px;font:inherit;outline:none}.field:focus{border-color:var(--g);box-shadow:0 0 0 3px #21a67518}.edit-panel{display:none;margin-top:12px;background:#f5faf6;border-radius:13px;padding:14px}.primary{border:0;border-radius:11px;background:var(--g);color:#fff;height:42px;padding:0 18px;font-weight:700;cursor:pointer}.secondary{border:1px solid #dfe8e1;border-radius:11px;background:#fff;height:42px;padding:0 16px;font-weight:600;cursor:pointer}.edit-actions{display:flex;gap:8px;margin-top:12px}
+.warning{margin-top:18px;padding:14px;border-radius:13px;background:#fff5e7;color:#8e6b3b;font-size:12px;line-height:1.7}.foot{font-size:11px;color:#9aa59e;text-align:center;margin:22px 0}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#26372d;color:#fff;padding:12px 17px;border-radius:12px;display:none;max-width:90%;z-index:5}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="header"><button class="back" onclick="history.back()">‹</button><div class="title">家庭设置</div></header>
+<main class="content">
+  <section class="family-banner">
+    <div class="family-icon">⌂</div>
+    <div><div class="family-name" id="bannerName">健康同行一家人</div><div class="family-meta">家庭空间 · 创建于 2026 年 8 月 12 日</div></div>
+  </section>
+  <div class="section-label">基本信息</div>
+  <section class="card">
+    <div class="row"><div class="row-main"><div class="row-title">家庭名称</div><div class="row-sub" id="currentName">健康同行一家人</div></div><button class="row-action" onclick="toggleEdit()">修改</button></div>
+    <div class="edit-panel" id="editPanel">
+      <label class="field-label" for="familyName">新的家庭名称</label>
+      <input class="field" id="familyName" maxlength="20" value="健康同行一家人" placeholder="请输入家庭名称">
+      <div class="edit-actions"><button class="primary" onclick="saveName()">保存修改</button><button class="secondary" onclick="toggleEdit(false)">取消</button></div>
+    </div>
+    <div class="row"><div class="row-main"><div class="row-title">家庭标识</div><div class="row-sub">当前使用默认家庭图标</div></div><button class="row-action" onclick="showToast('原型演示：家庭图标选择尚未接入')">更换</button></div>
+    <div class="row"><div class="row-main"><div class="row-title">家庭简介</div><div class="row-sub">让家人的健康管理更有连续性</div></div><button class="row-action" onclick="showToast('原型演示：简介编辑尚未接入')">编辑</button></div>
+  </section>
+  <div class="section-label">家庭管理</div>
+  <section class="card">
+    <div class="row" onclick="location.href='family-members.html'" style="cursor:pointer"><div class="row-main"><div class="row-title">成员管理</div><div class="row-sub">查看成员、角色与邀请状态</div></div><span class="chevron">›</span></div>
+    <div class="row" onclick="location.href='family-admin-transfer.html'" style="cursor:pointer"><div class="row-main"><div class="row-title">转让管理员</div><div class="row-sub">将家庭管理职责交给其他合格成员</div></div><span class="chevron">›</span></div>
+    <div class="row" onclick="location.href='family-leave.html'" style="cursor:pointer"><div class="row-main"><div class="row-title">退出家庭</div><div class="row-sub">退出当前家庭空间</div></div><span class="chevron">›</span></div>
+    <div class="row" onclick="location.href='family-dissolve.html'" style="cursor:pointer"><div class="row-main"><div class="row-title" style="color:#c75c51">解散家庭</div><div class="row-sub">仅管理员可操作，请谨慎处理</div></div><span class="chevron">›</span></div>
+  </section>
+  <div class="section-label">家庭空间信息</div>
+  <section class="card">
+    <div class="row"><div class="row-main"><div class="row-title">家庭成员数量</div></div><span>4 人</span></div>
+    <div class="row"><div class="row-main"><div class="row-title">我的角色</div></div><span style="color:var(--gd);font-weight:600">家庭管理员</span></div>
+    <div class="row"><div class="row-main"><div class="row-title">家庭 ID</div><div class="row-sub">演示编号：FAM-DEMO-2026</div></div><button class="row-action" onclick="showToast('已模拟复制家庭 ID')">复制</button></div>
+  </section>
+  <div class="warning">家庭管理操作可能影响成员关系和后续访问权限。正式产品应由服务端校验操作者身份、家庭角色与操作结果，不能只依赖页面状态判断权限。</div>
+  <div class="foot">轻刻健康 · 家庭空间设置 · 原型演示</div>
+</main>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+let timer;
+function showToast(t){let e=document.getElementById('toast');e.textContent=t;e.style.display='block';clearTimeout(timer);timer=setTimeout(()=>e.style.display='none',2500)}
+function toggleEdit(force){let p=document.getElementById('editPanel');p.style.display=(force===false?'none':p.style.display==='block'?'none':'block')}
+function saveName(){let v=document.getElementById('familyName').value.trim();if(!v){showToast('家庭名称不能为空');return}document.getElementById('bannerName').textContent=v;document.getElementById('currentName').textContent=v;document.getElementById('editPanel').style.display='none';showToast('已更新当前页面演示名称，未保存到服务端')}
+</script>
+</body>
+</html>

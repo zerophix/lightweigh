@@ -1,0 +1,78 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>导出结果 - 轻衡健康</title>
+<style>
+:root{--g:#21a675;--gd:#147d58;--red:#d94b4b;--bg:#f5f8f5;--text:#202923;--muted:#87928a;--line:#e7ece8}
+*{box-sizing:border-box}body{margin:0;background:#e9eeea;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:var(--text)}button{font:inherit;cursor:pointer}
+.app{max-width:430px;min-height:100vh;margin:auto;background:var(--bg);display:flex;flex-direction:column}
+header{height:58px;background:white;display:flex;align-items:center;justify-content:space-between;padding:0 20px}header button{border:0;background:none;color:var(--muted);font-size:14px}header strong{font-size:16px}
+main{padding:25px 18px;flex:1}
+.stage{display:none}.stage.active{display:block}
+.hero{text-align:center;padding:30px 10px 26px}
+.icon{width:78px;height:78px;border-radius:27px;background:#e4f5e9;color:var(--gd);display:grid;place-items:center;margin:0 auto 20px;font-size:36px}
+.icon.fail{background:#fff0ed;color:var(--red)}
+.icon.loading{background:#e8f3fb;color:#5686b4}
+h1{font-size:22px;margin:0 0 11px}.desc{font-size:12px;color:var(--muted);line-height:1.9;max-width:300px;margin:0 auto}
+.progress{height:7px;background:#e6ece7;border-radius:10px;overflow:hidden;margin:24px 0 10px}.bar{height:100%;width:68%;background:var(--g);border-radius:10px;transition:width .3s}
+.progress-text{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}
+.card{padding:17px;background:white;border:1px solid var(--line);border-radius:16px;margin-bottom:13px}
+.card-title{font-size:13px;font-weight:650;margin-bottom:13px}
+.row{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);font-size:12px}.row:last-child{border:0;padding-bottom:0}.row span{color:var(--muted)}.row strong{font-weight:550;text-align:right}
+.file{display:flex;align-items:center;gap:12px}
+.file-icon{width:45px;height:49px;border-radius:11px;background:#e8f6ed;color:var(--gd);display:grid;place-items:center;font-size:12px;font-weight:700}
+.file-copy{flex:1;min-width:0}.file-copy strong{font-size:12px}.file-copy p{font-size:10px;color:var(--muted);margin:6px 0 0}
+.notice{font-size:11px;line-height:1.8;padding:13px;background:#edf7f0;color:#567b63;border-radius:12px;margin-top:13px}.notice.fail{background:#fff2ef;color:#9b5a50}
+.actions{display:grid;gap:10px;margin-top:20px}.actions button{height:47px;border-radius:13px;font-size:14px;font-weight:600}
+.primary{background:var(--g);border:0;color:white}.secondary{background:white;border:1px solid var(--line)}
+.demo{margin-top:20px;padding:14px;border:1px dashed #ccd7ce;border-radius:13px}.demo p{font-size:10px;color:var(--muted);margin:0 0 10px}.demo-buttons{display:flex;gap:7px;flex-wrap:wrap}.demo-buttons button{border:1px solid var(--line);background:white;border-radius:9px;padding:8px 10px;font-size:11px;color:#59665c}
+.toast{position:fixed;bottom:25px;left:50%;transform:translateX(-50%);background:#25352b;color:white;padding:11px 15px;border-radius:10px;font-size:12px;opacity:0;transition:.2s;white-space:nowrap}.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="app">
+<header><button onclick="notify('返回导出设置')">‹ 返回</button><strong>导出结果</strong><button onclick="setStage('success')">演示成功</button></header>
+<main>
+<section class="stage active" id="loading">
+<div class="hero">
+<div class="icon loading">↻</div>
+<h1>正在整理你的健康数据</h1>
+<p class="desc">正在按所选时间范围汇总记录，请稍候。请保持页面打开，避免重复提交。</p>
+<div class="progress"><div class="bar" id="bar"></div></div>
+<div class="progress-text"><span id="progressLabel">正在准备数据</span><span id="percent">68%</span></div>
+</div>
+<div class="card"><div class="card-title">本次导出</div><div class="row"><span>文件格式</span><strong id="format">CSV 表格</strong></div><div class="row"><span>时间范围</span><strong>近 30 天</strong></div><div class="row"><span>数据范围</span><strong>我的档案</strong></div><div class="row"><span>导出内容</span><strong>体重、BMI、体脂率等</strong></div></div>
+<div class="actions"><button class="secondary" onclick="notify('正式版本应提供取消任务机制')">返回设置</button></div>
+</section>
+
+<section class="stage" id="success">
+<div class="hero"><div class="icon">✓</div><h1>导出文件已准备好</h1><p class="desc">数据整理完成。请确认文件内容与个人隐私范围，再保存到合适的位置。</p></div>
+<div class="card"><div class="file"><div class="file-icon" id="fileIcon">CSV</div><div class="file-copy"><strong id="fileName">轻衡健康_测量记录.csv</strong><p>示例文件 · 实际大小以生成结果为准</p></div></div><div class="row" style="margin-top:12px"><span>包含记录</span><strong>12 条（演示）</strong></div><div class="row"><span>导出时间</span><strong>2026-10-22</strong></div></div>
+<div class="notice">真实版本应由导出服务生成文件，并提供经过验证的本地保存或系统分享入口。本原型不包含真实文件。</div>
+<div class="actions"><button class="primary" onclick="notify('原型演示：正式版本在此保存真实文件')">保存文件</button><button class="secondary" onclick="notify('原型演示：调用系统分享面板')">分享文件</button><button class="secondary" onclick="notify('返回历史记录')">完成</button></div>
+</section>
+
+<section class="stage" id="failure">
+<div class="hero"><div class="icon fail">!</div><h1>导出暂时失败</h1><p class="desc">没有成功生成可用文件。你的原始测量记录不会因此被删除或修改。</p></div>
+<div class="card"><div class="card-title">可能的原因</div><div class="row"><span>数据准备</span><strong>暂时不可用</strong></div><div class="row"><span>文件生成</span><strong>未完成</strong></div><div class="row"><span>建议操作</span><strong>重试或缩小时间范围</strong></div></div>
+<div class="notice fail">如果重试后仍然失败，请保留错误提示并联系支持人员。不要反复提交大量导出任务。</div>
+<div class="actions"><button class="primary" onclick="setStage('loading')">重新尝试</button><button class="secondary" onclick="notify('原型演示：返回导出设置')">返回设置</button></div>
+</section>
+
+<div class="demo"><p>原型预览控制（正式产品中移除此区域）</p><div class="demo-buttons"><button onclick="setStage('loading')">生成中</button><button onclick="setStage('success')">成功</button><button onclick="setStage('failure')">失败</button></div></div>
+</main>
+</div>
+<div id="toast" class="toast" role="status"></div>
+<script>
+const params=new URLSearchParams(location.search);const f=params.get("format")==="PDF"?"PDF":"CSV";
+document.getElementById("format").textContent=f==="PDF"?"PDF 报告":"CSV 表格";
+document.getElementById("fileIcon").textContent=f;
+document.getElementById("fileName").textContent="轻衡健康_测量记录."+(f==="PDF"?"pdf":"csv");
+function setStage(s){document.querySelectorAll(".stage").forEach(e=>e.classList.toggle("active",e.id===s));if(s==="loading"){document.getElementById("bar").style.width="68%";document.getElementById("percent").textContent="68%";document.getElementById("progressLabel").textContent="正在准备数据"}}
+function notify(t){const e=document.getElementById("toast");e.textContent=t;e.classList.add("show");clearTimeout(window.tt);window.tt=setTimeout(()=>e.classList.remove("show"),2200)}
+</script>
+</body>
+</html>
