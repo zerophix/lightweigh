@@ -127,8 +127,10 @@ GD="$(git rev-parse --git-dir 2>/dev/null || true)"
 GCD="$(git rev-parse --git-common-dir 2>/dev/null || true)"
 if [ -n "$GD" ] && [ "$GD" != "$GCD" ] && [ "${ALLOW_UNREGISTERED_WORKTREE:-0}" != "1" ]; then
   WT_PATH="$(git rev-parse --show-toplevel 2>/dev/null)"
-  if [ ! -f "$WT_PATH/local.properties" ] || [ ! -d "$WT_PATH/gradle/dists" ]; then
-    echo "❌ 本 worktree 缺引导文件（local.properties / gradle/dists）"
+  # DEC-063 之后依赖走共享 GRADLE_USER_HOME，worktree 不再需要自己的 gradle/dists；
+  # 继续要求它会让每个新建 worktree 都无法提交（实测）。
+  if [ ! -f "$WT_PATH/local.properties" ]; then
+    echo "❌ 本 worktree 缺引导文件（local.properties）"
     echo "   说明它未经 ses-worktree.sh 创建；请删掉重建："
     echo "   bash scripts/session/ses-worktree.sh remove "$WT_PATH" && bash scripts/session/ses-worktree.sh add <type>/<topic>"
     exit 1
