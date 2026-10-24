@@ -246,23 +246,31 @@ def test_plan_lane_b_runs_app_unit_tests_only():
     assert "gov-secrets-scan" in out and "gov-schema-guard" in out
 
 
-def test_plan_lane_c_runs_full_build():
+def test_plan_lane_c_runs_tests_not_full_build():
+    """DEC-068: 全量车道默认 test（编译+单测），build 需显式 opt-in。"""
     out = plan(env={"GOV_LANE": "C"})
-    assert "PLAN lane=C gradle=build" in out, out
+    assert "PLAN lane=C gradle=test" in out, out
     for step in ("gov-validate", "gov-custom-checks", "gov-secrets-scan",
                  "gov-schema-guard", "gov-test-guard"):
         assert step in out
 
 
-def test_plan_force_full_runs_full_build():
+def test_plan_force_full_runs_tests_not_full_build():
     out = plan(env={"GOV_LANE": "full"})
+    assert "PLAN lane=full gradle=test" in out, out
+
+
+def test_plan_full_build_opt_in():
+    out = plan(env={"GOV_LANE": "full", "GOV_CI_PROFILE": "build"})
     assert "PLAN lane=full gradle=build" in out, out
 
 
 def test_plan_strict_flag_means_full():
     """--strict 等价全量（历史习惯），不得被车道优化降级。"""
     out = plan(extra_args=("--strict",), env={"GOV_LANE": "auto"})
-    assert "PLAN lane=full gradle=build" in out, out
+    assert "PLAN lane=full gradle=test" in out, out
+    out_build = plan(extra_args=("--strict",), env={"GOV_LANE": "auto", "GOV_CI_PROFILE": "build"})
+    assert "PLAN lane=full gradle=build" in out_build, out_build
 
 
 def test_plan_reports_deciding_files():

@@ -73,12 +73,28 @@ print_next_steps() {
 HINT
 }
 
+# worktree 数量硬上限（不含主仓）：超过即拒绝新建，强制先清理（DEC-069）
+WT_LIMIT="${WF_WORKTREE_LIMIT:-3}"
+
+count_task_worktrees() {
+  # 统计除主仓以外的 worktree 数
+  local n=0 main
+  main="$(git rev-parse --show-toplevel 2>/dev/null)"
+  while IFS= read -r line; do
+    case "$line" in
+      "worktree "*) [ "${line#worktree }" = "$main" ] || n=$((n + 1)) ;;
+    esac
+  done < <(git worktree list --porcelain)
+  echo "$n"
+}
+
 cmd_add() {
-  local branch="" base="$TRUNK" in_repo=0
+  local branch="" base="$TRUNK" in_repo=0 force=0
   while [ $# -gt 0 ]; do
     case "$1" in
       --base) base="$2"; shift 2 ;;
       --in-repo) in_repo=1; shift ;;
+      --force) force=1; shift ;;
       -h|--help) usage 0 ;;
       -*)
         echo "未知选项: $1" >&2
@@ -114,6 +130,17 @@ cmd_add() {
     mkdir -p "$ROOT/.worktrees"
   fi
 
+  # 上限守卫：worktree 堆积是真实事故（一天堆到 12 个），必须硬拦
+  local current
+  current="$(count_task_worktrees)"
+  if [ "$force" -ne 1 ] && [ "$current" -ge "$WT_LIMIT" ]; then
+    echo "❌ 当前有 ${current} 个任务 worktree（上限 ${WT_LIMIT}），拒绝继续创建。" >&2
+    echo "   先清理: bash scripts/session/ses-worktree.sh clean" >&2
+    echo "   或查审计: bash scripts/governance/gov-workspace-doctor.sh" >&2
+    echo "   确需临时突破: 加 --force（不推荐）" >&2
+    exit 1
+  fi
+
   # 尽量从最新 trunk 起分支
   if git show-ref --verify --quiet "refs/remotes/origin/$base"; then
     git fetch origin "$base" --quiet 2>/dev/null || true
@@ -130,6 +157,14 @@ cmd_add() {
   if [ -f "$ROOT/local.properties" ] && [ ! -f "$wt/local.properties" ]; then
     cp "$ROOT/local.properties" "$wt/local.properties"
     echo "  已复制 local.properties（gitignore，不入库）"
+  fi
+
+  # 登记：谁、什么时候、为哪个分支创建（供 status/doctor 审计年龄）
+  if [ -d "$ROOT/.cache" ]; then
+    printf '{"branch":"%s","created_at":"%s","session":"%s"}\n' \
+      "$branch" "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" \
+      "$(python3 -c "import json;print(json.load(open('$ROOT/.ai/current-session.json')).get('session_id',''))" 2>/dev/null || echo '')" \
+      >> "$ROOT/.cache/worktrees.jsonl" 2>/dev/null || true
   fi
 
   echo "已创建 worktree"

@@ -114,6 +114,15 @@ cmd_run() {
   fi
 
   git worktree add -q --detach "$candidate" origin/master || { say "无法创建候选 worktree"; return 2; }
+  # 无论成功/失败/被 kill，退出时都删除候选目录（避免再次堆积）
+  cleanup_candidate() {
+    if [ "$KEEP" -eq 1 ]; then say "  保留候选: $candidate"; return; fi
+    cd "$ROOT" 2>/dev/null || true
+    git worktree remove --force "$candidate" 2>/dev/null
+    rm -rf "$candidate"
+    git worktree prune 2>/dev/null
+  }
+  trap cleanup_candidate EXIT INT TERM
   # local.properties 是 gitignore 的本机文件；缺它 gradle 直接报 SDK location not found
   if [ -f "$ROOT/local.properties" ] && [ ! -f "$candidate/local.properties" ]; then
     cp "$ROOT/local.properties" "$candidate/local.properties"

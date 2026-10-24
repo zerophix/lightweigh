@@ -136,8 +136,16 @@ GRADLE_TASK=""
 case "$LANE" in
   A) GRADLE_TASK="" ;;
   B) GRADLE_TASK=":app:testDebugUnitTest" ;;
-  C|full) GRADLE_TASK="build" ;;
-  *) LANE="C"; GRADLE_TASK="build" ;;
+  # DEC-068: 全量车道 = 编译 + 全部单测；打包/lint/release 对"能否合入"无增量信号，
+  # 却占掉一大半构建时间（实测 build 6~10 分钟 vs test 1~3 分钟）。
+  # 发布前需要完整构建时: GOV_CI_PROFILE=build
+  C|full)
+    if [ "${GOV_CI_PROFILE:-test}" = "build" ]; then
+      GRADLE_TASK="build"
+    else
+      GRADLE_TASK="test"
+    fi ;;
+  *) LANE="C"; GRADLE_TASK="${GRADLE_TASK:-test}" ;;
 esac
 
 # 车道 A/B 仍然执行的非 gradle 步骤（质量不降）
