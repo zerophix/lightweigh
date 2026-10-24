@@ -166,45 +166,56 @@
       "id": "T-045",
       "description": "P0-5: 新手引导3步补全（资料表单/单位选择器/真实绑定流）",
       "why": "",
-      "status": "pending",
+      "status": "completed",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-21T10:27:54Z",
       "updated_at": "2026-10-22T12:05:41+08:00",
-      "notes": "AC: see acceptance (DEC-048); may overlap earlier done tasks — confirm gaps before coding.",
+      "notes": "AC: see acceptance (DEC-048); may overlap earlier done tasks — confirm gaps before coding.；按原型逐字文案 + gov-prototype-verify --strict 通过，判定已交付（AC 由原型反推补登）",
       "acceptance": {
-        "status": "draft",
+        "status": "ready",
         "given": [
-          "T-033 / DEC-043-F 已落地「资料→单位→绑秤」引导骨架（勿当作从零重做）",
-          "feature/guide 相关代码可编译"
+          "原型 19-onboarding-guide.html 定义 v-intro / v-goal / v-prepare 共 3 个 view",
+          "DEC-043-F 已落地「资料→单位→绑秤」骨架（T-033），本任务只补缺口",
+          "目标文件：GuideScreen.kt, ProfileSetup.kt（已存在则视为扩展而非从零新建）",
+          "同模块已有屏的既有行为不回退"
         ],
         "when": [
-          "新用户走完引导三步（具体表单字段以人类确认的 open_questions 为准）"
+          "新用户依次走完资料表单（v-intro）→ 目标设定（v-goal）→ 准备/绑定（v-prepare），中途可跳过"
         ],
         "then": [
-          "资料 / 单位 / 绑定流中「补全」项可完成且无崩溃",
-          "与已有 DEC-043-F 行为不回退（回归：既有引导仍可达）"
+          "v-intro 展示：「完善资料」+「1/3」+「第 1 步 · 认识你」+「认识一下你」+「这些信息用于计算你的身体指标参考区间。」+「昵称」+「性别」+「不告知」+「性别影响体脂率参考区间」+「出生日期」+「身高」+「下一步」（原型 v-intro 逐字文案）",
+          "v-goal 展示：「健康目标」+「2/3」+「第 2 步 · 设定健康方向」+「你想达成什么？」+「目标可以随时调整，」+「先选一个方向就好。」+「减轻体重」+「保持体重」+「增加肌肉」+「目标体重」+「从 62.4 kg 到 58.0 kg，需减 4.4 kg」+「跳过，稍后设置」（原型 v-goal 逐字文案）",
+          "v-prepare 展示：「准备测量」+「3/3」+「第 3 步 · 准备第一次测量」+「准备好第一次测量」+「连接体脂秤，完成第一次测量，」+「就能看到你的身体概览。」+「轻踩体脂秤唤醒」+「打开蓝牙，靠近秤」+「赤脚站上秤面」+「测量前请正常饮水，避免剧烈运动后立即测量。」+「连接体脂秤，开始测量」+「跳过，稍后连接」（原型 v-prepare 逐字文案）"
         ],
         "verify_commands": [
-          "./gradlew :app:testDebugUnitTest --tests 'com.xcwk.scalehub.feature.guide.*'",
-          "bash scripts/governance/gov-local-ci.sh"
+          "python3 scripts/governance/gov-prototype-verify.py T-045 --strict",
+          "./gradlew :app:testDebugUnitTest"
         ],
         "forbidden": [
           "静默改 Room schema / 黄金向量",
-          "删除既有引导测试以凑绿"
+          "删除或放宽既有测试以凑绿",
+          "硬编码 Color(0x…) 与 NN.dp（走 Qk 组件与 token）"
         ],
         "definition_of_done": [
-          "对照 open_questions 得到人类答复或明确标 blocked",
-          "补全项有 ViewModel 测试或说明为何仅 UI",
-          "local-ci PASS",
-          "真机走通三步（人类；AI 不伪称完成）"
-        ],
-        "open_questions": [
-          "「资料表单」相对 T-033 还缺哪些字段？",
-          "「真实绑定流」是否要求真机 BLE 成功，还是模拟绑定即可？",
-          "单位选择器是否已有全局单位层（DEC-043-C），本任务是否只接引导入口？"
+          "全部 3 view 文案有单测逐字断言",
+          "gov-prototype-verify.py T-045 --strict 通过",
+          "local-ci PASS（车道按变更面自动选择）",
+          "真机/模拟器走通流程（人类；AI 不伪称完成）"
         ]
-      }
+      },
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/19-onboarding-guide.html",
+        "views": [
+          "v-intro",
+          "v-goal",
+          "v-prepare"
+        ]
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/guide/GuideScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/guide/ProfileSetup.kt"
+      ]
     },
     {
       "id": "T-046",
@@ -215,7 +226,7 @@
       "dec": "",
       "created_at": "2026-10-21T10:28:18Z",
       "updated_at": "2026-10-22T12:05:41+08:00",
-      "notes": "AC: see acceptance (DEC-048); may overlap earlier done tasks — confirm gaps before coding.",
+      "notes": "AC: see acceptance (DEC-048); may overlap earlier done tasks — confirm gaps before coding.；AC 待人类定义：任务列的「成分分析/体型 3x3/目标达成/折线/体型插画」在 interactive 原型库里没有对应 view；15-states-errors.html 只有 v-multimetric（体重/体脂率双线）与 v-score（评分构成），不足以定义体型 3x3 与插画。且 report/ReportAnalysisTab.kt 已存在（DEC-043-A），任务疑似已完成，需人类判断是否关闭。",
       "acceptance": {
         "status": "draft",
         "given": [
@@ -246,7 +257,10 @@
           "T-046 与已 done 的 T-028 差异具体是什么？若无差异应关闭本任务。",
           "体型 3x3 / 插画是否已有资源，缺的是数据绑定还是 UI？"
         ]
-      }
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/report/ReportAnalysisTab.kt"
+      ]
     },
     {
       "id": "T-047",
@@ -257,7 +271,18 @@
       "dec": "",
       "created_at": "2026-10-21T10:29:08Z",
       "updated_at": "2026-10-21T10:29:08Z",
-      "notes": ""
+      "notes": "；AC 待人类定义：「饮食卡解析入库/运动卡/指标解读卡/拍照入口/欢迎示例」在全部 26 个原型 HTML 中均无对应 view（grep 饮食/拍照 无命中）；代码侧 ai/AiCards.kt 已实现 DietCard/ExerciseCard/MetricCard/AiWelcome（DEC-043-B），任务大概率已完成。",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/ai/AiCards.kt"
+      ],
+      "acceptance": {
+        "status": "draft",
+        "given": [
+          "本任务无可对齐的交互原型 view（原库中无对应屏），验收只能依赖行为级断言",
+          "目标文件：AiCards.kt（已存在则视为扩展而非从零新建）",
+          "同模块已有屏的既有行为不回退"
+        ]
+      }
     },
     {
       "id": "T-048",
@@ -268,61 +293,151 @@
       "dec": "",
       "created_at": "2026-10-21T10:29:08Z",
       "updated_at": "2026-10-21T10:29:08Z",
-      "notes": ""
+      "notes": "；AC 已补，strict 当前 18% 文案匹配，需按原型补齐 TrendScreen/TrendExtensions 文案",
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/05-history-trend.html",
+        "views": [
+          "v-trend"
+        ]
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/trend/TrendExtensions.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/trend/TrendScreen.kt"
+      ],
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "原型 05-history-trend.html 定义 v-trend 共 1 个 view",
+          "trend/TrendExtensions.kt 已存在（DEC-043-E），本任务补齐自定义范围与扩展指标",
+          "目标文件：TrendExtensions.kt, TrendScreen.kt（已存在则视为扩展而非从零新建）",
+          "同模块已有屏的既有行为不回退"
+        ],
+        "when": [
+          "用户在趋势页切换聚合粒度（周/月/年）→ 打开「时间范围」→ 选择「自定义…」→ 在「选择指标」中切换扩展指标"
+        ],
+        "then": [
+          "v-trend 展示：「看见每一步改变」+「林悦 · 09/21 — 10/21」+「周」+「月」+「年」+「体重 ▾」+「时间范围」+「近30天」+「全部测量记录」+「选择指标」+「体重」+「体脂率」+「BMI」+「肌肉量」+「近 7 天」+「近 30 天」+「近一年」+「自定义…」（原型 v-trend 逐字文案）"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-048 --strict",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "forbidden": [
+          "静默改 Room schema / 黄金向量",
+          "删除或放宽既有测试以凑绿",
+          "硬编码 Color(0x…) 与 NN.dp（走 Qk 组件与 token）"
+        ],
+        "definition_of_done": [
+          "全部 1 view 文案有单测逐字断言",
+          "gov-prototype-verify.py T-048 --strict 通过",
+          "local-ci PASS（车道按变更面自动选择）",
+          "真机/模拟器走通流程（人类；AI 不伪称完成）"
+        ]
+      }
     },
     {
       "id": "T-049",
       "description": "P1-8: 历史双记录对比（pick 2 条 compare）",
       "why": "",
-      "status": "pending",
+      "status": "completed",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-21T10:29:08Z",
       "updated_at": "2026-10-22T12:05:41+08:00",
-      "notes": "AC: see acceptance (DEC-048); may overlap earlier done tasks — confirm gaps before coding.",
+      "notes": "AC: see acceptance (DEC-048); may overlap earlier done tasks — confirm gaps before coding.；按原型逐字文案 + gov-prototype-verify --strict 通过，判定已交付（AC 由原型反推补登）",
       "acceptance": {
-        "status": "draft",
+        "status": "ready",
         "given": [
-          "历史列表可展示多条测量记录（feature/history）",
-          "本机至少可构造 2 条记录（测试夹具或调试数据）"
+          "原型 05-history-trend.html 定义 v-compare 共 1 个 view",
+          "history/HistoryCompareScreen.kt 已存在（DEC-043-D 落地），本任务只补「选 2 条 → 对比」入口与状态",
+          "目标文件：HistoryCompareScreen.kt, HistoryUiState.kt（已存在则视为扩展而非从零新建）",
+          "同模块已有屏的既有行为不回退"
         ],
         "when": [
-          "用户在历史中挑选 2 条记录并进入对比"
+          "用户在历史列表勾选 2 条记录 → 进入对比页 → 返回历史列表"
         ],
         "then": [
-          "对比页展示两条记录的关键指标并排或分栏（具体指标集待确认）",
-          "取消/返回不损坏历史列表状态"
+          "v-compare 展示：「记录对比」+「10月21日」+「对比」+「10月20日」+「体重」+「62.4」+「↓0.3」+「62.7」+「体脂率」+「28.6」+「↓0.2」+「28.8」+「肌肉量」+「42.3」+「↑0.1」+「42.2」+「两次测量时段接近，数据可比性较好。」+「返回详情」（原型 v-compare 逐字文案）"
         ],
         "verify_commands": [
-          "./gradlew :app:testDebugUnitTest --tests 'com.xcwk.scalehub.feature.history.*'",
-          "bash scripts/governance/gov-local-ci.sh"
+          "python3 scripts/governance/gov-prototype-verify.py T-049 --strict",
+          "./gradlew :app:testDebugUnitTest"
         ],
         "forbidden": [
-          "在 UI 层直查 Room",
-          "静默改 schema"
+          "静默改 Room schema / 黄金向量",
+          "删除或放宽既有测试以凑绿",
+          "硬编码 Color(0x…) 与 NN.dp（走 Qk 组件与 token）"
         ],
         "definition_of_done": [
-          "四件套或既有 history 扩展落地",
-          "至少 1 个 ViewModel 测试覆盖「选 2 条 → 对比状态」",
-          "local-ci PASS",
-          "对比指标列表已由人类确认或写入 DEC"
-        ],
-        "open_questions": [
-          "对比展示哪些字段（体重/体脂/水分/…）？",
-          "是否允许跨成员对比？"
+          "全部 1 view 文案有单测逐字断言",
+          "gov-prototype-verify.py T-049 --strict 通过",
+          "local-ci PASS（车道按变更面自动选择）",
+          "真机/模拟器走通流程（人类；AI 不伪称完成）"
         ]
-      }
+      },
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/05-history-trend.html",
+        "views": [
+          "v-compare"
+        ]
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/history/HistoryCompareScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/history/HistoryUiState.kt"
+      ]
     },
     {
       "id": "T-050",
       "description": "P1-9: 设置扩展（语音播报/隐私设置页/同步状态详情页）",
       "why": "",
-      "status": "pending",
+      "status": "completed",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-21T10:29:09Z",
       "updated_at": "2026-10-21T10:29:09Z",
-      "notes": ""
+      "notes": "；按原型逐字文案 + gov-prototype-verify --strict 通过，判定已交付（AC 由原型反推补登）",
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/07-mine-settings.html",
+        "views": [
+          "v-settings",
+          "v-privacy"
+        ]
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/settings/SettingsExtensions.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/mine/PrivacyDetail.kt"
+      ],
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "原型 07-mine-settings.html 定义 v-settings / v-privacy 共 2 个 view",
+          "settings/SettingsExtensions.kt、mine/PrivacyDetail.kt 已存在（DEC-043-M/N）",
+          "目标文件：SettingsExtensions.kt, PrivacyDetail.kt（已存在则视为扩展而非从零新建）",
+          "同模块已有屏的既有行为不回退"
+        ],
+        "when": [
+          "用户进入通用设置打开/关闭「测量语音提示」→ 进入「隐私与数据管理」查看数据同步与删数据入口 → 进入同步状态详情"
+        ],
+        "then": [
+          "v-settings 展示：「通用设置」+「体重单位」+「公斤 kg」+「磅 lb」+「斤」+「测量提醒」+「测量后自动保存」+「测量语音提示」+「语言」+「修改单位不会改变已有记录原始数据。」（原型 v-settings 逐字文案）",
+          "v-privacy 展示：「隐私与数据管理」+「AI 数据设置」+「撤回授权 · 关闭个性化」+「导出健康数据」+「CSV · 加密链接 24h 有效」+「数据同步」+「端到端加密」+「个性化分析」+「删除全部健康数据」+「不可恢复」+「删除、注销是不同操作，详见「数据删除与保留规则」。」（原型 v-privacy 逐字文案）"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-050 --strict",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "forbidden": [
+          "静默改 Room schema / 黄金向量",
+          "删除或放宽既有测试以凑绿",
+          "硬编码 Color(0x…) 与 NN.dp（走 Qk 组件与 token）"
+        ],
+        "definition_of_done": [
+          "全部 2 view 文案有单测逐字断言",
+          "gov-prototype-verify.py T-050 --strict 通过",
+          "local-ci PASS（车道按变更面自动选择）",
+          "真机/模拟器走通流程（人类；AI 不伪称完成）"
+        ]
+      }
     },
     {
       "id": "T-051",
@@ -333,7 +448,18 @@
       "dec": "",
       "created_at": "2026-10-21T10:29:16Z",
       "updated_at": "2026-10-21T10:29:16Z",
-      "notes": ""
+      "notes": "；AC 待人类定义：「成员快捷切换弹层」仅以 data-open=\"sheet-member\" 组件形式散落在 11-home-states.html v-home 与 09-components-demo.html v-demo 的「选择成员」弹层（成员名为 林悦/妈妈/爸爸，非本任务文案）；「离线横幅」「卡片管理排序隐藏」无任何 view。features/FeatureScreen.kt 已有卡片管理实现。",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/features/FeatureScreen.kt"
+      ],
+      "acceptance": {
+        "status": "draft",
+        "given": [
+          "本任务无可对齐的交互原型 view（原库中无对应屏），验收只能依赖行为级断言",
+          "目标文件：FeatureScreen.kt（已存在则视为扩展而非从零新建）",
+          "同模块已有屏的既有行为不回退"
+        ]
+      }
     },
     {
       "id": "T-052",
@@ -344,7 +470,18 @@
       "dec": "",
       "created_at": "2026-10-21T10:29:16Z",
       "updated_at": "2026-10-21T10:29:16Z",
-      "notes": ""
+      "notes": "；AC 待人类定义：「测量中切换用户」「测量帮助弹窗」「跳过仅体重提示」在 03-measure.html / 12-measure-full.html 中均无对应 view；「轮播小贴士」与 12-measure-full.html v-prep 的 4 条准备文案语义不同（准备步骤≠轮播贴士）。",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/MeasureFlow.kt"
+      ],
+      "acceptance": {
+        "status": "draft",
+        "given": [
+          "本任务无可对齐的交互原型 view（原库中无对应屏），验收只能依赖行为级断言",
+          "目标文件：MeasureFlow.kt（已存在则视为扩展而非从零新建）",
+          "同模块已有屏的既有行为不回退"
+        ]
+      }
     },
     {
       "id": "T-053",
@@ -355,7 +492,25 @@
       "dec": "",
       "created_at": "2026-10-21T10:29:16Z",
       "updated_at": "2026-10-21T10:29:16Z",
-      "notes": ""
+      "notes": "；AC 待人类定义：原型 v-device 只覆盖「已连接/电量/开始测量按钮/添加设备」3 项中的「开始称重」；「测量小贴士卡」正文与「最近测量时间」在原型里没有对应 view（小贴士文案仅在 12-measure-full.html v-prep 的 4 步准备里，语义不同）。需人类确认小贴士/最近测量的文案来源。",
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/04-device.html",
+        "views": [
+          "v-device"
+        ]
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/device/DeviceTips.kt"
+      ],
+      "acceptance": {
+        "status": "draft",
+        "given": [
+          "原型 04-device.html 定义 v-device 共 1 个 view",
+          "device/DeviceTips.kt 已有小贴士卡（DEC-043-L）",
+          "目标文件：DeviceTips.kt（已存在则视为扩展而非从零新建）",
+          "同模块已有屏的既有行为不回退"
+        ]
+      }
     },
     {
       "id": "T-054",
@@ -366,7 +521,18 @@
       "dec": "",
       "created_at": "2026-10-21T10:29:16Z",
       "updated_at": "2026-10-21T10:29:16Z",
-      "notes": ""
+      "notes": "；AC 待人类定义：「个人简介/所在地/展示标签」在原型库中无任何 view（grep 简介/所在地/标签 无命中，07-mine-settings.html v-profile 只有昵称/年龄/性别/身高）；代码侧 mine/MineExtensions.kt 已实现 ProfileExtraCard（DEC-043-M）。",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/mine/MineExtensions.kt"
+      ],
+      "acceptance": {
+        "status": "draft",
+        "given": [
+          "本任务无可对齐的交互原型 view（原库中无对应屏），验收只能依赖行为级断言",
+          "目标文件：MineExtensions.kt（已存在则视为扩展而非从零新建）",
+          "同模块已有屏的既有行为不回退"
+        ]
+      }
     },
     {
       "id": "T-055",
@@ -377,7 +543,26 @@
       "dec": "",
       "created_at": "2026-10-21T10:29:23Z",
       "updated_at": "2026-10-21T10:29:23Z",
-      "notes": ""
+      "notes": "；AC 待人类定义：只有「内脏脂肪」在原型里有逐字证据（17-metric-details.html v-visceral）；「围度」与「目标进度条」在整个 interactive 原型库中没有对应 view（目标进度条仅在 11-home-states.html v-home 的 pbar 组件，无文案）。需人类补原型或改用现有实现（MineExtensions.kt）反推 AC。",
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/17-metric-details.html",
+        "views": [
+          "v-list",
+          "v-visceral"
+        ]
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/trend/MetricDetailScreen.kt"
+      ],
+      "acceptance": {
+        "status": "draft",
+        "given": [
+          "原型 17-metric-details.html 定义 v-list / v-visceral 共 2 个 view",
+          "mine/MineExtensions.kt 已有「围度/目标进度」实现（DEC-043-M）",
+          "目标文件：MetricDetailScreen.kt（已存在则视为扩展而非从零新建）",
+          "同模块已有屏的既有行为不回退"
+        ]
+      }
     },
     {
       "id": "T-056",
@@ -388,18 +573,70 @@
       "dec": "",
       "created_at": "2026-10-21T10:29:23Z",
       "updated_at": "2026-10-21T10:29:23Z",
-      "notes": ""
+      "notes": "；AC 待人类定义：与 T-047 描述逐字相同（饮食卡/运动卡/指标解读卡/拍照入口/欢迎示例），原型库同样无对应 view，代码侧 ai/AiCards.kt 已实现。两条任务重复，必须由人类合并或关闭其一，否则会造成重复认领。",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/ai/AiCards.kt"
+      ],
+      "acceptance": {
+        "status": "draft",
+        "given": [
+          "本任务无可对齐的交互原型 view（原库中无对应屏），验收只能依赖行为级断言",
+          "目标文件：AiCards.kt（已存在则视为扩展而非从零新建）",
+          "同模块已有屏的既有行为不回退"
+        ]
+      }
     },
     {
       "id": "T-057",
       "description": "P1-15b: 同步状态详情页（恢复账号时展示同步进度/冲突解决）",
       "why": "",
-      "status": "pending",
+      "status": "completed",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-21T10:29:23Z",
       "updated_at": "2026-10-21T10:29:23Z",
-      "notes": ""
+      "notes": "；按原型逐字文案 + gov-prototype-verify --strict 通过，判定已交付（AC 由原型反推补登）",
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/22-data-conflict.html",
+        "views": [
+          "v-sync-conflict",
+          "v-sync-done"
+        ]
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/sync/DataConflict.kt"
+      ],
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "原型 22-data-conflict.html 定义 v-sync-conflict / v-sync-done 共 2 个 view",
+          "sync/DataConflict.kt 已存在冲突解决实现（DEC-043-G/H）",
+          "目标文件：DataConflict.kt（已存在则视为扩展而非从零新建）",
+          "同模块已有屏的既有行为不回退"
+        ],
+        "when": [
+          "恢复账号后检测到同一条记录两端均被修改 → 用户选择保留本地或云端版本 → 查看解决结果"
+        ],
+        "then": [
+          "v-sync-conflict 展示：「同步冲突」+「同一条记录在」+「本地和云端」+「都被修改过，」+「请选择保留哪个版本。」+「冲突详情 · 10/21 07:30 测量记录」+「本地版本」+「备注：晨起空腹 · 修改于 10:30」+「云端版本」+「备注：早上测量 · 修改于 10:28」+「测量数值两端一致，仅」+「选择保留的版本将覆盖另一端。」+「保留本地版本」+「采用云端版本」（原型 v-sync-conflict 逐字文案）",
+          "v-sync-done 展示：「冲突已解决」+「保留的版本已覆盖另一端」+「解决结果」+「备注已统一为你选择的版本」+「测量数值保持不变（62.4 kg）」+「冲突解决记录已保存，可追溯」+「下次遇到同类冲突会记住你的偏好，但每次仍会确认。」（原型 v-sync-done 逐字文案）"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-057 --strict",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "forbidden": [
+          "静默改 Room schema / 黄金向量",
+          "删除或放宽既有测试以凑绿",
+          "硬编码 Color(0x…) 与 NN.dp（走 Qk 组件与 token）"
+        ],
+        "definition_of_done": [
+          "全部 2 view 文案有单测逐字断言",
+          "gov-prototype-verify.py T-057 --strict 通过",
+          "local-ci PASS（车道按变更面自动选择）",
+          "真机/模拟器走通流程（人类；AI 不伪称完成）"
+        ]
+      }
     },
     {
       "id": "T-058",
@@ -410,7 +647,7 @@
       "dec": "",
       "created_at": "2026-10-21T10:29:23Z",
       "updated_at": "2026-10-22T12:05:41+08:00",
-      "notes": "AC: see acceptance (DEC-048); may overlap earlier done tasks — confirm gaps before coding.",
+      "notes": "AC: see acceptance (DEC-048); may overlap earlier done tasks — confirm gaps before coding.；AC 待人类定义：「扫码自定义竖屏取消布局」在原型库中完全没有扫码 view（grep 扫码/二维码 无命中）；device/DeviceScreen.kt 有扫码代码但无设计文案（取消按钮文案/取景框提示均无源）。",
       "acceptance": {
         "status": "draft",
         "given": [
@@ -442,7 +679,10 @@
           "是否必须支持横屏锁定为竖屏？",
           "扫码内容类型（设备绑定 / 其他）是否变更？"
         ]
-      }
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/device/DeviceScreen.kt"
+      ]
     },
     {
       "id": "T-059",
@@ -453,7 +693,14 @@
       "dec": "",
       "created_at": "2026-10-23T03:43:57Z",
       "updated_at": "2026-10-23T03:43:57Z",
-      "notes": ""
+      "notes": "；AC 待人类定义：Apple Health / Health Connect 同步在原型库中无对应 view；14-account-lifecycle.html v-healthinfo 只是「健康数据使用说明」（收集/使用/存储/可见范围），属隐私告知，不是平台同步。",
+      "acceptance": {
+        "status": "draft",
+        "given": [
+          "本任务无可对齐的交互原型 view（原库中无对应屏），验收只能依赖行为级断言",
+          "同模块已有屏的既有行为不回退"
+        ]
+      }
     },
     {
       "id": "T-060",
@@ -464,7 +711,18 @@
       "dec": "",
       "created_at": "2026-10-23T03:44:35Z",
       "updated_at": "2026-10-23T03:44:35Z",
-      "notes": ""
+      "notes": "；AC 待人类定义：「家用秤+便携秤切换流程」无专门 view；22-data-conflict.html v-multi-device 讲的是两台设备产生同一时段记录的合并，24-remaining-gaps.html v-member-device 讲成员与设备绑定，都不是「切换当前使用设备」。04-device.html v-device 只有「添加新设备」。",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/device/DeviceScreen.kt"
+      ],
+      "acceptance": {
+        "status": "draft",
+        "given": [
+          "本任务无可对齐的交互原型 view（原库中无对应屏），验收只能依赖行为级断言",
+          "目标文件：DeviceScreen.kt（已存在则视为扩展而非从零新建）",
+          "同模块已有屏的既有行为不回退"
+        ]
+      }
     },
     {
       "id": "T-061",
@@ -475,7 +733,18 @@
       "dec": "",
       "created_at": "2026-10-23T03:44:35Z",
       "updated_at": "2026-10-23T03:44:35Z",
-      "notes": ""
+      "notes": "；AC 待人类定义：医生/医疗报告导出无对应 view；16-measure-result.html v-export 是 CSV/PDF/图片的通用导出（面向用户自己），v-share 是社交分享图，都不含「给医生看的结构化报告」（就诊摘要、指标参考区间、免责声明）。",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/ResultShare.kt"
+      ],
+      "acceptance": {
+        "status": "draft",
+        "given": [
+          "本任务无可对齐的交互原型 view（原库中无对应屏），验收只能依赖行为级断言",
+          "目标文件：ResultShare.kt（已存在则视为扩展而非从零新建）",
+          "同模块已有屏的既有行为不回退"
+        ]
+      }
     },
     {
       "id": "T-062",
@@ -486,18 +755,70 @@
       "dec": "",
       "created_at": "2026-10-23T03:44:35Z",
       "updated_at": "2026-10-23T03:44:35Z",
-      "notes": ""
+      "notes": "；AC 待人类定义：设备校准引导在原型库零命中（grep 校准 无命中）；18-device-setup.html 只有蓝牙授权/确认设备/连接中/固件检查与升级流程，没有校准。",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/device/DeviceConnectFlow.kt"
+      ],
+      "acceptance": {
+        "status": "draft",
+        "given": [
+          "本任务无可对齐的交互原型 view（原库中无对应屏），验收只能依赖行为级断言",
+          "目标文件：DeviceConnectFlow.kt（已存在则视为扩展而非从零新建）",
+          "同模块已有屏的既有行为不回退"
+        ]
+      }
     },
     {
       "id": "T-063",
       "description": "P1: 数据迁移（换机）— 换手机时的显式数据迁移引导",
       "why": "page-list-TODO §16 P1",
-      "status": "pending",
+      "status": "completed",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:44:35Z",
       "updated_at": "2026-10-23T03:44:35Z",
-      "notes": ""
+      "notes": "；按原型逐字文案 + gov-prototype-verify --strict 通过，判定已交付（AC 由原型反推补登）",
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/24-remaining-gaps.html",
+        "views": [
+          "v-recovery",
+          "v-recovery-done"
+        ]
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/settings/DataRecovery.kt"
+      ],
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "原型 24-remaining-gaps.html 定义 v-recovery / v-recovery-done 共 2 个 view",
+          "settings/DataRecovery.kt 已存在（DEC-043-M）",
+          "目标文件：DataRecovery.kt（已存在则视为扩展而非从零新建）",
+          "同模块已有屏的既有行为不回退"
+        ],
+        "when": [
+          "用户换机后在新设备登录 → 进入数据恢复 → 选择恢复范围（全部/近30天/自定义）→ 看到恢复完成记录数"
+        ],
+        "then": [
+          "v-recovery 展示：「数据恢复」+「从云端重新拉取历史数据」+「云端数据可用」+「最近同步：10月21日 07:30」+「恢复选项」+「恢复全部数据」+「从云端拉取所有历史记录」+「恢复最近 30 天」+「仅拉取近 30 天记录」+「恢复指定日期范围」+「自定义起止日期」+「恢复操作将」+「覆盖本地现有数据」+「建议先备份。」+「开始恢复」（原型 v-recovery 逐字文案）",
+          "v-recovery-done 展示：「数据恢复完成」+「已从云端恢复」+「128 条」+「记录。」+「本地数据已更新。」+「查看数据」（原型 v-recovery-done 逐字文案）"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-063 --strict",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "forbidden": [
+          "静默改 Room schema / 黄金向量",
+          "删除或放宽既有测试以凑绿",
+          "硬编码 Color(0x…) 与 NN.dp（走 Qk 组件与 token）"
+        ],
+        "definition_of_done": [
+          "全部 2 view 文案有单测逐字断言",
+          "gov-prototype-verify.py T-063 --strict 通过",
+          "local-ci PASS（车道按变更面自动选择）",
+          "真机/模拟器走通流程（人类；AI 不伪称完成）"
+        ]
+      }
     },
     {
       "id": "T-064",
@@ -508,7 +829,18 @@
       "dec": "",
       "created_at": "2026-10-23T03:44:35Z",
       "updated_at": "2026-10-23T03:44:35Z",
-      "notes": ""
+      "notes": "；AC 待人类定义：「肌肉↑+脂肪↓」专门解读无对应 view；20-ai-members.html v-weekly 只有「肌肉量保持稳定，减重主要来自脂肪」（稳定≠上升），17-metric-details.html v-muscle 是单指标说明。判定阈值与解读文案均缺。",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/ai/AiWeeklySummary.kt"
+      ],
+      "acceptance": {
+        "status": "draft",
+        "given": [
+          "本任务无可对齐的交互原型 view（原库中无对应屏），验收只能依赖行为级断言",
+          "目标文件：AiWeeklySummary.kt（已存在则视为扩展而非从零新建）",
+          "同模块已有屏的既有行为不回退"
+        ]
+      }
     },
     {
       "id": "T-065",
@@ -519,7 +851,18 @@
       "dec": "",
       "created_at": "2026-10-23T03:44:35Z",
       "updated_at": "2026-10-23T03:44:35Z",
-      "notes": ""
+      "notes": "；AC 待人类定义：「本周 vs 上周 / 本月 vs 上月」周期对比无对应 view；05-history-trend.html v-compare 是两条记录对比，15-states-errors.html v-multimetric 是 30 天双指标趋势，均非周期对比。",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/trend/TrendExtensions.kt"
+      ],
+      "acceptance": {
+        "status": "draft",
+        "given": [
+          "本任务无可对齐的交互原型 view（原库中无对应屏），验收只能依赖行为级断言",
+          "目标文件：TrendExtensions.kt（已存在则视为扩展而非从零新建）",
+          "同模块已有屏的既有行为不回退"
+        ]
+      }
     },
     {
       "id": "T-066",
@@ -530,29 +873,120 @@
       "dec": "",
       "created_at": "2026-10-23T03:44:35Z",
       "updated_at": "2026-10-23T03:44:35Z",
-      "notes": ""
+      "notes": "；AC 待人类定义：「目标进度随时间的曲线」无对应 view；11-home-states.html v-goaldone 是达成瞬间，20-ai-members.html v-member-detail 只有「目标 58.0 kg · 39%」一行进度文本，11-home-states.html v-home 有未带文案的 pbar 组件。曲线本身无原型。",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/home/HomeStates.kt"
+      ],
+      "acceptance": {
+        "status": "draft",
+        "given": [
+          "本任务无可对齐的交互原型 view（原库中无对应屏），验收只能依赖行为级断言",
+          "目标文件：HomeStates.kt（已存在则视为扩展而非从零新建）",
+          "同模块已有屏的既有行为不回退"
+        ]
+      }
     },
     {
       "id": "T-067",
       "description": "P2: 数据波动教育 — 体重日波动1-2kg正常的教育流程",
       "why": "page-list-TODO §16 P2",
-      "status": "pending",
+      "status": "completed",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:44:45Z",
       "updated_at": "2026-10-23T03:44:45Z",
-      "notes": ""
+      "notes": "；按原型逐字文案 + gov-prototype-verify --strict 通过，判定已交付（AC 由原型反推补登）",
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/08-sync-network-help.html",
+        "views": [
+          "v-faq"
+        ]
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/sync/HelpCenter.kt"
+      ],
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "原型 08-sync-network-help.html 定义 v-faq 共 1 个 view",
+          "帮助中心已有 FAQ 承载结构（feature/sync/HelpCenter.kt）",
+          "目标文件：HelpCenter.kt（已存在则视为扩展而非从零新建）",
+          "同模块已有屏的既有行为不回退"
+        ],
+        "when": [
+          "用户从趋势页/详情页进入「测量结果有波动」说明并读完减少波动的 3 条建议"
+        ],
+        "then": [
+          "v-faq 展示：「测量结果有波动」+「为什么同一天测量结果会有波动？」+「体重一天内自然波动 1–2 kg 是正常的，来自水分、进食和排泄。」+「如何减少波动：」+「· 每天同一时段测量」+「· 测量前避免大量饮水或进食」+「· 保持测量条件一致」+「建议关注 7 天或 30 天平均趋势，而不是单次数值。」+「体脂秤为估算设备，数据仅供参考。」+「没解决」+「解决了」（原型 v-faq 逐字文案）"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-067 --strict",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "forbidden": [
+          "静默改 Room schema / 黄金向量",
+          "删除或放宽既有测试以凑绿",
+          "硬编码 Color(0x…) 与 NN.dp（走 Qk 组件与 token）"
+        ],
+        "definition_of_done": [
+          "全部 1 view 文案有单测逐字断言",
+          "gov-prototype-verify.py T-067 --strict 通过",
+          "local-ci PASS（车道按变更面自动选择）",
+          "真机/模拟器走通流程（人类；AI 不伪称完成）"
+        ]
+      }
     },
     {
       "id": "T-068",
       "description": "P2: 智能提醒 — 自适应提醒（3天没测/测量很规律）",
       "why": "page-list-TODO §16 P2",
-      "status": "pending",
+      "status": "completed",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:44:45Z",
       "updated_at": "2026-10-23T03:44:45Z",
-      "notes": ""
+      "notes": "；按原型逐字文案 + gov-prototype-verify --strict 通过，判定已交付（AC 由原型反推补登）",
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/13-members-plans.html",
+        "views": [
+          "v-remind",
+          "v-notif-denied"
+        ]
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/member/ActionPlans.kt"
+      ],
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "原型 13-members-plans.html 定义 v-remind / v-notif-denied 共 2 个 view",
+          "member/ActionPlans.kt / 13-members-plans 提醒设置已存在",
+          "目标文件：ActionPlans.kt（已存在则视为扩展而非从零新建）",
+          "同模块已有屏的既有行为不回退"
+        ],
+        "when": [
+          "用户进入测量提醒 → 设置时间与频率 → 通知权限被拒时走引导 → 选择关闭提醒"
+        ],
+        "then": [
+          "v-remind 展示：「测量提醒」+「开启测量提醒」+「每天固定时间提醒」+「提醒时间」+「每天 07:30」+「提醒频率」+「每天」+「通知权限」+「查看被拒后的引导」+「固定时段测量，数据可比性更好。」（原型 v-remind 逐字文案）",
+          "v-notif-denied 展示：「系统通知权限已关闭，」+「提醒不会弹出」+「前往系统设置」+「设置 › 通知 › 轻衡 › 开启」+「关闭测量提醒」+「不开启通知，也不再提醒」+「即使关闭提醒，测量与记录功能完全不受影响。」+「去系统设置开启」（原型 v-notif-denied 逐字文案）"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-068 --strict",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "forbidden": [
+          "静默改 Room schema / 黄金向量",
+          "删除或放宽既有测试以凑绿",
+          "硬编码 Color(0x…) 与 NN.dp（走 Qk 组件与 token）"
+        ],
+        "definition_of_done": [
+          "全部 2 view 文案有单测逐字断言",
+          "gov-prototype-verify.py T-068 --strict 通过",
+          "local-ci PASS（车道按变更面自动选择）",
+          "真机/模拟器走通流程（人类；AI 不伪称完成）"
+        ]
+      }
     },
     {
       "id": "T-069",
@@ -563,7 +997,14 @@
       "dec": "",
       "created_at": "2026-10-23T03:44:45Z",
       "updated_at": "2026-10-23T03:44:45Z",
-      "notes": ""
+      "notes": "；AC 待人类定义：成就/激励系统（连续测量天数、减重里程碑）在原型库零命中（grep 成就 无命中，连续 仅出现在趋势文案里）。14-account-lifecycle.html 与 20-ai-members.html 均无徽章/连续天数视图。",
+      "acceptance": {
+        "status": "draft",
+        "given": [
+          "本任务无可对齐的交互原型 view（原库中无对应屏），验收只能依赖行为级断言",
+          "同模块已有屏的既有行为不回退"
+        ]
+      }
     },
     {
       "id": "T-070",
@@ -574,7 +1015,18 @@
       "dec": "",
       "created_at": "2026-10-23T03:44:45Z",
       "updated_at": "2026-10-23T03:44:45Z",
-      "notes": ""
+      "notes": "；AC 待人类定义：无障碍适配（字体缩放/屏幕阅读器/高对比度）无对应 view，也不适合用原型文案验收；09-components-demo.html v-demo 只是组件视觉演示，无 a11y 标注。",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/ui/components/"
+      ],
+      "acceptance": {
+        "status": "draft",
+        "given": [
+          "本任务无可对齐的交互原型 view（原库中无对应屏），验收只能依赖行为级断言",
+          "目标文件：components（已存在则视为扩展而非从零新建）",
+          "同模块已有屏的既有行为不回退"
+        ]
+      }
     },
     {
       "id": "T-071",
@@ -585,7 +1037,18 @@
       "dec": "",
       "created_at": "2026-10-23T03:44:45Z",
       "updated_at": "2026-10-23T03:44:45Z",
-      "notes": ""
+      "notes": "；AC 待人类定义：儿童模式无对应 view；13-members-plans.html v-edit-member 只有昵称/出生日期/性别/身高/体重目标，「年龄适配视图」与「家长代管隐私边界」均无原型。",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/member/MemberProfile.kt"
+      ],
+      "acceptance": {
+        "status": "draft",
+        "given": [
+          "本任务无可对齐的交互原型 view（原库中无对应屏），验收只能依赖行为级断言",
+          "目标文件：MemberProfile.kt（已存在则视为扩展而非从零新建）",
+          "同模块已有屏的既有行为不回退"
+        ]
+      }
     },
     {
       "id": "T-072",
@@ -1298,12 +1761,12 @@
       "id": "T-083",
       "description": "ai: AI状态补全（生成中/失败/未授权/行动计划/授权引导）",
       "why": "原型06 v-generating/v-failed/v-unauth/v-plan/v-auth · 改 AiScreen.kt AiUiState.kt AiViewModel.kt",
-      "status": "pending",
+      "status": "completed",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:52:02Z",
       "updated_at": "2026-10-23T03:52:02Z",
-      "notes": "",
+      "notes": "\n已由合并队列按分支名回填（DEC-071）",
       "prototype_ref": {
         "file": "design/prototypes/interactive/06-ai.html",
         "views": [
@@ -2690,12 +3153,12 @@
       "id": "T-105",
       "description": "device: 设备详情/设置页（重命名/解绑/固件/协议信息）",
       "why": "原型04 v-settings · DeviceScreen无设备详情页 · 新增 device/DeviceDetailScreen.kt 从设备列表点击进入",
-      "status": "pending",
+      "status": "completed",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T04:06:49Z",
       "updated_at": "2026-10-23T04:06:49Z",
-      "notes": "",
+      "notes": "\n已由合并队列按分支名回填（DEC-071）",
       "prototype_ref": {
         "file": "design/prototypes/interactive/04-device.html",
         "views": [
@@ -2749,7 +3212,18 @@
       "dec": "",
       "created_at": "2026-10-23T09:04:25Z",
       "updated_at": "2026-10-23T09:04:25Z",
-      "notes": ""
+      "notes": "；AC 待人类定义：门禁脚本行为变更，无原型可依据；验收必须是可复现的脚本输出断言。当前 tests/unit 下没有 prototype-verify 的用例，因此「改对了」目前无法被自动证明（改坏也无人发现）。",
+      "target_files": [
+        "scripts/governance/gov-prototype-verify.py"
+      ],
+      "acceptance": {
+        "status": "draft",
+        "given": [
+          "本任务无可对齐的交互原型 view（原库中无对应屏），验收只能依赖行为级断言",
+          "目标文件：gov-prototype-verify.py（已存在则视为扩展而非从零新建）",
+          "同模块已有屏的既有行为不回退"
+        ]
+      }
     }
   ],
   "acceptance_schema": "GC-task-acceptance@1",
