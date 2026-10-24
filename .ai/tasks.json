@@ -591,12 +591,12 @@
       "id": "T-072",
       "description": "auth: 登录方式扩展（邮箱登录/微信登录/游客模式）",
       "why": "原型01 v-email/v-wechat/v-guest/v-guest-done · 新增 auth/EmailLogin.kt auth/GuestMode.kt · 改 AuthScreen/AuthUiState",
-      "status": "pending",
+      "status": "completed",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:51:34Z",
-      "updated_at": "2026-10-24T01:50:00Z",
-      "notes": "",
+      "updated_at": "2026-10-24T04:39:03Z",
+      "notes": "已合入 master（PR #59，2026-10-24）；由 gov-board-reconcile 依据合并事实回填",
       "prototype_ref": {
         "file": "design/prototypes/interactive/01-login.html",
         "views": [
@@ -655,12 +655,12 @@
       "id": "T-073",
       "description": "auth: 密码找回与账号恢复流程",
       "why": "原型01 v-reset + 原型21全部6屏 · 新增 auth/PasswordReset.kt auth/AccountRecovery.kt",
-      "status": "pending",
+      "status": "completed",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:51:34Z",
-      "updated_at": "2026-10-24T01:50:00Z",
-      "notes": "",
+      "updated_at": "2026-10-24T04:39:03Z",
+      "notes": "已合入 master（PR #60，2026-10-24）；由 gov-board-reconcile 依据合并事实回填",
       "prototype_ref": {
         "file": "design/prototypes/interactive/01-login.html",
         "views": [
@@ -718,12 +718,12 @@
       "id": "T-074",
       "description": "auth: 账号生命周期（强更/最低版本/隐私锁/验证码错误/过期/多设备/健康信息）",
       "why": "原型14全部8屏 · 新增 auth/AccountLifecycle.kt",
-      "status": "pending",
+      "status": "completed",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:51:34Z",
-      "updated_at": "2026-10-24T01:50:00Z",
-      "notes": "",
+      "updated_at": "2026-10-24T04:39:03Z",
+      "notes": "已合入 master（PR #59，2026-10-24）；由 gov-board-reconcile 依据合并事实回填",
       "prototype_ref": {
         "file": "design/prototypes/interactive/14-account-lifecycle.html",
         "views": [
@@ -787,12 +787,12 @@
       "id": "T-075",
       "description": "guide: 启动引导（闪屏/用户协议/权限申请/授权/拒绝）",
       "why": "原型02全部5屏 · 新增 guide/SplashScreen.kt guide/PermissionFlow.kt",
-      "status": "pending",
+      "status": "completed",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:51:46Z",
-      "updated_at": "2026-10-24T01:50:00Z",
-      "notes": "",
+      "updated_at": "2026-10-24T04:39:03Z",
+      "notes": "已合入 master（PR #61，2026-10-24）；由 gov-board-reconcile 依据合并事实回填",
       "prototype_ref": {
         "file": "design/prototypes/interactive/02-onboarding-permission.html",
         "views": [
@@ -922,7 +922,7 @@
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:51:46Z",
-      "updated_at": "2026-10-23T03:51:46Z",
+      "updated_at": "2026-10-24T13:00:00Z",
       "notes": "",
       "prototype_ref": {
         "file": "design/prototypes/interactive/16-measure-result.html",
@@ -940,7 +940,42 @@
       "ac_refs": [
         "AC-J1-06 测量结果可分享/导出"
       ],
-      "prd_ref": "https://app.notion.com/p/40141bd50f8a818fbdbcc0396b31763c"
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a818fbdbcc0396b31763c",
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "测量结果报告页已存在（原型16 v-result / v-ai-report），本任务只补分享与导出边界，不重写报告主体",
+          "原型16 定义 v-share / v-export / v-export-done 三个 view",
+          "新增文件 app/src/main/kotlin/com/xcwk/scalehub/feature/measure/ResultShare.kt"
+        ],
+        "when": [
+          "在测量结果页点击「分享」进入分享预览，返回后改点「导出」配置格式与范围，再点「生成导出文件」进入导出成功页"
+        ],
+        "then": [
+          "分享预览页展示标题「分享报告」与警示「分享图片将包含你的姓名与测量数据，请确认后再分享。」；分享卡片含「轻衡健康 · 身体成分报告」「林悦 · 10月21日」「62.4 kg」「↓0.3 较上次」四项指标「评分」「体脂」「BMI」「肌肉kg」与页脚「轻衡 · 让健康轻一点」；下方「分享到」四渠道「微信」「朋友圈」「保存图片」「复制链接」+「取消」（v-share 原文）",
+          "导出页展示标题「导出报告」+「导出格式」三选一「CSV」「PDF」「图片」+「导出范围」三项「本次测量 / 10月21日 07:30」「近 30 天 / 09/21 — 10/21 · 20 次」「全部记录 / 128 次」+「包含字段」「测量时间 · 体重 · 体脂率 · BMI · 肌肉量」「水分率 · 内脏脂肪 · 基础代谢 · 骨量 · 身体评分」+ 提示「导出文件通过加密链接发送到邮箱，24 小时内有效。」+「生成导出文件」「取消」（v-export 原文）",
+          "导出成功页展示「导出成功」+「文件已生成，加密链接已发送至邮箱」「linyue@example.com」「24 小时内有效，请尽快下载。」+「返回报告」「重新发送到邮箱」（v-export-done 原文）"
+        ],
+        "forbidden": [
+          "在呈现式 Composable 内直接调用分享 SDK / 文件系统 / 网络或数据库 API：分享、导出、重发一律经传入回调（同 T-096 呈现式先例）",
+          "硬编码颜色或间距（必须 QkColor / QkSpacing token，--strict 拦截）",
+          "改动既有报告页文件（本任务只新建 ResultShare.kt；报告主体归既有 measure 流程）",
+          "把患者姓名与测量数据写入日志或埋点",
+          "编造 AC 编号"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-078 --strict",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "definition_of_done": [
+          "measure/ResultShare.kt 存在且可编译",
+          "原型三个 view 布局与文案一致（v-share / v-export / v-export-done）",
+          "分享渠道选择、导出格式/范围选择与可用性判定为纯函数且有 JVM 单测",
+          "无硬编码颜色与间距（--strict 通过）",
+          ":app:testDebugUnitTest 通过"
+        ],
+        "open_questions": []
+      }
     },
     {
       "id": "T-079",
@@ -950,7 +985,7 @@
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:51:54Z",
-      "updated_at": "2026-10-23T03:51:54Z",
+      "updated_at": "2026-10-24T13:00:00Z",
       "notes": "",
       "prototype_ref": {
         "file": "design/prototypes/interactive/18-device-setup.html",
@@ -968,7 +1003,42 @@
       "ac_refs": [
         "AC-D4 固件检测与更新提示"
       ],
-      "prd_ref": "https://app.notion.com/p/40141bd50f8a815baa74ee7f26890aba"
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a815baa74ee7f26890aba",
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "设备配对与连接态已存在（原型18 v-bt-permission / v-confirm-device / v-connecting / v-connected），本任务从连接成功后的固件检查接续",
+          "原型18 定义 v-firmware-check / v-firmware-update / v-firmware-latest 三个 view",
+          "新增文件 app/src/main/kotlin/com/xcwk/scalehub/feature/device/FirmwareManager.kt"
+        ],
+        "when": [
+          "设备连接成功后检查固件版本；有更新时点击「立即更新」查看升级进度；无更新时直接进入设备就绪态"
+        ],
+        "then": [
+          "固件检查页展示「固件更新」+ 设备行「轻衡 S1 / 当前固件 v1.1.0」+ 状态「可更新」+「新版本 v1.2.0」+ 四条更新内容「优化蓝牙连接稳定性」「修复特定机型测量偶发失败」「提升体脂率估算精度」「新增低电量提醒」+ 提示「更新过程中请勿断开蓝牙或关闭秤，预计耗时 2–3 分钟。」+「立即更新」「暂不更新」（v-firmware-check 原文）",
+          "升级中页展示「固件更新中」+「70%」「正在更新」+「正在更新固件…」+「请勿断开蓝牙或关闭秤」「预计剩余 45 秒」+ 警示「更新中断可能导致设备无法使用，请保持耐心。」+「模拟更新完成」（v-firmware-update 原文）",
+          "无更新页展示「设备信息」+「设备已就绪」+「固件已是最新版本」「可以开始第一次测量了。」+「开始测量」「返回」（v-firmware-latest 原文）"
+        ],
+        "forbidden": [
+          "在呈现式 Composable 内直接调用蓝牙/固件 OTA/网络 API：检查版本与升级进度经传入回调",
+          "在升级进度未达 100% 时展示成功态或允许静默退出（必须给出中断警示）",
+          "硬编码颜色或间距（必须 Qk token，--strict 拦截）",
+          "改动既有配对/连接文件（本任务只新建 FirmwareManager.kt）",
+          "编造 AC 编号"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-079 --strict",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "definition_of_done": [
+          "device/FirmwareManager.kt 存在且可编译",
+          "原型三个 view 布局与文案一致（v-firmware-check / v-firmware-update / v-firmware-latest）",
+          "固件状态机（检查→可更新/已最新→升级中→完成）与版本比较为纯函数且有 JVM 单测",
+          "无硬编码颜色与间距（--strict 通过）",
+          ":app:testDebugUnitTest 通过"
+        ],
+        "open_questions": []
+      }
     },
     {
       "id": "T-080",
@@ -978,7 +1048,7 @@
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:51:54Z",
-      "updated_at": "2026-10-23T03:51:54Z",
+      "updated_at": "2026-10-24T13:00:00Z",
       "notes": "",
       "prototype_ref": {
         "file": "design/prototypes/interactive/24-remaining-gaps.html",
@@ -996,7 +1066,41 @@
       "ac_refs": [
         "AC-D5 设备重命名与成员绑定"
       ],
-      "prd_ref": "https://app.notion.com/p/40141bd50f8a815baa74ee7f26890aba"
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a815baa74ee7f26890aba",
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "设备列表与成员列表已存在（原型13 v-members、原型18 设备信息），本任务只补重命名与成员-设备关联",
+          "原型24 定义 v-rename-device / v-member-device 两个 view",
+          "新增文件 app/src/main/kotlin/com/xcwk/scalehub/feature/device/DeviceRename.kt 与 device/MemberDeviceLink.kt"
+        ],
+        "when": [
+          "在设备详情进入「设备重命名」修改名称并保存；在「成员设备关联」页勾选使用该设备的成员并保存关联"
+        ],
+        "then": [
+          "重命名页展示「设备重命名」+ 副标题「重命名设备」「给你的体脂秤一个好记的名字」+「当前名称」「轻衡 S1 · 序列号 ****8A2F」+「新名称」+ 说明「最多 20 个字符，支持中英文、数字」+「重命名仅影响显示名称，不影响设备连接和测量数据。」+「保存名称」（v-rename-device 原文）",
+          "成员设备关联页展示「成员设备关联」+ 副标题「成员与设备关联」「管理哪些成员使用哪些设备」+「设备」行「客厅体脂秤」「已关联 3 位成员」「管理 ›」+「关联成员」三人「林悦 / 默认使用此设备」「妈妈 / 共用客厅体脂秤」「爸爸 / 共用客厅体脂秤」+ 说明「一台体脂秤可关联多位成员，测量时会自动识别当前成员。」+「保存关联」（v-member-device 原文）"
+        ],
+        "forbidden": [
+          "在呈现式 Composable 内直接调用设备管理/数据库 API：保存重命名与关联经传入回调",
+          "重命名允许空名称或超过 20 字符仍可保存（须校验并给出限制文案）",
+          "硬编码颜色或间距（必须 Qk token，--strict 拦截）",
+          "改动既有设备配对/成员管理文件（本任务只新建上述两个文件）",
+          "编造 AC 编号"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-080 --strict",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "definition_of_done": [
+          "device/DeviceRename.kt 与 device/MemberDeviceLink.kt 存在且可编译",
+          "原型两个 view 布局与文案一致（v-rename-device / v-member-device）",
+          "名称长度/空值校验与成员勾选集合状态为纯函数且有 JVM 单测",
+          "无硬编码颜色与间距（--strict 通过）",
+          ":app:testDebugUnitTest 通过"
+        ],
+        "open_questions": []
+      }
     },
     {
       "id": "T-081",
@@ -1216,7 +1320,7 @@
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:52:02Z",
-      "updated_at": "2026-10-23T03:52:02Z",
+      "updated_at": "2026-10-24T13:00:00Z",
       "notes": "",
       "prototype_ref": {
         "file": "design/prototypes/interactive/25-ai-boundaries.html",
@@ -1237,7 +1341,45 @@
       "ac_refs": [
         "AC-J1-12 AI 边界与降级状态"
       ],
-      "prd_ref": "https://app.notion.com/p/40141bd50f8a8131aad6f95b74dcf436"
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a8131aad6f95b74dcf436",
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "AI 报告主路径已存在（原型16 v-ai-report），本任务只补边界与降级态，不重写报告生成",
+          "原型25 定义 v-ai-unavailable / v-report-expired / v-reanalyzing / v-report-done / v-unauth-consult / v-member-unauth 六个 view",
+          "新增文件 app/src/main/kotlin/com/xcwk/scalehub/feature/ai/AiBoundaries.kt"
+        ],
+        "when": [
+          "依次触发六种边界：服务不可用、报告基于旧数据、重新分析中、分析完成、未开启个性化咨询、查看未授权成员报告"
+        ],
+        "then": [
+          "不可用页展示「AI 健康助手」+「AI 服务暂时不可用」+「AI 服务正在维护，预计」「15 分钟」「内恢复。」+「你的测量与记录不受影响。」+「受影响：AI 解读 · 周总结 · 行动建议」「不受影响：测量 · 记录 · 趋势图表」+「重试连接」「先看历史报告」（v-ai-unavailable 原文）",
+          "报告过期页展示「你有」「2 条新测量记录」「，」「本报告基于旧数据生成。」+ 旧报告标识「旧报告」「基于 10月20日数据」+「近 30 天体重下降 1.4 kg，趋势稳健。」+「重新分析后将更新」三条「纳入最新 2 条测量记录」「更新体重/体脂趋势结论」「重新生成可执行建议」+「旧报告保留在历史中，不会被覆盖。」+「用最新数据重新分析」「继续查看旧报告」（v-report-expired 原文）",
+          "重新分析页展示「正在重新分析…」+「纳入最新 2 条测量记录」「约需 10–20 秒」，等待期不展示结论（v-reanalyzing 原文）",
+          "分析完成页展示「已基于最新 2 条记录重新分析。」+「新报告」「基于 10月21日最新数据」+「近 30 天体重下降 1.6 kg，纳入最新数据后趋势更清晰。」+「纳入最新 2 条记录后，30 天体重下降从 1.4 kg 修正为」「1.6 kg」「，体脂率下降 1.5 个百分点。趋势与减重目标一致。」+「AI 建议仅供参考，不作疾病诊断。」+「返回」（v-report-done 原文）",
+          "未授权咨询页展示「未开启个性化分析，AI」「不使用你的健康数据」「，」「仅提供通用健康知识。」+ 示例问题「BMI 22.1 正常吗？」「体脂率怎么看？」「如何健康减脂？」+「通用健康问题都可以问我。要获得针对你数据的解读，请先开启个性化分析。」+「未开启个性化时，AI 不会读取你的测量记录、健康档案和目标。」+「开启个性化分析」「问问健康知识…」（v-unauth-consult 原文）",
+          "成员未授权页展示「AI 报告解读」+ 成员头「当前查看：妈妈」「AI 解读 · 未授权」「未授权」+「该成员未开启 AI 解读」+「「妈妈」尚未授权 AI 使用她的健康数据。AI 无法为她生成报告解读。」+「切换到已授权成员」「邀请妈妈开启」（v-member-unauth 原文）"
+        ],
+        "forbidden": [
+          "在呈现式 Composable 内直接调用 AI/网络/数据库 API：重试、重新分析、开启授权经传入回调",
+          "未授权或服务不可用时仍展示针对个人数据的结论性解读",
+          "硬编码颜色或间距（必须 Qk token，--strict 拦截）",
+          "改动既有 AI 报告页文件（本任务只新建 AiBoundaries.kt）",
+          "编造 AC 编号"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-085 --strict",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "definition_of_done": [
+          "ai/AiBoundaries.kt 存在且可编译",
+          "原型六个 view 布局与文案一致（v-ai-unavailable / v-report-expired / v-reanalyzing / v-report-done / v-unauth-consult / v-member-unauth）",
+          "边界状态机（可用性→数据新鲜度→授权范围）与可展示内容判定为纯函数且有 JVM 单测",
+          "无硬编码颜色与间距（--strict 通过）",
+          ":app:testDebugUnitTest 通过"
+        ],
+        "open_questions": []
+      }
     },
     {
       "id": "T-086",
@@ -1276,7 +1418,7 @@
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:52:22Z",
-      "updated_at": "2026-10-23T03:52:22Z",
+      "updated_at": "2026-10-24T13:00:00Z",
       "notes": "",
       "prototype_ref": {
         "file": "design/prototypes/interactive/13-members-plans.html",
@@ -1297,7 +1439,45 @@
       "ac_refs": [
         "AC-J1-14 行动计划管理"
       ],
-      "prd_ref": "https://app.notion.com/p/40141bd50f8a8131aad6f95b74dcf436"
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a8131aad6f95b74dcf436",
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "成员与档案已存在（原型13 v-members / v-edit-member），本任务只补行动计划与提醒",
+          "原型13 定义 v-plans / v-edit-plan / v-edit-task / v-plan-empty / v-remind / v-notif-denied 六个 view",
+          "新增文件 app/src/main/kotlin/com/xcwk/scalehub/feature/member/ActionPlans.kt"
+        ],
+        "when": [
+          "进入本周行动计划查看与编辑任务；再走空计划生成、测量提醒设置与通知权限被拒分支"
+        ],
+        "then": [
+          "计划列表页展示「本周行动计划」+「已采纳」「10月21日生效」+「本周 1/3 已完成，继续保持。」+ 三项任务「轻松散步 20 分钟 / 已完成」「固定时段测量体重 / 点击编辑此项」「记录睡眠感受 / 跳过/取消示例」+ 状态入口「空计划」「编辑计划」「提醒设置」+ 免责「计划为建议，经确认后生效，不承诺效果。」+ 任务弹层「「记录睡眠」怎么处理？」「本次跳过 / 本周任务保留」「换一个任务」「从本周计划移除」（v-plans 原文）",
+          "编辑计划页展示「编辑计划」+「勾选想保留的任务（已选 3/5）」+ 五项任务「轻松散步 20 分钟 / 建议每周 3 次」「固定时段测量体重 / 建议任选 3 晚」「记录睡眠感受」「减少含糖饮料 / 建议每日提醒」「拉伸放松 10 分钟」+「保存修改」（v-edit-plan 原文）",
+          "编辑任务页展示「编辑任务」+「固定时段测量体重」「建议任选 3 晚，手动记录。」+「每周频次」四档「1 次」「2 次」「3 次」「5 次」+「提醒时间」「每天」+「单次时长」「10 分钟」「20 分钟」「30 分钟」+「移除任务」「保存」（v-edit-task 原文）",
+          "空计划页展示「本周行动计划」+「本周还没有计划」+「AI 可根据你的测量趋势，生成一份轻松可行的每周小目标。」+「生成本周计划」「了解计划如何生成」（v-plan-empty 原文）",
+          "提醒设置页展示「测量提醒」+「开启测量提醒」「每天固定时间提醒」+「提醒时间」「每天 07:30」+「提醒频率」「每天」+「通知权限」「查看被拒后的引导」「查看」+「固定时段测量，数据可比性更好。」+「保存」+ 时间选择弹层「取消」「提醒时间」「确定」「时」「分」（v-remind 原文）",
+          "通知被拒页展示「系统通知权限已关闭，提醒不会弹出。」+「前往系统设置」「设置 › 通知 › 轻衡 › 开启」+「关闭测量提醒」「不开启通知，也不再提醒」+「即使关闭提醒，测量与记录功能完全不受影响。」+「去系统设置开启」（v-notif-denied 原文）"
+        ],
+        "forbidden": [
+          "在呈现式 Composable 内直接调用通知权限/闹钟/数据库 API：权限请求、提醒写入与跳系统设置经传入回调",
+          "通知权限被拒时仍显示「已开启提醒」或静默吞掉失败",
+          "硬编码颜色或间距（必须 Qk token，--strict 拦截）",
+          "改动既有成员管理文件（本任务只新建 ActionPlans.kt）",
+          "编造 AC 编号"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-087 --strict",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "definition_of_done": [
+          "member/ActionPlans.kt 存在且可编译",
+          "原型六个 view 布局与文案一致（v-plans / v-edit-plan / v-edit-task / v-plan-empty / v-remind / v-notif-denied）",
+          "任务勾选/频次选择/提醒可用性判定为纯函数且有 JVM 单测",
+          "无硬编码颜色与间距（--strict 通过）",
+          ":app:testDebugUnitTest 通过"
+        ],
+        "open_questions": []
+      }
     },
     {
       "id": "T-088",
@@ -1826,12 +2006,12 @@
       "id": "T-100",
       "description": "guide: 登录后引导资料设置（年龄/身高/完成页）",
       "why": "原型01 v-onboard-age/v-onboard-height/v-done · 新增 guide/ProfileSetup.kt 补全引导资料表单",
-      "status": "pending",
+      "status": "completed",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:56:21Z",
-      "updated_at": "2026-10-24T01:50:00Z",
-      "notes": "",
+      "updated_at": "2026-10-24T04:39:03Z",
+      "notes": "已合入 master（PR #61，2026-10-24）；由 gov-board-reconcile 依据合并事实回填",
       "prototype_ref": {
         "file": "design/prototypes/interactive/01-login.html",
         "views": [
@@ -2065,8 +2245,8 @@
     }
   ],
   "acceptance_schema": "GC-task-acceptance@1",
-  "updated_at": "2026-10-24T02:35:00Z",
-  "next_action": "开工 Wave 1 新认领：T-072/073/074(auth)、T-075/100(guide) 验收已 ready，各自独立 worktree 并行；其余 Wave 1 任务待补 AC 后开工",
-  "next_action_why": "Wave 0 与首批 Wave 1（T-081/082/084/091/096/099/102）已全部合入 master；auth+guide 入口流 AC 已 ready 是当前唯一无冲突可并行的编码批次",
+  "updated_at": "2026-10-24T13:00:00Z",
+  "next_action": "派发 Wave 2 产品任务：T-078/T-079/T-080/T-085/T-087（AC 已 ready，target_files 不重叠，可 3 路并行）",
+  "next_action_why": "上一批（T-072/073/074/075/100）已合入 master；本批 AC 已按原型逐字生成并通过校验",
   "next_action_confirmed": true
 }
