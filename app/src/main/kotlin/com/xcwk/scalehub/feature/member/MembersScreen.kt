@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -36,6 +37,7 @@ import com.xcwk.scalehub.ui.components.QkCard
 import com.xcwk.scalehub.ui.components.QkListRow
 import com.xcwk.scalehub.ui.components.QkTextField
 import com.xcwk.scalehub.ui.shell.WiringEntries
+import com.xcwk.scalehub.ui.theme.QkSpacing
 import com.xcwk.scalehub.ui.theme.QkTheme
 
 /**
@@ -62,6 +64,33 @@ fun MembersScreen(
         return
     }
 
+    // T-086：资料编辑 / 测量记录空态 / 设备管理空态，返回即回成员列表
+    var memberPage by remember { mutableStateOf(MemberPage.List) }
+    val viewingName = state.members.firstOrNull { it.id == state.activeId }?.nickname.orEmpty()
+    when (memberPage) {
+        MemberPage.Profile -> {
+            MemberProfileRoute(memberName = viewingName, onBack = { memberPage = MemberPage.List })
+            return
+        }
+        MemberPage.NoRecord -> {
+            MemberNoRecordScreen(
+                memberName = viewingName,
+                onBack = { memberPage = MemberPage.List },
+                onMeasure = { memberPage = MemberPage.List },
+            )
+            return
+        }
+        MemberPage.NoDevice -> {
+            MemberNoDeviceScreen(
+                memberName = viewingName,
+                onBack = { memberPage = MemberPage.List },
+                onMeasure = { memberPage = MemberPage.List },
+            )
+            return
+        }
+        MemberPage.List -> Unit
+    }
+
     Column(modifier = Modifier.fillMaxSize().padding(16.dp).verticalScroll(rememberScrollState())) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
@@ -84,6 +113,20 @@ fun MembersScreen(
                 subtitle = WiringEntries.ActionPlans.hint,
                 showDivider = false,
                 onClick = { showPlans = true },
+            )
+        }
+        // T-086 入口：当前成员的测量记录空态 / 设备管理空态
+        QkCard(modifier = Modifier.padding(bottom = 8.dp)) {
+            QkListRow(
+                title = MemberProfileText.NavRecord,
+                subtitle = "当前成员还没有测量记录时的引导",
+                onClick = { memberPage = MemberPage.NoRecord },
+            )
+            QkListRow(
+                title = MemberProfileText.NavDevice,
+                subtitle = "成员还没有上过秤时的引导",
+                showDivider = false,
+                onClick = { memberPage = MemberPage.NoDevice },
             )
         }
         QkCard {
@@ -111,6 +154,15 @@ fun MembersScreen(
                             contentDescription = "当前用户",
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(22.dp),
+                        )
+                        Icon(
+                            Icons.Outlined.Edit,
+                            contentDescription = "编辑资料",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier
+                                .padding(start = QkSpacing.Sm)
+                                .size(22.dp)
+                                .clickable { memberPage = MemberPage.Profile },
                         )
                     }
                     if (state.members.size > 1) {
