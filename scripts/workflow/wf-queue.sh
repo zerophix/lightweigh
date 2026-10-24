@@ -36,6 +36,19 @@ done
 
 say() { echo "$*"; }
 
+# 派生/共享状态：冲突时一律取候选侧（HEAD）。分支携带副本是历史行为，
+# 队列负责把它们中和掉；真正的代码冲突仍然中止并指名分支。
+SHARED_PATHS=(
+  AGENTS.md
+  .gitignore
+  .ai/tasks.json
+  STATUS.md
+  tests/android-test-registry.yaml
+  docs/ai/lifecycle/03_TaskGraph.md
+  docs/ai/lifecycle/06_Metrics.md
+  docs/index.md
+)
+
 collect_branches() {
   if [ "${#EXPLICIT[@]}" -gt 0 ]; then
     printf '%s\n' "${EXPLICIT[@]}"
@@ -108,8 +121,23 @@ cmd_run() {
   for branch in "${branches[@]}"; do
     say "  [合并] $branch"
     if ! git merge --no-ff -q -m "chore(merge): $branch via queue $stamp" "origin/$branch" 2>/tmp/wf-queue-merge.log; then
+      # 先尝试中和共享状态冲突（取候选侧）
+      local shared_resolved=1
+      for f in "${SHARED_PATHS[@]}"; do
+        if git ls-files -u -- "$f" | grep -q .; then
+          git checkout --ours -- "$f" 2>/dev/null && git add "$f" 2>/dev/null || shared_resolved=0
+        fi
+      done
+      if git ls-files -u | grep -q "staged-claims"; then git rm -qf .ai/staged-claims.json 2>/dev/null; fi
+      if [ "$shared_resolved" -eq 1 ] && ! git ls-files -u | grep -q .; then
+        git add -A
+        git commit -q --no-edit 2>/dev/null || git commit -q -m "chore(merge): $branch via queue $stamp"
+        say "  [合并] $branch（共享状态已取候选侧）"
+        merged+=("$branch")
+        continue
+      fi
       say "  ❌ 合并冲突：$branch"
-      sed -n '1,8p' /tmp/wf-queue-merge.log | sed 's/^/      /'
+      git ls-files -u | awk '{print $4}' | sort -u | sed 's/^/      /'
       git merge --abort 2>/dev/null
       say "  已合并并保留：${merged[*]:-（无）}"
       git checkout -q origin/master 2>/dev/null
