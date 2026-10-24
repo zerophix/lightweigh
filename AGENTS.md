@@ -72,7 +72,7 @@ bash scripts/governance/gov-workspace-doctor.sh   # 工作区是否干净（秒�
 |------|--------|------|
 | A | `docs/ design/ tests/ .ai/` 等非构建路径 | 不跑 gradle：文档/密钥/schema/test-guard |
 | B | `app/src/**` | `:app:testDebugUnitTest` + 其余五步 |
-| C | `domain/ application/ infrastructure/ golden/ schemas/`、构建文件、`scripts/governance/**`（改门禁本身）、未知路径 | 全量 `gradlew build` |
+| C | `domain/ application/ infrastructure/ golden/ schemas/`、构建文件、未知路径 | 全量 `gradlew build` |
 
 混合取最高；`GOV_LANE=full` 强制全量；检测失败按 C。
 
