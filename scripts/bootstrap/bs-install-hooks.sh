@@ -11,12 +11,10 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 # worktree: .git 可能是文件
-GIT_DIR=$(git -C "$ROOT" rev-parse --git-dir 2>/dev/null || echo "$ROOT/.git")
-case "$GIT_DIR" in
-  /*) ;;
-  *) GIT_DIR="$ROOT/$GIT_DIR" ;;
-esac
-HOOK_DIR="$GIT_DIR/hooks"
+GIT_DIR="$(git -C "$ROOT" rev-parse --git-dir 2>/dev/null || true)"
+HOOK_DIR="$(git -C "$ROOT" rev-parse --git-path hooks 2>/dev/null || true)"
+  [ -n "$HOOK_DIR" ] || HOOK_DIR="$ROOT/.git/hooks"
+  case "$HOOK_DIR" in /*) ;; *) HOOK_DIR="$ROOT/$HOOK_DIR" ;; esac
 HOOK_SRC_DIR="$ROOT/scripts/governance"
 
 if [ ! -d "$HOOK_DIR" ]; then
@@ -39,10 +37,24 @@ install_one() {
     echo "    未找到: ${source}，跳过 ${name}"
     return 0
   fi
-  cp "$source" "$target"
+  local rel="${source#$ROOT/}"
+  # DEC-072: 装**薄包装**而不是拷贝。拷贝会随「在哪个 worktree 安装」固定成某一版，
+  # 改源不生效、分支间互相覆盖，实测让门禁静默降级过两次。
+  cat > "$target" <<WRAPPER
+#!/usr/bin/env bash
+# 由 bs-install-hooks.sh 生成的包装器：永远执行当前 worktree 里的源脚本。
+# 源: $rel
+root="\$(git rev-parse --show-toplevel 2>/dev/null || echo \$(dirname "\$0")/../..)"
+src="\$root/$rel"
+if [ ! -f "\$src" ]; then
+  echo "[hook] 源脚本缺失: \$src" >&2
+  exit 1
+fi
+exec bash "\$src" "\$@"
+WRAPPER
   chmod +x "$target"
   echo "   $name  — $desc"
-  echo "            源: $(basename "$source")"
+  echo "            源: ${rel}（包装器，非拷贝）"
 }
 
 # pre-commit: 精简版优先（DEC-047）

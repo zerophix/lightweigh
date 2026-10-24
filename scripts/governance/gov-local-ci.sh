@@ -178,6 +178,7 @@ DOC_STEPS=(
   "gov-test-guard"
   "gov-a11y-check"
   "gov-reachability-check"
+  "gov-hook-doctor"
 )
 
 echo "gov-local-ci — 仓库: $ROOT"
@@ -322,6 +323,7 @@ run_step "gov-schema-guard" bash scripts/governance/gov-schema-guard.sh
 run_step "gov-test-guard" bash scripts/governance/gov-test-guard.sh
 run_step "gov-a11y-check" python3 scripts/governance/gov-a11y-check.py
 run_step "gov-reachability-check" python3 scripts/governance/gov-reachability-check.py
+run_step "gov-hook-doctor" bash scripts/governance/gov-hook-doctor.sh
 set -e
 
 echo ""

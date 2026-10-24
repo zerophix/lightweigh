@@ -191,6 +191,12 @@ cmd_run() {
     merged+=("$branch")
   done
 
+  # 零提交的批次：没有任何内容要合，直接收工（候选由 trap 清理）
+  if [ "${#merged[@]}" -eq 0 ]; then
+    say "  ✅ 无内容可合并（全部分支零提交），跳过验证"
+    return 0
+  fi
+
   # 2) 候选上验证一次（这是唯一的重检查）
   say "  [验证] 候选上跑 local-ci（GOV_LANE=${LANES}）…"
   if ! GOV_LANE="$LANES" bash scripts/governance/gov-local-ci.sh > /tmp/wf-queue-ci.log 2>&1; then
@@ -237,6 +243,8 @@ cmd_run() {
     say "  [清理] $branch"
   done
   git worktree remove --force "$candidate" 2>/dev/null; rm -rf "$candidate"
+  # 候选分支不在 merged 列表里，不删就每次合入后堆一条
+  git branch -D "$name" >/dev/null 2>&1
   git worktree prune
 
   # 计时记账（用于度量：流程成本是否失控）

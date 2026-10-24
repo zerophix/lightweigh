@@ -28,9 +28,9 @@ hooks_dir="$(git rev-parse --git-path hooks 2>/dev/null || echo "$ROOT/.git/hook
 installer="$ROOT/scripts/bootstrap/bs-install-hooks.sh"
 
 # 源 → 安装名
+# 只登记安装器真的会装的钩子；pre-commit-full 是手动排障工具，登记它只会永远红。
 pairs=(
   "scripts/governance/gov-pre-commit-simplified:pre-commit"
-  "scripts/governance/gov-pre-commit:pre-commit-full"
   "scripts/governance/gov-pre-push:pre-push"
   "scripts/governance/gov-commit-msg:commit-msg"
   "scripts/governance/gov-prepare-commit-msg:prepare-commit-msg"
@@ -46,7 +46,16 @@ for pair in "${pairs[@]}"; do
   [ -f "$src" ] || continue
   if [ ! -f "$dst" ]; then
     missing+=("$name|$src_rel")
+  elif grep -q "由 bs-install-hooks.sh 生成的包装器" "$dst" 2>/dev/null; then
+    # DEC-072: 装的是薄包装器，它永远执行当前 worktree 的源脚本 → 不存在漂移。
+    # 只要包装器指向的源路径没变就算一致。
+    if grep -q "源: $src_rel" "$dst" 2>/dev/null; then
+      ok+=("$name")
+    else
+      drift+=("$name|$src_rel")
+    fi
   elif ! cmp -s "$src" "$dst"; then
+    # 旧式拷贝：与源不一致（或与本分支源不一致）都算漂移，建议重装为包装器。
     drift+=("$name|$src_rel")
   else
     ok+=("$name")
