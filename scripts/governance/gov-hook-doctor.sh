@@ -1,14 +1,17 @@
 #!/usr/bin/env bash
 # scripts/governance/gov-hook-doctor.sh
-# 钩子副本漂移检查（DEC-067）
+# 钩子配置检查（DEC-073）
 #
-# 背景：.git/hooks/* 是 scripts/governance/gov-pre-* 的**安装副本**（DEC-047）。
-# 改了仓库里的脚本不会自动生效；副本过期 = 门禁静默消失或规则版本不一致。
-# 这是一个"看不见的失效"：检查脚本写得很严，实际跑的还是旧版。
+# 背景：钩子曾经是 .git/hooks 下的**拷贝**。改了仓库里的源脚本不生效，
+# 不同 worktree 还会互相覆盖安装，门禁因此静默降级过两次。
+#
+# 现在 core.hooksPath 指向仓库内的 scripts/hooks/（版本化包装器），
+# 包装器永远执行当前 worktree 的源脚本，因此不存在"副本过期"这个概念。
+# 这里只校验三件事：配置指向正确、包装器齐全可执行、源脚本存在。
 #
 # 用法:
-#   gov-hook-doctor.sh            # 检查（漂移即非 0）
-#   gov-hook-doctor.sh --fix      # 漂移则调用 bs-install-hooks 重装
+#   gov-hook-doctor.sh            # 检查（不通过即非 0）
+#   gov-hook-doctor.sh --fix      # 重设 core.hooksPath 并补齐执行位
 #   gov-hook-doctor.sh --json
 set -uo pipefail
 
@@ -24,78 +27,60 @@ for a in "$@"; do
   esac
 done
 
-hooks_dir="$(git rev-parse --git-path hooks 2>/dev/null || echo "$ROOT/.git/hooks")"
-installer="$ROOT/scripts/bootstrap/bs-install-hooks.sh"
+EXPECTED="scripts/hooks"
 
-# 源 → 安装名
-# 只登记安装器真的会装的钩子；pre-commit-full 是手动排障工具，登记它只会永远红。
+# name:source
 pairs=(
-  "scripts/governance/gov-pre-commit-simplified:pre-commit"
-  "scripts/governance/gov-pre-push:pre-push"
-  "scripts/governance/gov-commit-msg:commit-msg"
-  "scripts/governance/gov-prepare-commit-msg:prepare-commit-msg"
+  "pre-commit:scripts/governance/gov-pre-commit-simplified"
+  "commit-msg:scripts/governance/gov-commit-msg"
+  "pre-push:scripts/governance/gov-pre-push"
+  "prepare-commit-msg:scripts/governance/gov-prepare-commit-msg"
 )
 
-drift=()
-missing=()
-ok=()
+if [ "$FIX" -eq 1 ]; then
+  git config core.hooksPath "$EXPECTED"
+  chmod +x scripts/hooks/* 2>/dev/null || true
+  echo "已设置 core.hooksPath=$EXPECTED 并补齐执行位"
+fi
+
+configured="$(git config --get core.hooksPath 2>/dev/null || true)"
+issues=()
+[ "$configured" = "$EXPECTED" ] || issues+=("core.hooksPath=${configured:-<未设置>}（应为 ${EXPECTED}）")
 
 for pair in "${pairs[@]}"; do
-  src_rel="${pair%%:*}"; name="${pair##*:}"
-  src="$ROOT/$src_rel"; dst="$hooks_dir/$name"
-  [ -f "$src" ] || continue
-  if [ ! -f "$dst" ]; then
-    missing+=("$name|$src_rel")
-  elif grep -q "由 bs-install-hooks.sh 生成的包装器" "$dst" 2>/dev/null; then
-    # DEC-072: 装的是薄包装器，它永远执行当前 worktree 的源脚本 → 不存在漂移。
-    # 只要包装器指向的源路径没变就算一致。
-    if grep -q "源: $src_rel" "$dst" 2>/dev/null; then
-      ok+=("$name")
-    else
-      drift+=("$name|$src_rel")
-    fi
-  elif ! cmp -s "$src" "$dst"; then
-    # 旧式拷贝：与源不一致（或与本分支源不一致）都算漂移，建议重装为包装器。
-    drift+=("$name|$src_rel")
-  else
-    ok+=("$name")
+  name="${pair%%:*}"; src="${pair##*:}"
+  hook="scripts/hooks/$name"
+  if [ ! -f "$hook" ]; then
+    issues+=("缺少包装器: ${hook}")
+  elif [ ! -x "$hook" ]; then
+    issues+=("包装器不可执行: ${hook}（chmod +x）")
+  elif ! grep -q "$src" "$hook" 2>/dev/null; then
+    issues+=("包装器未指向源: ${hook} -> ${src}")
   fi
+  [ -f "$src" ] || issues+=("源脚本缺失: ${src}")
 done
 
 if [ "$JSON" -eq 1 ]; then
-  python3 - "$(printf '%s\n' "${ok[@]:-}")" "$(printf '%s\n' "${drift[@]:-}")" "$(printf '%s\n' "${missing[@]:-}")" <<'PY'
+  python3 - "$configured" "$(printf '%s\n' "${issues[@]:-}")" <<'PY'
 import json, sys
-ok, drift, missing = (x.splitlines() for x in sys.argv[1:4])
-def clean(xs): return [x for x in xs if x.strip()]
+configured, raw = sys.argv[1], sys.argv[2]
+issues = [x for x in raw.splitlines() if x.strip()]
 print(json.dumps({
-    "ok": clean(ok),
-    "drift": [dict(zip(("hook","source"), d.split("|"))) for d in clean(drift)],
-    "missing": [dict(zip(("hook","source"), m.split("|"))) for m in clean(missing)],
+    "ok": not issues,
+    "hooks_path": configured,
+    "expected": "scripts/hooks",
+    "issues": issues,
 }, ensure_ascii=False, indent=2))
 PY
-else
-  echo "--- 钩子副本检查（${hooks_dir}）---"
-  for n in "${ok[@]:-}"; do [ -n "$n" ] && echo "  [OK] $n 与仓库源一致"; done
-  for d in "${drift[@]:-}"; do
-    [ -n "$d" ] || continue
-    echo "  [DRIFT] ${d%%:*} 与 ${d##*:} 不一致（安装副本过期）"
-  done
-  for m in "${missing[@]:-}"; do
-    [ -n "$m" ] || continue
-    echo "  [MISSING] ${m%%:*} 未安装（源: ${m##*:}）"
-  done
+  [ "${#issues[@]}" -eq 0 ] && exit 0 || exit 1
 fi
 
-if [ "${#drift[@]}" -eq 0 ] && [ "${#missing[@]}" -eq 0 ]; then
-  echo "钩子副本一致"
+if [ "${#issues[@]}" -eq 0 ]; then
+  echo "钩子配置正确（core.hooksPath=${EXPECTED}，包装器齐全）"
   exit 0
 fi
 
-if [ "$FIX" -eq 1 ] && [ -x "$installer" ]; then
-  echo "--- 重装钩子 ---"
-  bash "$installer" >/tmp/gov-hook-doctor-install.log 2>&1 && echo "已重装（详见 /tmp/gov-hook-doctor-install.log）" && exit 0
-  echo "重装失败，见 /tmp/gov-hook-doctor-install.log" >&2
-fi
-
-[ "$JSON" -eq 0 ] && echo "修复: bash scripts/bootstrap/bs-install-hooks.sh"
+echo "钩子配置有问题:"
+for i in "${issues[@]}"; do echo "  - $i"; done
+echo "修复: bash scripts/governance/gov-hook-doctor.sh --fix"
 exit 1
