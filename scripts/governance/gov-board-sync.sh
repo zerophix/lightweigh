@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # scripts/governance/gov-board-sync.sh
-# 合并 master 后的一键计数同步（DEC-063）：gov-validate --fix + 自动提交
+# 合并后的一键派生物同步（DEC-063/065）：gov-validate --fix + 注册表同步 + 自动提交
 #
 # 用法:
 #   bash scripts/governance/gov-board-sync.sh          # 修复计数并在有变更时提交
@@ -16,6 +16,8 @@ ROOT="$(cd "$DIR/../.." && pwd)"
 cd "$ROOT"
 
 bash "$DIR/gov-validate.sh" --fix
+# 注册表是派生数据：磁盘测试为真源，合并后统一补齐/清理（DEC-065）
+python3 "$DIR/gov-registry-sync.py" --root "$ROOT"
 
 DRY=0
 if [ "${1:-}" = "--dry" ]; then
@@ -26,6 +28,7 @@ SCOPE=(
   docs/ai/lifecycle/03_TaskGraph.md
   docs/ai/lifecycle/06_Metrics.md
   docs/index.md
+  tests/android-test-registry.yaml
 )
 
 if git diff --quiet -- "${SCOPE[@]}"; then
