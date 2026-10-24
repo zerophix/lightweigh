@@ -54,7 +54,7 @@ exec bash "\$src" "\$@"
 WRAPPER
   chmod +x "$target"
   echo "   $name  — $desc"
-  echo "            源: $rel（包装器，非拷贝）"
+  echo "            源: ${rel}（包装器，非拷贝）"
 }
 
 # pre-commit: 精简版优先（DEC-047）
