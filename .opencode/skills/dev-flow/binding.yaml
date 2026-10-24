@@ -1,0 +1,48 @@
+---
+schema_version: "2.0"
+
+执行:
+  类型: manual
+  描述: dev-flow 以 wf-autopilot.sh 为唯一入口；AI 根据 status 输出的 NEXT 执行对应命令
+
+脚本工具:
+  wf-autopilot.sh:
+    参数:
+      status [--json]: 一屏真相（任务批次/在途 PR/worktree 审计/NEXT）
+      advance [--dry]: 逐个 PR 同步 master→派生物同步→local-ci→合入→清理
+      start <T-XXX>: 认领锁 + 建 worktree + 打印目标文件与验收
+      finish <T-XXX>: gov-task-done → 提交 → 推送 → 开 PR
+      clean: 清理已合入 worktree/分支/孤儿目录
+    返回: 0 成功；非 0 有需人工处理的项
+
+  wf-run.sh:
+    参数:
+      start <name> -- <cmd>: 后台执行，返回 job id
+      wait <id> [--timeout N]: 等待并回传退出码
+      list | tail <id> | status <id> | gc
+    返回: wait 的退出码 = 被等待命令的退出码
+
+  wf-parallel.sh:
+    参数:
+      plan [--json] [--limit N]: 计算可并行批次（文件不重叠 + 未上锁）
+    返回: 建议批次与分支名
+
+  wf-claim.sh:
+    参数:
+      claim|release|status|gc|list <T-XXX>
+    返回: claim 失败=1（已被持有）
+
+  gov-task-done.sh:
+    参数:
+      <T-XXX> [--dry] [--json]: target_files + 原型 --strict + verify_commands
+    返回: 0 通过；1 未通过；2 任务不存在
+
+  gov-workspace-doctor.sh:
+    参数:
+      [--fix] [--strict] [--json] [--network]: worktree/分支/锁/证据审计
+    返回: 有 FAIL 或 --strict 下 WARN → 1
+
+  gov-board-sync.sh:
+    参数:
+      [--dry]: validate --fix + 注册表同步 + 有变更则提交
+    返回: 提交被钩子拦截时 1

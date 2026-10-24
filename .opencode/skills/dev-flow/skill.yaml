@@ -1,0 +1,47 @@
+name: dev-flow
+description: 开发流程自动驾驶 — 一条命令给出状态与下一步，并自动推进合并与清理
+version: "1.0"
+status: 生效
+意图:
+  - 进入仓库先跑 wf-autopilot.sh status，以输出为准
+  - 按 NEXT 执行 advance / start
+  - 编码时慢命令后台化、独立任务并行
+  - 收尾用 gov-task-done + finish + advance
+能力边界:
+  不靠文字猜测流程: 一切以脚本输出为准
+  不自造任务: 任务板无 ready AC 不开工
+  不改共享文件: tasks.json / docs / STATUS / registry 由合并队列写
+  不用 --no-verify: 门禁失败修代码
+触发方式:
+  - /dev-flow
+  - /开工
+  - /推进
+  - 任何"现在该做什么"的判断
+场景细分:
+  status:
+    描述: 一屏真相（任务批次 / 在途 PR / worktree 审计 / NEXT）
+    执行: bash scripts/workflow/wf-autopilot.sh status
+  advance:
+    描述: 自动推进所有在途 PR（同步→验证→合入→清理）
+    执行: bash scripts/workflow/wf-autopilot.sh advance
+  start:
+    描述: 认领任务并建 worktree
+    执行: bash scripts/workflow/wf-autopilot.sh start T-XXX
+  finish:
+    描述: DoD 校验 + 提交 + 推送 + 开 PR
+    执行: bash scripts/workflow/wf-autopilot.sh finish T-XXX
+  clean:
+    描述: 清理已合入 worktree/分支/孤儿目录
+    执行: bash scripts/workflow/wf-autopilot.sh clean
+  parallel:
+    描述: 计算可并行批次
+    执行: bash scripts/workflow/wf-parallel.sh plan
+  bg:
+    描述: 后台跑慢命令
+    执行: bash scripts/workflow/wf-run.sh start <name> -- <cmd>
+前置条件:
+  - 已安装对应脚本（DEC-065/066 合入后）
+  - gh 已登录（advance 需要）
+后置效果:
+  - 在途 PR 被合入并清理
+  - 工作区无冗余 worktree/分支

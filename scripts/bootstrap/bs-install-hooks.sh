@@ -36,7 +36,7 @@ install_one() {
   local source="$3"
   local target="$HOOK_DIR/$name"
   if [ ! -f "$source" ]; then
-    echo "    未找到: $source，跳过 $name"
+    echo "    未找到: ${source}，跳过 ${name}"
     return 0
   fi
   cp "$source" "$target"
