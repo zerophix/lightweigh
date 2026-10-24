@@ -77,6 +77,30 @@ fun DeviceScreen(vm: DeviceViewModel = viewModel(factory = DeviceViewModel.Facto
         return
     }
 
+    // 接入波第三批：设备详情 / 设置页（T-105）覆盖设备页，返回即回本页
+    var showDetail by remember { mutableStateOf(false) }
+    if (showDetail) {
+        DeviceDetailRoute(
+            state = state,
+            onBack = { showDetail = false },
+            // 详情页三行复用既有设备管理三屏（不改它们的实现，只决定去向）
+            onRename = {
+                showDetail = false
+                manageTarget = WiringTarget.DeviceRename
+            },
+            onOpenFirmware = {
+                showDetail = false
+                manageTarget = WiringTarget.Firmware
+            },
+            onOpenMemberLink = {
+                showDetail = false
+                manageTarget = WiringTarget.MemberDeviceLink
+            },
+            onUnbind = { showDetail = false },
+        )
+        return
+    }
+
     // 蓝牙开关态 + 权限门均由共享组件提供（ui/components/BleSupport.kt）
     val btEnabled = rememberBtEnabled()
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -135,6 +159,7 @@ fun DeviceScreen(vm: DeviceViewModel = viewModel(factory = DeviceViewModel.Facto
             },
             onHelp = { showHelp = true },
             onOpenManage = { manageTarget = it },
+            onOpenDetail = { showDetail = true },
         )
     }
 
@@ -167,6 +192,7 @@ fun DeviceContent(
     onScanQr: () -> Unit = {},
     onHelp: () -> Unit = {},
     onOpenManage: (WiringTarget) -> Unit = {},
+    onOpenDetail: () -> Unit = {},
 ) {
     // 配对流程三态整屏接管（原型 04-device.html）：
     // v-pairing「正在连接」/ v-pair-success「连接成功」/ v-pair-fail「连接失败」，
@@ -366,6 +392,12 @@ fun DeviceContent(
             modifier = Modifier.padding(top = QkSpacing.Lg),
         )
         QkCard(modifier = Modifier.padding(top = 2.dp)) {
+            // 接入波第三批：设备详情（T-105）排在管理项之前——它是设备的聚合入口
+            QkListRow(
+                title = DEVICE_DETAIL_ENTRY_TITLE,
+                subtitle = DEVICE_DETAIL_ENTRY_HINT,
+                onClick = onOpenDetail,
+            )
             val entries = WiringEntries.forHost(WiringHost.Device)
             entries.forEachIndexed { index, entry ->
                 QkListRow(
