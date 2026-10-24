@@ -1,0 +1,92 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>记录保存异常 - 轻衡健康</title>
+<style>
+:root{--g:#20a574;--gd:#147a56;--bg:#f5f8f5;--text:#202923;--muted:#87928a;--line:#e7ece8}
+*{box-sizing:border-box}
+body{margin:0;background:#e9eeea;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:var(--text)}
+button{font:inherit;cursor:pointer}
+.app{max-width:430px;min-height:100vh;margin:auto;background:var(--bg);display:flex;flex-direction:column}
+header{height:58px;background:white;display:flex;align-items:center;justify-content:space-between;padding:0 20px}
+header button{border:0;background:none;color:var(--muted);font-size:14px}
+header strong{font-size:16px}
+main{flex:1;padding:28px 20px}
+.icon-area{height:160px;display:grid;place-items:center}
+.icon-bg{width:112px;height:112px;border-radius:35px;background:#fff0e4;display:grid;place-items:center}
+.icon{width:62px;height:62px;border:3px solid #d89a55;border-radius:18px;display:grid;place-items:center;color:#bd7b35;font-size:30px;background:white}
+h1{text-align:center;font-size:23px;margin:8px 0 10px}
+.intro{text-align:center;color:var(--muted);font-size:14px;line-height:1.8;max-width:310px;margin:0 auto}
+.record{margin-top:26px;background:white;border:1px solid var(--line);border-radius:17px;padding:18px}
+.record-head{display:flex;align-items:center;justify-content:space-between}
+.record-title{font-size:14px;font-weight:650}
+.status{padding:6px 9px;background:#fff3e5;border-radius:20px;color:#a96b2b;font-size:11px}
+.weight{font-size:34px;font-weight:700;margin:17px 0 5px}
+.weight small{font-size:13px;color:var(--muted);font-weight:400}
+.record-date{font-size:12px;color:var(--muted)}
+.info{margin-top:14px;padding:15px;background:#edf7f1;border-radius:13px;color:#4e6c59;font-size:12px;line-height:1.8}
+.info strong{color:var(--gd)}
+.steps{margin-top:22px}
+.steps h2{font-size:14px;margin-bottom:14px}
+.row{display:flex;gap:10px;margin:13px 0}
+.dot{width:25px;height:25px;flex-shrink:0;border-radius:8px;background:#e8f6ed;color:var(--gd);display:grid;place-items:center;font-size:12px}
+.row strong{font-size:13px}
+.row p{font-size:12px;line-height:1.6;color:var(--muted);margin:5px 0 0}
+footer{padding:16px 20px 28px}
+.primary{width:100%;height:50px;background:var(--g);color:white;border:0;border-radius:14px;font-weight:650}
+.secondary{width:100%;height:46px;background:white;border:1px solid var(--line);border-radius:14px;margin-top:10px;color:var(--text)}
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);padding:11px 15px;background:#25352b;color:white;border-radius:10px;font-size:13px;opacity:0;transition:.2s;white-space:nowrap}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="app">
+<header><button onclick="notify('返回测量结果')">‹ 返回</button><strong>保存状态</strong><button onclick="notify('查看同步说明')">帮助</button></header>
+<main>
+<div class="icon-area"><div class="icon-bg"><div class="icon">↻</div></div></div>
+<h1 id="heading">测量完成，记录待同步</h1>
+<p class="intro" id="intro">本次测量数据已采集，但暂时无法完成云端保存。请保持网络畅通后重试。</p>
+
+<section class="record">
+<div class="record-head"><div class="record-title">本次测量</div><span class="status" id="status">待同步</span></div>
+<div class="weight">62.4 <small>kg</small></div>
+<div class="record-date">今天 · 08:32 · 演示数据</div>
+</section>
+
+<div class="info"><strong>数据保护说明</strong><br>正式版本应先将有效测量记录安全保存到本地，再进行云端同步。同步失败不应直接丢弃本地数据，也不应要求用户重复测量。</div>
+
+<section class="steps">
+<h2>建议操作</h2>
+<div class="row"><div class="dot">1</div><div><strong>检查网络连接</strong><p>确认手机可以正常访问网络。</p></div></div>
+<div class="row"><div class="dot">2</div><div><strong>重新尝试同步</strong><p>系统应安全重试，避免重复创建云端记录。</p></div></div>
+<div class="row"><div class="dot">3</div><div><strong>稍后再试</strong><p>如果暂时无法同步，可先返回首页，之后在同步中心查看状态。</p></div></div>
+</section>
+</main>
+<footer>
+<button class="primary" id="retry" onclick="retrySync()">重新同步</button>
+<button class="secondary" onclick="returnHome()">返回首页</button>
+</footer>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+function notify(msg){
+const e=document.getElementById("toast");e.textContent=msg;e.classList.add("show");
+clearTimeout(window.timer);window.timer=setTimeout(()=>e.classList.remove("show"),2200);
+}
+function retrySync(){
+const b=document.getElementById("retry");
+b.disabled=true;b.textContent="正在同步…";
+document.getElementById("status").textContent="同步中";
+setTimeout(()=>{
+b.disabled=false;b.textContent="再次尝试同步";
+document.getElementById("status").textContent="待同步";
+notify("原型演示：未连接真实后端，请稍后重试");
+},1200);
+}
+function returnHome(){notify("原型演示：返回首页，本地记录状态应予保留")}
+</script>
+</body>
+</html>

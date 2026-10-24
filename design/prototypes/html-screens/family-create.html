@@ -1,0 +1,88 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>创建家庭 - 轻刻健康</title>
+<style>
+:root{--g:#21a675;--d:#147d58;--bg:#f5f8f5;--t:#20332b;--m:#7d8982;--line:#e5ece7}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;color:var(--t)}
+.app{max-width:430px;min-height:100vh;min-height:100dvh;margin:auto;background:white;display:flex;flex-direction:column}
+header{height:58px;display:flex;align-items:center;padding:0 20px;gap:12px;border-bottom:1px solid var(--line)}
+header button{border:0;background:none;font-size:27px;cursor:pointer}
+header h1{font-size:17px;margin:0}
+main{flex:1;padding:24px 21px}
+.hero{text-align:center;padding:10px 0 26px}
+.icon{width:78px;height:78px;margin:0 auto 17px;border-radius:25px;background:#e5f7ed;color:var(--d);display:grid;place-items:center;font-size:34px}
+h2{font-size:22px;margin:0 0 9px}
+.hero p{font-size:12px;line-height:1.9;color:var(--m);margin:0 auto;max-width:300px}
+.field{margin:22px 0}
+label{display:block;font-size:12px;font-weight:650;margin-bottom:9px}
+input,textarea{width:100%;border:1px solid var(--line);border-radius:12px;padding:14px;font:inherit;font-size:13px;outline:none;color:var(--t)}
+input:focus,textarea:focus{border-color:var(--g)}
+.hint{font-size:10px;color:#9aa59d;margin-top:7px}
+.card{border:1px solid var(--line);border-radius:14px;padding:15px;margin-top:17px}
+.card strong{font-size:12px;display:block;margin-bottom:7px}
+.card p{font-size:11px;line-height:1.9;color:var(--m);margin:0}
+.member{display:flex;align-items:center;gap:11px;margin-top:16px}
+.avatar{width:43px;height:43px;border-radius:50%;background:#e3f5e9;color:var(--d);display:grid;place-items:center;font-size:17px}
+.member strong{font-size:12px;display:block;margin-bottom:4px}
+.member small{font-size:10px;color:var(--m)}
+.owner{margin-left:auto;color:var(--d);background:#e7f7ee;padding:6px 8px;border-radius:7px;font-size:10px}
+.actions{padding:0 21px 26px}
+.primary{width:100%;border:0;border-radius:13px;background:var(--g);color:white;padding:14px;font:inherit;font-size:14px;font-weight:650;cursor:pointer}
+.secondary{width:100%;border:1px solid var(--line);border-radius:13px;background:white;color:var(--d);padding:13px;font:inherit;font-size:13px;cursor:pointer;margin-top:10px}
+.result{display:none;padding:14px;border-radius:12px;background:#e7f7ee;color:var(--d);font-size:12px;line-height:1.9;margin-top:17px}
+.error{display:none;color:#d95353;font-size:11px;margin-top:7px}
+</style>
+</head>
+<body>
+<div class="app">
+<header><button onclick="location.href='family-member-detail.html'" aria-label="返回">‹</button><h1>创建家庭</h1></header>
+<main>
+<section class="hero">
+<div class="icon">⌂</div>
+<h2>让家人的健康管理更方便</h2>
+<p>创建家庭后，可以邀请家人加入，并根据实际需要设置健康数据共享权限。</p>
+</section>
+<form id="form">
+<div class="field">
+<label for="name">家庭名称</label>
+<input id="name" maxlength="20" placeholder="例如：幸福一家人" required>
+<div class="hint">最多 20 个字符，建议使用容易识别的名称。</div>
+<div class="error" id="error">请填写 1–20 个字符的家庭名称。</div>
+</div>
+<div class="field">
+<label for="desc">家庭备注（选填）</label>
+<textarea id="desc" rows="3" maxlength="100" placeholder="例如：家庭健康管理小组"></textarea>
+<div class="hint">仅用于区分家庭，不建议填写身份证号等敏感信息。</div>
+</div>
+<div class="card">
+<strong>创建后你将成为家庭管理员</strong>
+<p>管理员可以管理成员关系与邀请。健康数据的查看和共享应由独立的数据权限控制，不因创建家庭而默认开放。</p>
+<div class="member"><div class="avatar">我</div><div><strong>当前账号</strong><small>创建者</small></div><span class="owner">管理员</span></div>
+</div>
+<div class="result" id="result" role="status"></div>
+</form>
+</main>
+<div class="actions">
+<button class="primary" onclick="createFamily()">创建家庭</button>
+<button class="secondary" onclick="location.href='family-invitation-status.html'">查看邀请管理原型</button>
+</div>
+</div>
+<script>
+function createFamily(){
+ const name=document.getElementById('name').value.trim();
+ const error=document.getElementById('error');
+ if(!name||name.length>20){error.style.display='block';return}
+ error.style.display='none';
+ const result=document.getElementById('result');
+ result.style.display='block';
+ result.innerHTML='家庭创建流程演示完成。<br>家庭名称：<strong>'+escapeHTML(name)+'</strong><br>当前仅为页面状态，尚未创建真实家庭或保存至服务端。<br><br><button type="button" style="border:0;background:#21a675;color:#fff;padding:10px 13px;border-radius:9px;cursor:pointer" onclick="location.href=\'family-switch.html?name='+encodeURIComponent(name)+'\'">查看家庭切换页面</button>';
+}
+function escapeHTML(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+</script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>行动计划 - 轻刻健康</title>
+<style>
+:root{--green:#21a675;--dark:#147d58;--bg:#f5f8f5;--text:#20332b;--muted:#84928b;--line:#e9efeb;--orange:#ed9c48}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;color:var(--text);font-size:14px}.app{max-width:430px;min-height:100vh;margin:auto;background:var(--bg);padding-bottom:86px}.top{padding:22px 20px 14px;display:flex;justify-content:space-between;align-items:center}.eyebrow{font-size:12px;color:var(--muted)}h1{font-size:25px;margin:5px 0 0;letter-spacing:-.5px}.avatar{width:42px;height:42px;border-radius:15px;background:#dff3e8;display:grid;place-items:center;color:var(--dark);font-size:21px}.intro{padding:0 20px 16px;color:#728078;font-size:13px}.section{padding:8px 20px 14px}.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.section-head h2{font-size:16px;margin:0}.link{border:0;background:none;color:var(--green);font-size:12px;cursor:pointer}.card{background:white;border:1px solid #edf1ee;border-radius:20px;padding:17px;margin-bottom:13px;box-shadow:0 3px 12px #233b2c05}.hero{background:linear-gradient(135deg,#e4f7ec,#f7fcf8);border:1px solid #d9eee2}.tag{display:inline-flex;align-items:center;padding:5px 9px;border-radius:8px;background:#d4f0e1;color:var(--dark);font-size:11px;font-weight:600}.hero h3{font-size:19px;margin:12px 0 5px}.sub{font-size:12px;color:var(--muted)}.progress-row{display:flex;justify-content:space-between;align-items:end;margin:20px 0 8px}.progress-row strong{font-size:28px;color:var(--dark)}.track{height:8px;background:#e2eee6;border-radius:10px;overflow:hidden}.fill{height:100%;width:62%;background:var(--green);border-radius:10px;transition:width .2s}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:17px}.stat{padding:11px 8px;background:#ffffffb8;border-radius:13px}.stat b{font-size:18px;display:block}.stat span{font-size:11px;color:var(--muted);display:block;margin-top:5px}.task{display:flex;gap:12px;align-items:center;padding:13px 0;border-bottom:1px solid var(--line)}.task:last-child{border-bottom:0}.check{width:23px;height:23px;border:1.5px solid #cbd8d0;border-radius:8px;background:white;flex-shrink:0;cursor:pointer;color:white}.check.done{background:var(--green);border-color:var(--green)}.task-main{flex:1}.task-title{font-weight:600;font-size:13px}.task-note{color:var(--muted);font-size:11px;margin-top:5px}.task.done .task-title{text-decoration:line-through;color:#9ba8a0}.task-time{font-size:11px;color:var(--muted)}.btn{width:100%;border:0;border-radius:13px;padding:14px;background:var(--green);color:white;font-weight:600;font-size:14px;cursor:pointer}.btn.secondary{background:#e9f6ef;color:var(--dark);margin-top:9px}.mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}.mini{background:white;border:1px solid var(--line);border-radius:16px;padding:15px;cursor:pointer;text-align:left;color:var(--text)}.mini .symbol{font-size:21px}.mini b{display:block;margin:9px 0 5px}.mini span{font-size:11px;color:var(--muted)}.empty{padding:26px 12px;text-align:center;color:var(--muted)}.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(100%,430px);background:#ffffffef;backdrop-filter:blur(14px);border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:10px 4px 17px}.nav a{text-decoration:none;color:#84928b;text-align:center;font-size:10px;min-width:55px}.nav a span{display:block;font-size:20px;margin-bottom:4px}.nav a.active{color:var(--green);font-weight:600}.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#24372d;color:white;padding:11px 17px;border-radius:12px;display:none;white-space:nowrap;z-index:5}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top"><div><div class="eyebrow">轻刻健康 · 每天进步一点</div><h1>行动计划</h1></div><div class="avatar">♧</div></header>
+<div class="intro">不追求一次做到完美，只关注今天能完成的一小步。</div>
+<section class="section">
+<div class="section-head"><h2>正在进行</h2><button class="link" onclick="location.href='action-plan-review.html'">计划复盘 →</button></div>
+<div class="card hero">
+<span class="tag">进行中 · 第 9 天</span>
+<h3 id="planTitle">建立健康生活节奏</h3>
+<div class="sub">2026.10.14 — 2026.11.11 · 28 天计划</div>
+<div class="progress-row"><div><div class="sub">整体任务完成率</div><strong id="percent">62%</strong></div><div class="sub" id="doneCount">已完成 13 / 21 项</div></div>
+<div class="track"><div class="fill" id="progressFill"></div></div>
+<div class="stats"><div class="stat"><b id="todayDone">1/3</b><span>今日任务</span></div><div class="stat"><b>9 天</b><span>已坚持</span></div><div class="stat"><b>4 天</b><span>连续行动</span></div></div>
+<button class="btn" style="margin-top:17px" onclick="location.href='action-plan-detail.html'">查看计划详情</button>
+</div>
+</section>
+<section class="section">
+<div class="section-head"><h2>今天要做的事</h2><button class="link" onclick="location.href='action-plan-daily-task.html'">全部任务 →</button></div>
+<div class="card" id="tasks">
+<div class="task"><button class="check done" aria-label="完成饮水任务" onclick="toggleTask(this)">✓</button><div class="task-main"><div class="task-title">记录今日饮水</div><div class="task-note">按自己的需要分次饮水</div></div><span class="task-time">已完成</span></div>
+<div class="task"><button class="check" aria-label="完成活动任务" onclick="toggleTask(this)"></button><div class="task-main"><div class="task-title">安排一段轻松活动</div><div class="task-note">例如散步 10–20 分钟</div></div><span class="task-time">建议下午</span></div>
+<div class="task"><button class="check" aria-label="完成记录任务" onclick="toggleTask(this)"></button><div class="task-main"><div class="task-title">记录今日感受</div><div class="task-note">精力、睡眠或身体状态</div></div><span class="task-time">睡前</span></div>
+</div>
+<button class="btn secondary" onclick="location.href='action-plan-daily-task.html'">进入今日任务清单</button>
+</section>
+<section class="section">
+<div class="section-head"><h2>继续完善你的计划</h2></div>
+<div class="mini-grid">
+<button class="mini" onclick="location.href='action-plan-create.html'"><div class="symbol">＋</div><b>创建新计划</b><span>围绕一个目标开始</span></button>
+<button class="mini" onclick="location.href='action-plan-review.html'"><div class="symbol">↗</div><b>回顾行动成果</b><span>看看哪些方法有效</span></button>
+</div>
+</section>
+<div class="section"><div class="sub" style="line-height:1.7">提示：计划用于帮助建立日常习惯，不代替专业医疗建议。示例任务与进度为原型数据。</div></div>
+<nav class="nav"><a href="#"><span>⌂</span>首页</a><a href="#"><span>◉</span>测量</a><a href="#"><span>▥</span>趋势</a><a class="active" href="action-plan-home.html"><span>✓</span>计划</a><a href="#"><span>♙</span>我的</a></nav>
+<div class="toast" id="toast"></div>
+</div>
+<script>
+function showToast(s){const t=document.getElementById('toast');t.textContent=s;t.style.display='block';setTimeout(()=>t.style.display='none',1800)}
+function toggleTask(btn){const row=btn.closest('.task');const done=btn.classList.toggle('done');btn.textContent=done?'✓':'';row.classList.toggle('done',done);row.querySelector('.task-time').textContent=done?'已完成':'待完成';const all=[...document.querySelectorAll('#tasks .check')];const count=all.filter(x=>x.classList.contains('done')).length;document.getElementById('todayDone').textContent=count+'/'+all.length;showToast(done?'已标记完成（仅本页模拟）':'已取消完成状态')}
+</script>
+</body>
+</html>

@@ -1,0 +1,34 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>隐私与数据管理 - 轻刻健康</title>
+<style>
+:root{--g:#21a675;--d:#147d58;--bg:#f5f8f5;--text:#24362d;--muted:#84928b;--line:#e7eee9}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:var(--text);font-size:14px}.app{max-width:430px;min-height:100vh;margin:auto;padding-bottom:35px}.header{padding:20px;display:flex;align-items:center;gap:13px}.back{width:40px;height:40px;border:0;border-radius:12px;background:white;font-size:23px;cursor:pointer}.header h1{font-size:21px;margin:0}.header p{font-size:12px;color:var(--muted);margin:5px 0 0}.section{padding:0 20px;margin-bottom:16px}.hero{padding:19px;border-radius:20px;background:linear-gradient(135deg,#e1f6e9,#f8fcf9);border:1px solid #d8eee1}.shield{width:47px;height:47px;border-radius:15px;background:#d0efdd;display:grid;place-items:center;color:var(--d);font-size:24px;margin-bottom:13px}.hero h2{font-size:19px;margin:0 0 8px}.hero p{font-size:12px;color:#6e8074;line-height:1.8;margin:0}.statusrow{display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding-top:14px;border-top:1px solid #d7eade;font-size:12px}.status{color:var(--d);font-weight:650}.card{background:white;border:1px solid #edf1ee;border-radius:18px;padding:16px}.title{font-size:15px;font-weight:700;margin:0 0 12px}.row{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--line);cursor:pointer}.row:first-child{padding-top:0}.row:last-child{border:0;padding-bottom:0}.ico{width:39px;height:39px;display:grid;place-items:center;border-radius:12px;background:#edf8f1;color:var(--d);font-size:18px;flex-shrink:0}.main{flex:1}.main b{font-size:13px;display:block}.main small{font-size:11px;color:var(--muted);display:block;margin-top:5px;line-height:1.6}.arrow{font-size:20px;color:#a1ada5}.tag{font-size:10px;color:var(--d);background:#e5f6eb;padding:5px 7px;border-radius:7px}.note{font-size:11px;color:var(--muted);line-height:1.8}.footer{text-align:center;font-size:11px;color:#9ba69f;margin-top:20px}.toast{display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#25372e;color:white;padding:12px 16px;border-radius:12px;white-space:nowrap}
+</style>
+</head>
+<body>
+<main class="app">
+<header class="header"><button class="back" onclick="location.href='profile-home.html'">‹</button><div><h1>隐私与数据管理</h1><p>了解、管理和控制你的数据</p></div></header>
+<section class="section"><div class="hero"><div class="shield">◇</div><h2>你的数据，你可以管理</h2><p>在这里查看隐私授权、管理健康数据导出与删除，并控制云端同步偏好。正式版本应明确展示数据处理目的、存储位置、保留期限和实际操作状态。</p><div class="statusrow"><span>隐私管理入口</span><span class="status">● 已提供原型入口</span></div></div></section>
+<section class="section"><div class="title">授权与使用</div><div class="card">
+<div class="row" onclick="location.href='privacy-consent-management.html'"><div class="ico">♧</div><div class="main"><b>隐私授权管理</b><small>查看授权项目、用途与撤回方式</small></div><span class="arrow">›</span></div>
+<div class="row" onclick="location.href='privacy-cloud-sync.html'"><div class="ico">☁</div><div class="main"><b>云端同步控制</b><small>管理云端同步偏好与同步状态</small></div><span class="arrow">›</span></div>
+</div></section>
+<section class="section"><div class="title">数据访问与处理</div><div class="card">
+<div class="row" onclick="location.href='privacy-data-export.html'"><div class="ico">⇩</div><div class="main"><b>导出我的数据</b><small>选择数据类别与导出范围</small></div><span class="arrow">›</span></div>
+<div class="row" onclick="location.href='privacy-data-deletion.html'"><div class="ico">⌫</div><div class="main"><b>数据删除申请</b><small>了解删除范围、影响和处理进度</small></div><span class="arrow">›</span></div>
+<div class="row" onclick="showInfo()"><div class="ico">ⓘ</div><div class="main"><b>数据使用说明</b><small>数据类别、处理目的和保留规则</small></div><span class="arrow">›</span></div>
+</div></section>
+<section class="section"><div class="card"><div class="title">重要说明</div><div class="note">健康数据可能包含敏感个人信息。正式产品应根据实际处理目的取得必要授权，提供便于访问、复制、更正、撤回授权和删除的渠道，并对备份、关联家庭数据、法律要求保留的数据分别说明处理规则。页面展示的入口不代表相关后台能力已经上线。</div></div></section>
+<div class="footer">轻刻健康 · 隐私与数据管理<br><br>当前为交互原型，不代表真实授权或数据处理结果</div>
+<div class="toast" id="toast"></div>
+</main>
+<script>
+function showInfo(){const t=document.getElementById('toast');t.textContent='数据说明页面尚待接入正式隐私政策内容';t.style.display='block';setTimeout(()=>t.style.display='none',2200)}
+</script>
+</body>
+</html>

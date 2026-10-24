@@ -1,0 +1,84 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>测量未完成 - 轻衡健康</title>
+<style>
+:root{--green:#20a574;--dark:#147a56;--bg:#f5f8f5;--text:#202923;--muted:#87928a;--line:#e7ece8;--red:#d96a58}
+*{box-sizing:border-box}
+body{margin:0;background:#e9eeea;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:var(--text)}
+button{font:inherit;cursor:pointer}
+.app{max-width:430px;min-height:100vh;margin:auto;background:var(--bg);display:flex;flex-direction:column}
+header{height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:white}
+header button{border:0;background:none;font-size:14px;color:var(--muted)}
+header strong{font-size:16px;color:var(--text)}
+main{padding:26px 20px;flex:1}
+.illustration{height:205px;display:grid;place-items:center;position:relative}
+.circle{width:145px;height:145px;border-radius:50%;background:#fbece7;display:grid;place-items:center}
+.warning{width:78px;height:78px;border-radius:25px;background:white;display:grid;place-items:center;color:var(--red);font-size:43px;box-shadow:0 7px 22px #8f4b3210}
+h1{text-align:center;font-size:25px;margin:9px 0 10px}
+.subtitle{text-align:center;color:var(--muted);font-size:14px;line-height:1.8;margin:0 auto;max-width:310px}
+.reason{margin-top:26px;padding:18px;background:white;border:1px solid var(--line);border-radius:17px}
+.reason-title{font-size:14px;font-weight:650;margin-bottom:15px}
+.reason-row{display:flex;gap:11px;margin:14px 0}
+.reason-row:last-child{margin-bottom:0}
+.check{width:25px;height:25px;flex-shrink:0;border-radius:8px;background:#f8eee9;color:var(--red);display:grid;place-items:center;font-size:13px}
+.reason-row strong{font-size:13px;font-weight:600}
+.reason-row p{margin:5px 0 0;color:var(--muted);font-size:12px;line-height:1.6}
+.tips{margin-top:14px;padding:14px 15px;border-radius:13px;background:#edf7f1;color:#4f6d5b;font-size:12px;line-height:1.8}
+.actions{padding:18px 20px 30px}
+.primary{width:100%;height:51px;border:0;border-radius:14px;background:var(--green);color:white;font-weight:650}
+.secondary{width:100%;height:46px;border:0;background:transparent;color:var(--dark);font-size:14px;margin-top:7px}
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);padding:11px 16px;background:#25352b;color:white;border-radius:11px;font-size:13px;opacity:0;pointer-events:none;transition:.2s;white-space:nowrap}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+<button onclick="back()">‹ 返回</button>
+<strong>测量状态</strong>
+<button onclick="help()">帮助</button>
+</header>
+<main>
+<div class="illustration">
+<div class="circle"><div class="warning">!</div></div>
+</div>
+<h1 id="title">本次测量未完成</h1>
+<p class="subtitle" id="subtitle">暂时没有获得完整的身体数据。请根据下面的建议调整后重新测量。</p>
+
+<section class="reason">
+<div class="reason-title">可能的原因</div>
+<div class="reason-row">
+<div class="check">1</div>
+<div><strong>站立不够稳定</strong><p>测量过程中身体晃动或体重数值持续变化。</p></div>
+</div>
+<div class="reason-row">
+<div class="check">2</div>
+<div><strong>双脚与电极接触不足</strong><p>请赤脚测量，确保双脚与秤面电极充分接触。</p></div>
+</div>
+<div class="reason-row">
+<div class="check">3</div>
+<div><strong>设备数据采集未完成</strong><p>测量期间离开秤面，或设备连接出现异常。</p></div>
+</div>
+</section>
+
+<div class="tips"><strong>建议：</strong>将体脂秤放在坚硬平整的地面，等待设备唤醒后再站上秤面。请勿在测量过程中移动双脚。</div>
+</main>
+<footer class="actions">
+<button class="primary" onclick="retry()">重新测量</button>
+<button class="secondary" onclick="viewHistory()">返回健康首页</button>
+</footer>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+function toast(t){const e=document.getElementById("toast");e.textContent=t;e.classList.add("show");clearTimeout(window.tt);window.tt=setTimeout(()=>e.classList.remove("show"),2200)}
+function retry(){toast("正在重新检查设备…")}
+function viewHistory(){toast("原型演示：返回健康首页")}
+function back(){toast("返回上一页")}
+function help(){document.getElementById("title").textContent="测量遇到问题？";document.getElementById("subtitle").textContent="检查设备连接、站立姿势和秤面环境后，再尝试重新测量。";toast("请检查设备和测量姿势")}
+</script>
+</body>
+</html>

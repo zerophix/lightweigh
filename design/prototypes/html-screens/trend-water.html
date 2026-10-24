@@ -1,0 +1,77 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>水分率趋势 - 轻刻健康</title>
+<style>
+:root{--brand:#21a675;--deep:#147d58;--bg:#f5f8f5;--text:#202923;--muted:#89938c;--line:#edf1ed;--blue:#5b9ce7}
+*{box-sizing:border-box}body{margin:0;background:#eaf0eb;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}button{font:inherit;cursor:pointer}
+.app{max-width:430px;min-height:100vh;margin:auto;background:var(--bg);padding-bottom:28px}
+.header{background:#fff;padding:20px 20px 18px}.nav{height:32px;display:flex;align-items:center;justify-content:space-between}.back{border:0;background:none;font-size:25px;padding:0 8px 0 0;color:#26342b}.title{font-size:17px;font-weight:700}.help{width:34px;height:34px;border:1px solid var(--line);border-radius:11px;background:white;color:#68766d}
+.metric{display:flex;align-items:center;gap:12px;margin-top:21px}.iconbox{width:46px;height:46px;border-radius:15px;background:#e8f2ff;color:var(--blue);display:grid;place-items:center;font-size:23px}.label{font-size:12px;color:#7c887f}.value{display:flex;align-items:baseline;gap:5px;margin-top:3px}.value strong{font-size:39px;letter-spacing:-1px}.value span{font-size:13px;color:#7c887f}.change{display:inline-block;margin-top:8px;padding:6px 9px;background:#e8f7ee;border-radius:8px;color:var(--deep);font-size:11px}.note{margin-top:11px;font-size:11px;color:#8c978e;line-height:1.65}
+.period{display:flex;gap:4px;background:#f0f4f0;border-radius:12px;padding:4px;margin-top:20px}.period button{flex:1;padding:9px 0;border:0;border-radius:9px;background:transparent;color:#7c887f;font-size:12px}.period button.active{background:#fff;color:var(--deep);font-weight:650;box-shadow:0 1px 4px #142a1c0b}
+.content{padding:16px}.card{background:#fff;border:1px solid #edf1ed;border-radius:18px;padding:17px;margin-bottom:13px}.head{display:flex;align-items:center;justify-content:space-between}.head h2{font-size:15px;margin:0}.head button{border:0;background:none;color:#89938c;font-size:12px}.chart{width:100%;display:block;margin-top:18px}.labels{display:flex;justify-content:space-between;color:#98a29a;font-size:10px;margin-top:4px}
+.selected{display:flex;justify-content:space-between;align-items:center;background:#f4f8fc;padding:12px 13px;border-radius:12px;margin-top:14px}.selected small{display:block;color:#89938c;font-size:11px}.selected strong{display:block;margin-top:4px;font-size:19px}.right{text-align:right}.right strong{font-size:12px;color:var(--deep)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);margin-top:18px}.stat{padding:0 8px;border-right:1px solid var(--line)}.stat:first-child{padding-left:0}.stat:last-child{border:0}.stat label{font-size:11px;color:#89938c}.stat strong{display:block;font-size:18px;margin-top:7px}.stat small{font-size:10px;color:#89938c;font-weight:400}
+.record{display:flex;align-items:center;padding:13px 0;border-bottom:1px solid #f0f3f0}.record:last-child{border:0;padding-bottom:0}.date{width:53px;flex-shrink:0}.date b{font-size:13px}.date small,.info small{display:block;font-size:10px;color:#939d95;margin-top:4px}.info{flex:1}.info b{font-size:13px;font-weight:550}.rv{text-align:right;font-size:15px;font-weight:700}.rv small{display:block;font-size:10px;color:#939d95;font-weight:400;margin-top:4px}.arrow{margin-left:8px;color:#aab4ac;font-size:19px}
+.notice{background:#edf6ff;border-radius:14px;padding:14px;color:#4d6f91;font-size:11px;line-height:1.8}.notice b{font-size:12px}.explain{font-size:12px;color:#68766d;line-height:1.85;margin-top:12px}.footnote{font-size:10px;color:#9aa49c;line-height:1.7;padding:5px 4px 0}
+.toast{position:fixed;bottom:25px;left:50%;transform:translateX(-50%);background:#25352b;color:white;border-radius:12px;padding:11px 15px;font-size:12px;white-space:nowrap;opacity:0;pointer-events:none;transition:.2s}.toast.show{opacity:1}
+@media(min-width:500px){.app{margin:18px auto;border-radius:26px;overflow:hidden;box-shadow:0 12px 45px #21352712;min-height:calc(100vh - 36px)}}
+</style>
+</head>
+<body><div class="app">
+<header class="header">
+<div class="nav"><button class="back" onclick="history.length>1?history.back():location.href='metrics-overview.html'">‹</button><div class="title">水分率趋势</div><button class="help" onclick="document.getElementById('waterExplain').scrollIntoView({behavior:'smooth'})">i</button></div>
+<div class="metric"><div class="iconbox">≈</div><div><div class="label">最近一次水分率</div><div class="value"><strong>55.6</strong><span>%</span></div><div class="change" id="change">近 7 天上升 0.8 个百分点</div></div></div>
+<div class="note">测量时间：2026年10月22日 08:15<br>水分率为设备估算指标，实际数值可能随测量条件变化。</div>
+<div class="period" id="period"><button class="active" data-p="week">近 7 天</button><button data-p="month">近 30 天</button><button data-p="quarter">近 3 个月</button><button data-p="year">近 1 年</button></div>
+</header>
+<main class="content">
+<section class="card">
+<div class="head"><h2>水分率变化</h2><button onclick="showToast('当前为模拟数据')">图表说明 ⓘ</button></div>
+<svg class="chart" viewBox="0 0 340 180" role="img" aria-label="水分率趋势图">
+<g stroke="#edf1ed"><line x1="36" y1="25" x2="328" y2="25"/><line x1="36" y1="61" x2="328" y2="61"/><line x1="36" y1="97" x2="328" y2="97"/><line x1="36" y1="133" x2="328" y2="133"/></g>
+<g fill="#9aa49c" font-size="10"><text x="1" y="28">56.5%</text><text x="1" y="64">56.0%</text><text x="1" y="100">55.5%</text><text x="1" y="136">55.0%</text></g>
+<path id="area" d="" fill="#5b9ce7" opacity=".12"/><path id="line" d="" fill="none" stroke="#5b9ce7" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><g id="points"></g>
+</svg>
+<div class="labels" id="labels"></div>
+<div class="selected"><div><small id="selectedDate">10/22 · 最新记录</small><strong><span id="selectedValue">55.6</span> <small style="display:inline">%</small></strong></div><div class="right"><small>较前一次</small><strong id="selectedChange">+0.2 个百分点</strong></div></div>
+<div class="stats"><div class="stat"><label>周期最高</label><strong id="max">56.0<small> %</small></strong></div><div class="stat"><label>周期最低</label><strong id="min">55.0<small> %</small></strong></div><div class="stat"><label>周期平均</label><strong id="avg">55.5<small> %</small></strong></div></div>
+</section>
+<section class="card">
+<div class="head"><h2>最近测量记录</h2><button onclick="location.href='history-list.html'">全部记录 ›</button></div>
+<div class="record"><div class="date"><b>22日</b><small>周四</small></div><div class="info"><b>早晨测量</b><small>08:15 · 设备测量</small></div><div class="rv">55.6%<small>+0.2 个百分点</small></div><span class="arrow">›</span></div>
+<div class="record"><div class="date"><b>21日</b><small>周三</small></div><div class="info"><b>早晨测量</b><small>07:52 · 设备测量</small></div><div class="rv">55.4%<small>+0.1 个百分点</small></div><span class="arrow">›</span></div>
+<div class="record"><div class="date"><b>20日</b><small>周二</small></div><div class="info"><b>晚间测量</b><small>20:34 · 设备测量</small></div><div class="rv">55.3%<small>−0.2 个百分点</small></div><span class="arrow">›</span></div>
+</section>
+<section class="card" id="waterExplain">
+<div class="head"><h2>了解水分率</h2><button onclick="showToast('可扩展完整指标说明页')">更多说明 ›</button></div>
+<p class="explain">水分率表示设备估算的身体水分占比。它与体重、体脂率和身体组成有关，但不是对身体总水量的直接、精确测量。</p>
+<p class="explain">不同设备的测量原理、算法和指标定义可能存在差异。使用趋势功能时，优先比较同一设备在相近条件下产生的记录。</p>
+</section>
+<div class="notice"><b>测量条件会影响结果</b><br>饮水、进食、运动、出汗、洗澡及测量时段都可能影响估算值。建议按设备说明进行测量，并避免把单次变化直接解释为脱水、补水不足或其他健康问题。</div>
+<div class="footnote">页面数值及趋势为演示数据。正式版本应使用设备实际提供的指标、明确算法口径，并避免在缺少依据时输出健康结论。</div>
+</main></div><div class="toast" id="toast"></div>
+<script>
+const sets={
+week:{v:[54.8,55.0,55.1,55.2,55.3,55.4,55.6],l:['10/16','10/17','10/18','10/19','10/20','10/21','10/22'],c:'近 7 天上升 0.8 个百分点'},
+month:{v:[54.7,54.8,55.0,55.0,55.1,55.2,55.3,55.4,55.5,55.6],l:['09/23','09/26','09/29','10/02','10/05','10/08','10/11','10/14','10/18','10/22'],c:'近 30 天上升 0.9 个百分点'},
+quarter:{v:[54.0,54.2,54.4,54.6,54.7,54.9,55.0,55.2,55.4,55.6],l:['07/24','08/02','08/12','08/22','09/01','09/11','09/21','10/01','10/11','10/22'],c:'近 3 个月上升 1.6 个百分点'},
+year:{v:[53.4,53.6,53.8,54.0,54.2,54.4,54.7,54.9,55.2,55.6],l:['11月','12月','1月','2月','3月','4月','5月','6月','8月','10月'],c:'近 1 年上升 2.2 个百分点'}
+};
+function showToast(s){let e=document.getElementById('toast');e.textContent=s;e.classList.add('show');clearTimeout(window.t);window.t=setTimeout(()=>e.classList.remove('show'),2000)}
+function draw(d){
+let lo=Math.min(...d.v)-.15,hi=Math.max(...d.v)+.15,L=36,R=328,T=25,B=133;
+let ps=d.v.map((v,i)=>({x:L+(R-L)*i/(d.v.length-1),y:B-(v-lo)/(hi-lo)*(B-T),v}));
+let path=ps.map((p,i)=>(i?'L':'M')+p.x.toFixed(1)+' '+p.y.toFixed(1)).join(' ');
+document.getElementById('line').setAttribute('d',path);document.getElementById('area').setAttribute('d',path+' L '+R+' '+B+' L '+L+' '+B+' Z');
+document.getElementById('points').innerHTML=ps.map((p,i)=>`<circle cx="${p.x}" cy="${p.y}" r="${i===ps.length-1?5:4}" fill="#5b9ce7" stroke="white" stroke-width="2" style="cursor:pointer" onclick="selectPoint(${i})"/>`).join('');
+document.getElementById('labels').innerHTML=d.l.map(x=>'<span>'+x+'</span>').join('');window.d=d;window.ps=ps;
+document.getElementById('max').innerHTML=Math.max(...d.v).toFixed(1)+'<small> %</small>';document.getElementById('min').innerHTML=Math.min(...d.v).toFixed(1)+'<small> %</small>';document.getElementById('avg').innerHTML=(d.v.reduce((a,b)=>a+b,0)/d.v.length).toFixed(1)+'<small> %</small>';selectPoint(ps.length-1);
+}
+function selectPoint(i){let p=window.ps[i],d=window.d,prev=d.v[Math.max(0,i-1)],diff=p.v-prev;document.getElementById('selectedDate').textContent=d.l[i];document.getElementById('selectedValue').textContent=p.v.toFixed(1);document.getElementById('selectedChange').textContent=(diff>0?'+':'')+diff.toFixed(1)+' 个百分点'}
+document.querySelectorAll('#period button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#period button').forEach(x=>x.classList.toggle('active',x===b));document.getElementById('change').textContent=sets[b.dataset.p].c;draw(sets[b.dataset.p])});
+draw(sets.week);
+</script></body></html>

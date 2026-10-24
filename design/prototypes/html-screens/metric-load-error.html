@@ -1,0 +1,72 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>数据加载失败 - 轻刻健康</title>
+<style>
+:root{--g:#21a675;--deep:#147d58;--bg:#f5f8f5;--text:#202923;--sub:#859087;--line:#e8eee8;--red:#cf6658}
+*{box-sizing:border-box}body{margin:0;background:#eaf0eb;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}button{font:inherit;cursor:pointer}
+.app{max-width:430px;min-height:100vh;margin:auto;background:var(--bg);padding-bottom:30px}.top{height:58px;background:#fff;display:flex;align-items:center;padding:0 20px;gap:14px;border-bottom:1px solid var(--line)}.back{border:0;background:none;font-size:27px;padding:0}.title{font-size:17px;font-weight:750;flex:1}.help{border:0;background:none;color:var(--g);font-size:12px}
+.context{padding:23px 20px 17px}.eyebrow{font-size:11px;letter-spacing:1.3px;color:var(--g);font-weight:800}.context h1{font-size:24px;margin:8px 0}.context p{font-size:13px;color:var(--sub);line-height:1.7;margin:0}
+.state{margin:0 16px;background:#fff;border-radius:20px;padding:26px 21px 22px;text-align:center;box-shadow:0 4px 18px #193b2505}.illustration{height:139px;display:grid;place-items:center}.state h2{font-size:19px;margin:8px 0}.state-desc{font-size:13px;color:var(--sub);line-height:1.8;margin:9px 0 18px}.retry{width:100%;padding:14px;border:0;background:var(--g);color:#fff;border-radius:13px;font-weight:750}.retry:disabled{opacity:.7;cursor:wait}.secondary{width:100%;padding:13px;border:1px solid #dfe8e0;background:#fff;color:#405147;border-radius:13px;margin-top:10px;font-weight:650}
+.status{margin:15px 16px 0;background:#fff;border-radius:16px;padding:16px}.status-head{font-size:13px;font-weight:800;margin-bottom:13px}.status-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #eff3ef;font-size:12px}.status-row:last-child{border-bottom:0}.label{color:var(--sub)}.value{font-weight:650;text-align:right}.value.error{color:var(--red)}.value.wait{color:#b17c30}
+.troubleshoot{margin:15px 16px;background:#fff;border-radius:16px;padding:17px}.troubleshoot h3{font-size:14px;margin:0 0 13px}.step{display:flex;gap:10px;margin:12px 0}.step-icon{width:29px;height:29px;display:grid;place-items:center;border-radius:9px;background:#eaf7f0;color:var(--deep);font-size:12px;flex-shrink:0}.step strong{font-size:12px}.step p{font-size:11px;line-height:1.7;color:var(--sub);margin:4px 0 0}
+.detail{margin:15px 16px 0;padding:15px;background:#f0f4f0;border-radius:13px}.detail-head{display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:750}.detail-body{font-size:11px;line-height:1.8;color:#7e8b80;margin-top:8px;display:none;overflow-wrap:anywhere}.detail-body.show{display:block}.detail-toggle{border:0;background:none;color:var(--deep);font-size:11px}
+.foot{margin:15px 20px;font-size:10px;line-height:1.8;color:#8b958d}.toast{display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#24372c;color:white;border-radius:10px;padding:11px 15px;font-size:12px;white-space:nowrap;z-index:5}
+@media(min-width:431px){.app{box-shadow:0 10px 40px #17291c12}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top"><button class="back" onclick="history.length>1?history.back():toast('这是独立页面原型')">‹</button><div class="title">指标趋势</div><button class="help" onclick="toast('帮助入口尚未接入')">帮助</button></header>
+<section class="context"><div class="eyebrow">DATA CONNECTION</div><h1>暂时无法加载数据</h1><p>你的查看条件已保留。我们暂时无法获取这段时间的指标数据，请检查网络后重试。</p></section>
+<section class="state">
+<div class="illustration">
+<svg width="190" height="137" viewBox="0 0 190 137" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="数据加载失败插画">
+<circle cx="91" cy="67" r="57" fill="#EDF6EF"/>
+<rect x="42" y="24" width="82" height="91" rx="12" fill="#fff" stroke="#C8E5D1" stroke-width="2"/>
+<rect x="53" y="36" width="60" height="9" rx="4.5" fill="#EAF5ED"/>
+<path d="M55 95L70 77L82 85L99 59L112 68" stroke="#A9D9BA" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="127" cy="89" r="26" fill="#fff" stroke="#F0C5BE" stroke-width="3"/>
+<path d="M127 76V91" stroke="#CF6658" stroke-width="4" stroke-linecap="round"/>
+<circle cx="127" cy="99" r="2.5" fill="#CF6658"/>
+<path d="M27 39L31 32M25 47L17 47M34 28L34 20" stroke="#B7DDC4" stroke-width="2" stroke-linecap="round"/>
+<circle cx="157" cy="38" r="5" fill="#C4E8D0"/><circle cx="47" cy="113" r="4" fill="#C4E8D0"/>
+</svg>
+</div>
+<h2 id="errorTitle">连接暂时不可用</h2>
+<p class="state-desc" id="errorDesc">请求未能完成。你的历史记录不会因为这次加载失败而被删除，请稍后重试。</p>
+<button class="retry" id="retryBtn" onclick="retryLoad()">重新加载</button>
+<button class="secondary" onclick="toast('原型演示：返回后仍需由实际页面实现状态恢复')">返回上一页</button>
+</section>
+<section class="status">
+<div class="status-head">本次请求状态</div>
+<div class="status-row"><span class="label">查看指标</span><span class="value">体重</span></div>
+<div class="status-row"><span class="label">时间范围</span><span class="value">近 30 天</span></div>
+<div class="status-row"><span class="label">请求状态</span><span class="value error" id="requestStatus">请求失败</span></div>
+<div class="status-row"><span class="label">数据状态</span><span class="value wait">尚未确认</span></div>
+</section>
+<section class="troubleshoot">
+<h3>你可以尝试</h3>
+<div class="step"><div class="step-icon">1</div><div><strong>检查网络连接</strong><p>确认当前网络可用，再尝试重新加载。</p></div></div>
+<div class="step"><div class="step-icon">2</div><div><strong>稍后再次尝试</strong><p>如果服务暂时不可用，等待片刻后重试通常更合适。</p></div></div>
+<div class="step"><div class="step-icon">3</div><div><strong>检查账户与同步状态</strong><p>如果其他页面也无法获取数据，可检查登录状态或云同步状态。</p></div></div>
+</section>
+<section class="detail">
+<div class="detail-head"><span>技术诊断信息</span><button class="detail-toggle" onclick="toggleDetail(this)">展开详情 ↓</button></div>
+<div class="detail-body" id="detailBody">错误类型：DEMO_NETWORK_ERROR<br>请求标识：REQ-DEMO-001<br>发生时间：由真实系统在请求失败时生成<br>说明：以上为原型示例。正式版本应展示脱敏后的错误信息，不应向用户暴露令牌、密码或完整服务端堆栈。</div>
+</section>
+<p class="foot">本页面的失败状态和重试结果均为模拟交互，没有实际网络请求。正式实现应区分超时、鉴权失败、服务端错误和数据解析错误，并保留可恢复的页面状态；只有服务端成功返回空集合时，才显示“暂无数据”。</p>
+<div class="toast" id="toast"></div>
+</div>
+<script>
+let attempts=0;
+function retryLoad(){const btn=document.getElementById('retryBtn');const status=document.getElementById('requestStatus');btn.disabled=true;btn.textContent='正在重试…';status.textContent='请求中';status.className='value wait';
+setTimeout(()=>{attempts++;btn.disabled=false;btn.textContent='重新加载';status.textContent='请求失败';status.className='value error';document.getElementById('errorTitle').textContent='仍然无法加载';document.getElementById('errorDesc').textContent='本次原型重试没有发起真实网络请求。正式版本会在请求失败后保留当前条件，并允许再次尝试。';toast('原型模拟：重试未连接真实服务');},1000)}
+function toggleDetail(btn){const body=document.getElementById('detailBody');body.classList.toggle('show');btn.textContent=body.classList.contains('show')?'收起详情 ↑':'展开详情 ↓'}
+function toast(s){const t=document.getElementById('toast');t.textContent=s;t.style.display='block';clearTimeout(window.tt);window.tt=setTimeout(()=>t.style.display='none',2300)}
+</script>
+</body>
+</html>

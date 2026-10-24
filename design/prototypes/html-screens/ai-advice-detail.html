@@ -1,0 +1,17 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>健康建议 - 轻刻健康</title>
+<style>
+:root{--g:#21a675;--d:#147d58;--bg:#f5f8f5;--t:#26362d;--m:#89948c}*{box-sizing:border-box}body{margin:0;background:#eaf0eb;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:var(--t)}button{font:inherit;cursor:pointer}.app{max-width:430px;min-height:100vh;margin:auto;background:var(--bg);padding:0 20px 32px}.nav{height:58px;display:flex;align-items:center;gap:18px}.nav button{border:0;background:none;font-size:25px}.nav strong{font-size:17px}.hero{padding:19px 0 22px}.label{font-size:11px;color:var(--d);letter-spacing:1px}.hero h1{font-size:25px;line-height:1.4;margin:9px 0}.hero p{font-size:13px;color:var(--m);line-height:1.8;margin:0}.card{background:white;border-radius:18px;padding:18px;margin-bottom:13px}.title{font-size:15px;font-weight:700;margin-bottom:13px}.paragraph{font-size:13px;line-height:1.9;color:#637168}.item{display:flex;gap:11px;margin:15px 0}.num{height:29px;width:29px;border-radius:10px;background:#e6f5ea;color:var(--d);display:grid;place-items:center;font-size:12px;font-weight:700;flex-shrink:0}.item strong{font-size:13px}.item p{font-size:12px;line-height:1.8;color:var(--m);margin:5px 0 0}.note{background:#eef7f0;color:#50745a;border-radius:12px;padding:13px;font-size:12px;line-height:1.8}.primary,.secondary{height:47px;width:100%;border-radius:13px;font-size:13px;font-weight:650}.primary{background:var(--g);border:0;color:white}.secondary{background:white;border:1px solid #dce8df;color:var(--d);margin-top:10px}.toast{display:none;background:#243b2e;color:white;padding:12px;border-radius:12px;font-size:12px;margin-bottom:12px}
+</style></head><body><main class="app">
+<header class="nav"><button onclick="history.back()">‹</button><strong>建议详情</strong></header>
+<section class="hero"><div class="label">AI HEALTH INSIGHT · 示例内容</div><h1>建立稳定的测量习惯，<br>让趋势更有参考价值</h1><p>从测量条件开始改善，比反复解读单次数字更有帮助。</p></section>
+<div id="toast" class="toast" role="status"></div>
+<section class="card"><div class="title">为什么要关注测量条件？</div><div class="paragraph">体脂秤的部分身体成分指标来自设备算法估算。测量时间、饮水情况、运动和脚部接触状态等因素，都可能影响读数。尽量保持条件一致，可以让不同日期的结果更容易比较，但不能完全消除测量误差。</div></section>
+<section class="card"><div class="title">你可以尝试的 3 个行动</div><div class="item"><div class="num">1</div><div><strong>选择相对固定的测量时间</strong><p>例如固定在早晨起床后、日常活动前。根据设备说明保持一致即可，不必追求绝对完美。</p></div></div><div class="item"><div class="num">2</div><div><strong>保持设备与姿势稳定</strong><p>将秤放在坚硬平整的地面上，按说明正确站立，并确保电极接触充分。</p></div></div><div class="item"><div class="num">3</div><div><strong>结合一段时间的变化观察</strong><p>不要只依据一天的变化作结论。可以查看一段时间的趋势，同时考虑生活习惯和实际感受。</p></div></div></section>
+<section class="card"><div class="title">如何判断是否适合自己？</div><div class="note">如果某项数据持续异常、与实际情况明显不符，或你有令人担忧的症状，不要依赖 AI 或体脂秤自行诊断，应咨询专业医疗人员。</div></section>
+<button class="primary" onclick="location.href='ai-health-chat.html?q='+encodeURIComponent('怎样建立稳定的测量习惯？')">继续向 AI 提问</button><button class="secondary" onclick="save()">收藏这条建议</button>
+<p style="text-align:center;color:#9aa59d;font-size:11px;line-height:1.8;margin-top:15px">本建议为通用示例，不是根据真实个人数据生成的医疗建议。</p>
+</main><script>
+function save(){const b=document.querySelector('.secondary');b.textContent=b.textContent==='收藏这条建议'?'已收藏（本页演示）':'收藏这条建议';const t=document.getElementById('toast');t.textContent='收藏状态仅保存在当前页面中，刷新后不会保留。';t.style.display='block'}
+</script></body></html>

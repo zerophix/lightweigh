@@ -1,0 +1,80 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>内脏脂肪等级 - 轻刻健康</title>
+<style>
+:root{--brand:#21a675;--deep:#147d58;--bg:#f5f8f5;--text:#202923;--muted:#89938c;--line:#edf1ed;--orange:#e6a04c}
+*{box-sizing:border-box}body{margin:0;background:#eaf0eb;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}button{font:inherit;cursor:pointer}
+.app{max-width:430px;min-height:100vh;margin:auto;background:var(--bg);padding-bottom:28px}
+.header{background:#fff;padding:20px 20px 18px}.nav{height:32px;display:flex;align-items:center;justify-content:space-between}.back{border:0;background:none;font-size:25px;padding:0 8px 0 0;color:#26342b}.title{font-size:17px;font-weight:700}.help{width:34px;height:34px;border:1px solid var(--line);border-radius:11px;background:#fff;color:#68766d}
+.metric{display:flex;align-items:center;gap:12px;margin-top:21px}.iconbox{width:46px;height:46px;border-radius:15px;background:#fff0df;color:#ce8835;display:grid;place-items:center;font-size:23px}.label{font-size:12px;color:#7c887f}.value{display:flex;align-items:baseline;gap:5px;margin-top:3px}.value strong{font-size:39px;letter-spacing:-1px}.value span{font-size:13px;color:#7c887f}.change{display:inline-block;margin-top:8px;padding:6px 9px;background:#e8f7ee;border-radius:8px;color:var(--deep);font-size:11px}.note{margin-top:11px;font-size:11px;color:#8c978e;line-height:1.65}
+.period{display:flex;gap:4px;background:#f0f4f0;border-radius:12px;padding:4px;margin-top:20px}.period button{flex:1;padding:9px 0;border:0;border-radius:9px;background:transparent;color:#7c887f;font-size:12px}.period button.active{background:#fff;color:var(--deep);font-weight:650;box-shadow:0 1px 4px #142a1c0b}
+.content{padding:16px}.card{background:#fff;border:1px solid #edf1ed;border-radius:18px;padding:17px;margin-bottom:13px}.head{display:flex;align-items:center;justify-content:space-between}.head h2{font-size:15px;margin:0}.head button{border:0;background:none;color:#89938c;font-size:12px}.chart{width:100%;display:block;margin-top:18px}.labels{display:flex;justify-content:space-between;color:#98a29a;font-size:10px;margin-top:4px}
+.selected{display:flex;justify-content:space-between;align-items:center;background:#fff8ec;padding:12px 13px;border-radius:12px;margin-top:14px}.selected small{display:block;color:#89938c;font-size:11px}.selected strong{display:block;margin-top:4px;font-size:19px}.right{text-align:right}.right strong{font-size:12px;color:#a76f2d}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);margin-top:18px}.stat{padding:0 8px;border-right:1px solid var(--line)}.stat:first-child{padding-left:0}.stat:last-child{border:0}.stat label{font-size:11px;color:#89938c}.stat strong{display:block;font-size:18px;margin-top:7px}.stat small{font-size:10px;color:#89938c;font-weight:400}
+.record{display:flex;align-items:center;padding:13px 0;border-bottom:1px solid #f0f3f0}.record:last-child{border:0;padding-bottom:0}.date{width:53px;flex-shrink:0}.date b{font-size:13px}.date small,.info small{display:block;font-size:10px;color:#939d95;margin-top:4px}.info{flex:1}.info b{font-size:13px;font-weight:550}.rv{text-align:right;font-size:15px;font-weight:700}.rv small{display:block;font-size:10px;color:#939d95;font-weight:400;margin-top:4px}.arrow{margin-left:8px;color:#aab4ac;font-size:19px}
+.level{display:flex;gap:4px;margin-top:16px}.level span{height:8px;flex:1;border-radius:5px;background:#e8eee9}.level span:nth-child(-n+3){background:#86cba5}.level span:nth-child(n+4):nth-child(-n+6){background:#e7c66d}.level span:nth-child(n+7){background:#e4a092}.level-caption{display:flex;justify-content:space-between;font-size:10px;color:#89938c;margin-top:9px}
+.notice{display:flex;gap:9px;background:#fff5e7;border:1px solid #f7ead3;border-radius:14px;padding:13px;color:#846b47;font-size:11px;line-height:1.8}.footnote{font-size:10px;color:#9aa49c;line-height:1.7;padding:5px 4px 0}
+.toast{position:fixed;bottom:25px;left:50%;transform:translateX(-50%);background:#25352b;color:white;border-radius:12px;padding:11px 15px;font-size:12px;white-space:nowrap;opacity:0;pointer-events:none;transition:.2s}.toast.show{opacity:1}
+@media(min-width:500px){.app{margin:18px auto;border-radius:26px;overflow:hidden;box-shadow:0 12px 45px #21352712;min-height:calc(100vh - 36px)}}
+</style>
+</head>
+<body><div class="app">
+<header class="header">
+<div class="nav"><button class="back" onclick="history.length>1?history.back():location.href='metrics-overview.html'">‹</button><div class="title">内脏脂肪等级</div><button class="help" onclick="document.getElementById('explain').scrollIntoView({behavior:'smooth'})">i</button></div>
+<div class="metric"><div class="iconbox">◎</div><div><div class="label">最近一次测量</div><div class="value"><strong>8</strong><span>级</span></div><div class="change" id="change">近 7 天暂无变化</div></div></div>
+<div class="note">测量时间：2026年10月22日 08:15<br>等级定义和参考区间以设备实际算法及说明书为准。</div>
+<div class="period" id="period"><button class="active" data-p="week">近 7 天</button><button data-p="month">近 30 天</button><button data-p="quarter">近 3 个月</button><button data-p="year">近 1 年</button></div>
+</header>
+<main class="content">
+<section class="card">
+<div class="head"><h2>等级变化趋势</h2><button onclick="showToast('当前为模拟数据')">图表说明 ⓘ</button></div>
+<svg class="chart" viewBox="0 0 340 180" role="img" aria-label="内脏脂肪等级趋势图">
+<g stroke="#edf1ed"><line x1="36" y1="25" x2="328" y2="25"/><line x1="36" y1="61" x2="328" y2="61"/><line x1="36" y1="97" x2="328" y2="97"/><line x1="36" y1="133" x2="328" y2="133"/></g>
+<g fill="#9aa49c" font-size="10"><text x="8" y="28">11级</text><text x="8" y="64">10级</text><text x="12" y="100">9级</text><text x="12" y="136">8级</text></g>
+<path id="area" d="" fill="#e6a04c" opacity=".12"/><path id="line" d="" fill="none" stroke="#e6a04c" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><g id="points"></g>
+</svg>
+<div class="labels" id="labels"></div>
+<div class="selected"><div><small id="selectedDate">10/22 · 最新记录</small><strong><span id="selectedValue">8</span> <small style="display:inline">级</small></strong></div><div class="right"><small>较前一次</small><strong id="selectedChange">无变化</strong></div></div>
+<div class="stats"><div class="stat"><label>周期最高</label><strong id="max">9 <small>级</small></strong></div><div class="stat"><label>周期最低</label><strong id="min">8 <small>级</small></strong></div><div class="stat"><label>周期平均</label><strong id="avg">8.4 <small>级</small></strong></div></div>
+</section>
+<section class="card">
+<div class="head"><h2>最近测量记录</h2><button onclick="location.href='history-list.html'">全部记录 ›</button></div>
+<div class="record"><div class="date"><b>22日</b><small>周四</small></div><div class="info"><b>早晨测量</b><small>08:15 · 设备测量</small></div><div class="rv">8级<small>无变化</small></div><span class="arrow">›</span></div>
+<div class="record"><div class="date"><b>21日</b><small>周三</small></div><div class="info"><b>早晨测量</b><small>07:52 · 设备测量</small></div><div class="rv">8级<small>无变化</small></div><span class="arrow">›</span></div>
+<div class="record"><div class="date"><b>20日</b><small>周二</small></div><div class="info"><b>晚间测量</b><small>20:34 · 设备测量</small></div><div class="rv">9级<small>较前次 +1</small></div><span class="arrow">›</span></div>
+</section>
+<section class="card" id="explain">
+<div class="head"><h2>了解内脏脂肪等级</h2><button onclick="showToast('可扩展完整指标说明页')">更多说明 ›</button></div>
+<p style="font-size:12px;line-height:1.85;color:#68766d;margin:12px 0 0">内脏脂肪相关指标用于描述设备对腹部内脏脂肪情况的估算。不同厂商可能采用等级、面积估算或其他表示方法，数值并不一定能跨设备直接比较。</p>
+<div class="level"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+<div class="level-caption"><span>较低等级</span><span>中间等级</span><span>较高等级</span></div>
+<p style="font-size:12px;line-height:1.8;color:#68766d">上方色带仅用于演示等级分布，不代表任何真实厂商的医学分界值。</p>
+</section>
+<div class="notice"><span>ⓘ</span><div><b>不要仅凭等级自行判断健康状况</b><br>正式产品应展示设备对应的等级定义、适用人群及来源。若无法确认算法和参考范围，应只展示原始测量值与变化趋势，不自行推断疾病风险。</div></div>
+<div class="footnote">本页数据为演示数据，不是医学诊断或风险分级。真实数据必须来自设备或已验证的计算流程。</div>
+</main></div><div class="toast" id="toast"></div>
+<script>
+const sets={
+week:{v:[9,8,9,8,8,8,8],l:['10/16','10/17','10/18','10/19','10/20','10/21','10/22'],c:'近 7 天暂无变化'},
+month:{v:[10,9,9,9,9,8,8,8,8,8],l:['09/23','09/26','09/29','10/02','10/05','10/08','10/11','10/14','10/18','10/22'],c:'近 30 天下降 2 级'},
+quarter:{v:[10,10,10,9,9,9,9,8,8,8],l:['07/24','08/02','08/12','08/22','09/01','09/11','09/21','10/01','10/11','10/22'],c:'近 3 个月下降 2 级'},
+year:{v:[11,11,10,10,10,9,9,9,8,8],l:['11月','12月','1月','2月','3月','4月','5月','6月','8月','10月'],c:'近 1 年下降 3 级'}
+};
+function showToast(s){let e=document.getElementById('toast');e.textContent=s;e.classList.add('show');clearTimeout(window.t);window.t=setTimeout(()=>e.classList.remove('show'),2000)}
+function draw(d){
+let lo=Math.min(...d.v)-.3,hi=Math.max(...d.v)+.3,L=36,R=328,T=25,B=133;
+let ps=d.v.map((v,i)=>({x:L+(R-L)*i/(d.v.length-1),y:B-(v-lo)/(hi-lo)*(B-T),v}));
+let path=ps.map((p,i)=>(i?'L':'M')+p.x.toFixed(1)+' '+p.y.toFixed(1)).join(' ');
+document.getElementById('line').setAttribute('d',path);document.getElementById('area').setAttribute('d',path+' L '+R+' '+B+' L '+L+' '+B+' Z');
+document.getElementById('points').innerHTML=ps.map((p,i)=>`<circle cx="${p.x}" cy="${p.y}" r="${i===ps.length-1?5:4}" fill="#e6a04c" stroke="white" stroke-width="2" style="cursor:pointer" onclick="selectPoint(${i})"/>`).join('');
+document.getElementById('labels').innerHTML=d.l.map(x=>'<span>'+x+'</span>').join('');window.d=d;window.ps=ps;
+document.getElementById('max').innerHTML=Math.max(...d.v)+' <small>级</small>';document.getElementById('min').innerHTML=Math.min(...d.v)+' <small>级</small>';document.getElementById('avg').innerHTML=(d.v.reduce((a,b)=>a+b,0)/d.v.length).toFixed(1)+' <small>级</small>';selectPoint(ps.length-1);
+}
+function selectPoint(i){let p=window.ps[i],d=window.d,prev=d.v[Math.max(0,i-1)],diff=p.v-prev;document.getElementById('selectedDate').textContent=d.l[i];document.getElementById('selectedValue').textContent=p.v;document.getElementById('selectedChange').textContent=diff===0?'无变化':(diff>0?'+':'')+diff+' 级'}
+document.querySelectorAll('#period button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#period button').forEach(x=>x.classList.toggle('active',x===b));document.getElementById('change').textContent=sets[b.dataset.p].c;draw(sets[b.dataset.p])});
+draw(sets.week);
+</script></body></html>

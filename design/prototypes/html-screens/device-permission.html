@@ -1,0 +1,18 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>蓝牙权限说明 - 轻刻健康</title>
+<style>
+:root{--g:#21a675;--d:#147d58;--bg:#f5f8f5;--t:#26362d;--m:#89948c}*{box-sizing:border-box}body{margin:0;background:#eaf0eb;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:var(--t)}button{font:inherit;cursor:pointer}.app{max-width:430px;min-height:100vh;margin:auto;background:var(--bg);padding:0 20px 32px}.nav{height:58px;display:flex;align-items:center;gap:18px}.back{font-size:26px;border:0;background:none}.nav b{font-size:17px}.hero{text-align:center;padding:30px 12px 24px}.icon{height:92px;width:92px;margin:0 auto 18px;border-radius:30px;background:#e0f3e6;display:grid;place-items:center;font-size:43px;color:var(--d)}h1{font-size:23px;margin:0 0 10px}.hero p{font-size:13px;color:var(--m);line-height:1.8;margin:0}.card{background:white;border-radius:18px;padding:18px;margin-bottom:13px}.title{font-size:15px;font-weight:700;margin-bottom:14px}.row{display:flex;gap:12px;padding:13px 0;border-bottom:1px solid #edf1ed}.row:last-child{border:0}.ico{width:39px;height:39px;border-radius:12px;background:#edf7f0;color:var(--d);display:grid;place-items:center;flex-shrink:0}.row strong{font-size:13px}.row p{font-size:12px;color:#7d8980;line-height:1.7;margin:5px 0 0}.note{background:#eef7f0;border-radius:13px;padding:13px;color:#4e765b;font-size:12px;line-height:1.8}.primary,.secondary{height:47px;width:100%;border-radius:13px;font-weight:650;font-size:13px}.primary{border:0;background:var(--g);color:white;margin-top:14px}.secondary{border:1px solid #dce8df;background:white;color:var(--d);margin-top:10px}.state{font-size:12px;color:var(--m);text-align:center;margin:14px 0}.toast{display:none;background:#243b2e;color:white;padding:12px;border-radius:12px;font-size:12px;margin-bottom:12px}
+</style></head>
+<body><main class="app">
+<header class="nav"><button class="back" onclick="history.back()">‹</button><b>蓝牙权限说明</b></header>
+<section class="hero"><div class="icon">ᛒ</div><h1>连接体脂秤需要蓝牙</h1><p>允许应用使用必要的蓝牙功能，<br>才能发现附近设备并进行连接。</p></section>
+<div id="toast" class="toast" role="status"></div>
+<section class="card"><div class="title">为什么需要这些权限？</div><div class="row"><div class="ico">⌁</div><div><strong>附近设备 / 蓝牙</strong><p>用于搜索、连接和读取兼容体脂秤的测量数据。具体权限名称取决于 Android 版本及应用实现。</p></div></div><div class="row"><div class="ico">⌖</div><div><strong>位置权限（视实现而定）</strong><p>部分旧版 Android 的蓝牙扫描流程可能涉及位置权限。是否需要，应按系统版本和实际技术方案确定。</p></div></div><div class="row"><div class="ico">▣</div><div><strong>数据使用边界</strong><p>权限应遵循最小必要原则。蓝牙权限本身不等于允许访问通讯录、相册或其他无关数据。</p></div></div></section>
+<section class="card"><div class="title">授权前可以了解</div><div class="note">轻刻健康只应在设备连接功能需要时申请相关权限。拒绝授权后，用户仍应能够查看已有记录及其他不依赖蓝牙的功能。</div><button class="primary" onclick="simulate()">检查权限状态</button><button class="secondary" onclick="toast('请在 Android 系统设置中找到轻刻健康，并检查附近设备或蓝牙相关权限。当前网页不能直接打开应用权限设置。')">查看设置指引</button><div class="state" id="state">当前权限状态：网页无法读取</div></section>
+<p style="font-size:11px;line-height:1.8;color:#9aa59d;text-align:center">这是交互原型，不会调用 Android 权限 API。正式版本需由原生 Android 层实现权限检查、申请和拒绝后的降级处理。</p>
+</main><script>
+function toast(s){const t=document.getElementById('toast');t.textContent=s;t.style.display='block'}
+function simulate(){document.getElementById('state').textContent='当前权限状态：未检测（原型）';toast('网页无法确认系统权限。请在正式 Android App 中通过原生 API 检查授权状态。')}
+</script></body></html>

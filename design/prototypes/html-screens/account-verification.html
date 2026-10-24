@@ -1,0 +1,130 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>验证手机号 - 轻刻健康</title>
+<style>
+:root{--green:#21a675;--deep:#147d58;--bg:#f5f8f5;--text:#20332b;--muted:#7d8982;--line:#e5ece7;--red:#d95e5e}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;color:var(--text)}
+.app{max-width:430px;min-height:100vh;min-height:100dvh;margin:auto;background:#fff;padding:0 25px 28px;display:flex;flex-direction:column}
+header{height:58px;display:flex;align-items:center;gap:10px}
+header button{border:0;background:none;font-size:27px;cursor:pointer;padding:0}
+main{flex:1}
+.icon{width:59px;height:59px;border-radius:20px;background:#e6f7ef;color:var(--green);display:grid;place-items:center;font-size:28px;margin-top:29px;margin-bottom:23px}
+h1{font-size:25px;margin:0 0 11px}
+.desc{font-size:13px;color:var(--muted);line-height:1.8;margin:0}
+.phone-row{display:flex;align-items:center;gap:8px;margin-top:8px}
+.phone{font-size:15px;font-weight:650;letter-spacing:.4px}
+.edit{border:0;background:none;color:var(--deep);font-size:12px;cursor:pointer}
+.code-area{margin-top:34px}
+.label{font-size:12px;font-weight:600;margin-bottom:14px;display:block}
+.code-inputs{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+.code-inputs input{width:100%;height:53px;min-width:0;border:1px solid var(--line);border-radius:11px;text-align:center;font-size:22px;font-weight:650;color:var(--text);outline:0}
+.code-inputs input:focus{border:1.5px solid var(--green);background:#f7fcf9}
+.error{display:none;font-size:11px;color:var(--red);margin-top:11px;line-height:1.7}
+.demo-hint{background:#f5faf6;border-radius:11px;padding:12px;margin-top:15px;color:#6f8275;font-size:11px;line-height:1.8}
+.resend-row{display:flex;justify-content:space-between;align-items:center;margin-top:22px;font-size:12px;color:var(--muted)}
+.resend{border:0;background:none;color:var(--deep);font-size:12px;cursor:pointer;padding:5px}
+.resend:disabled{color:#a5b0a8;cursor:not-allowed}
+.primary{width:100%;border:0;border-radius:13px;background:var(--green);color:#fff;padding:14px;font:inherit;font-size:15px;font-weight:650;cursor:pointer;margin-top:28px}
+.secondary{width:100%;border:1px solid #dfe9e2;border-radius:13px;background:#fff;color:var(--deep);padding:13px;font:inherit;font-size:13px;cursor:pointer;margin-top:10px}
+.foot{text-align:center;font-size:10px;color:#a0aaa3;line-height:1.7;margin-top:24px}
+.result{display:none;margin-top:22px;background:#e6f7ef;color:var(--deep);padding:14px;border-radius:12px;font-size:12px;line-height:1.8}
+</style>
+</head>
+<body>
+<div class="app">
+<header><button onclick="history.length>1?history.back():location.href='account-register.html'" aria-label="返回">‹</button></header>
+<main>
+<div class="icon">✓</div>
+<h1 id="pageTitle">验证你的手机号</h1>
+<p class="desc">我们需要确认这是你本人使用的手机号。</p>
+<div class="phone-row"><span class="phone" id="phoneText">+86 138****0000</span><button class="edit" onclick="editPhone()">修改手机号</button></div>
+
+<div class="code-area">
+<label class="label" for="code0">请输入 6 位短信验证码</label>
+<div class="code-inputs" id="codeInputs">
+<input id="code0" type="text" inputmode="numeric" maxlength="1" autocomplete="one-time-code" aria-label="验证码第1位">
+<input id="code1" type="text" inputmode="numeric" maxlength="1" aria-label="验证码第2位">
+<input id="code2" type="text" inputmode="numeric" maxlength="1" aria-label="验证码第3位">
+<input id="code3" type="text" inputmode="numeric" maxlength="1" aria-label="验证码第4位">
+<input id="code4" type="text" inputmode="numeric" maxlength="1" aria-label="验证码第5位">
+<input id="code5" type="text" inputmode="numeric" maxlength="1" aria-label="验证码第6位">
+</div>
+<div class="error" id="error" role="alert">验证码不正确，请检查后重试。</div>
+<div class="demo-hint">原型演示验证码：<strong>123456</strong><br>该验证码仅用于本地交互演示，不会发送真实短信。</div>
+<div class="resend-row"><span id="sendStatus">验证码已模拟发送</span><button class="resend" id="resend" onclick="resendCode()" disabled>60 秒后重发</button></div>
+</div>
+
+<button class="primary" onclick="verify()">确认验证</button>
+<button class="secondary" onclick="location.href='account-login.html'">返回登录</button>
+<div class="result" id="result" role="status"></div>
+</main>
+<div class="foot">请勿向他人透露验证码。<br>真实短信发送与身份验证服务尚未接入。</div>
+</div>
+<script>
+const params=new URLSearchParams(location.search);
+const rawPhone=params.get('phone')||'13800000000';
+const scene=params.get('scene')||'register';
+const phoneDisplay=rawPhone.length===11?rawPhone.slice(0,3)+'****'+rawPhone.slice(-4):rawPhone;
+document.getElementById('phoneText').textContent='+86 '+phoneDisplay;
+if(scene==='login')document.getElementById('pageTitle').textContent='验证码登录';
+
+const inputs=Array.from(document.querySelectorAll('.code-inputs input'));
+inputs.forEach((input,index)=>{
+ input.addEventListener('input',()=>{
+  input.value=input.value.replace(/\D/g,'').slice(-1);
+  if(input.value&&index<inputs.length-1)inputs[index+1].focus();
+  document.getElementById('error').style.display='none';
+ });
+ input.addEventListener('keydown',event=>{
+  if(event.key==='Backspace'&&!input.value&&index>0)inputs[index-1].focus();
+  if(event.key==='ArrowLeft'&&index>0)inputs[index-1].focus();
+  if(event.key==='ArrowRight'&&index<inputs.length-1)inputs[index+1].focus();
+ });
+});
+function editPhone(){
+ location.href=scene==='login'?'account-login.html':'account-register.html';
+}
+let countdown=60,timer=null;
+function startCountdown(){
+ const btn=document.getElementById('resend');
+ btn.disabled=true;
+ btn.textContent=countdown+' 秒后重发';
+ timer=setInterval(()=>{
+  countdown--;
+  if(countdown<=0){
+   clearInterval(timer);timer=null;btn.disabled=false;btn.textContent='重新获取验证码';
+  }else btn.textContent=countdown+' 秒后重发';
+ },1000);
+}
+function resendCode(){
+ if(timer)return;
+ countdown=60;
+ document.getElementById('sendStatus').textContent='已模拟重新发送验证码';
+ inputs.forEach(input=>input.value='');
+ startCountdown();
+}
+function verify(){
+ const code=inputs.map(input=>input.value).join('');
+ const error=document.getElementById('error');
+ const result=document.getElementById('result');
+ result.style.display='none';
+ if(code!=='123456'){
+  error.textContent=code.length<6?'请输入完整的 6 位验证码。':'验证码不正确，请检查后重试。';
+  error.style.display='block';return;
+ }
+ error.style.display='none';result.style.display='block';
+ if(scene==='register'){
+  result.innerHTML='验证码格式与演示值校验通过。<br>真实账号尚未创建。正式流程应由服务端完成手机号验证后进入健康档案初始化。<br><br><button style="border:0;background:#21a675;color:#fff;padding:10px 14px;border-radius:9px;cursor:pointer" onclick="location.href=\'account-login.html\'">前往登录页</button>';
+ }else{
+  result.textContent='演示验证码校验通过，但尚未连接身份认证服务，因此没有建立登录会话。';
+ }
+}
+startCountdown();
+</script>
+</body>
+</html>

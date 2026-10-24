@@ -1,0 +1,94 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>移除家庭成员 - 轻刻健康</title>
+<style>
+:root{--g:#21a675;--d:#147d58;--t:#20332b;--m:#7d8982;--line:#e5ece7;--red:#d65353}
+*{box-sizing:border-box}
+body{margin:0;background:#f5f8f5;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;color:var(--t)}
+.app{max-width:430px;min-height:100vh;min-height:100dvh;margin:auto;background:#fff;display:flex;flex-direction:column}
+header{height:58px;display:flex;align-items:center;gap:12px;padding:0 20px;border-bottom:1px solid var(--line)}
+header button{border:0;background:none;font-size:27px;cursor:pointer}
+header h1{font-size:17px;margin:0}
+main{flex:1;padding:24px 21px}
+.hero{text-align:center;padding:10px 0 23px}
+.icon{width:70px;height:70px;margin:0 auto 16px;border-radius:23px;background:#fff0ef;color:var(--red);display:grid;place-items:center;font-size:30px}
+h2{font-size:21px;margin:0 0 9px}
+.hero p{font-size:12px;line-height:1.9;color:var(--m);margin:0 auto;max-width:300px}
+.member{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:14px;padding:15px;margin-bottom:22px}
+.avatar{width:49px;height:49px;border-radius:50%;background:#e7f7ee;color:var(--d);display:grid;place-items:center;font-size:17px;flex-shrink:0}
+.info{flex:1;min-width:0}
+.info strong{display:block;font-size:13px;margin-bottom:6px}
+.info small{display:block;font-size:10px;color:var(--m);overflow-wrap:anywhere}
+.role{font-size:10px;background:#f0f4f0;color:#728176;padding:6px 8px;border-radius:7px}
+.title{font-size:13px;font-weight:700;margin-bottom:11px}
+.list{border:1px solid var(--line);border-radius:13px;padding:0 14px}
+.item{display:flex;gap:10px;padding:13px 0;border-bottom:1px solid #f0f3f0}
+.item:last-child{border-bottom:0}
+.mark{width:24px;height:24px;border-radius:8px;background:#f4f7f4;color:#718277;display:grid;place-items:center;flex-shrink:0;font-size:11px}
+.item strong{font-size:12px;display:block;margin:3px 0 5px}
+.item p{font-size:11px;line-height:1.8;color:var(--m);margin:0}
+.notice{margin-top:15px;border-radius:11px;padding:13px;background:#fff7ea;color:#8c744d;font-size:11px;line-height:1.9}
+.confirm{display:flex;gap:9px;align-items:flex-start;margin-top:20px;font-size:11px;line-height:1.8;color:#6f7d73}
+.confirm input{accent-color:var(--g);margin-top:4px}
+.error{display:none;color:var(--red);font-size:11px;margin-top:8px}
+.actions{padding:0 21px 26px}
+.danger{width:100%;border:0;border-radius:13px;background:var(--red);color:#fff;padding:14px;font:inherit;font-size:14px;font-weight:650;cursor:pointer}
+.secondary{width:100%;border:1px solid var(--line);border-radius:13px;background:#fff;color:var(--d);padding:13px;font:inherit;font-size:13px;cursor:pointer;margin-top:10px}
+.result{display:none;margin-top:16px;padding:14px;border-radius:11px;background:#e7f7ee;color:var(--d);font-size:12px;line-height:1.9}
+</style>
+</head>
+<body>
+<div class="app">
+<header><button onclick="location.href='family-member-detail.html'" aria-label="返回">‹</button><h1>移除家庭成员</h1></header>
+<main>
+<section class="hero">
+<div class="icon">−</div>
+<h2>确定移除该成员？</h2>
+<p>移除会影响家庭成员关系。请先确认成员身份及其数据共享关系，再继续操作。</p>
+</section>
+<div class="member">
+<div class="avatar" id="avatar">林</div>
+<div class="info"><strong id="memberName">林女士（示例成员）</strong><small id="memberId">账号：family-user-02</small></div>
+<span class="role">普通成员</span>
+</div>
+<div class="title">移除前请了解</div>
+<div class="list">
+<div class="item"><span class="mark">1</span><div><strong>家庭成员关系</strong><p>正式操作应解除该成员与当前家庭的关系，并按权限规则处理未完成的邀请或角色配置。</p></div></div>
+<div class="item"><span class="mark">2</span><div><strong>健康数据访问权限</strong><p>应根据数据所有权和授权关系撤销该成员通过家庭身份获得的访问权限，并使相关授权及时失效。</p></div></div>
+<div class="item"><span class="mark">3</span><div><strong>个人测量记录</strong><p>移除家庭成员不应直接等同于删除个人健康记录。记录保留、导出与删除应遵循独立的数据规则。</p></div></div>
+</div>
+<div class="notice">如果该成员是家庭管理员，正式系统应先要求转移管理员身份或执行专门的解散流程，不应允许直接移除最后一位管理员。</div>
+<label class="confirm"><input type="checkbox" id="ack"><span>我已核对成员身份，并了解移除家庭关系与撤销数据访问权限的影响。</span></label>
+<div class="error" id="error">请先勾选确认项。</div>
+<div class="result" id="result" role="status"></div>
+</main>
+<div class="actions" id="actions">
+<button class="danger" onclick="removeMember()">确认移除成员</button>
+<button class="secondary" onclick="location.href='family-member-detail.html'">取消，返回成员详情</button>
+</div>
+</div>
+<script>
+const params=new URLSearchParams(location.search);
+const name=params.get('name')||'林女士（示例成员）';
+const id=params.get('member')||'family-user-02';
+document.getElementById('memberName').textContent=name;
+document.getElementById('memberId').textContent='账号：'+id;
+document.getElementById('avatar').textContent=name.slice(0,1);
+function removeMember(){
+ if(!document.getElementById('ack').checked){
+  document.getElementById('error').style.display='block';return;
+ }
+ document.getElementById('error').style.display='none';
+ document.getElementById('actions').style.display='none';
+ const result=document.getElementById('result');
+ result.style.display='block';
+ result.innerHTML='移除流程演示完成。<br>目标成员：<strong>'+escapeHTML(name)+'</strong><br>当前没有调用后端，成员关系、健康数据权限及测量记录均未被实际修改。<br><br><button type="button" style="border:0;background:#21a675;color:white;border-radius:9px;padding:10px 13px;cursor:pointer" onclick="location.href='+'\'family-switch.html\''+'>返回家庭管理</button>';
+}
+function escapeHTML(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+</script>
+</body>
+</html>

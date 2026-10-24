@@ -1,0 +1,96 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>连接超时 - 轻刻健康</title>
+<style>
+:root{--g:#21a675;--d:#147d58;--t:#20332b;--m:#7d8982;--line:#e5ece7;--orange:#d9973f}
+*{box-sizing:border-box}
+body{margin:0;background:#f5f8f5;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;color:var(--t)}
+.app{max-width:430px;min-height:100vh;min-height:100dvh;margin:auto;background:#fff;display:flex;flex-direction:column}
+header{height:58px;display:flex;align-items:center;padding:0 20px;gap:12px;border-bottom:1px solid var(--line)}
+header button{border:0;background:none;font-size:27px;cursor:pointer}
+header h1{font-size:17px;margin:0}
+main{padding:24px 21px;flex:1}
+.hero{text-align:center;padding:17px 0 25px}
+.icon{width:79px;height:79px;border-radius:26px;background:#fff4e7;color:var(--orange);display:grid;place-items:center;font-size:33px;margin:0 auto 18px}
+h2{font-size:21px;margin:0 0 10px}
+.hero p{font-size:12px;line-height:1.9;color:var(--m);max-width:305px;margin:0 auto}
+.device{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:22px}
+.device-icon{width:47px;height:47px;background:#e8f7ef;border-radius:14px;color:var(--d);display:grid;place-items:center;font-size:22px;flex-shrink:0}
+.device-info{flex:1;min-width:0}
+.device-info strong{display:block;font-size:12px;margin-bottom:5px;overflow-wrap:anywhere}
+.device-info small{font-size:10px;color:var(--m)}
+.status{font-size:10px;color:#a9752f;background:#fff4e7;padding:6px 8px;border-radius:7px;white-space:nowrap}
+.section-title{font-size:13px;font-weight:700;margin-bottom:12px}
+.reason{border:1px solid var(--line);border-radius:13px;padding:0 13px}
+.reason-row{padding:12px 0;border-bottom:1px solid #f0f3f0;display:flex;gap:10px}
+.reason-row:last-child{border-bottom:0}
+.bullet{width:25px;height:25px;border-radius:8px;background:#f4f7f4;color:#728477;display:grid;place-items:center;flex-shrink:0;font-size:11px}
+.reason-row strong{font-size:12px;display:block;margin:3px 0 5px}
+.reason-row p{font-size:11px;line-height:1.8;color:var(--m);margin:0}
+.tip{font-size:11px;color:#78867b;line-height:1.8;background:#f6faf7;padding:12px;border-radius:10px;margin-top:15px}
+.actions{padding:0 21px 26px}
+.primary{width:100%;border:0;border-radius:13px;background:var(--g);color:white;padding:14px;font:inherit;font-size:14px;font-weight:650;cursor:pointer}
+.secondary{width:100%;border:1px solid var(--line);border-radius:13px;background:white;color:var(--d);padding:13px;font:inherit;font-size:13px;cursor:pointer;margin-top:10px}
+.feedback{display:none;margin-top:12px;border-radius:10px;padding:12px;background:#e8f7ef;color:var(--d);font-size:11px;line-height:1.8}
+</style>
+</head>
+<body>
+<div class="app">
+<header><button onclick="location.href='device-scan.html'" aria-label="返回">‹</button><h1>连接设备</h1></header>
+<main>
+<section class="hero">
+<div class="icon">◷</div>
+<h2>连接超时，请重试</h2>
+<p>设备暂时没有完成连接。你可以检查设备状态后重新尝试，不需要立即删除设备或重新注册账号。</p>
+</section>
+
+<div class="device">
+<div class="device-icon">▱</div>
+<div class="device-info"><strong id="deviceName">轻刻智能体脂秤 S1</strong><small id="deviceId">QK-S1-A8F2</small></div>
+<span class="status">连接超时</span>
+</div>
+
+<div class="section-title">建议检查以下项目</div>
+<div class="reason">
+<div class="reason-row"><span class="bullet">1</span><div><strong>确认体脂秤已唤醒</strong><p>将设备放在平整、坚硬的地面上，轻踩秤面或按照设备说明书唤醒。</p></div></div>
+<div class="reason-row"><span class="bullet">2</span><div><strong>靠近设备后再尝试</strong><p>尽量缩短手机与体脂秤的距离，并避免设备被金属物体遮挡。</p></div></div>
+<div class="reason-row"><span class="bullet">3</span><div><strong>检查设备是否正在被其他手机连接</strong><p>如果设备不支持多连接，请先断开其他手机或应用的连接。</p></div></div>
+<div class="reason-row"><span class="bullet">4</span><div><strong>确认权限与电量</strong><p>检查蓝牙权限、手机蓝牙状态及体脂秤电池电量。</p></div></div>
+</div>
+
+<div class="tip">正式产品应记录可诊断的错误码和连接阶段，并设置合理的连接超时与重试策略。不要无限重试，也不要把所有连接失败都显示为同一种原因。</div>
+<div class="feedback" id="feedback" role="status"></div>
+</main>
+<div class="actions">
+<button class="primary" onclick="retry()">重新连接</button>
+<button class="secondary" onclick="location.href='device-scan.html'">重新搜索设备</button>
+<button class="secondary" onclick="location.href='device-detail.html?device='+encodeURIComponent(deviceId)+'&alias='+encodeURIComponent(deviceName)">查看设备详情</button>
+</div>
+</div>
+<script>
+const params=new URLSearchParams(location.search);
+const deviceId=params.get('device')||'QK-S1-A8F2';
+const deviceName=params.get('alias')||'轻刻智能体脂秤 S1';
+document.getElementById('deviceId').textContent=deviceId;
+document.getElementById('deviceName').textContent=deviceName;
+let busy=false;
+function retry(){
+ if(busy)return;
+ busy=true;
+ const btn=document.querySelector('.primary');
+ btn.disabled=true;btn.textContent='正在模拟重试…';
+ const feedback=document.getElementById('feedback');
+ feedback.style.display='block';
+ feedback.textContent='正在演示连接重试流程，请稍候。';
+ setTimeout(()=>{
+  busy=false;btn.disabled=false;btn.textContent='重新连接';
+  feedback.textContent='演示结果：连接仍未建立。网页原型没有发起真实蓝牙连接请求。请检查设备状态，或返回扫描页面重新选择设备。';
+ },1400);
+}
+</script>
+</body>
+</html>

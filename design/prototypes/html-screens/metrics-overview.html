@@ -1,0 +1,148 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>身体指标总览 - 轻刻健康</title>
+<style>
+:root{--brand:#21a675;--deep:#147d58;--bg:#f5f8f5;--text:#202923;--muted:#89938c;--line:#edf1ed;--red:#e36d68;--blue:#5a8fe7}
+*{box-sizing:border-box}
+body{margin:0;background:#eaf0eb;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}
+button{font:inherit;cursor:pointer}
+.app{max-width:430px;min-height:100vh;margin:auto;background:var(--bg);padding-bottom:28px}
+.top{padding:22px 20px 15px;background:#fff}
+.nav{display:flex;align-items:center;justify-content:space-between}
+.back{border:0;background:transparent;padding:5px 8px 5px 0;font-size:24px;color:#26342b}
+.nav-title{font-size:17px;font-weight:650}
+.icon-btn{width:34px;height:34px;border:1px solid var(--line);background:#fff;border-radius:12px;color:#536258}
+.sub{margin-top:8px;color:var(--muted);font-size:12px}
+.member-row{display:flex;align-items:center;justify-content:space-between;margin-top:18px}
+.member{display:flex;align-items:center;gap:9px;font-size:14px;font-weight:600}
+.avatar{width:34px;height:34px;border-radius:12px;background:#e4f5eb;color:var(--deep);display:grid;place-items:center;font-size:15px}
+.switch{border:0;background:#f2f5f2;border-radius:10px;padding:8px 11px;font-size:12px;color:#536258}
+.content{padding:16px}
+.section-head{display:flex;justify-content:space-between;align-items:center;margin:5px 2px 12px}
+.section-head h2{font-size:16px;margin:0;font-weight:700}
+.section-head span{font-size:12px;color:var(--muted)}
+.summary{background:linear-gradient(135deg,#1d9d70,#2dbb86);border-radius:20px;padding:18px;color:#fff;position:relative;overflow:hidden}
+.summary:after{content:"";position:absolute;width:160px;height:160px;border:1px solid #ffffff25;border-radius:50%;right:-48px;top:-70px;box-shadow:0 0 0 22px #ffffff0c,0 0 0 44px #ffffff08}
+.summary-label{font-size:12px;opacity:.88}
+.summary-main{display:flex;align-items:flex-end;gap:8px;margin-top:9px}
+.summary-num{font-size:38px;line-height:1;font-weight:750;letter-spacing:-1px}
+.summary-unit{font-size:14px;margin-bottom:4px}
+.summary-change{margin-top:11px;font-size:12px;opacity:.95}
+.summary-foot{display:flex;justify-content:space-between;align-items:center;margin-top:20px;padding-top:13px;border-top:1px solid #ffffff35;font-size:11px}
+.summary-foot button{border:1px solid #ffffff70;border-radius:9px;padding:7px 10px;color:#fff;background:#ffffff15;font-size:11px}
+.range{display:flex;background:#edf2ed;padding:4px;border-radius:12px;gap:3px}
+.range button{flex:1;border:0;background:transparent;padding:8px 0;border-radius:9px;color:#7c887f;font-size:12px}
+.range button.active{background:#fff;color:var(--deep);font-weight:650;box-shadow:0 1px 4px #142a1c0d}
+.metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.metric{background:#fff;border:1px solid #edf1ed;border-radius:17px;padding:15px 13px;min-height:144px;text-align:left;color:inherit;transition:transform .15s}
+.metric:active{transform:scale(.98)}
+.metric-top{display:flex;align-items:center;justify-content:space-between}
+.metric-name{font-size:12px;color:#758078}
+.metric-symbol{width:29px;height:29px;border-radius:10px;display:grid;place-items:center;font-size:14px}
+.green{background:#e6f7ed;color:#1c9a68}.blue{background:#eaf1ff;color:#5a8fe7}.orange{background:#fff2e3;color:#d68b35}.purple{background:#f0eaff;color:#8b70d6}
+.metric-value{display:flex;align-items:baseline;gap:4px;margin-top:15px}
+.metric-value strong{font-size:25px;letter-spacing:-.6px;font-weight:720}
+.metric-value small{font-size:11px;color:#7f8981}
+.metric-status{display:flex;align-items:center;gap:5px;margin-top:9px;font-size:11px;color:#768278}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--brand)}
+.metric-status .up{color:var(--red)}.metric-status .down{color:var(--blue)}
+.metric-arrow{margin-left:auto;color:#adb6ae;font-size:17px}
+.info{display:flex;gap:10px;padding:13px;background:#edf7f0;border-radius:14px;margin-top:16px;color:#50735e;font-size:12px;line-height:1.65}
+.info-icon{font-size:17px}
+.bottom-note{padding:14px 4px 0;color:#9aa49c;font-size:11px;line-height:1.6}
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:#25352b;color:white;border-radius:12px;padding:11px 16px;font-size:12px;opacity:0;pointer-events:none;transition:opacity .2s;white-space:nowrap}
+.toast.show{opacity:1}
+@media(min-width:500px){.app{margin:18px auto;border-radius:26px;overflow:hidden;box-shadow:0 12px 45px #21352712;min-height:calc(100vh - 36px)}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="nav">
+      <button class="back" onclick="history.length>1?history.back():showToast('原型演示：返回上一页')">‹</button>
+      <div class="nav-title">身体指标</div>
+      <button class="icon-btn" onclick="showToast('原型演示：指标说明入口')">i</button>
+    </div>
+    <div class="sub">持续记录，了解身体变化</div>
+    <div class="member-row">
+      <div class="member"><div class="avatar">我</div><span>我的身体数据</span></div>
+      <button class="switch" onclick="showToast('原型演示：这里可切换家庭成员')">切换成员⌄</button>
+    </div>
+  </header>
+  <main class="content">
+    <section class="summary">
+      <div class="summary-label">最近一次测量 · 2026年10月22日 08:15</div>
+      <div class="summary-main"><span class="summary-num">68.4</span><span class="summary-unit">kg</span></div>
+      <div class="summary-change">体重较上次测量 <b>−0.3 kg</b></div>
+      <div class="summary-foot"><span>最近 7 天共测量 4 次</span><button onclick="location.href='history-list.html'">查看测量记录　›</button></div>
+    </section>
+
+    <div class="section-head" style="margin-top:23px">
+      <h2>身体指标</h2><span>点击卡片查看趋势　›</span>
+    </div>
+    <div class="range" id="range">
+      <button class="active" data-range="week">近 7 天</button>
+      <button data-range="month">近 30 天</button>
+      <button data-range="quarter">近 3 个月</button>
+    </div>
+
+    <div class="metric-grid">
+      <button class="metric" onclick="openTrend('trend-weight.html')">
+        <div class="metric-top"><span class="metric-name">体重</span><span class="metric-symbol green">↕</span></div>
+        <div class="metric-value"><strong>68.4</strong><small>kg</small></div>
+        <div class="metric-status"><span class="dot"></span>较上期 −0.8 kg <span class="metric-arrow">›</span></div>
+      </button>
+      <button class="metric" onclick="openTrend('trend-bmi.html')">
+        <div class="metric-top"><span class="metric-name">BMI</span><span class="metric-symbol blue">▦</span></div>
+        <div class="metric-value"><strong>23.7</strong><small>kg/m²</small></div>
+        <div class="metric-status"><span class="dot"></span>较上期 −0.3 <span class="metric-arrow">›</span></div>
+      </button>
+      <button class="metric" onclick="openTrend('trend-body-fat.html')">
+        <div class="metric-top"><span class="metric-name">体脂率</span><span class="metric-symbol orange">◉</span></div>
+        <div class="metric-value"><strong>21.8</strong><small>%</small></div>
+        <div class="metric-status"><span class="dot"></span>较上期 −0.6% <span class="metric-arrow">›</span></div>
+      </button>
+      <button class="metric" onclick="openTrend('trend-muscle.html')">
+        <div class="metric-top"><span class="metric-name">肌肉量</span><span class="metric-symbol purple">◈</span></div>
+        <div class="metric-value"><strong>50.2</strong><small>kg</small></div>
+        <div class="metric-status"><span class="dot"></span>较上期 +0.2 kg <span class="metric-arrow">›</span></div>
+      </button>
+      <button class="metric" onclick="openTrend('trend-water.html')">
+        <div class="metric-top"><span class="metric-name">水分率</span><span class="metric-symbol blue">≈</span></div>
+        <div class="metric-value"><strong>55.6</strong><small>%</small></div>
+        <div class="metric-status"><span class="dot"></span>较上期 +0.4% <span class="metric-arrow">›</span></div>
+      </button>
+      <button class="metric" onclick="openTrend('trend-visceral-fat.html')">
+        <div class="metric-top"><span class="metric-name">内脏脂肪等级</span><span class="metric-symbol orange">◎</span></div>
+        <div class="metric-value"><strong>8</strong><small>级</small></div>
+        <div class="metric-status"><span class="dot"></span>较上期无变化 <span class="metric-arrow">›</span></div>
+      </button>
+      <button class="metric" onclick="openTrend('trend-basal-metabolism.html')">
+        <div class="metric-top"><span class="metric-name">基础代谢</span><span class="metric-symbol green">ϟ</span></div>
+        <div class="metric-value"><strong>1,560</strong><small>kcal</small></div>
+        <div class="metric-status"><span class="dot"></span>较上期 +12 kcal <span class="metric-arrow">›</span></div>
+      </button>
+      <button class="metric" onclick="openTrend('trend-score.html')">
+        <div class="metric-top"><span class="metric-name">身体评分</span><span class="metric-symbol purple">★</span></div>
+        <div class="metric-value"><strong>82</strong><small>分</small></div>
+        <div class="metric-status"><span class="dot"></span>较上期 +2 分 <span class="metric-arrow">›</span></div>
+      </button>
+    </div>
+
+    <div class="info"><span class="info-icon">ⓘ</span><div><b>关于身体指标</b><br>体脂秤数据受测量时间、饮水、运动等因素影响。建议在相近条件下持续测量，重点关注长期趋势，而不是单次结果。</div></div>
+    <div class="bottom-note">以上为原型演示数据，不代表真实测量结果或医学判断。各指标的参考区间可能因年龄、性别及设备算法而不同。</div>
+  </main>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+let toastTimer;
+function showToast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2200)}
+function openTrend(file){if(file==='trend-weight.html'||file==='trend-body-fat.html'){location.href=file;return}showToast('下一批将补齐该指标趋势页面')}
+document.querySelectorAll('#range button').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('#range button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');showToast('已切换'+btn.textContent+'：当前为演示数据')}));
+</script>
+</body>
+</html>

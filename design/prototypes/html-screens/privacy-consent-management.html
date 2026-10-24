@@ -1,0 +1,41 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>隐私授权管理 - 轻刻健康</title>
+<style>
+:root{--g:#21a675;--d:#147d58;--bg:#f5f8f5;--text:#24362d;--muted:#84928b;--line:#e7eee9}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:var(--text);font-size:14px}.app{max-width:430px;min-height:100vh;margin:auto;padding-bottom:35px}.header{padding:20px;display:flex;align-items:center;gap:13px}.back{width:40px;height:40px;border:0;border-radius:12px;background:white;font-size:23px;cursor:pointer}.header h1{font-size:21px;margin:0}.header p{font-size:12px;color:var(--muted);margin:5px 0 0}.section{padding:0 20px;margin-bottom:15px}.intro{padding:15px;border-radius:15px;background:#eaf7ef;color:#587463;font-size:12px;line-height:1.8}.title{font-size:15px;font-weight:700;margin:0 0 10px}.card{background:white;border:1px solid #edf1ee;border-radius:18px;padding:16px}.item{padding:15px 0;border-bottom:1px solid var(--line)}.item:first-child{padding-top:0}.item:last-child{border:0;padding-bottom:0}.topline{display:flex;align-items:center;gap:10px}.itemicon{width:36px;height:36px;border-radius:11px;background:#edf8f1;display:grid;place-items:center;color:var(--d);font-size:17px;flex-shrink:0}.itemmain{flex:1}.itemmain b{font-size:13px}.itemmain small{display:block;font-size:11px;color:var(--muted);margin-top:5px}.switch{width:43px;height:25px;border:0;border-radius:20px;background:#cbd7cf;padding:3px;cursor:pointer;flex-shrink:0}.switch i{display:block;width:19px;height:19px;border-radius:50%;background:white;transition:transform .2s}.switch.on{background:var(--g)}.switch.on i{transform:translateX(18px)}.desc{font-size:11px;color:#738178;line-height:1.7;margin:10px 0 0 46px}.required{font-size:10px;color:#9a7b4c;background:#fbf1df;padding:5px 7px;border-radius:6px}.btn{width:100%;border:0;border-radius:13px;background:var(--g);color:white;padding:14px;font-weight:650;cursor:pointer}.btn.light{margin-top:9px;background:#e8f6ee;color:var(--d)}.note{font-size:11px;color:var(--muted);line-height:1.8}.modalback{display:none;position:fixed;inset:0;background:#17251db0;align-items:center;justify-content:center;padding:24px}.modal{background:white;border-radius:18px;padding:21px;width:100%;max-width:360px}.modal h2{font-size:17px;margin:0 0 10px}.modal p{font-size:12px;color:var(--muted);line-height:1.8}.actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:16px}.actions button{border:0;border-radius:11px;padding:12px;background:#edf3ee;cursor:pointer}.actions .primary{background:var(--g);color:white}.toast{display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#25372e;color:white;padding:12px 16px;border-radius:12px;white-space:nowrap}
+</style>
+</head>
+<body>
+<main class="app">
+<header class="header"><button class="back" onclick="location.href='privacy-data-home.html'">‹</button><div><h1>隐私授权管理</h1><p>按用途查看和管理授权偏好</p></div></header>
+<section class="section"><div class="intro">以下项目用于演示授权管理界面。真实授权状态应由应用的授权记录、操作系统权限状态和服务端状态共同决定，不能仅依据页面开关判断。</div></section>
+<section class="section"><div class="title">数据处理与服务授权</div><div class="card">
+<div class="item"><div class="topline"><div class="itemicon">♡</div><div class="itemmain"><b>健康数据处理说明</b><small>用于体重、体脂及相关健康记录功能</small></div><span class="required">需明确告知</span></div><p class="desc">正式版本应在收集或使用健康数据前，说明处理目的、数据类型、保存方式与必要性。此项不是可随意关闭的装饰开关。</p></div>
+<div class="item"><div class="topline"><div class="itemicon">☁</div><div class="itemmain"><b>云端备份与同步</b><small>在已说明的范围内同步健康记录</small></div><button class="switch on" data-key="cloud" aria-label="云端备份与同步" onclick="askToggle(this,'云端备份与同步')"><i></i></button></div><p class="desc">关闭后，正式产品应说明是否停止后续同步，以及已上传的数据如何处理。</p></div>
+<div class="item"><div class="topline"><div class="itemicon">♧</div><div class="itemmain"><b>家庭健康数据共享</b><small>向指定家庭成员开放选定数据</small></div><button class="switch" data-key="family" aria-label="家庭健康数据共享" onclick="askToggle(this,'家庭健康数据共享')"><i></i></button></div><p class="desc">家庭共享应按成员和数据类别分别授权，撤销时需同步更新服务端访问控制。</p></div>
+<div class="item"><div class="topline"><div class="itemicon">✉</div><div class="itemmain"><b>产品活动与服务通知</b><small>接收可选的产品动态和活动信息</small></div><button class="switch" data-key="marketing" aria-label="产品活动与服务通知" onclick="askToggle(this,'产品活动与服务通知')"><i></i></button></div><p class="desc">可选营销通知应与提供核心健康服务所必需的处理区分开来。</p></div>
+</div></section>
+<section class="section"><div class="title">设备权限说明</div><div class="card">
+<div class="item"><div class="topline"><div class="itemicon">⌁</div><div class="itemmain"><b>蓝牙与附近设备</b><small>用于发现并连接支持的体脂秤</small></div><button class="switch on" data-key="bluetooth" aria-label="蓝牙权限演示状态" onclick="askToggle(this,'蓝牙与附近设备')"><i></i></button></div><p class="desc">此处仅演示应用内偏好。实际蓝牙权限必须通过 Android 系统权限 API 检查和申请。</p></div>
+</div></section>
+<section class="section"><button class="btn" onclick="save()">保存授权偏好</button><button class="btn light" onclick="location.href='privacy-data-home.html'">返回隐私管理</button><p class="note">撤回授权不一定意味着此前已收集的数据立即删除。数据删除需按独立的数据处理流程执行。</p></section>
+<div class="modalback" id="modal"><div class="modal"><h2 id="modalTitle">确认变更授权？</h2><p id="modalText">请确认你了解此操作的影响。</p><div class="actions"><button onclick="cancelToggle()">暂不变更</button><button class="primary" onclick="confirmToggle()">确认变更</button></div></div></div>
+<div class="toast" id="toast"></div>
+</main>
+<script>
+let pending=null;
+const labels={cloud:'云端备份与同步',family:'家庭健康数据共享',marketing:'产品活动与服务通知',bluetooth:'蓝牙与附近设备'};
+function askToggle(btn,label){pending={btn,wasOn:btn.classList.contains('on'),label};document.getElementById('modalTitle').textContent=pending.wasOn?'关闭'+label+'？':'开启'+label+'？';document.getElementById('modalText').textContent=pending.wasOn?'此操作在真实产品中可能停止后续相关处理，但不会自动删除已保存的数据。':'真实产品需先说明用途，并在必要时取得相应授权。当前只模拟偏好状态。';document.getElementById('modal').style.display='flex'}
+function cancelToggle(){pending=null;document.getElementById('modal').style.display='none'}
+function confirmToggle(){if(pending)pending.btn.classList.toggle('on',!pending.wasOn);document.getElementById('modal').style.display='none';toast('已更新本页演示状态');pending=null}
+function save(){const p={};document.querySelectorAll('.switch[data-key]').forEach(b=>p[b.dataset.key]=b.classList.contains('on'));try{sessionStorage.setItem('demoPrivacyConsent',JSON.stringify(p))}catch(e){}toast('授权偏好已模拟保存')}
+function toast(s){const t=document.getElementById('toast');t.textContent=s;t.style.display='block';setTimeout(()=>t.style.display='none',1800)}
+try{const p=JSON.parse(sessionStorage.getItem('demoPrivacyConsent')||'null');if(p)document.querySelectorAll('.switch[data-key]').forEach(b=>{if(p[b.dataset.key]!==undefined)b.classList.toggle('on',!!p[b.dataset.key])})}catch(e){}
+document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')cancelToggle()});
+</script>
+</body>
+</html>

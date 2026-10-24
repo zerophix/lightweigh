@@ -1,0 +1,74 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>删除结果 - 轻衡健康</title>
+<style>
+:root{--g:#21a675;--gd:#147d58;--red:#d94b4b;--bg:#f5f8f5;--text:#202923;--muted:#87928a;--line:#e7ece8}
+*{box-sizing:border-box}body{margin:0;background:#e9eeea;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:var(--text)}
+button{font:inherit;cursor:pointer}
+.app{max-width:430px;min-height:100vh;margin:auto;background:var(--bg);display:flex;flex-direction:column}
+header{height:58px;background:white;display:flex;align-items:center;justify-content:space-between;padding:0 20px}
+header button{border:0;background:none;color:var(--muted);font-size:14px}header strong{font-size:16px}
+main{padding:34px 20px;flex:1}
+.state-icon{width:76px;height:76px;margin:35px auto 22px;border-radius:26px;display:grid;place-items:center;background:#e4f5e9;color:var(--gd);font-size:39px}
+.state-icon.fail{background:#fff0ed;color:var(--red)}
+h1{text-align:center;font-size:22px;margin:0 0 12px}
+.desc{text-align:center;color:var(--muted);font-size:13px;line-height:1.9;max-width:300px;margin:0 auto}
+.summary{margin-top:34px;background:white;border:1px solid var(--line);border-radius:16px;padding:17px}
+.summary-title{font-size:13px;font-weight:650;margin-bottom:14px}
+.row{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);font-size:12px}
+.row:last-child{border:0}.row span{color:var(--muted)}.row strong{font-weight:550;text-align:right}
+.notice{margin-top:14px;padding:13px;background:#edf7f0;border-radius:12px;color:#567b63;font-size:11px;line-height:1.8}
+.notice.fail{background:#fff2ef;color:#9b5a50}
+.actions{display:grid;gap:10px;margin-top:24px}
+.actions button{height:47px;border-radius:13px;font-size:14px;font-weight:600}
+.primary{background:var(--g);color:white;border:0}
+.secondary{background:white;border:1px solid var(--line)}
+.hidden{display:none}
+.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);background:#25352b;color:white;padding:11px 15px;border-radius:10px;font-size:12px;opacity:0;transition:.2s;white-space:nowrap}.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="app">
+<header><button onclick="notify('返回记录列表')">‹ 返回</button><strong>操作结果</strong><button onclick="switchState()">切换演示状态</button></header>
+<main>
+<div id="success">
+<div class="state-icon">✓</div>
+<h1>记录已删除</h1>
+<p class="desc">这条测量记录已从历史记录中移除。相关趋势和统计将在数据刷新后重新计算。</p>
+<div class="summary">
+<div class="summary-title">已处理的记录</div>
+<div class="row"><span>测量时间</span><strong>2026-10-22 08:32</strong></div>
+<div class="row"><span>所属档案</span><strong>我的档案</strong></div>
+<div class="row"><span>原始体重</span><strong>62.4 kg</strong></div>
+</div>
+<div class="notice">此页面为成功状态的界面演示。实际产品必须在删除操作得到确认后才展示此状态。</div>
+<div class="actions"><button class="primary" onclick="notify('原型演示：返回并刷新记录列表')">返回历史记录</button><button class="secondary" onclick="notify('原型演示：打开下一条记录')">查看其他记录</button></div>
+</div>
+
+<div id="failure" class="hidden">
+<div class="state-icon fail">!</div>
+<h1>删除未完成</h1>
+<p class="desc">暂时无法确认这条记录是否已删除。请检查网络后重试，避免重复操作导致状态不一致。</p>
+<div class="summary">
+<div class="summary-title">问题详情</div>
+<div class="row"><span>操作</span><strong>删除测量记录</strong></div>
+<div class="row"><span>可能原因</span><strong>网络中断或服务暂不可用</strong></div>
+<div class="row"><span>建议处理</span><strong>刷新记录状态后再决定是否重试</strong></div>
+</div>
+<div class="notice fail">不要仅凭请求超时就认定删除失败。正式版本应重新查询记录状态，区分已删除、未删除和结果未知。</div>
+<div class="actions"><button class="primary" onclick="notify('原型演示：重新查询删除状态')">重新检查状态</button><button class="secondary" onclick="notify('原型演示：返回记录详情')">返回记录详情</button></div>
+</div>
+</main>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+let failed=false;
+function notify(t){const e=document.getElementById("toast");e.textContent=t;e.classList.add("show");clearTimeout(window.tt);window.tt=setTimeout(()=>e.classList.remove("show"),2300)}
+function switchState(){failed=!failed;document.getElementById("success").classList.toggle("hidden",failed);document.getElementById("failure").classList.toggle("hidden",!failed)}
+</script>
+</body>
+</html>

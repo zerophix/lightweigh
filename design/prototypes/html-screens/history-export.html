@@ -1,0 +1,111 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>导出记录 - 轻衡健康</title>
+<style>
+:root{--g:#21a675;--gd:#147d58;--bg:#f5f8f5;--text:#202923;--muted:#87928a;--line:#e7ece8}
+*{box-sizing:border-box}body{margin:0;background:#e9eeea;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:var(--text)}
+button,input{font:inherit}button{cursor:pointer}
+.app{max-width:430px;min-height:100vh;margin:auto;background:var(--bg);padding-bottom:100px}
+header{height:58px;background:white;display:flex;align-items:center;justify-content:space-between;padding:0 20px}
+header button{border:0;background:none;color:var(--muted);font-size:14px}header strong{font-size:16px}
+main{padding:20px 17px}
+.intro{font-size:12px;color:var(--muted);line-height:1.8;margin:0 2px 17px}
+.card{background:white;border:1px solid var(--line);border-radius:16px;padding:17px;margin-bottom:13px}
+.head{display:flex;align-items:center;justify-content:space-between;margin-bottom:15px}
+.head strong{font-size:14px}.head span{font-size:11px;color:var(--muted)}
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+.pill{padding:9px 12px;background:white;border:1px solid var(--line);border-radius:10px;color:#68736a;font-size:12px}
+.pill.active{background:#e8f6ed;border-color:#bfe4cc;color:var(--gd);font-weight:600}
+.date-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.date-box{padding:12px;border:1px solid var(--line);border-radius:11px}
+.date-box label{display:block;font-size:11px;color:var(--muted);margin-bottom:8px}
+.date-box input{width:100%;border:0;outline:none;background:transparent;font-size:12px;color:var(--text)}
+.member-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--line)}
+.member-row:last-child{border:0;padding-bottom:0}
+.member-row input,.check-row input{accent-color:var(--g);width:17px;height:17px}
+.avatar{width:34px;height:34px;border-radius:12px;background:#e5f5e9;color:var(--gd);display:grid;place-items:center;font-size:12px}
+.member-info{flex:1}.member-info strong{font-size:12px}.member-info p{font-size:10px;color:var(--muted);margin:4px 0 0}
+.check-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 10px}
+.check-row{display:flex;align-items:center;gap:8px;font-size:12px;color:#4f5b52}
+.format{display:flex;gap:10px}
+.format-option{flex:1;border:1px solid var(--line);border-radius:13px;padding:15px 12px;background:white;text-align:left}
+.format-option.active{border-color:#8bcfa7;background:#f0faf3}
+.format-option strong{display:block;font-size:13px}
+.format-option p{font-size:10px;color:var(--muted);line-height:1.6;margin:6px 0 0}
+.format-option .check{float:right;color:var(--gd);font-size:12px}
+.privacy{display:flex;gap:9px;padding:13px;background:#edf7f0;border-radius:12px;color:#567b63;font-size:11px;line-height:1.8;margin-top:13px}
+.privacy input{accent-color:var(--g);margin-top:3px;flex-shrink:0}
+footer{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;padding:13px 17px calc(15px + env(safe-area-inset-bottom));background:#ffffffed;border-top:1px solid var(--line)}
+footer button{width:100%;height:47px;border:0;border-radius:13px;background:var(--g);color:white;font-size:14px;font-weight:600}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#25352b;color:white;padding:11px 15px;border-radius:10px;font-size:12px;opacity:0;transition:.2s;white-space:nowrap}.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="app">
+<header><button onclick="toast('返回历史记录')">‹ 返回</button><strong>导出测量记录</strong><button onclick="resetForm()">重置</button></header>
+<main>
+<p class="intro">将测量记录整理为文件，便于个人保存或进行健康数据回顾。导出前请检查成员与时间范围。</p>
+
+<section class="card">
+<div class="head"><strong>1. 选择时间范围</strong><span>必选</span></div>
+<div class="pills" id="ranges">
+<button class="pill active" data-range="30" onclick="setRange(this)">近 30 天</button>
+<button class="pill" data-range="90" onclick="setRange(this)">近 3 个月</button>
+<button class="pill" data-range="365" onclick="setRange(this)">近 1 年</button>
+<button class="pill" data-range="all" onclick="setRange(this)">全部记录</button>
+<button class="pill" data-range="custom" onclick="setRange(this)">自定义日期</button>
+</div>
+<div class="date-grid" id="customDates" hidden>
+<div class="date-box"><label for="start">开始日期</label><input type="date" id="start" value="2026-10-01"></div>
+<div class="date-box"><label for="end">结束日期</label><input type="date" id="end" value="2026-10-22"></div>
+</div>
+</section>
+
+<section class="card">
+<div class="head"><strong>2. 选择健康档案</strong><span>至少选择一位</span></div>
+<div class="member-row"><input type="checkbox" class="member" value="me" checked><div class="avatar">我</div><div class="member-info"><strong>我的档案</strong><p>当前个人健康数据</p></div></div>
+<div class="member-row"><input type="checkbox" class="member" value="a"><div class="avatar" style="background:#eaf0fb;color:#547bb0">家</div><div class="member-info"><strong>家庭成员 A</strong><p>家庭健康档案</p></div></div>
+<div class="member-row"><input type="checkbox" class="member" value="b"><div class="avatar" style="background:#fff0df;color:#b77d34">家</div><div class="member-info"><strong>家庭成员 B</strong><p>家庭健康档案</p></div></div>
+</section>
+
+<section class="card">
+<div class="head"><strong>3. 选择导出内容</strong><button style="border:0;background:none;color:var(--gd);font-size:11px" onclick="toggleAll()">全选 / 取消全选</button></div>
+<div class="check-grid" id="fields">
+<label class="check-row"><input type="checkbox" checked value="weight">体重</label>
+<label class="check-row"><input type="checkbox" checked value="bmi">BMI</label>
+<label class="check-row"><input type="checkbox" checked value="fat">体脂率</label>
+<label class="check-row"><input type="checkbox" checked value="muscle">肌肉量</label>
+<label class="check-row"><input type="checkbox" value="water">体水分率</label>
+<label class="check-row"><input type="checkbox" value="visceral">内脏脂肪</label>
+<label class="check-row"><input type="checkbox" value="metabolism">基础代谢</label>
+<label class="check-row"><input type="checkbox" value="score">身体评分</label>
+</div>
+</section>
+
+<section class="card">
+<div class="head"><strong>4. 选择文件格式</strong></div>
+<div class="format">
+<button class="format-option active" data-format="CSV" onclick="setFormat(this)"><span class="check">✓</span><strong>CSV 表格</strong><p>适合电子表格和数据整理</p></button>
+<button class="format-option" data-format="PDF" onclick="setFormat(this)"><span class="check"></span><strong>PDF 报告</strong><p>适合阅读与打印</p></button>
+</div>
+<label class="privacy"><input type="checkbox" id="privacy"><span>我已核对导出范围，理解文件可能包含个人健康信息，会妥善保管并仅分享给可信任的对象。</span></label>
+</section>
+</main>
+<footer><button onclick="startExport()">生成导出文件</button></footer>
+</div>
+<div id="toast" class="toast" role="status"></div>
+<script>
+let range="30",format="CSV";
+function toast(s){const e=document.getElementById("toast");e.textContent=s;e.classList.add("show");clearTimeout(window.tt);window.tt=setTimeout(()=>e.classList.remove("show"),2200)}
+function setRange(btn){range=btn.dataset.range;document.querySelectorAll("#ranges .pill").forEach(x=>x.classList.toggle("active",x===btn));document.getElementById("customDates").hidden=range!=="custom"}
+function setFormat(btn){format=btn.dataset.format;document.querySelectorAll(".format-option").forEach(x=>{x.classList.toggle("active",x===btn);x.querySelector(".check").textContent=x===btn?"✓":""})}
+function toggleAll(){const boxes=[...document.querySelectorAll("#fields input")];const all=boxes.every(x=>x.checked);boxes.forEach(x=>x.checked=!all)}
+function resetForm(){range="30";format="CSV";document.querySelectorAll("#ranges .pill").forEach(x=>x.classList.toggle("active",x.dataset.range==="30"));document.getElementById("customDates").hidden=true;document.querySelectorAll(".member").forEach((x,i)=>x.checked=i===0);document.querySelectorAll("#fields input").forEach((x,i)=>x.checked=i<4);document.getElementById("privacy").checked=false;document.querySelectorAll(".format-option").forEach(x=>{x.classList.toggle("active",x.dataset.format==="CSV");x.querySelector(".check").textContent=x.dataset.format==="CSV"?"✓":""});toast("已恢复默认设置")}
+function startExport(){const members=[...document.querySelectorAll(".member")].filter(x=>x.checked);const fields=[...document.querySelectorAll("#fields input")].filter(x=>x.checked);if(!members.length){toast("请至少选择一位健康档案");return}if(!fields.length){toast("请至少选择一项导出指标");return}if(range==="custom"){const a=document.getElementById("start").value,b=document.getElementById("end").value;if(!a||!b||a>b){toast("请检查自定义日期范围");return}}if(!document.getElementById("privacy").checked){toast("请先确认健康数据的导出范围");return}location.href="history-export-result.html?format="+format; }
+</script>
+</body>
+</html>

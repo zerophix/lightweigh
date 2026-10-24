@@ -1,0 +1,91 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>欢迎使用轻刻健康</title>
+<style>
+:root{--green:#21a675;--deep:#147d58;--bg:#f5f8f5;--text:#20332b;--muted:#7d8982}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;color:var(--text)}
+.app{max-width:430px;min-height:100vh;min-height:100dvh;margin:auto;background:#fff;display:flex;flex-direction:column;padding:20px 24px 28px}
+.top{display:flex;justify-content:flex-end}
+.skip{border:0;background:none;color:var(--muted);font-size:13px;padding:8px;cursor:pointer}
+.stage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:8px 0 28px}
+.illustration{height:245px;width:100%;display:grid;place-items:center;position:relative;margin-bottom:25px}
+.blob{position:absolute;width:225px;height:225px;border-radius:45% 55% 53% 47%;background:#e7f7ef;transform:rotate(-8deg)}
+.blob.two{width:172px;height:172px;background:#d4f0e1;transform:rotate(18deg)}
+.visual{position:relative;z-index:1;width:190px;height:190px;border-radius:34px;background:#fff;box-shadow:0 14px 38px #2d80551a;display:grid;place-items:center}
+.visual svg{width:128px;height:128px}
+.eyebrow{color:var(--green);font-size:12px;letter-spacing:2px;font-weight:700;margin-bottom:12px}
+h1{font-size:25px;line-height:1.4;margin:0 0 12px}
+.desc{font-size:13px;color:var(--muted);line-height:1.9;max-width:290px;margin:0 auto}
+.pager{display:flex;justify-content:center;gap:7px;margin:8px 0 27px}
+.pager span{width:7px;height:7px;border-radius:9px;background:#dfe8e2;transition:all .2s}
+.pager span.active{width:23px;background:var(--green)}
+.actions{display:flex;gap:10px}
+button.primary,button.secondary{border-radius:13px;padding:14px;font:inherit;font-size:14px;cursor:pointer}
+.primary{flex:1;background:var(--green);color:#fff;border:0;font-weight:650}
+.secondary{width:105px;background:#fff;border:1px solid #e1e9e3;color:#607168}
+.bottom-note{text-align:center;font-size:10px;color:#a1ada5;margin-top:19px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top"><button class="skip" onclick="finish()">跳过</button></div>
+  <section class="stage">
+    <div class="illustration">
+      <div class="blob"></div><div class="blob two"></div>
+      <div class="visual" id="visual">
+        <svg viewBox="0 0 140 140" fill="none" aria-hidden="true">
+          <rect x="24" y="18" width="92" height="104" rx="22" fill="#E7F7EF" stroke="#21A675" stroke-width="3"/>
+          <rect x="39" y="32" width="62" height="30" rx="9" fill="white" stroke="#B7E4CB" stroke-width="2"/>
+          <path d="M45 48H55L61 39L70 54L78 43L84 48H95" stroke="#21A675" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="47" cy="82" r="5" fill="#21A675"/><circle cx="70" cy="82" r="5" fill="#21A675"/><circle cx="93" cy="82" r="5" fill="#21A675"/>
+          <path d="M48 102H92" stroke="#A7DCC0" stroke-width="4" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+    <div class="eyebrow" id="eyebrow">MEASURE · 01</div>
+    <h1 id="heading">看见身体的每一次变化</h1>
+    <p class="desc" id="description">记录体重与身体成分指标，用持续的数据了解自己的变化。</p>
+  </section>
+  <div class="pager" id="pager"><span class="active"></span><span></span><span></span></div>
+  <div class="actions">
+    <button class="secondary" id="prev" onclick="previous()" style="visibility:hidden">上一步</button>
+    <button class="primary" id="next" onclick="next()">下一步</button>
+  </div>
+  <div class="bottom-note">健康数据仅用于帮助你了解身体变化<br>身体成分测量结果仅供健康管理参考</div>
+</div>
+<script>
+const pages=[
+ {eyebrow:'MEASURE · 01',title:'看见身体的每一次变化',desc:'记录体重与身体成分指标，用持续的数据了解自己的变化。',icon:'scale'},
+ {eyebrow:'INSIGHT · 02',title:'用趋势代替猜测',desc:'通过历史记录与趋势图，观察长期变化，而不是被单次数字左右。',icon:'chart'},
+ {eyebrow:'ACTION · 03',title:'让健康习惯更容易坚持',desc:'围绕你的目标规划行动，把每一天的小进步积累成长期改变。',icon:'leaf'}
+];
+let index=0;
+function draw(){
+ const p=pages[index];
+ document.getElementById('eyebrow').textContent=p.eyebrow;
+ document.getElementById('heading').textContent=p.title;
+ document.getElementById('description').textContent=p.desc;
+ document.getElementById('prev').style.visibility=index===0?'hidden':'visible';
+ document.getElementById('next').textContent=index===pages.length-1?'开始使用':'下一步';
+ document.querySelectorAll('#pager span').forEach((el,i)=>el.classList.toggle('active',i===index));
+ const visual=document.getElementById('visual');
+ if(p.icon==='chart'){
+ visual.innerHTML='<svg viewBox="0 0 140 140" fill="none" aria-hidden="true"><rect x="19" y="19" width="102" height="102" rx="20" fill="#E7F7EF"/><path d="M37 98V44M37 98H107" stroke="#A7DCC0" stroke-width="3" stroke-linecap="round"/><path d="M43 83L59 69L73 76L94 48L108 55" stroke="#21A675" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="94" cy="48" r="5" fill="#21A675"/></svg>';
+ }else if(p.icon==='leaf'){
+ visual.innerHTML='<svg viewBox="0 0 140 140" fill="none" aria-hidden="true"><circle cx="70" cy="70" r="49" fill="#E7F7EF"/><path d="M70 106V64" stroke="#147D58" stroke-width="5" stroke-linecap="round"/><path d="M70 77C38 77 31 56 33 35C57 33 78 44 78 65" stroke="#21A675" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M70 91C70 67 88 53 109 55C108 77 94 92 70 91Z" stroke="#147D58" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+ }else{
+ visual.innerHTML='<svg viewBox="0 0 140 140" fill="none" aria-hidden="true"><rect x="24" y="18" width="92" height="104" rx="22" fill="#E7F7EF" stroke="#21A675" stroke-width="3"/><rect x="39" y="32" width="62" height="30" rx="9" fill="white" stroke="#B7E4CB" stroke-width="2"/><path d="M45 48H55L61 39L70 54L78 43L84 48H95" stroke="#21A675" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="47" cy="82" r="5" fill="#21A675"/><circle cx="70" cy="82" r="5" fill="#21A675"/><circle cx="93" cy="82" r="5" fill="#21A675"/><path d="M48 102H92" stroke="#A7DCC0" stroke-width="4" stroke-linecap="round"/></svg>';
+ }
+}
+function next(){if(index<pages.length-1){index++;draw()}else finish()}
+function previous(){if(index>0){index--;draw()}}
+function finish(){location.href='account-login.html'}
+draw();
+</script>
+</body>
+</html>

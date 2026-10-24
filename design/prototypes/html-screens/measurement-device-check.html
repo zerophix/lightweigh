@@ -1,0 +1,613 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>测量前检查 - 轻衡健康</title>
+  <style>
+    :root {
+      --primary: #18a879;
+      --primary-dark: #087f5b;
+      --bg: #f5f7f6;
+      --surface: #fff;
+      --text: #202923;
+      --muted: #849087;
+      --border: #e8ede9;
+      --danger: #dc5656;
+      --warning: #d99732;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: #e9eeeb;
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont,
+        "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+
+    button { font: inherit; cursor: pointer; }
+
+    .phone {
+      width: 100%;
+      max-width: 430px;
+      min-height: 100vh;
+      margin: 0 auto;
+      padding-bottom: 30px;
+      background: var(--bg);
+      position: relative;
+    }
+
+    .header {
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      background: var(--surface);
+    }
+
+    .back {
+      width: 36px;
+      height: 36px;
+      border: 0;
+      background: transparent;
+      font-size: 25px;
+      text-align: left;
+    }
+
+    .header-title {
+      font-size: 17px;
+      font-weight: 650;
+    }
+
+    .help {
+      border: 0;
+      background: transparent;
+      color: var(--primary-dark);
+      font-size: 13px;
+    }
+
+    .content { padding: 22px 18px; }
+
+    .eyebrow {
+      margin-bottom: 8px;
+      color: var(--primary-dark);
+      font-size: 12px;
+      font-weight: 650;
+      letter-spacing: 1px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 25px;
+      letter-spacing: -0.5px;
+    }
+
+    .subtitle {
+      margin: 10px 0 22px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .device-card {
+      padding: 22px 18px 20px;
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      background: var(--surface);
+      text-align: center;
+    }
+
+    .scale-illustration {
+      width: 126px;
+      height: 126px;
+      margin: 0 auto 16px;
+      display: grid;
+      place-items: center;
+      border-radius: 32px;
+      background: #e8f7f0;
+    }
+
+    .scale {
+      width: 86px;
+      height: 86px;
+      border: 4px solid #a8d9c3;
+      border-radius: 18px;
+      background: linear-gradient(145deg, #fff, #eaf5ef);
+      position: relative;
+      box-shadow: 0 8px 18px #0b765019;
+    }
+
+    .scale-screen {
+      position: absolute;
+      top: 17px;
+      left: 22px;
+      width: 34px;
+      height: 16px;
+      border-radius: 4px;
+      background: #b8e8d2;
+    }
+
+    .scale-contact {
+      position: absolute;
+      bottom: 12px;
+      left: 14px;
+      right: 14px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .scale-contact span {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #a8d9c3;
+    }
+
+    .device-name {
+      margin: 0 0 7px;
+      font-size: 18px;
+      font-weight: 650;
+    }
+
+    .device-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 20px;
+      background: #fff2df;
+      color: #a96b12;
+      font-size: 12px;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--warning);
+    }
+
+    .device-description {
+      margin: 13px 0 18px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .outline-button {
+      width: 100%;
+      height: 44px;
+      border: 1px solid #b9e5d2;
+      border-radius: 12px;
+      background: #f1fbf6;
+      color: var(--primary-dark);
+      font-weight: 600;
+    }
+
+    .section-title {
+      margin: 24px 0 12px;
+      font-size: 15px;
+      font-weight: 650;
+    }
+
+    .check-list {
+      padding: 0 16px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: var(--surface);
+    }
+
+    .check-row {
+      min-height: 65px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .check-row:last-child { border-bottom: 0; }
+
+    .check-icon {
+      width: 36px;
+      height: 36px;
+      flex-shrink: 0;
+      display: grid;
+      place-items: center;
+      border-radius: 11px;
+      background: #f0f4f1;
+      font-size: 17px;
+    }
+
+    .check-copy { flex: 1; }
+
+    .check-name {
+      margin-bottom: 4px;
+      font-size: 14px;
+      font-weight: 550;
+    }
+
+    .check-desc {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .check-result {
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .check-result.ok { color: var(--primary-dark); }
+    .check-result.fail { color: var(--danger); }
+
+    .tips {
+      display: flex;
+      gap: 10px;
+      margin-top: 18px;
+      padding: 14px;
+      border-radius: 14px;
+      background: #edf7f1;
+      color: #4e6f5e;
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .tips strong { color: #255d43; }
+
+    .bottom-action {
+      position: sticky;
+      bottom: 0;
+      padding: 16px 18px 24px;
+      background: linear-gradient(transparent, var(--bg) 18%);
+    }
+
+    .primary-button {
+      width: 100%;
+      height: 52px;
+      border: 0;
+      border-radius: 15px;
+      background: var(--primary);
+      color: white;
+      font-size: 15px;
+      font-weight: 650;
+      box-shadow: 0 6px 15px #18a87925;
+    }
+
+    .primary-button:disabled {
+      background: #b9c8c0;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+
+    .footnote {
+      margin-top: 10px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 11px;
+    }
+
+    .toast {
+      position: fixed;
+      z-index: 10;
+      bottom: 105px;
+      left: 50%;
+      transform: translateX(-50%);
+      max-width: calc(100vw - 36px);
+      padding: 11px 16px;
+      border-radius: 12px;
+      background: #25332b;
+      color: white;
+      font-size: 13px;
+      text-align: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s;
+    }
+
+    .toast.show { opacity: 1; }
+
+    .overlay {
+      position: fixed;
+      z-index: 20;
+      inset: 0;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      background: #15231c66;
+    }
+
+    .overlay.show { display: flex; }
+
+    .sheet {
+      width: 100%;
+      max-width: 430px;
+      padding: 22px 20px calc(24px + env(safe-area-inset-bottom));
+      border-radius: 22px 22px 0 0;
+      background: white;
+    }
+
+    .sheet h2 {
+      margin: 0 0 12px;
+      font-size: 18px;
+    }
+
+    .sheet p {
+      margin: 0 0 20px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .secondary-button {
+      width: 100%;
+      height: 46px;
+      margin-top: 10px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: white;
+      color: var(--text);
+    }
+  </style>
+</head>
+
+<body>
+  <main class="phone">
+    <header class="header">
+      <button class="back" aria-label="返回" onclick="goBack()">‹</button>
+      <div class="header-title">测量前检查</div>
+      <button class="help" onclick="openHelp()">遇到问题</button>
+    </header>
+
+    <section class="content">
+      <div class="eyebrow">MEASUREMENT · 01</div>
+      <h1>开始前，确认设备状态</h1>
+      <p class="subtitle">
+        请确认体脂秤已准备好，并完成连接检查，确保本次测量顺利进行。
+      </p>
+
+      <article class="device-card">
+        <div class="scale-illustration" aria-hidden="true">
+          <div class="scale">
+            <div class="scale-screen"></div>
+            <div class="scale-contact">
+              <span></span><span></span>
+            </div>
+          </div>
+        </div>
+
+        <h2 class="device-name" id="deviceName">轻衡智能体脂秤</h2>
+
+        <div class="device-status" id="deviceStatus">
+          <span class="status-dot"></span>
+          <span id="deviceStatusText">尚未连接</span>
+        </div>
+
+        <p class="device-description" id="deviceDescription">
+          请唤醒体脂秤，确认手机蓝牙已开启。
+        </p>
+
+        <button class="outline-button" id="connectButton"
+          onclick="connectDevice()">
+          搜索并连接设备
+        </button>
+      </article>
+
+      <h2 class="section-title">测量环境检查</h2>
+
+      <div class="check-list">
+        <div class="check-row">
+          <div class="check-icon">⌁</div>
+          <div class="check-copy">
+            <div class="check-name">手机蓝牙</div>
+            <div class="check-desc">用于连接体脂秤并接收测量数据</div>
+          </div>
+          <span class="check-result" id="bluetoothResult">待检查</span>
+        </div>
+
+        <div class="check-row">
+          <div class="check-icon">◉</div>
+          <div class="check-copy">
+            <div class="check-name">设备连接</div>
+            <div class="check-desc">确保体脂秤处于可连接状态</div>
+          </div>
+          <span class="check-result" id="connectionResult">未连接</span>
+        </div>
+
+        <div class="check-row">
+          <div class="check-icon">▱</div>
+          <div class="check-copy">
+            <div class="check-name">测量环境</div>
+            <div class="check-desc">将体脂秤放在坚硬、平整的地面</div>
+          </div>
+          <span class="check-result ok">请确认</span>
+        </div>
+      </div>
+
+      <div class="tips">
+        <span>i</span>
+        <div>
+          <strong>测量小提示</strong><br />
+          建议赤脚站上体脂秤，双脚接触金属电极。测量时保持身体稳定，
+          避免扶靠周围物体。
+        </div>
+      </div>
+    </section>
+
+    <footer class="bottom-action">
+      <button class="primary-button" id="startButton"
+        onclick="startMeasurement()" disabled>
+        请先连接设备
+      </button>
+      <div class="footnote">测量结果仅供健康管理参考</div>
+    </footer>
+  </main>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <div class="overlay" id="helpOverlay" onclick="closeHelp(event)">
+    <section class="sheet" role="dialog" aria-modal="true"
+      aria-labelledby="helpTitle">
+      <h2 id="helpTitle">无法连接体脂秤？</h2>
+      <p>
+        1. 确认手机蓝牙已开启。<br />
+        2. 将体脂秤放在平整地面，并轻踩唤醒。<br />
+        3. 确认设备没有被其他手机占用。<br />
+        4. 检查系统蓝牙权限是否已授权。
+      </p>
+      <button class="primary-button" onclick="retryConnection()">
+        重新检查
+      </button>
+      <button class="secondary-button" onclick="hideHelp()">
+        暂时关闭
+      </button>
+    </section>
+  </div>
+
+  <script>
+    // 原型演示状态。正式 Android App 应由原生蓝牙层提供真实状态。
+    const state = {
+      bluetoothEnabled: true,
+      connected: false,
+      connecting: false
+    };
+
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.add("show");
+
+      clearTimeout(window.toastTimer);
+      window.toastTimer = setTimeout(() => {
+        toast.classList.remove("show");
+      }, 2400);
+    }
+
+    function renderState() {
+      const status = document.getElementById("deviceStatus");
+      const statusText = document.getElementById("deviceStatusText");
+      const description = document.getElementById("deviceDescription");
+      const connectButton = document.getElementById("connectButton");
+      const startButton = document.getElementById("startButton");
+      const bluetoothResult = document.getElementById("bluetoothResult");
+      const connectionResult = document.getElementById("connectionResult");
+
+      bluetoothResult.textContent =
+        state.bluetoothEnabled ? "已开启" : "未开启";
+
+      bluetoothResult.className =
+        "check-result " + (state.bluetoothEnabled ? "ok" : "fail");
+
+      connectionResult.textContent =
+        state.connected ? "已连接" :
+        state.connecting ? "连接中" : "未连接";
+
+      connectionResult.className =
+        "check-result " + (state.connected ? "ok" : "");
+
+      statusText.textContent =
+        state.connected ? "设备已连接" :
+        state.connecting ? "正在连接" :
+        state.bluetoothEnabled ? "尚未连接" : "蓝牙未开启";
+
+      status.style.background = state.connected ? "#e5f7ed" : "#fff2df";
+      status.style.color = state.connected ? "#087f5b" : "#a96b12";
+
+      description.textContent = state.connected
+        ? "设备已准备就绪，可以开始测量。"
+        : state.bluetoothEnabled
+          ? "请唤醒体脂秤，确认手机蓝牙已开启。"
+          : "请先在手机系统设置中开启蓝牙。";
+
+      connectButton.textContent = state.connected
+        ? "重新连接设备"
+        : state.connecting
+          ? "正在搜索设备…"
+          : "搜索并连接设备";
+
+      startButton.disabled = !state.connected || state.connecting;
+      startButton.textContent = state.connected
+        ? "开始测量"
+        : "请先连接设备";
+    }
+
+    function connectDevice() {
+      if (state.connecting) return;
+
+      if (!state.bluetoothEnabled) {
+        showToast("请先开启手机蓝牙");
+        return;
+      }
+
+      state.connecting = true;
+      renderState();
+      showToast("正在搜索附近的体脂秤…");
+
+      // 模拟连接结果；正式版本接入原生 BLE SDK。
+      setTimeout(() => {
+        state.connecting = false;
+        state.connected = true;
+        renderState();
+        showToast("设备连接成功");
+      }, 1400);
+    }
+
+    function startMeasurement() {
+      if (!state.connected) {
+        showToast("请先连接体脂秤");
+        return;
+      }
+
+      showToast("进入测量准备页");
+
+      // 下一步可替换为实际测量准备页的跳转。
+      setTimeout(() => {
+        document.querySelector("h1").textContent = "请站上体脂秤";
+        document.querySelector(".subtitle").textContent =
+          "保持身体稳定，等待设备完成体重和身体成分数据采集。";
+        document.querySelector(".eyebrow").textContent =
+          "MEASUREMENT · 02";
+        document.getElementById("startButton").textContent = "模拟采集数据";
+        document.getElementById("startButton").onclick = simulateMeasurement;
+      }, 300);
+    }
+
+    function simulateMeasurement() {
+      showToast("正在采集测量数据…");
+    }
+
+    function openHelp() {
+      document.getElementById("helpOverlay").classList.add("show");
+    }
+
+    function hideHelp() {
+      document.getElementById("helpOverlay").classList.remove("show");
+    }
+
+    function closeHelp(event) {
+      if (event.target.id === "helpOverlay") hideHelp();
+    }
+
+    function retryConnection() {
+      hideHelp();
+      state.connected = false;
+      state.connecting = false;
+      renderState();
+      connectDevice();
+    }
+
+    function goBack() {
+      if (history.length > 1) {
+        history.back();
+      } else {
+        showToast("已返回测量入口");
+      }
+    }
+
+    renderState();
+  </script>
+</body>
+</html>
