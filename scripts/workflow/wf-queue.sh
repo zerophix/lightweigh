@@ -194,7 +194,7 @@ cmd_run() {
 
   # 2b) 回填任务板（在候选上完成，随候选一起推送；避免主树留脏改动）
   say "  [回填] 任务板（候选侧）…"
-  bash scripts/governance/gov-board-reconcile.sh 2>&1 | sed 's/^/      /' || true
+  bash scripts/governance/gov-board-reconcile.sh --branches "${merged[*]}" 2>&1 | sed 's/^/      /' || true
   if ! git diff --quiet; then
     git add -A && git commit -q -m "chore(board): reconcile tasks from merged PRs" || true
   fi

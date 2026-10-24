@@ -19,9 +19,10 @@ DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT="${WF_AUTOPILOT_ROOT:-$(cd "$DIR/../.." && pwd)}"
 cd "$ROOT" || exit 1
 
-DAYS=30; DRY=0; JSON=0
+DAYS=30; DRY=0; JSON=0; BRANCHES=""
 while [ $# -gt 0 ]; do
   case "$1" in
+    --branches) BRANCHES="${2:-}"; shift 2 ;;
     --since-days) DAYS="${2:-30}"; shift 2 ;;
     --dry) DRY=1; shift ;;
     --json) JSON=1; shift ;;
@@ -65,6 +66,12 @@ data = json.loads(tasks_path.read_text(encoding="utf-8"))
 tasks = {t["id"]: t for t in data.get("tasks", [])}
 
 # PR → 任务号（title/body 里的 T-xxx）
+# 分支名里带任务号（feat/t085-xxx）→ 队列合并的唯一可靠交付依据
+branch_ids = set()
+for b in (os.environ.get("BRANCHES") or "").split():
+    branch_ids.update(re.findall(r"[tT]-?(\d{3})", b))
+    branch_ids.update("T-" + m for m in re.findall(r"[tT]-?(\d{3})", b))
+
 pr_task = {}
 for p in prs:
     title = p.get('title', '') or ''
@@ -83,6 +90,17 @@ for p in prs:
         pr_task.setdefault(tid, p)
 
 updated = []
+for tid in sorted(branch_ids):
+    t = tasks.get(tid)
+    if not t or t.get("status") not in ("pending", "in_progress"):
+        continue
+    acc = t.get("acceptance") or {}
+    if acc.get("status") != "ready":
+        continue
+    t["status"] = "completed"
+    t["notes"] = (t.get("notes") or "") + "\n已由合并队列按分支名回填（DEC-071）"
+    updated.append((tid, 0, "queue"))
+
 for tid, p in sorted(pr_task.items()):
     t = tasks.get(tid)
     if not t:
