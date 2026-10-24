@@ -103,8 +103,37 @@ data class DiscoveredDevice(
 ) {
     init {
         require(signalBars in 0..SIGNAL_BAR_COUNT) { "signalBars 必须落在 0..$SIGNAL_BAR_COUNT，收到 $signalBars" }
-        require(batteryPercent in 0..100) { "batteryPercent 必须落在 0..100，收到 $batteryPercent" }
+        // -1 = 扫描阶段读不到电量（真实扫描只给名字与广播强度），确认页如实写「连接后读取」
+        require(batteryPercent in -1..100) { "batteryPercent 必须落在 -1..100（-1=未知），收到 $batteryPercent" }
     }
+}
+
+/** 扫描阶段拿不到设备规格时，确认页的如实替代文案（不拿原型默认值冒充真机）。 */
+const val SPEC_UNKNOWN_TEXT = "连接后读取"
+
+/** 电量未知（真实扫描阶段）的哨兵值。 */
+const val BATTERY_UNKNOWN: Int = -1
+
+/**
+ * 真实扫描结果 → 确认设备页的入参：只填本机确实读到的两项（名称、广播强度），
+ * 型号 / 序列号 / 电量留空，由 [deviceModelLine] / [deviceBatteryLabel] 如实说明。
+ */
+fun discoveredDeviceOf(found: FoundScale): DiscoveredDevice = DiscoveredDevice(
+    name = found.name,
+    shortName = found.name,
+    model = "",
+    serialMasked = "",
+    signalBars = signalBarsOf(found.rssi),
+    batteryPercent = BATTERY_UNKNOWN,
+)
+
+/** 广播强度 → 信号格数（原型四格；RSSI 分档，越界夹到两端）。 */
+fun signalBarsOf(rssi: Int): Int = when {
+    rssi >= -55 -> 4
+    rssi >= -65 -> 3
+    rssi >= -75 -> 2
+    rssi >= -85 -> 1
+    else -> 0
 }
 
 /** 权限 → 确认 → 连接（连接子态见 [DeviceConnectUiState]）。 */
@@ -315,12 +344,17 @@ private val SignalDividerHeight: Dp = QkSpacing.Xl + QkSpacing.Xs
 
 // ---- 文案派生（纯函数，单测可见） ----
 
-/** 确认设备页型号行：原型「型号 XHS-01 · 序列号 ****8A2F」。 */
+/** 确认设备页型号行：原型「型号 XHS-01 · 序列号 ****8A2F」；扫描阶段读不到时如实说明。 */
 fun deviceModelLine(device: DiscoveredDevice): String =
-    "型号 ${device.model} · 序列号 ${device.serialMasked}"
+    if (device.model.isBlank() && device.serialMasked.isBlank()) {
+        "型号与序列号$SPEC_UNKNOWN_TEXT"
+    } else {
+        "型号 ${device.model} · 序列号 ${device.serialMasked}"
+    }
 
-/** 电量文案：原型「82%」。 */
-fun deviceBatteryLabel(device: DiscoveredDevice): String = "${device.batteryPercent}%"
+/** 电量文案：原型「82%」；扫描阶段读不到电量时如实说明（电量要连上后才读得到）。 */
+fun deviceBatteryLabel(device: DiscoveredDevice): String =
+    if (device.batteryPercent < 0) SPEC_UNKNOWN_TEXT else "${device.batteryPercent}%"
 
 // ---- 四态 / 两页路由 ----
 

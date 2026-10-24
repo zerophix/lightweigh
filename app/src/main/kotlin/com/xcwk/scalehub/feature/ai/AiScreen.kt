@@ -82,12 +82,27 @@ fun AiScreen(
         return
     }
 
+    // 接入波第四批：AI 周总结（T-084）从问答页进入；无周报数据源时不造数，交给空态
+    var showWeekly by rememberSaveable { mutableStateOf(false) }
+    if (showWeekly) {
+        AiWeeklySummaryScreen(
+            state = AiWeeklySummaryUiState(),
+            onBack = { showWeekly = false },
+            onGeneratePlan = {
+                showWeekly = false
+                onIntent(AiIntent.OpenPlan)
+            },
+        )
+        return
+    }
+
     when (state.stage) {
         AiStage.Chat -> AiChatBody(
             state = state,
             onIntent = onIntent,
             onBack = onBack,
             onOpenBoundaries = { showBoundaries = true },
+            onOpenWeekly = { showWeekly = true },
         )
         AiStage.Generating -> AiGeneratingBody(state, onIntent, onBack)
         AiStage.Failed -> AiFailedBody(state, onIntent, onBack)
@@ -175,6 +190,7 @@ private fun AiChatBody(
     onIntent: (AiIntent) -> Unit,
     onBack: () -> Unit,
     onOpenBoundaries: () -> Unit,
+    onOpenWeekly: () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize().padding(QkSpacing.Lg)) {
         AiTopBar(
@@ -187,8 +203,14 @@ private fun AiChatBody(
             QkListRow(
                 title = WiringEntries.AiBoundaries.title,
                 subtitle = WiringEntries.AiBoundaries.hint,
-                showDivider = false,
                 onClick = onOpenBoundaries,
+            )
+            // 接入波第四批：AI 周总结（入口文案见 AiWeeklyEntry）
+            QkListRow(
+                title = AiWeeklyEntry.TITLE,
+                subtitle = AiWeeklyEntry.HINT,
+                showDivider = false,
+                onClick = onOpenWeekly,
             )
         }
         if (!state.formal) {

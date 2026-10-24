@@ -15,6 +15,8 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,8 +32,13 @@ import com.xcwk.scalehub.application.format.QkFormat
 import com.xcwk.scalehub.domain.model.LengthUnit
 import com.xcwk.scalehub.domain.model.UserUnitPreferences
 import com.xcwk.scalehub.domain.model.WeightUnit
+import com.xcwk.scalehub.feature.privacy.PrivacyAuthEntry
+import com.xcwk.scalehub.feature.privacy.PrivacyAuthRoute
 import com.xcwk.scalehub.ui.components.QkBackButton
 import com.xcwk.scalehub.ui.components.QkCard
+import com.xcwk.scalehub.ui.components.QkIcon
+import com.xcwk.scalehub.ui.components.QkIcons
+import com.xcwk.scalehub.ui.components.QkListRow
 import com.xcwk.scalehub.ui.components.QkPageTitle
 import com.xcwk.scalehub.ui.components.QkSectionHead
 import com.xcwk.scalehub.ui.theme.QkColor
@@ -182,6 +189,13 @@ class UnitSettingsViewModel(
 fun PrivacySettingsScreen(
     onBack: () -> Unit = {},
 ) {
+    // 接入波第四批：健康数据授权五态（T-096）覆盖本页，返回即回隐私设置
+    var showAuthFlow by remember { mutableStateOf(false) }
+    if (showAuthFlow) {
+        PrivacyAuthRoute(onBack = { showAuthFlow = false })
+        return
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -207,6 +221,13 @@ fun PrivacySettingsScreen(
         QkCard(modifier = Modifier.padding(top = 2.dp)) {
             PrivacyRow("AI 分析", "AI 解读需要发送身体数据到云端，仅正式账号可用")
             PrivacyRow("云同步", "登录后数据同步到云端，用于多设备同步")
+            QkListRow(
+                title = PrivacyAuthEntry.TITLE,
+                subtitle = PrivacyAuthEntry.HINT,
+                showDivider = false,
+                onClick = { showAuthFlow = true },
+                trailing = { QkIcon(QkIcons.ChevronRight, size = 18.dp) },
+            )
         }
         Spacer(modifier = Modifier.height(28.dp))
     }

@@ -10,7 +10,7 @@ import org.junit.Test
  * 钉的是四件容易被手改坏的事：
  * 1. 入口 id 唯一（进程重建 / 埋点按 id 回查，重 id 会恢复错屏）；
  * 2. 每个入口都能解析到目标屏，未知 id 一律不跳转；
- * 3. 四块目标屏都有入口（漏一块 = 「交付了但点不到」）；
+ * 3. 六块目标屏都有入口（漏一块 = 「交付了但点不到」）；
  * 4. 维护类入口只在维护态出现，帮助中心族三个入口各带自己的入口态。
  */
 class SettingsEntriesTest {
@@ -39,7 +39,7 @@ class SettingsEntriesTest {
     }
 
     @Test
-    fun `四块目标屏都有入口`() {
+    fun `六块目标屏都有入口`() {
         val mounted = SettingsEntries.All.map { it.target }.toSet()
 
         assertThat(mounted).containsExactly(
@@ -47,6 +47,8 @@ class SettingsEntriesTest {
             SettingsEntryTarget.DataRecovery,
             SettingsEntryTarget.Maintenance,
             SettingsEntryTarget.HelpCenter,
+            SettingsEntryTarget.Appearance,
+            SettingsEntryTarget.Language,
         )
     }
 

@@ -57,6 +57,13 @@ fun MembersScreen(
     onIntent: (MembersIntent) -> Unit,
     onBack: () -> Unit = {},
 ) {
+    // 接入波第四批：家庭邀请六屏（T-088）从本页进入，返回即回成员列表
+    var familyPage by remember { mutableStateOf<FamilySharePage?>(null) }
+    familyPage?.let { page ->
+        FamilyShareRoute(initialPage = page, onBack = { familyPage = null })
+        return
+    }
+
     // 接入波：行动计划（T-087）从本页进入，返回即回成员列表
     var showPlans by remember { mutableStateOf(false) }
     if (showPlans) {
@@ -127,6 +134,25 @@ fun MembersScreen(
                 subtitle = "成员还没有上过秤时的引导",
                 showDivider = false,
                 onClick = { memberPage = MemberPage.NoDevice },
+            )
+        }
+        // 接入波第四批入口：家庭邀请六屏（入口文案见 FamilyShareRoute 的 FamilyShareEntry）
+        QkCard(modifier = Modifier.padding(bottom = 8.dp)) {
+            QkListRow(
+                title = FamilyShareEntry.INVITE_TITLE,
+                subtitle = FamilyShareEntry.INVITE_HINT,
+                onClick = { familyPage = FamilySharePage.Invite },
+            )
+            QkListRow(
+                title = FamilyShareEntry.ACCEPT_TITLE,
+                subtitle = FamilyShareEntry.ACCEPT_HINT,
+                onClick = { familyPage = FamilySharePage.Accept },
+            )
+            QkListRow(
+                title = FamilyShareEntry.REVOKE_TITLE,
+                subtitle = FamilyShareEntry.REVOKE_HINT,
+                showDivider = false,
+                onClick = { familyPage = FamilySharePage.Revoke },
             )
         }
         QkCard {
