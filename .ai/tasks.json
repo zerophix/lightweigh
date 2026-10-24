@@ -276,11 +276,24 @@
         "app/src/main/kotlin/com/xcwk/scalehub/feature/ai/AiCards.kt"
       ],
       "acceptance": {
-        "status": "draft",
+        "status": "ready",
         "given": [
-          "本任务无可对齐的交互原型 view（原库中无对应屏），验收只能依赖行为级断言",
-          "目标文件：AiCards.kt（已存在则视为扩展而非从零新建）",
-          "同模块已有屏的既有行为不回退"
+          "AiCards.kt 已实现 DietCard/ExerciseCard/MetricCard/AiWelcome（DEC-043-B），但无任何单测证明其可用"
+        ],
+        "when": [
+          "运行 AI 卡片单测"
+        ],
+        "then": [
+          "四类卡片各有渲染测试：饮食卡（热量/三大营养素）、运动卡（时长/消耗）、指标解读卡（指标名/解读）、欢迎卡（示例引导）",
+          "解析入库接口有测试：合法结构化数据入库、非法数据被拒绝且不改状态",
+          "拍照入口回调被触发一次，未实现时不得渲染成可点死入口"
+        ],
+        "verify_commands": [
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "forbidden": [
+          "删除既有卡片实现以简化测试",
+          "用空实现占位通过测试"
         ]
       }
     },
@@ -568,12 +581,12 @@
       "id": "T-056",
       "description": "P1-15: AI 页结构化卡片（饮食卡解析入库/运动卡/指标解读卡/拍照入口/欢迎示例）",
       "why": "",
-      "status": "pending",
+      "status": "completed",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-21T10:29:23Z",
       "updated_at": "2026-10-21T10:29:23Z",
-      "notes": "；AC 待人类定义：与 T-047 描述逐字相同（饮食卡/运动卡/指标解读卡/拍照入口/欢迎示例），原型库同样无对应 view，代码侧 ai/AiCards.kt 已实现。两条任务重复，必须由人类合并或关闭其一，否则会造成重复认领。",
+      "notes": "；AC 待人类定义：与 T-047 描述逐字相同（饮食卡/运动卡/指标解读卡/拍照入口/欢迎示例），原型库同样无对应 view，代码侧 ai/AiCards.kt 已实现。两条任务重复，必须由人类合并或关闭其一，否则会造成重复认领。；重复任务，已合并到 T-047（描述逐字相同，AiCards.kt 同一实现）",
       "target_files": [
         "app/src/main/kotlin/com/xcwk/scalehub/feature/ai/AiCards.kt"
       ],
@@ -1020,11 +1033,26 @@
         "app/src/main/kotlin/com/xcwk/scalehub/ui/components/"
       ],
       "acceptance": {
-        "status": "draft",
+        "status": "ready",
         "given": [
-          "本任务无可对齐的交互原型 view（原库中无对应屏），验收只能依赖行为级断言",
-          "目标文件：components（已存在则视为扩展而非从零新建）",
-          "同模块已有屏的既有行为不回退"
+          "无障碍任务无原型可依，验收只能落在可机械检测的行为断言上"
+        ],
+        "when": [
+          "运行 a11y 静态检查与单测"
+        ],
+        "then": [
+          "新增 scripts/governance/gov-a11y-check.py：报告中「图标按钮缺 contentDescription」为 0",
+          "单测断言 QkColor 主要正文/背景组合对比度 ≥ 4.5:1，大字与图标 ≥ 3:1",
+          "静态规则禁止文本容器使用固定 height 造成 200% 字体缩放裁剪，并在既有屏上为 0 命中",
+          "TalkBack 可遍历性：所有可点击组件要么有可见文本要么有 contentDescription"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-a11y-check.py",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "forbidden": [
+          "用 contentDescription = null 屏蔽检查",
+          "降低对比度阈值"
         ]
       }
     },
@@ -3217,11 +3245,29 @@
         "scripts/governance/gov-prototype-verify.py"
       ],
       "acceptance": {
-        "status": "draft",
+        "status": "ready",
         "given": [
-          "本任务无可对齐的交互原型 view（原库中无对应屏），验收只能依赖行为级断言",
-          "目标文件：gov-prototype-verify.py（已存在则视为扩展而非从零新建）",
-          "同模块已有屏的既有行为不回退"
+          "gov-prototype-verify.py 对多目标文件任务逐文件比对全部 view，导致匹配率被稀释出假 WARN（T-097/T-098 共 5 条）",
+          "tests/unit 下无 prototype-verify 用例，改对改坏都无自动证据"
+        ],
+        "when": [
+          "运行 pytest 门禁用例集",
+          "对多目标任务与单目标任务分别跑 strict 验证"
+        ],
+        "then": [
+          "多目标文件任务：聚合全部目标文件后统一比对全部 view，单文件任务保持逐 view 比对",
+          "tests/unit/test_prototype_verify_scope.py 覆盖两种语义并通过",
+          "T-097/T-098 现有假 WARN 消失，且 T-076/T-083/T-095 等既有通过任务结果不变",
+          "行为变更记录进新 DEC（编号由 gov-next-decision.sh 生成）"
+        ],
+        "verify_commands": [
+          "python3 -m pytest tests/unit -q",
+          "python3 scripts/governance/gov-prototype-verify.py T-097 --strict",
+          "python3 scripts/governance/gov-prototype-verify.py T-076 --strict"
+        ],
+        "forbidden": [
+          "放宽阈值以消 WARN",
+          "改动 tasks.json 里的 views 数据来迁就实现"
         ]
       }
     }
