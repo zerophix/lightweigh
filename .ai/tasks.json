@@ -853,12 +853,12 @@
       "id": "T-076",
       "description": "guide: 引导流程补全（目标设定/准备/连接/跳过）",
       "why": "原型19全部6屏 · 改 GuideScreen.kt 补全 goal/prepare/connected/skip",
-      "status": "pending",
+      "status": "completed",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:51:46Z",
       "updated_at": "2026-10-23T03:51:46Z",
-      "notes": "",
+      "notes": "\n已由合并队列按分支名回填（DEC-071）",
       "prototype_ref": {
         "file": "design/prototypes/interactive/19-onboarding-guide.html",
         "views": [
@@ -1933,12 +1933,12 @@
       "id": "T-093",
       "description": "sync: 帮助中心与反馈（FAQ/反馈提交/成功/失败/诊断）",
       "why": "原型08 v-help/v-faq/v-feedback/v-feedback-submit/v-feedback-success/v-feedback-fail/v-diag · 新增 sync/HelpCenter.kt sync/FeedbackFlow.kt",
-      "status": "pending",
+      "status": "completed",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:52:35Z",
       "updated_at": "2026-10-24T13:20:00Z",
-      "notes": "",
+      "notes": "\n已由合并队列按分支名回填（DEC-071）",
       "prototype_ref": {
         "file": "design/prototypes/interactive/08-sync-network-help.html",
         "views": [
@@ -2070,12 +2070,12 @@
       "id": "T-095",
       "description": "home: 首页状态补全（空/未连接/同步中/错误/切换/简报/目标达成）",
       "why": "原型11全部8屏 · 新增 home/HomeStates.kt 改 MainShell.kt 状态分支",
-      "status": "pending",
+      "status": "completed",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:52:45Z",
       "updated_at": "2026-10-23T03:52:45Z",
-      "notes": "",
+      "notes": "\n已由合并队列按分支名回填（DEC-071）",
       "prototype_ref": {
         "file": "design/prototypes/interactive/11-home-states.html",
         "views": [
