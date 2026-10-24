@@ -39,6 +39,12 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.xcwk.scalehub.application.query.HomeGoalState
+import com.xcwk.scalehub.feature.home.HomeStatesRoute
+import com.xcwk.scalehub.feature.home.HomeUiState
+import com.xcwk.scalehub.feature.home.homeStageOf
+import com.xcwk.scalehub.feature.home.homeStatesReplacesHome
+import com.xcwk.scalehub.feature.sync.SYNC_CENTER_ENTRY_TITLE
+import com.xcwk.scalehub.feature.sync.SyncCenterRoute
 import com.xcwk.scalehub.feature.trend.TrendPointUi
 import com.xcwk.scalehub.ui.components.QkActionChip
 import com.xcwk.scalehub.ui.components.QkAreaChart
@@ -94,9 +100,46 @@ fun MeasureScreen(
         return
     }
 
+    // 接入波第三批：首页整屏覆盖层（测量流程八态 / 数据同步 → 数据冲突）
+    var layerName by rememberSaveable { mutableStateOf(MeasureHomeLayer.Home.name) }
+    val closeLayer: () -> Unit = { layerName = MeasureHomeLayer.Home.name }
+    val openLayer: (MeasureHomeLayer) -> Unit = { layerName = it.name }
+
     val state by vm.state.collectAsStateWithLifecycle()
     val unitPrefs by vm.unitPrefs.collectAsStateWithLifecycle()
     val home = state.home
+
+    when (layerName) {
+        MeasureHomeLayer.MeasureFlow.name -> {
+            MeasureFlowEntry(onExit = closeLayer)
+            return
+        }
+
+        MeasureHomeLayer.SyncCenter.name -> {
+            SyncCenterRoute(onBack = closeLayer)
+            return
+        }
+    }
+
+    // 接入波第三批：按真实信号渲染首页八态（只替换能证实的态，其余保持真实首页）
+    // 注：MeasureUiState.error 是「保存失败」而非加载失败，语义不同，故不当作 Error 态信号；
+    // 加载失败的信号待 ViewModel 提供后再接（homeStageOf 已留参数）。
+    var statesDismissed by rememberSaveable { mutableStateOf(false) }
+    val realStage = homeStageOf(
+        hasMeasurements = !state.loaded || home.latestWeight != null,
+        loadFailed = false,
+    )
+    if (!statesDismissed && homeStatesReplacesHome(realStage)) {
+        HomeStatesRoute(
+            initial = HomeUiState(stage = realStage),
+            onClose = { statesDismissed = true },
+            onStartMeasure = {
+                statesDismissed = true
+                openLayer(MeasureHomeLayer.MeasureFlow)
+            },
+        )
+        return
+    }
 
     Column(
         modifier = Modifier
@@ -110,12 +153,14 @@ fun MeasureScreen(
             onOpenReport = onOpenReport,
             onOpenHistory = onOpenHistory,
             onSetHeight = onOpenMine,
+            onStartMeasure = { openLayer(MeasureHomeLayer.MeasureFlow) },
         )
-        // 接入波入口：分享本次结果 / 导出（T-078）
+        // 接入波入口：分享本次结果 / 导出（T-078）、数据同步 → 数据冲突（T-094）
         Row(
             modifier = Modifier.fillMaxWidth().padding(top = QkSpacing.Sm),
-            horizontalArrangement = Arrangement.End,
+            horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.End),
         ) {
+            TextAction(SYNC_CENTER_ENTRY_TITLE) { openLayer(MeasureHomeLayer.SyncCenter) }
             TextAction(WiringEntries.ResultShare.title) { showShare = true }
         }
         AiAskRow(onAskAi = onAskAi)
@@ -244,6 +289,7 @@ private fun WeightCard(
     onOpenReport: (Long) -> Unit,
     onOpenHistory: () -> Unit,
     onSetHeight: () -> Unit,
+    onStartMeasure: () -> Unit,
 ) {
     var masked by rememberSaveable { mutableStateOf(false) }
     QkCard(padding = QkSpacing.CardPad) {
@@ -335,6 +381,11 @@ private fun WeightCard(
             )
         }
         Row(modifier = Modifier.padding(top = QkSpacing.Md), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            QkButton(
+                text = MEASURE_ENTRY_TITLE,
+                modifier = Modifier.weight(1f),
+                onClick = onStartMeasure,
+            )
             QkButton(
                 text = "查看报告",
                 style = QkButtonStyle.Secondary,

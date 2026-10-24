@@ -46,6 +46,8 @@ data class MeasureUiState(
     val recent: List<RecentMeasureItem> = emptyList(),
     /** 最近健康记录（加号面板写入的可见出口）。 */
     val recentLogs: List<HealthLogItem> = emptyList(),
+    /** 首轮数据是否已读完：首页八态按「空数据」替换前必须先确认真的没有数据，避免闪空态。 */
+    val loaded: Boolean = false,
 )
 
 sealed interface MeasureIntent {
@@ -133,7 +135,7 @@ class MeasureViewModel(
             )
         }
         val logs = healthLogQuery.recent(5)
-        _state.update { it.copy(recent = items, recentLogs = logs) }
+        _state.update { it.copy(recent = items, recentLogs = logs, loaded = true) }
     }
 
     companion object {
