@@ -6,6 +6,7 @@
 #   bash scripts/session/ses-worktree.sh add <type>/<topic> [--base <branch>] [--in-repo]
 #   bash scripts/session/ses-worktree.sh list
 #   bash scripts/session/ses-worktree.sh remove <path|branch> [--force]
+#   bash scripts/session/ses-worktree.sh clean [--dry-run]   # 清理已合入主干的分支 worktree
 #   bash scripts/session/ses-worktree.sh doctor   # 检查当前树 hooks ROOT 是否指向本工作树
 #
 # 默认路径: 与主仓同级 ../<repo>-<topic>
@@ -31,7 +32,7 @@ TRUNK="${TRUNK:-master}"
 BRANCH_RE='^(feat|fix|docs|refactor|chore|test|ci)/[a-zA-Z0-9][a-zA-Z0-9._-]+$'
 
 usage() {
-  sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'
+  sed -n '2,13p' "$0" | sed 's/^# \{0,1\}//'
   exit "${1:-0}"
 }
 
@@ -105,7 +106,7 @@ cmd_add() {
     exit 1
   fi
   if git show-ref --verify --quiet "refs/heads/$branch"; then
-    echo "本地分支已存在: $branch（改用: git worktree add \"$wt\" \"$branch\"）" >&2
+    echo "本地分支已存在: ${branch}（改用: git worktree add \"$wt\" \"$branch\"）" >&2
     exit 1
   fi
 
@@ -193,6 +194,110 @@ cmd_remove() {
   echo "提示: 本地分支如不再需要，可: git branch -d <branch>（未合入用 -D）"
 }
 
+cmd_clean() {
+  # 清理已合入主干的 worktree（DEC-064）：
+  #   只处理「分支已是主干祖先」的 worktree，未合入的一律保留。
+  #   顺序: 移除 worktree（脏树不强制）→ 清残留目录 → worktree prune。
+  local dry=0
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --dry-run|--dry|-n) dry=1; shift ;;
+      -h|--help) usage 0 ;;
+      *)
+        echo "未知选项: $1" >&2
+        echo "用法: ses-worktree.sh clean [--dry-run]" >&2
+        exit 1
+        ;;
+    esac
+  done
+
+  # 判定「已合入」的基线：优先远端主干（本地 master 可能落后）
+  local base="" base_kind=""
+  if git show-ref --verify --quiet "refs/remotes/origin/$TRUNK"; then
+    base="origin/$TRUNK"
+    base_kind="远端"
+  elif git show-ref --verify --quiet "refs/heads/$TRUNK"; then
+    base="$TRUNK"
+    base_kind="本地"
+  else
+    echo "找不到基线分支: ${TRUNK}（无法判断哪些分支已合入）" >&2
+    exit 1
+  fi
+
+  if [ "$dry" = "0" ]; then
+    echo "基线: ${base}（${base_kind}）"
+  else
+    echo "基线: ${base}（${base_kind}，dry-run 不执行）"
+  fi
+
+  local main_wt
+  main_wt="$(git worktree list --porcelain | awk '/^worktree /{print $2; exit}')"
+
+  local cleaned=0 skipped=0
+  local p b
+  while IFS=$'\t' read -r p b; do
+    [ -n "$p" ] || continue
+    if [ "$p" = "$main_wt" ]; then
+      continue
+    fi
+    if [ -z "$b" ]; then
+      echo "保留（detached HEAD）: $p"
+      skipped=$((skipped + 1))
+      continue
+    fi
+    if ! git show-ref --verify --quiet "refs/heads/$b"; then
+      echo "保留（分支不存在）: ${p}（${b}）"
+      skipped=$((skipped + 1))
+      continue
+    fi
+    if ! git merge-base --is-ancestor "refs/heads/$b" "$base" 2>/dev/null; then
+      echo "保留（未合入 ${base}）: ${p}（${b}）"
+      skipped=$((skipped + 1))
+      continue
+    fi
+
+    echo "已合入 $base: $b → $p"
+    if [ "$dry" = "1" ]; then
+      echo "  [dry-run] 将移除 worktree: $p"
+      if [ -d "$p" ]; then
+        echo "  [dry-run] 将清理残留目录: $p"
+      fi
+      cleaned=$((cleaned + 1))
+      continue
+    fi
+
+    # 不默认 --force: 有未提交改动时保留现场，交给人类确认
+    if ! git worktree remove "$p" 2>/dev/null; then
+      echo "  跳过（有未提交改动或占用中）: $p"
+      echo "  确认丢弃后: bash scripts/session/ses-worktree.sh remove \"$p\" --force"
+      skipped=$((skipped + 1))
+      continue
+    fi
+    # 残留兄弟目录（worktree 元信息已删但目录还在）
+    if [ -d "$p" ]; then
+      rm -rf "$p"
+      echo "  已清理残留目录: $p"
+    fi
+    cleaned=$((cleaned + 1))
+  done < <(git worktree list --porcelain | awk '
+    /^worktree / { p=$2; b="" }
+    /^branch /   { b=$2; sub("^refs/heads/", "", b) }
+    /^$/         { if (p != "") print p "\t" b; p=""; b="" }
+    END          { if (p != "") print p "\t" b }
+  ')
+
+  if [ "$dry" = "0" ]; then
+    git worktree prune
+  fi
+
+  echo ""
+  if [ "$dry" = "1" ]; then
+    echo "dry-run 汇总: 可清理 $cleaned 个 worktree，保留 $skipped 个"
+  else
+    echo "清理完成: 移除 $cleaned 个 worktree，保留 $skipped 个"
+  fi
+}
+
 cmd_doctor() {
   local tl gd hooks
   tl="$(git rev-parse --show-toplevel)"
@@ -209,7 +314,7 @@ cmd_doctor() {
   # simulate hook ROOT preference
   local hook_guess
   hook_guess="$(cd "$(dirname "$hooks")/.." 2>/dev/null && pwd || true)"
-  echo "若 hook 用 dirname/\$0 回推，可能落到: $hook_guess（worktree 下常为错误主树）"
+  echo "若 hook 用 dirname/\$0 回推，可能落到: ${hook_guess}（worktree 下常为错误主树）"
   echo "DEC-050 后 pre-commit/pre-push 优先 --show-toplevel → 应为: $tl"
   if [ -f "$hooks/pre-commit" ]; then
     if grep -q 'show-toplevel' "$hooks/pre-commit" 2>/dev/null; then
@@ -227,6 +332,7 @@ main() {
     add) cmd_add "$@" ;;
     list|ls) cmd_list "$@" ;;
     remove|rm) cmd_remove "$@" ;;
+    clean) cmd_clean "$@" ;;
     doctor) cmd_doctor "$@" ;;
     -h|--help|help|"") usage 0 ;;
     *)
