@@ -52,7 +52,7 @@ print(json.dumps(out))
 " "$DAYS"
 )"
 
-DRY="$DRY" JSON="$JSON" PRS_JSON="$PRS_JSON" python3 - <<'PY'
+DRY="$DRY" JSON="$JSON" PRS_JSON="$PRS_JSON" BRANCHES="$BRANCHES" python3 - <<'PY'
 import json, os, re, sys
 from pathlib import Path
 
