@@ -24,6 +24,9 @@ design/prototypes/figma-renders/
 .ai/current-session.json
 .ai/staged-claims.json
 
+# DEC-064: 任务认领锁（本机协调状态，不入库；mkdir 原子锁见 wf-claim.sh）
+.ai/locks/
+
 # DEC-049: portable gitleaks binary (checksums committed; install via gov-install-gitleaks.sh)
 scripts/tools/gitleaks
 scripts/tools/gitleaks-*
