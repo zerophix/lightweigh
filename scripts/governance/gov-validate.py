@@ -18,6 +18,7 @@ from scripts.governance.modules.gov_validate_skills import check_all as check_sk
 from scripts.governance.modules.gov_validate_tests_gov import check_all as check_tests_gov
 from scripts.governance.modules.gov_validate_android_tests import check_all as check_android_tests
 from scripts.governance.modules.gov_validate_prototype import check_all as check_prototype
+from scripts.governance.modules.gov_validate_previews import check_all as check_previews
 from scripts.governance.modules.gov_validate_docs import check_all as check_docs
 
 from scripts.governance.modules.gov_validate_core import errors
@@ -71,6 +72,7 @@ def main() -> int:
     check_tests_gov()
     check_android_tests()
     check_prototype()
+    check_previews()
     check_docs()
 
     # 摘要行恒定输出（两空格缩进匹配 gov-update-metrics.sh 的 `^  违规:` 锚点），
