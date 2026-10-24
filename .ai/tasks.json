@@ -221,12 +221,12 @@
       "id": "T-046",
       "description": "P0-4: 报告报告分析Tab（成分分析/体型3x3/目标达成/折线/体型插画）",
       "why": "",
-      "status": "pending",
+      "status": "completed",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-21T10:28:18Z",
       "updated_at": "2026-10-22T12:05:41+08:00",
-      "notes": "AC: see acceptance (DEC-048); may overlap earlier done tasks — confirm gaps before coding.；AC 待人类定义：任务列的「成分分析/体型 3x3/目标达成/折线/体型插画」在 interactive 原型库里没有对应 view；15-states-errors.html 只有 v-multimetric（体重/体脂率双线）与 v-score（评分构成），不足以定义体型 3x3 与插画。且 report/ReportAnalysisTab.kt 已存在（DEC-043-A），任务疑似已完成，需人类判断是否关闭。",
+      "notes": "AC: see acceptance (DEC-048); may overlap earlier done tasks — confirm gaps before coding.；AC 待人类定义：任务列的「成分分析/体型 3x3/目标达成/折线/体型插画」在 interactive 原型库里没有对应 view；15-states-errors.html 只有 v-multimetric（体重/体脂率双线）与 v-score（评分构成），不足以定义体型 3x3 与插画。且 report/ReportAnalysisTab.kt 已存在（DEC-043-A），任务疑似已完成，需人类判断是否关闭。；重复任务：与已完成的 T-028（报告分析 tab）同一功能，report/ReportAnalysisTab.kt 存在且被 ReportScreen.kt 实际调用，关闭以免重复实现",
       "acceptance": {
         "status": "draft",
         "given": [
@@ -505,7 +505,7 @@
       "dec": "",
       "created_at": "2026-10-21T10:29:16Z",
       "updated_at": "2026-10-21T10:29:16Z",
-      "notes": "；AC 待人类定义：原型 v-device 只覆盖「已连接/电量/开始测量按钮/添加设备」3 项中的「开始称重」；「测量小贴士卡」正文与「最近测量时间」在原型里没有对应 view（小贴士文案仅在 12-measure-full.html v-prep 的 4 步准备里，语义不同）。需人类确认小贴士/最近测量的文案来源。",
+      "notes": "；AC 待人类定义：原型 v-device 只覆盖「已连接/电量/开始测量按钮/添加设备」3 项中的「开始称重」；「测量小贴士卡」正文与「最近测量时间」在原型里没有对应 view（小贴士文案仅在 12-measure-full.html v-prep 的 4 步准备里，语义不同）。需人类确认小贴士/最近测量的文案来源。；清理结论：组件已实现但无调用方，转为「接入并补测」任务（AC 已机械化为可达性断言）",
       "prototype_ref": {
         "file": "design/prototypes/interactive/04-device.html",
         "views": [
@@ -516,12 +516,26 @@
         "app/src/main/kotlin/com/xcwk/scalehub/feature/device/DeviceTips.kt"
       ],
       "acceptance": {
-        "status": "draft",
+        "status": "ready",
         "given": [
-          "原型 04-device.html 定义 v-device 共 1 个 view",
-          "device/DeviceTips.kt 已有小贴士卡（DEC-043-L）",
-          "目标文件：DeviceTips.kt（已存在则视为扩展而非从零新建）",
-          "同模块已有屏的既有行为不回退"
+          "组件已存在但全库无调用方（死代码）：DeviceTips.kt"
+        ],
+        "when": [
+          "从设备页的入口进入该视图，操作后返回"
+        ],
+        "then": [
+          "设备页存在可见入口，进入后可渲染既有组件",
+          "组件在自身文件之外至少被引用一次（不再是死代码）",
+          "入口映射与关键文案有单测断言",
+          "宿主屏既有行为不回退"
+        ],
+        "verify_commands": [
+          "./gradlew :app:testDebugUnitTest",
+          "python3 scripts/governance/gov-validate.sh"
+        ],
+        "forbidden": [
+          "为通过检查而在宿主屏塞入不可见入口",
+          "删除既有组件以实现\"无死代码\""
         ]
       }
     },
@@ -534,16 +548,31 @@
       "dec": "",
       "created_at": "2026-10-21T10:29:16Z",
       "updated_at": "2026-10-21T10:29:16Z",
-      "notes": "；AC 待人类定义：「个人简介/所在地/展示标签」在原型库中无任何 view（grep 简介/所在地/标签 无命中，07-mine-settings.html v-profile 只有昵称/年龄/性别/身高）；代码侧 mine/MineExtensions.kt 已实现 ProfileExtraCard（DEC-043-M）。",
+      "notes": "；AC 待人类定义：「个人简介/所在地/展示标签」在原型库中无任何 view（grep 简介/所在地/标签 无命中，07-mine-settings.html v-profile 只有昵称/年龄/性别/身高）；代码侧 mine/MineExtensions.kt 已实现 ProfileExtraCard（DEC-043-M）。；清理结论：组件已实现但无调用方，转为「接入并补测」任务（AC 已机械化为可达性断言）",
       "target_files": [
         "app/src/main/kotlin/com/xcwk/scalehub/feature/mine/MineExtensions.kt"
       ],
       "acceptance": {
-        "status": "draft",
+        "status": "ready",
         "given": [
-          "本任务无可对齐的交互原型 view（原库中无对应屏），验收只能依赖行为级断言",
-          "目标文件：MineExtensions.kt（已存在则视为扩展而非从零新建）",
-          "同模块已有屏的既有行为不回退"
+          "组件已存在但全库无调用方（死代码）：MineExtensions.kt"
+        ],
+        "when": [
+          "从我的页的入口进入该视图，操作后返回"
+        ],
+        "then": [
+          "我的页存在可见入口，进入后可渲染既有组件",
+          "组件在自身文件之外至少被引用一次（不再是死代码）",
+          "入口映射与关键文案有单测断言",
+          "宿主屏既有行为不回退"
+        ],
+        "verify_commands": [
+          "./gradlew :app:testDebugUnitTest",
+          "python3 scripts/governance/gov-validate.sh"
+        ],
+        "forbidden": [
+          "为通过检查而在宿主屏塞入不可见入口",
+          "删除既有组件以实现\"无死代码\""
         ]
       }
     },
@@ -556,7 +585,7 @@
       "dec": "",
       "created_at": "2026-10-21T10:29:23Z",
       "updated_at": "2026-10-21T10:29:23Z",
-      "notes": "；AC 待人类定义：只有「内脏脂肪」在原型里有逐字证据（17-metric-details.html v-visceral）；「围度」与「目标进度条」在整个 interactive 原型库中没有对应 view（目标进度条仅在 11-home-states.html v-home 的 pbar 组件，无文案）。需人类补原型或改用现有实现（MineExtensions.kt）反推 AC。",
+      "notes": "；AC 待人类定义：只有「内脏脂肪」在原型里有逐字证据（17-metric-details.html v-visceral）；「围度」与「目标进度条」在整个 interactive 原型库中没有对应 view（目标进度条仅在 11-home-states.html v-home 的 pbar 组件，无文案）。需人类补原型或改用现有实现（MineExtensions.kt）反推 AC。；清理结论：组件已实现但无调用方，转为「接入并补测」任务（AC 已机械化为可达性断言）",
       "prototype_ref": {
         "file": "design/prototypes/interactive/17-metric-details.html",
         "views": [
@@ -568,12 +597,26 @@
         "app/src/main/kotlin/com/xcwk/scalehub/feature/trend/MetricDetailScreen.kt"
       ],
       "acceptance": {
-        "status": "draft",
+        "status": "ready",
         "given": [
-          "原型 17-metric-details.html 定义 v-list / v-visceral 共 2 个 view",
-          "mine/MineExtensions.kt 已有「围度/目标进度」实现（DEC-043-M）",
-          "目标文件：MetricDetailScreen.kt（已存在则视为扩展而非从零新建）",
-          "同模块已有屏的既有行为不回退"
+          "组件已存在但全库无调用方（死代码）：MetricDetailScreen.kt"
+        ],
+        "when": [
+          "从档案/指标页的入口进入该视图，操作后返回"
+        ],
+        "then": [
+          "档案/指标页存在可见入口，进入后可渲染既有组件",
+          "组件在自身文件之外至少被引用一次（不再是死代码）",
+          "入口映射与关键文案有单测断言",
+          "宿主屏既有行为不回退"
+        ],
+        "verify_commands": [
+          "./gradlew :app:testDebugUnitTest",
+          "python3 scripts/governance/gov-validate.sh"
+        ],
+        "forbidden": [
+          "为通过检查而在宿主屏塞入不可见入口",
+          "删除既有组件以实现\"无死代码\""
         ]
       }
     },
