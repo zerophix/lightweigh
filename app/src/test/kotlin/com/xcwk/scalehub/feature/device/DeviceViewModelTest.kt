@@ -164,8 +164,7 @@ class DeviceViewModelTest {
     }
 
     @Test
-    fun `unbind removes and activate switches`() = runTest(scheduler) {
-        val devices = FakeDevices(
+    fun `unbind removes and activate switches`() = runTest(scheduler) {        val devices = FakeDevices(
             mutableListOf(
                 ScaleDevice("甲", "AA:BB:CC:DD:EE:FF", "2026-10-01", true),
                 ScaleDevice("乙", "66:55:44:33:22:11", "2026-10-02", false),
@@ -176,5 +175,32 @@ class DeviceViewModelTest {
         assertThat(vm.state.value.bound.first { it.mac == "66:55:44:33:22:11" }.active).isTrue()
         vm.onIntent(DeviceIntent.Unbind("66:55:44:33:22:11"))
         assertThat(vm.state.value.bound).hasSize(1)
+    }
+
+    @Test
+    fun `pairing intents drive the three state flow and stop scanning`() = runTest(scheduler) {
+        val ble = FakeBle()
+        val vm = DeviceViewModel(ble, FakeDevices())
+        vm.onIntent(DeviceIntent.ToggleScan)
+        runCurrent()
+        assertThat(vm.state.value.scanning).isTrue()
+
+        vm.onIntent(DeviceIntent.Pairing(PairingIntent.Start("轻衡 S1")))
+        assertThat(vm.state.value.pairing).isEqualTo(PairingState.Pairing("轻衡 S1"))
+        assertThat(vm.state.value.scanning).isFalse()   // 进入配对即停扫
+
+        vm.onIntent(DeviceIntent.Pairing(PairingIntent.Failed))
+        assertThat(vm.state.value.pairing).isEqualTo(PairingState.Fail("轻衡 S1"))
+
+        vm.onIntent(DeviceIntent.Pairing(PairingIntent.Retry))
+        vm.onIntent(DeviceIntent.Pairing(PairingIntent.Succeeded))
+        assertThat(vm.state.value.pairing).isEqualTo(PairingState.Success("轻衡 S1"))
+
+        // 成功不可回退：再收失败事件仍是成功
+        vm.onIntent(DeviceIntent.Pairing(PairingIntent.Failed))
+        assertThat(vm.state.value.pairing).isEqualTo(PairingState.Success("轻衡 S1"))
+
+        vm.onIntent(DeviceIntent.Pairing(PairingIntent.Exit))
+        assertThat(vm.state.value.pairing).isNull()
     }
 }

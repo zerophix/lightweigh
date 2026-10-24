@@ -54,6 +54,11 @@ class DeviceViewModel(
                 refresh()
             }
             DeviceIntent.Refresh -> refresh()
+            is DeviceIntent.Pairing -> {
+                // 进入配对流程即停扫（配对期间广播列表不再刷新）；其余事件不改扫描态
+                if (intent.intent is PairingIntent.Start) stopScan()
+                _state.update { it.copy(pairing = pairingReduce(it.pairing, intent.intent)) }
+            }
         }
     }
 

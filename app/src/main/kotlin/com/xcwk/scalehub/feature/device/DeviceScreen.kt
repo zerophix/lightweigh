@@ -155,6 +155,15 @@ fun DeviceContent(
     onScanQr: () -> Unit = {},
     onHelp: () -> Unit = {},
 ) {
+    // 配对流程三态整屏接管（原型 04-device.html）：
+    // v-pairing「正在连接」/ v-pair-success「连接成功」/ v-pair-fail「连接失败」，
+    // 文案与状态机在 DeviceUiState.kt，各 view 呈现在 DevicePairingViews.kt
+    val pairing = state.pairing
+    if (pairing != null) {
+        PairingFlow(pairing, onIntent)
+        return
+    }
+
     val (heroStatus, heroSub) = heroText(
         permissionGranted = permissionGranted,
         bluetoothEnabled = bluetoothEnabled,
@@ -278,10 +287,20 @@ fun DeviceContent(
                         showDivider = index != state.found.lastIndex,
                         onClick = { onIntent(DeviceIntent.Bind(found)) },
                         trailing = {
-                            QkPill(
-                                if (found.alreadyBound) "已绑定" else "点击绑定",
-                                if (found.alreadyBound) QkPillTone.Gray else QkPillTone.Green,
-                            )
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                QkPill(
+                                    if (found.alreadyBound) "已绑定" else "点击绑定",
+                                    if (found.alreadyBound) QkPillTone.Gray else QkPillTone.Green,
+                                )
+                                // 原型 v-search 行内「连接」→ v-pairing；行本身仍是直接绑定（既有行为不回退）
+                                TextButton(
+                                    onClick = {
+                                        onIntent(DeviceIntent.Pairing(PairingIntent.Start(found.name)))
+                                    },
+                                ) {
+                                    Text("连接", style = MaterialTheme.typography.labelSmall)
+                                }
+                            }
                         },
                     )
                 }
