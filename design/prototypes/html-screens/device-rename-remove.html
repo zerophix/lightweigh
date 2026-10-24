@@ -1,0 +1,25 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>设备管理 - 轻刻健康</title>
+<style>
+:root{--g:#21a675;--d:#147d58;--bg:#f5f8f5;--t:#26362d;--m:#89948c;--line:#edf1ed;--red:#c95750}
+*{box-sizing:border-box}body{margin:0;background:#eaf0eb;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:var(--t)}button,input{font:inherit}button{cursor:pointer}.app{max-width:430px;min-height:100vh;background:var(--bg);margin:auto;padding:0 20px 35px}.nav{height:58px;display:flex;align-items:center;gap:18px}.back{font-size:26px;border:0;background:none}.nav strong{font-size:17px}.hero{padding:20px 0 22px;text-align:center}.art{width:80px;height:80px;border-radius:25px;background:#e1f4e7;display:grid;place-items:center;font-size:38px;margin:0 auto 14px}.hero h1{font-size:22px;margin:0 0 7px}.hero p{font-size:12px;color:var(--m);margin:0;line-height:1.7}.card{background:white;border-radius:18px;padding:18px;margin-bottom:13px}.title{font-size:15px;font-weight:700;margin-bottom:14px}.label{font-size:12px;color:#738078;display:block;margin-bottom:9px}.input{width:100%;height:47px;border:1px solid #dce6de;border-radius:12px;padding:0 13px;outline-color:var(--g);color:var(--t)}.hint{font-size:11px;color:var(--m);line-height:1.7;margin:9px 0 0}.primary,.secondary,.danger{height:46px;width:100%;border-radius:13px;font-size:13px;font-weight:650}.primary{background:var(--g);border:0;color:white;margin-top:13px}.secondary{background:white;border:1px solid #dce8df;color:var(--d);margin-top:9px}.danger{background:white;border:1px solid #f0dada;color:var(--red);margin-top:9px}.info{display:flex;gap:10px;font-size:12px;line-height:1.8;color:#6f7d73;background:#f3f8f3;padding:12px;border-radius:12px}.ico{color:var(--d);font-weight:bold}.toast{display:none;background:#243b2e;color:white;border-radius:12px;padding:12px;font-size:12px;margin-bottom:12px}.modal{display:none;position:fixed;inset:0;background:#14231c77;align-items:flex-end;justify-content:center;padding:14px}.modal.show{display:flex}.sheet{background:white;border-radius:22px;padding:22px;width:min(100%,400px)}.sheet h2{font-size:18px;margin:0 0 10px}.sheet p{font-size:13px;line-height:1.7;color:#7a857d}.sheet .danger{margin-top:12px}
+</style></head>
+<body><main class="app">
+<header class="nav"><button class="back" onclick="history.back()">‹</button><strong>设备管理</strong></header>
+<section class="hero"><div class="art">⚖</div><h1>轻刻智能体脂秤</h1><p>设备编号 DEMO-001 · 当前为演示设备</p></section>
+<div class="toast" id="toast" role="status"></div>
+<section class="card"><div class="title">修改设备名称</div><label class="label" for="deviceName">设备名称</label><input class="input" id="deviceName" maxlength="24" value="轻刻智能体脂秤"><p class="hint">建议使用容易识别的名称，例如“卧室体脂秤”。名称只在当前原型页面中更新。</p><button class="primary" onclick="saveName()">保存名称</button></section>
+<section class="card"><div class="title">移除设备</div><div class="info"><span class="ico">i</span><span>移除设备不应默认删除历史测量记录。真实产品需要明确设备解绑、家庭共享关系和历史数据的处理规则。</span></div><button class="danger" onclick="openModal()">移除此设备</button></section>
+</main>
+<div class="modal" id="modal" onclick="if(event.target===this)closeModal()"><section class="sheet"><h2>确认移除设备？</h2><p>移除后，设备将不再显示在当前设备列表中。历史测量数据是否保留，应由正式产品规则决定。</p><div class="info"><span class="ico">!</span><span>当前仅演示确认流程，不会解除真实蓝牙绑定，也不会删除云端数据。</span></div><button class="danger" onclick="confirmRemove()">确认移除</button><button class="secondary" onclick="closeModal()">暂不移除</button></section></div>
+<script>
+const toastBox=document.getElementById('toast');function toast(s){toastBox.textContent=s;toastBox.style.display='block'}
+function saveName(){let v=document.getElementById('deviceName').value.trim();if(!v){toast('设备名称不能为空。');return}if(v.length>24){toast('设备名称不能超过 24 个字符。');return}toast('名称已在当前页面更新：'+v+'。尚未持久化保存。')}
+function openModal(){document.getElementById('modal').classList.add('show')}
+function closeModal(){document.getElementById('modal').classList.remove('show')}
+function confirmRemove(){closeModal();document.querySelector('.hero h1').textContent='设备已移除（演示）';document.querySelector('.art').textContent='✓';toast('移除流程演示完成；未执行真实解绑或数据删除。')}
+</script></body></html>

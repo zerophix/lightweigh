@@ -1,0 +1,33 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>计划详情 - 轻刻健康</title>
+<style>
+:root{--g:#21a675;--d:#147d58;--bg:#f5f8f5;--text:#24362d;--muted:#84928b;--line:#e7eee9;--amber:#a86c27}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:var(--text);font-size:14px}.app{max-width:430px;margin:auto;min-height:100vh;padding-bottom:32px}.header{padding:20px;display:flex;align-items:center;gap:13px}.back{width:39px;height:39px;border:0;background:white;border-radius:12px;font-size:23px;cursor:pointer}.header h1{font-size:20px;margin:0}.header p{margin:5px 0 0;color:var(--muted);font-size:12px}.section{padding:0 20px;margin-bottom:15px}.card{background:white;border:1px solid #edf1ee;border-radius:19px;padding:17px}.cover{background:linear-gradient(135deg,#e4f7ec,#f8fcf9);border-color:#d8eee1}.tag{background:#d7f2e3;color:var(--d);border-radius:8px;padding:5px 9px;font-size:11px;font-weight:600}.cover h2{font-size:21px;margin:14px 0 7px}.muted{color:var(--muted);font-size:12px}.progress{display:flex;justify-content:space-between;align-items:end;margin:22px 0 8px}.progress strong{font-size:28px;color:var(--d)}.track{height:8px;background:#e2eee6;border-radius:8px;overflow:hidden}.fill{height:100%;width:46%;background:var(--g);border-radius:8px}.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:17px}.metric{background:#ffffffb8;padding:12px 8px;border-radius:12px}.metric b{display:block;font-size:17px}.metric span{font-size:11px;color:var(--muted);display:block;margin-top:5px}.head{display:flex;justify-content:space-between;align-items:center;margin:0 0 11px}.head h3{font-size:16px;margin:0}.stage{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}.stage:last-child{border:0}.dot{width:29px;height:29px;display:grid;place-items:center;border-radius:10px;background:#e4f5eb;color:var(--d);font-weight:700;flex-shrink:0}.stage b{font-size:13px}.stage p{font-size:12px;color:var(--muted);line-height:1.6;margin:5px 0 0}.task{display:flex;gap:11px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}.task:last-child{border:0}.tick{width:21px;height:21px;border:1.5px solid #ccd8d0;border-radius:7px;flex-shrink:0}.task b{font-size:13px}.task small{display:block;color:var(--muted);font-size:11px;margin-top:4px}.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.btn{border:0;border-radius:12px;padding:14px;background:var(--g);color:white;font-weight:600;cursor:pointer}.btn.light{background:#e8f6ee;color:var(--d)}.btn.outline{background:white;color:#63736a;border:1px solid var(--line)}.notice{font-size:11px;color:var(--muted);line-height:1.7;margin-top:12px}.toast{display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#24362d;color:white;padding:12px 16px;border-radius:12px;white-space:nowrap}
+</style>
+</head>
+<body><main class="app">
+<header class="header"><button class="back" onclick="location.href='action-plan-home.html'">‹</button><div><h1>计划详情</h1><p>了解目标、阶段与每日行动</p></div></header>
+<section class="section"><div class="card cover"><span class="tag" id="status">进行中</span><h2 id="planName">建立健康生活节奏</h2><div class="muted" id="dateRange">2026.10.14 — 2026.11.11</div><div class="progress"><div><div class="muted">任务完成率</div><strong id="percent">46%</strong></div><div class="muted" id="count">已完成 6 / 13 项</div></div><div class="track"><div class="fill" id="fill"></div></div><div class="metrics"><div class="metric"><b id="days">9 天</b><span>计划进行</span></div><div class="metric"><b>3 天</b><span>连续行动</span></div><div class="metric"><b id="period">28 天</b><span>计划周期</span></div></div></div></section>
+<section class="section"><div class="head"><h3>计划阶段</h3><span class="muted">循序渐进</span></div><div class="card">
+<div class="stage"><div class="dot">✓</div><div><b>第一阶段 · 先建立节奏</b><p>先选择容易完成的小行动，观察哪些安排适合自己。</p></div></div>
+<div class="stage"><div class="dot">2</div><div><b>第二阶段 · 稳定执行</b><p>保持可持续的频率，根据实际状态调整任务难度。</p></div></div>
+<div class="stage"><div class="dot">3</div><div><b>第三阶段 · 总结与调整</b><p>复盘执行体验，保留有效习惯，调整不合适的安排。</p></div></div>
+</div></section>
+<section class="section"><div class="head"><h3>计划任务</h3><button style="border:0;background:none;color:var(--g);cursor:pointer" onclick="location.href='action-plan-daily-task.html'">查看今日任务 →</button></div><div class="card">
+<div class="task"><div class="tick"></div><div><b>记录健康状态</b><small>根据需要记录体重或主观感受</small></div></div>
+<div class="task"><div class="tick"></div><div><b>安排日常活动</b><small>选择适合自己的活动强度</small></div></div>
+<div class="task"><div class="tick"></div><div><b>回顾休息与睡眠</b><small>观察生活节奏，不追求完美数据</small></div></div>
+</div></section>
+<section class="section"><div class="actions"><button class="btn" onclick="location.href='action-plan-daily-task.html'">开始今日任务</button><button class="btn light" onclick="location.href='action-plan-review.html'">计划复盘</button></div><div class="actions" style="margin-top:9px"><button class="btn outline" id="pauseBtn" onclick="togglePause()">暂停计划</button><button class="btn outline" onclick="editPlan()">编辑计划</button></div><div class="notice">计划状态与任务进度均为原型演示。暂停和编辑操作不会同步到服务器。</div></section>
+<div class="toast" id="toast"></div></main>
+<script>
+let paused=false;
+try{const p=JSON.parse(sessionStorage.getItem('demoActionPlan')||'null');if(p){document.getElementById('planName').textContent=p.name;document.getElementById('period').textContent=p.days+' 天';const start=new Date(p.start+'T00:00:00');const end=new Date(start);end.setDate(end.getDate()+p.days-1);const fmt=d=>d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0');document.getElementById('dateRange').textContent=fmt(start)+' — '+fmt(end);document.getElementById('days').textContent='第 1 天'}}catch(e){}
+function toast(s){const t=document.getElementById('toast');t.textContent=s;t.style.display='block';setTimeout(()=>t.style.display='none',1700)}
+function togglePause(){paused=!paused;document.getElementById('status').textContent=paused?'已暂停':'进行中';document.getElementById('pauseBtn').textContent=paused?'恢复计划':'暂停计划';toast(paused?'计划已模拟暂停':'计划已模拟恢复')}
+function editPlan(){toast('编辑功能为原型占位，可返回创建页重新设置');setTimeout(()=>location.href='action-plan-create.html',900)}
+</script></body></html>

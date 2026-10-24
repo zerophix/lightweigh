@@ -1,0 +1,78 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>数据不完整 - 轻衡健康</title>
+<style>
+:root{--g:#20a574;--gd:#147a56;--bg:#f5f8f5;--text:#202923;--muted:#87928a;--line:#e7ece8}
+*{box-sizing:border-box}
+body{margin:0;background:#e9eeea;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:var(--text)}
+button{font:inherit;cursor:pointer}
+.app{max-width:430px;min-height:100vh;margin:auto;background:var(--bg);padding-bottom:25px}
+header{height:58px;background:white;display:flex;align-items:center;justify-content:space-between;padding:0 20px}
+header button{border:0;background:none;color:var(--muted)}
+header strong{font-size:16px}
+main{padding:24px 18px}
+.banner{padding:21px 19px;border-radius:20px;background:linear-gradient(135deg,#e8f6ed,#f5faf6);border:1px solid #deeee3}
+.banner-top{display:flex;align-items:center;gap:12px}
+.icon{width:43px;height:43px;display:grid;place-items:center;border-radius:13px;background:white;color:var(--gd);font-size:23px}
+.banner h1{font-size:21px;margin:0}
+.banner p{font-size:13px;color:#718477;line-height:1.7;margin:14px 0 0}
+.section-title{font-size:15px;font-weight:650;margin:24px 2px 12px}
+.list{background:white;border:1px solid var(--line);border-radius:16px;padding:0 16px}
+.item{min-height:67px;display:flex;align-items:center;gap:11px;border-bottom:1px solid var(--line)}
+.item:last-child{border:0}
+.item-icon{width:34px;height:34px;border-radius:11px;background:#f0f4f1;display:grid;place-items:center;color:#6c8172}
+.copy{flex:1}
+.name{font-size:13px;font-weight:600}
+.desc{font-size:11px;color:var(--muted);margin-top:5px}
+.state{font-size:12px;white-space:nowrap}
+.state.ok{color:var(--gd)}
+.state.missing{color:#b88132}
+.explain{padding:16px;margin-top:15px;background:white;border:1px solid var(--line);border-radius:15px}
+.explain h2{font-size:14px;margin:0 0 9px}
+.explain p{font-size:12px;line-height:1.8;color:var(--muted);margin:0}
+.actions{padding:8px 18px}
+.primary{height:50px;width:100%;border:0;border-radius:14px;background:var(--g);color:white;font-weight:650}
+.secondary{height:45px;width:100%;border:0;background:none;color:var(--gd);margin-top:4px}
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#25352b;color:white;padding:11px 15px;border-radius:10px;font-size:13px;opacity:0;transition:.2s;white-space:nowrap}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="app">
+<header><button onclick="notify('返回上一页')">‹ 返回</button><strong>数据检查</strong><button onclick="notify('查看指标说明')">说明</button></header>
+<main>
+<section class="banner">
+<div class="banner-top"><div class="icon">◈</div><h1>部分数据尚未获取</h1></div>
+<p>体重数据已读取，但部分身体成分指标尚未获得。为了避免误导，缺失指标不会被自动填入估算值。</p>
+</section>
+
+<div class="section-title">本次数据状态</div>
+<section class="list">
+<div class="item"><div class="item-icon">↕</div><div class="copy"><div class="name">体重</div><div class="desc">体脂秤已返回有效数据</div></div><span class="state ok">已获取</span></div>
+<div class="item"><div class="item-icon">◌</div><div class="copy"><div class="name">体脂率</div><div class="desc">未收到有效计算结果</div></div><span class="state missing">缺失</span></div>
+<div class="item"><div class="item-icon">◌</div><div class="copy"><div class="name">肌肉量</div><div class="desc">依赖身体成分数据</div></div><span class="state missing">缺失</span></div>
+<div class="item"><div class="item-icon">◌</div><div class="copy"><div class="name">体水分率</div><div class="desc">本次未能计算</div></div><span class="state missing">缺失</span></div>
+</section>
+
+<section class="explain">
+<h2>为什么会出现这种情况？</h2>
+<p>可能与脚底接触、电极状态、测量过程中移动或设备协议返回的数据有关。请先检查设备和站姿。如果只有部分指标缺失，是否保留体重记录，应由产品的数据完整性规则决定。</p>
+</section>
+</main>
+<div class="actions">
+<button class="primary" onclick="retry()">重新测量</button>
+<button class="secondary" onclick="keepWeight()">仅查看已获取数据</button>
+</div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+function notify(t){const e=document.getElementById("toast");e.textContent=t;e.classList.add("show");clearTimeout(window.t);window.t=setTimeout(()=>e.classList.remove("show"),2200)}
+function retry(){notify("原型演示：进入重新测量流程")}
+function keepWeight(){notify("原型演示：只展示有效数据，不补造缺失值")}
+</script>
+</body>
+</html>

@@ -1,0 +1,208 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>正在测量 - 轻衡健康</title>
+<style>
+:root{--green:#21A675;--dark:#147D58;--bg:#F5F8F5;--text:#202923;--muted:#87928A;--line:#E6EDE7;--white:#fff}
+*{box-sizing:border-box}
+body{margin:0;background:#E9EEEA;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:var(--text)}
+button{font:inherit;cursor:pointer}
+.app{max-width:430px;min-height:100vh;margin:auto;background:var(--bg);padding-bottom:24px}
+header{height:58px;background:white;display:flex;align-items:center;justify-content:space-between;padding:0 20px}
+.back,.help{border:0;background:none}.back{font-size:26px}.help{color:var(--muted);font-size:13px}
+.title{font-size:16px;font-weight:650}
+.main{padding:26px 20px}
+.eyebrow{font-size:12px;color:var(--dark);letter-spacing:1px;font-weight:650}
+h1{font-size:25px;margin:10px 0 8px}
+.sub{font-size:14px;color:var(--muted);line-height:1.7;margin:0}
+.visual{height:230px;margin:26px 0 22px;border-radius:24px;background:radial-gradient(circle,#E0F4E9,#F1F8F3 68%);display:flex;align-items:center;justify-content:center;position:relative}
+.ring{width:168px;height:168px;border:5px solid #D0EBDD;border-top-color:var(--green);border-radius:50%;display:grid;place-items:center;animation:spin 2.5s linear infinite}
+.ring-inner{width:140px;height:140px;border-radius:50%;background:#FFFFFFA8;display:flex;flex-direction:column;align-items:center;justify-content:center;animation:counter 2.5s linear infinite}
+.scale-icon{font-size:32px;color:var(--green)}
+.ring-label{font-size:12px;color:var(--muted);margin-top:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes counter{to{transform:rotate(-360deg)}}
+.pulse{position:absolute;width:190px;height:190px;border:1px solid #9DD7B8;border-radius:50%;animation:pulse 2s ease-out infinite}
+@keyframes pulse{0%{transform:scale(.8);opacity:.8}100%{transform:scale(1.2);opacity:0}}
+.weight-card{background:white;border:1px solid var(--line);border-radius:20px;padding:22px;text-align:center}
+.label{font-size:13px;color:var(--muted)}
+.weight{font-size:48px;letter-spacing:-1px;font-weight:650;margin:10px 0 2px;font-variant-numeric:tabular-nums}
+.unit{font-size:16px;color:var(--muted);font-weight:400}
+.stable{display:inline-flex;align-items:center;gap:6px;margin-top:12px;padding:7px 11px;background:#EAF7F0;border-radius:20px;color:var(--dark);font-size:12px}
+.dot{width:7px;height:7px;background:var(--green);border-radius:50%}
+.progress-head{display:flex;justify-content:space-between;margin:23px 0 10px;font-size:13px}
+.progress-head span:last-child{color:var(--dark);font-weight:600}
+.track{height:6px;background:#E1E9E3;border-radius:10px;overflow:hidden}
+.fill{height:100%;width:36%;background:var(--green);border-radius:10px;transition:width .5s}
+.steps{margin-top:20px;background:white;border:1px solid var(--line);border-radius:16px;padding:4px 16px}
+.step{display:flex;align-items:center;gap:12px;min-height:60px;border-bottom:1px solid var(--line)}
+.step:last-child{border:0}
+.step-icon{width:30px;height:30px;display:grid;place-items:center;background:#F0F4F1;border-radius:10px;color:var(--muted)}
+.step.active .step-icon,.step.done .step-icon{background:#E8F7EF;color:var(--dark)}
+.step-copy{flex:1}
+.step-name{font-size:13px;font-weight:600}
+.step-desc{font-size:11px;color:var(--muted);margin-top:4px}
+.step-status{font-size:12px;color:var(--muted)}
+.step.active .step-status,.step.done .step-status{color:var(--dark)}
+.note{font-size:12px;color:var(--muted);line-height:1.7;margin:17px 2px}
+.actions{display:flex;gap:12px;margin-top:20px}
+.primary,.secondary{height:49px;border-radius:14px;font-weight:600}
+.primary{flex:1;border:0;background:var(--green);color:white}
+.secondary{padding:0 20px;border:1px solid var(--line);background:white;color:#5D685F}
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#25352B;color:white;padding:11px 16px;border-radius:11px;font-size:13px;opacity:0;pointer-events:none;transition:.2s;white-space:nowrap}
+.toast.show{opacity:1}
+.overlay{display:none;position:fixed;inset:0;background:#17251C66;align-items:flex-end;justify-content:center}
+.overlay.show{display:flex}
+.sheet{max-width:430px;width:100%;padding:24px 20px 30px;background:white;border-radius:22px 22px 0 0}
+.sheet h2{margin:0 0 10px;font-size:18px}
+.sheet p{font-size:14px;line-height:1.7;color:var(--muted);margin:0 0 20px}
+.sheet button{width:100%;height:46px;border-radius:12px}
+.confirm{background:var(--green);color:white;border:0}
+.keep{margin-top:10px;border:1px solid var(--line);background:white}
+</style>
+</head>
+<body>
+<main class="app">
+<header>
+<button class="back" onclick="cancelAsk()" aria-label="返回">‹</button>
+<div class="title">正在测量</div>
+<button class="help" onclick="showHelp()">测量帮助</button>
+</header>
+<section class="main">
+<div class="eyebrow">MEASUREMENT · 03</div>
+<h1 id="headline">请保持身体稳定</h1>
+<p class="sub" id="description">正在采集身体数据，请暂时不要离开体脂秤。</p>
+
+<div class="visual" id="visual">
+<div class="pulse"></div>
+<div class="ring"><div class="ring-inner">
+<div class="scale-icon">⌁</div>
+<div class="ring-label" id="ringLabel">数据采集中</div>
+</div></div>
+</div>
+
+<div class="weight-card">
+<div class="label">当前体重</div>
+<div class="weight"><span id="weight">--.-</span> <span class="unit">kg</span></div>
+<div class="stable"><span class="dot"></span><span id="stableText">等待体重稳定</span></div>
+</div>
+
+<div class="progress-head"><span>测量进度</span><span id="percent">36%</span></div>
+<div class="track"><div class="fill" id="fill"></div></div>
+
+<div class="steps">
+<div class="step done" id="step1">
+<div class="step-icon">✓</div><div class="step-copy"><div class="step-name">设备连接</div><div class="step-desc">蓝牙通信正常</div></div><div class="step-status">已完成</div>
+</div>
+<div class="step active" id="step2">
+<div class="step-icon">◌</div><div class="step-copy"><div class="step-name">体重测量</div><div class="step-desc">检测体重并等待数值稳定</div></div><div class="step-status">进行中</div>
+</div>
+<div class="step" id="step3">
+<div class="step-icon">○</div><div class="step-copy"><div class="step-name">身体成分分析</div><div class="step-desc">采集阻抗等身体数据</div></div><div class="step-status">等待中</div>
+</div>
+</div>
+
+<p class="note" id="note">测量期间请保持双脚与电极接触。如有不适，请立即停止测量。</p>
+<div class="actions">
+<button class="secondary" onclick="cancelAsk()">取消测量</button>
+<button class="primary" id="demoButton" onclick="simulateNext()">模拟下一阶段</button>
+</div>
+</section>
+</main>
+
+<div class="toast" id="toast" role="status"></div>
+<div class="overlay" id="overlay" onclick="outsideClose(event)">
+<section class="sheet" role="dialog" aria-modal="true">
+<h2 id="dialogTitle">确定取消测量？</h2>
+<p id="dialogText">当前测量尚未完成，取消后本次采集数据不会保存。</p>
+<button class="confirm" id="confirmButton" onclick="confirmDialog()">确认取消</button>
+<button class="keep" onclick="closeDialog()">继续测量</button>
+</section>
+</div>
+
+<script>
+let phase=1;
+let dialogAction="cancel";
+
+function toast(msg){
+const el=document.getElementById("toast");
+el.textContent=msg;el.classList.add("show");
+clearTimeout(window.toastTimer);
+window.toastTimer=setTimeout(()=>el.classList.remove("show"),2200);
+}
+function setPhase(p){
+phase=p;
+const pct=[0,36,68,100][p];
+document.getElementById("percent").textContent=pct+"%";
+document.getElementById("fill").style.width=pct+"%";
+document.getElementById("step1").className="step done";
+document.getElementById("step2").className="step "+(p===1?"active":p>1?"done":"");
+document.getElementById("step3").className="step "+(p===2?"active":p===3?"done":"");
+if(p===1){
+document.getElementById("headline").textContent="请保持身体稳定";
+document.getElementById("description").textContent="正在采集身体数据，请暂时不要离开体脂秤。";
+document.getElementById("ringLabel").textContent="数据采集中";
+document.getElementById("weight").textContent="--.-";
+document.getElementById("stableText").textContent="等待体重稳定";
+document.getElementById("step2").querySelector(".step-status").textContent="进行中";
+document.getElementById("step3").querySelector(".step-status").textContent="等待中";
+document.getElementById("demoButton").textContent="模拟下一阶段";
+}else if(p===2){
+document.getElementById("headline").textContent="正在分析身体成分";
+document.getElementById("description").textContent="体重数据已稳定，正在等待身体成分数据。";
+document.getElementById("ringLabel").textContent="分析中";
+document.getElementById("weight").textContent="62.4";
+document.getElementById("stableText").textContent="体重已稳定";
+document.getElementById("step2").querySelector(".step-status").textContent="已完成";
+document.getElementById("step3").querySelector(".step-status").textContent="进行中";
+document.getElementById("demoButton").textContent="模拟测量完成";
+}else{
+document.getElementById("headline").textContent="测量完成";
+document.getElementById("description").textContent="本次数据采集已结束，可以查看测量结果。";
+document.getElementById("ringLabel").textContent="已完成";
+document.getElementById("weight").textContent="62.4";
+document.getElementById("stableText").textContent="采集成功";
+document.getElementById("step3").querySelector(".step-status").textContent="已完成";
+document.getElementById("demoButton").textContent="查看测量结果";
+}
+}
+function simulateNext(){
+if(phase<3){setPhase(phase+1);toast(phase===2?"正在完成数据采集":"体重数据已稳定");}
+else{toast("原型演示：进入测量结果页");}
+}
+function openDialog(title,desc,confirm,action){
+dialogAction=action;
+document.getElementById("dialogTitle").textContent=title;
+document.getElementById("dialogText").textContent=desc;
+document.getElementById("confirmButton").textContent=confirm;
+document.getElementById("overlay").classList.add("show");
+}
+function cancelAsk(){
+openDialog("确定取消测量？","当前测量尚未完成，取消后本次采集数据不会保存。","确认取消","cancel");
+}
+function showHelp(){
+openDialog("测量遇到问题","请确认蓝牙连接正常、双脚与电极接触，并保持身体稳定。如连接中断，可返回设备页重新连接。","模拟连接中断","disconnect");
+}
+function confirmDialog(){
+closeDialog();
+if(dialogAction==="cancel"){
+toast("已取消本次测量");
+setPhase(1);
+}else{
+document.getElementById("headline").textContent="设备连接中断";
+document.getElementById("description").textContent="请检查体脂秤与手机的连接，然后重试。";
+document.getElementById("ringLabel").textContent="连接中断";
+document.getElementById("note").textContent="本次数据尚未完成保存。重新连接后，请根据设备状态决定是否重新测量。";
+document.getElementById("demoButton").textContent="重新连接";
+document.getElementById("demoButton").onclick=()=>{toast("原型演示：正在重新连接");};
+toast("连接状态异常");
+}
+}
+function closeDialog(){document.getElementById("overlay").classList.remove("show")}
+function outsideClose(e){if(e.target.id==="overlay")closeDialog()}
+</script>
+</body>
+</html>

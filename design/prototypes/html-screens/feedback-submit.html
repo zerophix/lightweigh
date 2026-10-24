@@ -1,0 +1,183 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>意见反馈 - 轻刻健康</title>
+<style>
+:root{--green:#21a675;--deep:#147d58;--bg:#f5f8f5;--text:#20332b;--muted:#7d8982;--line:#e8eee9;--red:#d95e5e}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;color:var(--text)}
+.app{max-width:430px;min-height:100vh;margin:auto;padding-bottom:35px}
+header{height:58px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:0 20px}
+header button{border:0;background:none;font-size:25px;cursor:pointer}
+h1{font-size:18px;margin:0}
+main{padding:18px 16px}
+.intro{background:linear-gradient(135deg,#e5f7ee,#f6fbf7);border-radius:16px;padding:17px;margin-bottom:17px}
+.intro h2{font-size:17px;margin:0 0 7px}
+.intro p{font-size:12px;color:#688075;line-height:1.7;margin:0}
+.card{background:#fff;border-radius:16px;padding:17px;margin-bottom:14px}
+.label{display:block;font-size:13px;font-weight:650;margin-bottom:12px}
+.required{color:var(--red);margin-left:3px}
+.types{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.type{border:1px solid var(--line);border-radius:11px;padding:12px;display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer}
+.type.active{border-color:var(--green);background:#eef9f3;color:var(--deep)}
+.type input{accent-color:var(--green);margin:0}
+textarea,input[type="text"],input[type="email"]{width:100%;border:1px solid #e1e9e3;border-radius:11px;padding:12px;font:inherit;font-size:13px;outline:none;background:#fff}
+textarea:focus,input:focus{border-color:var(--green)}
+textarea{height:130px;resize:vertical;line-height:1.7}
+.counter{font-size:11px;color:var(--muted);text-align:right;margin-top:6px}
+.hint{font-size:11px;color:var(--muted);line-height:1.7;margin-top:8px}
+.upload{border:1px dashed #b9d9c6;border-radius:12px;background:#f8fcf9;padding:18px;text-align:center;cursor:pointer}
+.upload .plus{font-size:25px;color:var(--green)}
+.upload strong{display:block;font-size:12px;margin:6px 0}
+.upload p{font-size:11px;color:var(--muted);margin:0}
+#fileInput{display:none}
+.file-list{margin-top:10px}
+.file-item{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 10px;background:#f4f8f5;border-radius:9px;font-size:12px;margin-top:7px}
+.file-item button{border:0;background:none;color:var(--red);cursor:pointer}
+.field{margin-bottom:15px}
+.field:last-child{margin-bottom:0}
+.checkline{display:flex;align-items:flex-start;gap:9px;font-size:11px;color:#68776e;line-height:1.7}
+.checkline input{accent-color:var(--green);margin-top:3px}
+.submit{width:100%;border:0;background:var(--green);color:#fff;border-radius:12px;padding:14px;font:inherit;font-size:15px;font-weight:600;cursor:pointer}
+.submit:disabled{opacity:.55;cursor:not-allowed}
+.privacy{font-size:10px;color:var(--muted);line-height:1.7;margin:12px 3px}
+.error{display:none;color:var(--red);font-size:12px;margin-top:8px}
+.result{display:none;background:#fff;border-radius:18px;padding:27px 20px;text-align:center;margin-top:15px}
+.result .success-icon{width:58px;height:58px;border-radius:50%;background:#e6f7ef;color:var(--green);display:grid;place-items:center;font-size:28px;margin:0 auto 14px}
+.result h2{font-size:18px;margin:0 0 8px}
+.result p{font-size:12px;color:var(--muted);line-height:1.8}
+.result button{border:0;border-radius:11px;background:var(--green);color:white;padding:12px 20px;margin-top:16px;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="app">
+<header><button onclick="history.length>1?history.back():location.href='help-center.html'" aria-label="返回">‹</button><h1>意见反馈</h1></header>
+<main>
+<div id="formView">
+<section class="intro">
+<h2>你的建议，我们认真对待</h2>
+<p>欢迎反馈使用问题、设备体验或产品建议。请尽量描述发生场景，方便后续排查。</p>
+</section>
+
+<form id="feedbackForm">
+<section class="card">
+<span class="label">反馈类型<span class="required">*</span></span>
+<div class="types">
+<label class="type active"><input type="radio" name="type" value="使用问题" checked>使用问题</label>
+<label class="type"><input type="radio" name="type" value="设备连接">设备连接</label>
+<label class="type"><input type="radio" name="type" value="数据异常">数据异常</label>
+<label class="type"><input type="radio" name="type" value="功能建议">功能建议</label>
+<label class="type"><input type="radio" name="type" value="隐私与账号">隐私与账号</label>
+<label class="type"><input type="radio" name="type" value="其他">其他</label>
+</div>
+</section>
+
+<section class="card">
+<label class="label" for="description">问题描述<span class="required">*</span></label>
+<textarea id="description" maxlength="500" placeholder="请描述问题发生的时间、操作步骤和页面提示（至少 10 个字）" required></textarea>
+<div class="counter"><span id="count">0</span> / 500</div>
+<div class="error" id="descError">请至少输入 10 个字，帮助我们理解问题。</div>
+<p class="hint">请勿填写密码、验证码、身份证号等敏感信息。</p>
+</section>
+
+<section class="card">
+<span class="label">添加截图（选填）</span>
+<label class="upload" for="fileInput">
+<div class="plus">＋</div>
+<strong>选择图片附件</strong>
+<p>原型仅展示文件名，不会读取或上传图片</p>
+</label>
+<input type="file" id="fileInput" accept="image/*" multiple>
+<div class="file-list" id="fileList"></div>
+<p class="hint">请确认截图中不包含他人的隐私信息。正式产品应设置文件类型、大小限制和上传前提示。</p>
+</section>
+
+<section class="card">
+<div class="field">
+<label class="label" for="contact">联系方式（选填）</label>
+<input type="text" id="contact" maxlength="100" placeholder="邮箱或手机号，便于需要时联系你">
+<p class="hint">仅在你愿意提供联系方式时填写。</p>
+</div>
+<div class="field">
+<label class="checkline"><input type="checkbox" id="consent" required><span>我确认反馈内容不包含不必要的敏感个人信息，并同意在本原型中模拟提交此反馈。</span></label>
+</div>
+</section>
+
+<button class="submit" type="submit">提交反馈（模拟）</button>
+<p class="privacy">原型提示：点击提交只会在当前页面显示模拟结果。反馈内容、联系方式及附件不会发送到服务器，也不会产生真实工单。</p>
+</form>
+</div>
+
+<section class="result" id="resultView" role="status" aria-live="polite">
+<div class="success-icon">✓</div>
+<h2>演示提交完成</h2>
+<p>已模拟反馈提交成功的界面状态。<br>这不是实际客服工单，服务端没有收到任何内容。</p>
+<p id="summary" style="margin-top:12px"></p>
+<button onclick="resetForm()">返回反馈页面</button>
+</section>
+</main>
+</div>
+<script>
+const desc=document.getElementById('description');
+const fileInput=document.getElementById('fileInput');
+let selectedFiles=[];
+desc.addEventListener('input',()=>{
+ document.getElementById('count').textContent=desc.value.length;
+ document.getElementById('descError').style.display='none';
+});
+document.querySelectorAll('.type input').forEach(input=>{
+ input.addEventListener('change',()=>{
+  document.querySelectorAll('.type').forEach(label=>label.classList.toggle('active',label.querySelector('input').checked));
+ });
+});
+fileInput.addEventListener('change',()=>{
+ const incoming=Array.from(fileInput.files);
+ incoming.forEach(file=>{
+  if(selectedFiles.length<3&&file.type.startsWith('image/'))selectedFiles.push(file.name);
+ });
+ renderFiles();
+ fileInput.value='';
+});
+function renderFiles(){
+ const list=document.getElementById('fileList');
+ list.innerHTML='';
+ selectedFiles.forEach((name,index)=>{
+  const row=document.createElement('div');row.className='file-item';
+  const title=document.createElement('span');title.textContent=name;
+  const remove=document.createElement('button');remove.type='button';remove.textContent='移除';
+  remove.onclick=()=>{selectedFiles.splice(index,1);renderFiles()};
+  row.append(title,remove);list.appendChild(row);
+ });
+}
+document.getElementById('feedbackForm').addEventListener('submit',event=>{
+ event.preventDefault();
+ if(desc.value.trim().length<10){
+  document.getElementById('descError').style.display='block';
+  desc.focus();return;
+ }
+ if(!document.getElementById('consent').checked){
+  alert('请先确认提交说明。');return;
+ }
+ const type=document.querySelector('input[name="type"]:checked').value;
+ document.getElementById('summary').textContent='反馈类型：'+type+'；附件数量：'+selectedFiles.length+'。内容仅用于当前页面的演示。';
+ document.getElementById('formView').style.display='none';
+ document.getElementById('resultView').style.display='block';
+ window.scrollTo(0,0);
+});
+function resetForm(){
+ document.getElementById('feedbackForm').reset();
+ selectedFiles=[];
+ renderFiles();
+ document.getElementById('count').textContent='0';
+ document.getElementById('descError').style.display='none';
+ document.querySelectorAll('.type').forEach(label=>label.classList.toggle('active',label.querySelector('input').checked));
+ document.getElementById('resultView').style.display='none';
+ document.getElementById('formView').style.display='block';
+ window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>

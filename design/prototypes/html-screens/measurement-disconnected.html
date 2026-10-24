@@ -1,0 +1,84 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>设备连接中断 - 轻衡健康</title>
+<style>
+:root{--g:#20a574;--gd:#147a56;--bg:#f5f8f5;--text:#202923;--muted:#87928a;--line:#e7ece8}
+*{box-sizing:border-box}
+body{margin:0;background:#e9eeea;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:var(--text)}
+button{font:inherit;cursor:pointer}
+.app{max-width:430px;min-height:100vh;margin:auto;background:var(--bg);display:flex;flex-direction:column}
+header{height:58px;background:white;display:flex;align-items:center;justify-content:space-between;padding:0 20px}
+header button{border:0;background:none;color:var(--muted);font-size:14px}
+header strong{font-size:16px}
+main{padding:26px 20px;flex:1}
+.art{height:190px;display:grid;place-items:center;position:relative}
+.halo{width:142px;height:142px;border-radius:50%;background:#e8f5ee;display:grid;place-items:center}
+.bluetooth{width:78px;height:78px;border-radius:25px;background:white;display:grid;place-items:center;color:var(--g);font-size:42px;box-shadow:0 6px 20px #1b604010}
+.badge{position:absolute;right:calc(50% - 65px);bottom:20px;width:35px;height:35px;border-radius:50%;background:#fff0ec;color:#d66a56;display:grid;place-items:center;font-weight:700;border:3px solid var(--bg)}
+h1{text-align:center;font-size:24px;margin:10px 0}
+.sub{text-align:center;color:var(--muted);font-size:14px;line-height:1.8;margin:0 auto;max-width:310px}
+.status{display:flex;align-items:center;gap:12px;padding:16px;margin-top:25px;background:white;border:1px solid var(--line);border-radius:16px}
+.device-icon{width:43px;height:43px;border-radius:12px;background:#edf7f1;display:grid;place-items:center;color:var(--gd);font-size:21px}
+.device-copy{flex:1}
+.device-name{font-size:14px;font-weight:650}
+.device-desc{font-size:12px;color:var(--muted);margin-top:5px}
+.state{font-size:12px;color:#c66c50}
+.steps{margin-top:18px;padding:18px;background:white;border:1px solid var(--line);border-radius:16px}
+.steps h2{font-size:14px;margin:0 0 15px}
+.row{display:flex;gap:10px;margin:13px 0}
+.num{width:24px;height:24px;flex-shrink:0;border-radius:8px;background:#edf7f1;color:var(--gd);display:grid;place-items:center;font-size:12px}
+.row strong{font-size:13px}
+.row p{font-size:12px;line-height:1.6;color:var(--muted);margin:5px 0 0}
+.notice{margin-top:14px;padding:13px;border-radius:12px;background:#fff4e5;color:#946923;font-size:12px;line-height:1.7}
+footer{padding:16px 20px 28px}
+.primary{height:50px;width:100%;border:0;border-radius:14px;background:var(--g);color:white;font-weight:650}
+.secondary{height:45px;width:100%;border:0;background:none;color:var(--gd);margin-top:5px}
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#25352b;color:white;padding:11px 15px;border-radius:10px;font-size:13px;opacity:0;transition:.2s;white-space:nowrap}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="app">
+<header><button onclick="notify('返回测量')">‹ 返回</button><strong>连接异常</strong><button onclick="notify('请按提示重新连接')">帮助</button></header>
+<main>
+<div class="art"><div class="halo"><div class="bluetooth">ᛒ</div></div><div class="badge">!</div></div>
+<h1 id="heading">设备连接中断</h1>
+<p class="sub" id="description">手机与体脂秤之间的连接暂时中断。请先保持安全站姿，确认设备状态后再继续。</p>
+
+<div class="status">
+<div class="device-icon">⌁</div>
+<div class="device-copy"><div class="device-name">轻衡智能体脂秤</div><div class="device-desc" id="deviceText">上次连接：刚刚</div></div>
+<div class="state" id="stateText">连接断开</div>
+</div>
+
+<section class="steps">
+<h2>你可以这样处理</h2>
+<div class="row"><div class="num">1</div><div><strong>确认体脂秤仍处于开启状态</strong><p>轻踩秤面唤醒设备，并让手机保持在设备附近。</p></div></div>
+<div class="row"><div class="num">2</div><div><strong>检查手机蓝牙</strong><p>确认蓝牙已开启，且轻衡健康拥有必要的系统权限。</p></div></div>
+<div class="row"><div class="num">3</div><div><strong>重新建立连接</strong><p>如果连接仍未恢复，请返回设备页面重新连接。</p></div></div>
+</section>
+
+<div class="notice" id="notice">当前测量可能尚未完整。系统确认数据完整性前，不应将本次测量保存为正式记录。</div>
+</main>
+<footer>
+<button class="primary" id="retryBtn" onclick="reconnect()">重新连接</button>
+<button class="secondary" onclick="restart()">重新开始测量</button>
+</footer>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+function notify(t){const e=document.getElementById("toast");e.textContent=t;e.classList.add("show");clearTimeout(window.t);window.t=setTimeout(()=>e.classList.remove("show"),2200)}
+function reconnect(){
+const b=document.getElementById("retryBtn");b.disabled=true;b.textContent="正在连接…";
+document.getElementById("stateText").textContent="连接中";
+document.getElementById("deviceText").textContent="正在搜索附近设备";
+setTimeout(()=>{b.disabled=false;b.textContent="再次尝试连接";document.getElementById("stateText").textContent="仍未连接";document.getElementById("deviceText").textContent="请确认体脂秤已唤醒";notify("原型演示：未接入真实蓝牙")},1200)
+}
+function restart(){notify("原型演示：返回测量准备页")}
+</script>
+</body>
+</html>

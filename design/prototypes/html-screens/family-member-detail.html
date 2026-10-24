@@ -1,0 +1,20 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>成员详情 - 轻刻健康</title>
+<style>
+:root{--g:#21a675;--d:#147d58;--bg:#f5f8f5;--t:#26362d;--m:#89948c;--line:#edf1ed}
+*{box-sizing:border-box}body{margin:0;background:#eaf0eb;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:var(--t)}button{font:inherit;cursor:pointer}.app{max-width:430px;min-height:100vh;margin:auto;background:var(--bg);padding:0 20px 32px}.nav{height:58px;display:flex;align-items:center;gap:18px}.nav button{border:0;background:none;font-size:25px}.nav b{font-size:17px}.hero{text-align:center;padding:23px 0 24px}.avatar{width:84px;height:84px;border-radius:28px;background:#f9e9df;display:grid;place-items:center;font-size:38px;margin:auto auto 14px}.hero h1{font-size:22px;margin:0 0 7px}.hero p{font-size:12px;color:var(--m);margin:0}.badge{display:inline-block;padding:6px 10px;border-radius:20px;background:#e5f5e9;color:var(--d);font-size:11px;margin-top:12px}.card{background:white;border-radius:18px;padding:18px;margin-bottom:13px}.title{font-size:15px;font-weight:700;margin-bottom:13px}.row{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:46px;border-bottom:1px solid var(--line)}.row:last-child{border:0}.label{font-size:13px;color:#718076}.value{font-size:13px;font-weight:550;text-align:right}.muted{font-size:11px;color:var(--m);line-height:1.7}.share{display:flex;align-items:center;gap:11px;padding:13px 0;border-bottom:1px solid var(--line)}.share:last-child{border:0}.share-icon{width:36px;height:36px;background:#edf7f0;border-radius:12px;display:grid;place-items:center;color:var(--d)}.share-main{flex:1}.share-main strong{font-size:13px}.share-main p{font-size:11px;color:var(--m);margin:5px 0 0}.tag{font-size:10px;background:#e8f6ed;color:var(--d);padding:5px 8px;border-radius:9px;white-space:nowrap}.primary,.secondary,.danger{height:46px;width:100%;border-radius:13px;font-weight:650;font-size:13px}.primary{background:var(--g);color:white;border:0}.secondary{background:white;border:1px solid #dce8df;color:var(--d);margin-top:10px}.danger{background:white;border:1px solid #f0dada;color:#bd5d57;margin-top:10px}.toast{display:none;background:#243b2e;color:white;padding:12px;border-radius:12px;font-size:12px;margin-bottom:12px}
+</style></head>
+<body><main class="app">
+<header class="nav"><button onclick="history.back()">‹</button><b>成员详情</b></header>
+<section class="hero"><div class="avatar">👩</div><h1 id="memberName">林女士</h1><p>家庭备注 · 妈妈</p><span class="badge">已加入家庭</span></section>
+<div id="toast" class="toast" role="status"></div>
+<section class="card"><div class="title">成员信息</div><div class="row"><span class="label">家庭关系</span><span class="value">父母</span></div><div class="row"><span class="label">成员角色</span><span class="value">普通成员</span></div><div class="row"><span class="label">加入时间</span><span class="value">示例数据</span></div><div class="row"><span class="label">账号标识</span><span class="value">已脱敏（演示）</span></div></section>
+<section class="card"><div class="title">当前共享权限</div><div class="share"><div class="share-icon">◉</div><div class="share-main"><strong>最新测量摘要</strong><p>查看已授权的最新指标摘要</p></div><span class="tag">已授权</span></div><div class="share"><div class="share-icon">▤</div><div class="share-main"><strong>历史测量记录</strong><p>查看历史测量数据</p></div><span class="tag" id="historyTag">未授权</span></div><div class="share"><div class="share-icon">✓</div><div class="share-main"><strong>行动计划进度</strong><p>查看计划完成情况</p></div><span class="tag">已授权</span></div><p class="muted">以上权限仅为示例。正式产品应以服务端授权记录为准。</p></section>
+<button class="primary" onclick="location.href='family-member-permissions.html'">管理数据权限</button><button class="secondary" onclick="location.href='family-invitation-status.html'">查看邀请与关系状态</button><button class="danger" onclick="location.href='family-sharing-revoke.html'">撤销共享或移除成员</button>
+</main><script>
+function toast(s){const t=document.getElementById('toast');t.textContent=s;t.style.display='block'}
+</script></body></html>

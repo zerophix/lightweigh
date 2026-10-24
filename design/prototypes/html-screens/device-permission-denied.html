@@ -1,0 +1,60 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>权限未开启 - 轻刻健康</title>
+<style>
+:root{--g:#21a675;--d:#147d58;--t:#20332b;--m:#7d8982;--line:#e5ece7;--red:#d95b5b}
+*{box-sizing:border-box}
+body{margin:0;background:#f5f8f5;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;color:var(--t)}
+.app{max-width:430px;min-height:100vh;min-height:100dvh;margin:auto;background:white;display:flex;flex-direction:column}
+header{height:58px;display:flex;align-items:center;padding:0 20px;gap:12px;border-bottom:1px solid var(--line)}
+header button{border:0;background:none;font-size:27px;cursor:pointer}
+header h1{font-size:17px;margin:0}
+main{padding:25px 22px;flex:1}
+.hero{text-align:center;padding:16px 0 25px}
+.icon{height:78px;width:78px;border-radius:25px;background:#fff0ef;color:var(--red);display:grid;place-items:center;margin:0 auto 18px;font-size:33px}
+h2{font-size:21px;margin:0 0 10px}
+.hero p{font-size:12px;color:var(--m);line-height:1.9;margin:0 auto;max-width:300px}
+.card{border:1px solid var(--line);border-radius:14px;padding:15px;margin-top:12px}
+.card strong{font-size:13px;display:block;margin-bottom:7px}
+.card p{font-size:11px;line-height:1.9;color:var(--m);margin:0}
+.steps{margin-top:21px}
+.step{display:flex;gap:11px;padding:12px 0}
+.num{width:26px;height:26px;border-radius:50%;background:#e6f7ef;color:var(--d);display:grid;place-items:center;font-size:11px;flex-shrink:0}
+.step strong{font-size:12px;display:block;margin:3px 0 5px}
+.step p{font-size:11px;color:var(--m);line-height:1.8;margin:0}
+.actions{padding:0 22px 27px}
+.primary{width:100%;border:0;border-radius:13px;background:var(--g);color:white;padding:14px;font:inherit;font-size:14px;font-weight:650;cursor:pointer}
+.secondary{width:100%;border:1px solid var(--line);border-radius:13px;background:white;color:var(--d);padding:13px;font:inherit;font-size:13px;cursor:pointer;margin-top:10px}
+.feedback{display:none;margin-top:12px;padding:12px;border-radius:11px;background:#f6faf7;color:var(--d);font-size:11px;line-height:1.8}
+</style>
+</head>
+<body>
+<div class="app">
+<header><button onclick="location.href='device-scan.html'" aria-label="返回">‹</button><h1>权限设置</h1></header>
+<main>
+<section class="hero">
+<div class="icon">!</div>
+<h2>暂时无法搜索设备</h2>
+<p>当前原型模拟蓝牙权限未授予的情况。允许附近设备权限后，正式应用才能按系统规则尝试发现兼容体脂秤。</p>
+</section>
+
+<div class="card"><strong>当前状态</strong><p style="color:#c65353">附近设备权限：未授予（演示状态）</p><p style="margin-top:6px">这不代表你的手机实际权限状态。网页原型无法读取 Android 系统授权信息。</p></div>
+
+<div class="steps">
+<div class="step"><span class="num">1</span><div><strong>打开手机系统设置</strong><p>进入应用管理，找到轻刻健康的权限设置。</p></div></div>
+<div class="step"><span class="num">2</span><div><strong>检查附近设备权限</strong><p>根据系统显示开启蓝牙或附近设备相关权限。如果系统没有该选项，请按当前 Android 版本的实际界面操作。</p></div></div>
+<div class="step"><span class="num">3</span><div><strong>返回应用重试</strong><p>权限变更后返回设备扫描页，重新尝试搜索设备。</p></div></div>
+</div>
+<div class="feedback" id="feedback" role="status"></div>
+</main>
+<div class="actions">
+<button class="primary" onclick="document.getElementById('feedback').style.display='block';document.getElementById('feedback').textContent='当前网页无法打开 Android 应用设置。正式原生应用应根据权限状态引导用户进入系统设置，并在返回前台后重新检查权限。'">前往权限设置</button>
+<button class="secondary" onclick="location.href='device-scan.html'">返回并重新尝试</button>
+</div>
+</div>
+</body>
+</html>

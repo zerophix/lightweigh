@@ -1,0 +1,66 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>开启蓝牙 - 轻刻健康</title>
+<style>
+:root{--g:#21a675;--d:#147d58;--t:#20332b;--m:#7d8982;--line:#e5ece7}
+*{box-sizing:border-box}
+body{margin:0;background:#f5f8f5;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;color:var(--t)}
+.app{max-width:430px;min-height:100vh;min-height:100dvh;margin:auto;background:#fff;display:flex;flex-direction:column}
+header{height:58px;display:flex;align-items:center;padding:0 20px;gap:12px;border-bottom:1px solid var(--line)}
+header button{border:0;background:none;font-size:27px;cursor:pointer}
+header h1{font-size:17px;margin:0}
+main{flex:1;padding:25px 22px}
+.hero{text-align:center;padding:20px 0 28px}
+.icon{width:86px;height:86px;border-radius:28px;background:#e7f7ee;color:var(--d);display:grid;place-items:center;margin:0 auto 20px;font-size:39px}
+h2{font-size:22px;margin:0 0 10px}
+.hero p{font-size:12px;line-height:1.9;color:var(--m);max-width:300px;margin:0 auto}
+.state{display:flex;align-items:center;gap:11px;padding:15px;border-radius:13px;background:#fff4e9;margin:0 0 21px}
+.state .dot{width:9px;height:9px;border-radius:50%;background:#e7a64a;flex-shrink:0}
+.state strong{font-size:12px;display:block;margin-bottom:5px;color:#8c6633}
+.state small{font-size:10px;line-height:1.7;color:#927b5b}
+.card{border:1px solid var(--line);border-radius:14px;padding:15px}
+.card h3{font-size:13px;margin:0 0 13px}
+.step{display:flex;gap:10px;margin-top:13px}
+.num{width:25px;height:25px;border-radius:50%;background:#e6f7ef;color:var(--d);display:grid;place-items:center;font-size:11px;flex-shrink:0}
+.step strong{font-size:12px;display:block;margin:3px 0 5px}
+.step p{font-size:11px;line-height:1.8;color:var(--m);margin:0}
+.tip{font-size:11px;color:#7b897f;line-height:1.8;background:#f6faf7;padding:12px;border-radius:10px;margin-top:15px}
+.actions{padding:0 22px 27px}
+.primary{width:100%;border:0;border-radius:13px;background:var(--g);color:#fff;padding:14px;font:inherit;font-size:14px;font-weight:650;cursor:pointer}
+.secondary{width:100%;border:1px solid var(--line);border-radius:13px;background:#fff;color:var(--d);padding:13px;font:inherit;font-size:13px;cursor:pointer;margin-top:10px}
+.feedback{display:none;margin-top:12px;padding:12px;border-radius:10px;background:#e8f7ef;color:var(--d);font-size:11px;line-height:1.8}
+</style>
+</head>
+<body>
+<div class="app">
+<header><button onclick="location.href='device-scan.html'" aria-label="返回">‹</button><h1>蓝牙连接</h1></header>
+<main>
+<section class="hero">
+<div class="icon">ᛒ</div>
+<h2>请开启手机蓝牙</h2>
+<p>手机蓝牙未开启时，应用无法通过蓝牙发现和连接兼容的体脂秤。</p>
+</section>
+
+<div class="state"><span class="dot"></span><div><strong>蓝牙未开启（模拟状态）</strong><small>这是原型内的示例状态，不是手机真实的蓝牙检测结果。</small></div></div>
+
+<div class="card">
+<h3>如何开启蓝牙</h3>
+<div class="step"><span class="num">1</span><div><strong>打开手机控制中心或快捷设置</strong><p>从屏幕顶部下滑，找到蓝牙图标。</p></div></div>
+<div class="step"><span class="num">2</span><div><strong>开启蓝牙功能</strong><p>确认蓝牙处于开启状态。如果已经开启但无法连接，请检查设备是否有电并处于可连接状态。</p></div></div>
+<div class="step"><span class="num">3</span><div><strong>回到轻刻健康重新扫描</strong><p>返回设备扫描页，再次搜索附近的体脂秤。</p></div></div>
+</div>
+
+<div class="tip">出于系统安全限制，网页不能直接替你开启手机蓝牙。正式 Android 原生应用应读取蓝牙适配器状态，并在合适的时机请求用户开启，而不是假设用户已完成操作。</div>
+<div class="feedback" id="feedback" role="status"></div>
+</main>
+<div class="actions">
+<button class="primary" onclick="document.getElementById('feedback').style.display='block';document.getElementById('feedback').textContent='原型演示：尚未检测真实蓝牙状态，也没有打开系统蓝牙开关。请在手机系统设置中手动开启蓝牙。'">我已开启蓝牙</button>
+<button class="secondary" onclick="location.href='device-scan.html'">返回设备扫描</button>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,39 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>编辑资料 - 轻刻健康</title>
+<style>
+:root{--g:#21a675;--d:#147d58;--bg:#f5f8f5;--text:#24362d;--muted:#84928b;--line:#e6ede8}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:var(--text);font-size:14px}.app{max-width:430px;min-height:100vh;margin:auto;padding-bottom:32px}.header{padding:20px;display:flex;align-items:center;gap:13px}.back{width:40px;height:40px;border:0;border-radius:12px;background:white;font-size:23px;cursor:pointer}.header h1{font-size:21px;margin:0}.header p{font-size:12px;color:var(--muted);margin:5px 0 0}.section{padding:0 20px;margin-bottom:16px}.card{background:white;border:1px solid #edf1ee;border-radius:18px;padding:16px}.avatar-area{display:flex;align-items:center;flex-direction:column;padding:9px 0 16px}.avatar{width:78px;height:78px;border-radius:25px;background:#d8f1e2;display:grid;place-items:center;font-size:34px;color:var(--d)}.change{border:0;background:none;color:var(--g);font-size:12px;margin-top:9px;cursor:pointer}.label{display:block;font-size:12px;color:#607067;margin:16px 0 8px}.label:first-child{margin-top:0}.input,select{width:100%;padding:13px;border:1px solid #dfe8e1;border-radius:12px;background:white;color:var(--text);font:inherit;outline:none}.input:focus,select:focus{border-color:var(--g)}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.gender{display:grid;grid-template-columns:1fr 1fr;gap:9px}.gender button{padding:12px;border:1px solid var(--line);border-radius:12px;background:white;color:var(--text);cursor:pointer}.gender button.active{background:#eaf8f0;border-color:var(--g);color:var(--d);font-weight:600}.help{font-size:11px;color:var(--muted);line-height:1.7;margin-top:9px}.section-title{font-weight:700;font-size:15px;margin:0 0 12px}.notice{background:#edf7f0;border-radius:13px;padding:12px;color:#5e7767;font-size:11px;line-height:1.7}.footer{padding:0 20px}.btn{width:100%;border:0;border-radius:13px;background:var(--g);color:white;padding:15px;font-size:14px;font-weight:650;cursor:pointer}.toast{display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#24362d;color:white;padding:12px 16px;border-radius:12px;white-space:nowrap}
+</style>
+</head>
+<body>
+<main class="app">
+<header class="header"><button class="back" onclick="location.href='profile-home.html'">‹</button><div><h1>编辑个人资料</h1><p>完善信息，让使用体验更适合你</p></div></header>
+<section class="section"><div class="card">
+<div class="avatar-area"><div class="avatar" id="avatar">♙</div><button class="change" onclick="toast('头像上传尚未接入')">更换头像</button></div>
+<label class="label" for="name">昵称</label><input class="input" id="name" maxlength="24" placeholder="请输入昵称" value="轻刻用户">
+<label class="label" for="nickname">个人签名（选填）</label><input class="input" id="nickname" maxlength="40" placeholder="写一句关于自己的话">
+<label class="label">性别（选填）</label><div class="gender"><button class="active" data-value="不透露" onclick="setGender(this)">不透露</button><button data-value="女" onclick="setGender(this)">女</button><button data-value="男" onclick="setGender(this)">男</button><button data-value="其他" onclick="setGender(this)">其他</button></div>
+<label class="label" for="birthday">出生日期（选填）</label><input class="input" id="birthday" type="date">
+<div class="help">出生日期可能用于年龄相关的健康指标展示。只有在确有需要时才填写。</div>
+</div></section>
+<section class="section"><div class="card"><div class="section-title">身体基础信息</div>
+<div class="grid"><div><label class="label" for="height">身高</label><input class="input" id="height" type="number" min="50" max="250" placeholder="例如 170"></div><div><label class="label" for="heightUnit">身高单位</label><select id="heightUnit"><option value="cm">厘米（cm）</option><option value="in">英寸（in）</option></select></div></div>
+<div class="help">身高可能参与 BMI 等指标计算。体重、体脂等测量结果应来自有效测量记录，而不是在此处手动修改。</div>
+</div></section>
+<section class="section"><div class="notice">请只填写你愿意提供的信息。个人资料的保存、同步、头像上传与服务器校验尚未在此原型中实现。</div></section>
+<div class="footer"><button class="btn" onclick="save()">保存资料</button><p class="help" style="text-align:center">当前仅模拟保存到浏览器会话</p></div>
+<div class="toast" id="toast"></div>
+</main>
+<script>
+let gender='不透露';
+function setGender(btn){document.querySelectorAll('.gender button').forEach(x=>x.classList.remove('active'));btn.classList.add('active');gender=btn.dataset.value}
+function toast(s){const t=document.getElementById('toast');t.textContent=s;t.style.display='block';setTimeout(()=>t.style.display='none',1800)}
+try{const p=JSON.parse(sessionStorage.getItem('demoProfile')||'null');if(p){for(const id of ['name','nickname','birthday','height','heightUnit'])if(p[id]!==undefined)document.getElementById(id).value=p[id];if(p.gender){gender=p.gender;document.querySelectorAll('.gender button').forEach(x=>x.classList.toggle('active',x.dataset.value===gender))}}}catch(e){}
+function save(){const name=document.getElementById('name').value.trim();if(!name)return toast('请填写昵称');const h=document.getElementById('height').value;if(h&&(Number(h)<50||Number(h)>250))return toast('请检查身高范围');const p={name,nickname:document.getElementById('nickname').value.trim(),gender,birthday:document.getElementById('birthday').value,height:h,heightUnit:document.getElementById('heightUnit').value};try{sessionStorage.setItem('demoProfile',JSON.stringify(p))}catch(e){}toast('资料已模拟保存');setTimeout(()=>location.href='profile-home.html',700)}
+</script>
+</body>
+</html>

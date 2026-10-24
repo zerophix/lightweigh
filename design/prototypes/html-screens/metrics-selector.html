@@ -1,0 +1,54 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>指标选择器 - 轻刻健康</title>
+<style>
+:root{--green:#21a675;--deep:#147d58;--bg:#f5f8f5;--text:#202923;--sub:#849087;--line:#e9eee9;--soft:#eaf7f0}
+*{box-sizing:border-box}body{margin:0;background:#eaf0eb;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}
+button{font:inherit;cursor:pointer}.app{max-width:430px;min-height:100vh;margin:auto;background:var(--bg);padding-bottom:106px;position:relative}
+.top{height:58px;display:flex;align-items:center;padding:0 20px;gap:14px;background:#fff;position:sticky;top:0;z-index:3;border-bottom:1px solid var(--line)}
+.back{border:0;background:none;font-size:26px;color:#344139;padding:0}.title{font-size:17px;font-weight:700;flex:1}.text-btn{border:0;background:none;color:var(--green);font-size:13px}
+.intro{padding:24px 20px 16px}.eyebrow{font-size:11px;color:var(--green);font-weight:800;letter-spacing:1.5px}.intro h1{font-size:25px;letter-spacing:-.6px;margin:8px 0}.intro p{font-size:13px;color:var(--sub);line-height:1.7;margin:0}
+.count-card{margin:0 16px 16px;padding:16px;border-radius:17px;background:linear-gradient(120deg,#e1f5e9,#f3fbf5);display:flex;align-items:center;justify-content:space-between}.count-title{font-size:13px;font-weight:700}.count-sub{font-size:11px;color:#698776;margin-top:5px}.count{font-size:25px;font-weight:800;color:var(--deep)}.count small{font-size:12px;color:#779384;font-weight:500}
+.section{padding:4px 20px 10px;display:flex;align-items:center;justify-content:space-between}.section strong{font-size:14px}.section span{font-size:11px;color:var(--sub)}
+.list{margin:0 16px;background:white;border-radius:18px;padding:4px 14px;box-shadow:0 3px 14px #233d2b05}
+.item{display:flex;align-items:center;gap:12px;padding:15px 0;border-bottom:1px solid #f0f3f0;cursor:pointer}.item:last-child{border:0}.symbol{width:43px;height:43px;border-radius:14px;display:grid;place-items:center;font-size:20px;font-weight:700;flex-shrink:0}.green{background:#e7f7ee;color:#169b68}.blue{background:#eaf2ff;color:#5181d7}.orange{background:#fff2e6;color:#d78a35}.purple{background:#f2edff;color:#9273dc}.cyan{background:#e4f7f7;color:#329b9b}.pink{background:#ffedf2;color:#d66c90}
+.item-info{flex:1;min-width:0}.item-name{font-size:14px;font-weight:700}.item-desc{font-size:11px;color:var(--sub);margin-top:5px}.check{width:22px;height:22px;border:1.5px solid #d7dfd8;border-radius:7px;display:grid;place-items:center;color:transparent;font-size:13px;flex-shrink:0}.item.active .check{background:var(--green);border-color:var(--green);color:white}.item.active .item-name{color:#1d6d4e}
+.note{margin:15px 20px;font-size:11px;color:#89958b;line-height:1.7}.bottom{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#fff;padding:13px 20px calc(16px + env(safe-area-inset-bottom));box-shadow:0 -6px 24px #193b250a;z-index:4}.confirm{width:100%;border:0;background:var(--green);color:white;font-weight:700;border-radius:14px;padding:15px}.confirm:active{background:var(--deep)}.toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:#24372c;color:white;padding:11px 16px;border-radius:10px;font-size:12px;display:none;z-index:10;white-space:nowrap}
+@media(min-width:431px){.bottom{bottom:18px;border-radius:18px}.app{box-shadow:0 10px 40px #17291c12}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top"><button class="back" onclick="history.length>1?history.back():showToast('这是独立页面原型')">‹</button><div class="title">管理指标</div><button class="text-btn" onclick="resetAll()">恢复默认</button></header>
+<section class="intro"><div class="eyebrow">YOUR HEALTH DATA</div><h1>选择关注的指标</h1><p>把你最关心的身体数据放在前面，打造适合自己的健康观察视图。</p></section>
+<div class="count-card"><div><div class="count-title">已选择的指标</div><div class="count-sub">建议选择 3–6 项，方便查看趋势</div></div><div class="count" id="count">4 <small>/ 8</small></div></div>
+<div class="section"><strong>身体测量指标</strong><span>点击项目切换选择</span></div>
+<div class="list" id="metricList">
+<div class="item active" data-id="weight" onclick="toggle(this)"><div class="symbol green">重</div><div class="item-info"><div class="item-name">体重</div><div class="item-desc">kg · 观察体重变化趋势</div></div><div class="check">✓</div></div>
+<div class="item active" data-id="fat" onclick="toggle(this)"><div class="symbol orange">脂</div><div class="item-info"><div class="item-name">体脂率</div><div class="item-desc">% · 观察脂肪占比变化</div></div><div class="check">✓</div></div>
+<div class="item active" data-id="bmi" onclick="toggle(this)"><div class="symbol blue">BMI</div><div class="item-info"><div class="item-name">BMI</div><div class="item-desc">kg/m² · 身高体重指数</div></div><div class="check">✓</div></div>
+<div class="item active" data-id="muscle" onclick="toggle(this)"><div class="symbol purple">肌</div><div class="item-info"><div class="item-name">肌肉量</div><div class="item-desc">kg · 观察肌肉量变化</div></div><div class="check">✓</div></div>
+<div class="item" data-id="water" onclick="toggle(this)"><div class="symbol cyan">水</div><div class="item-info"><div class="item-name">水分率</div><div class="item-desc">% · 设备估算的身体水分比例</div></div><div class="check">✓</div></div>
+<div class="item" data-id="visceral" onclick="toggle(this)"><div class="symbol pink">内</div><div class="item-info"><div class="item-name">内脏脂肪等级</div><div class="item-desc">等级 · 以设备厂商算法为准</div></div><div class="check">✓</div></div>
+<div class="item" data-id="bmr" onclick="toggle(this)"><div class="symbol orange">代</div><div class="item-info"><div class="item-name">基础代谢</div><div class="item-desc">kcal/日 · 算法估算值，不等同于摄入目标</div></div><div class="check">✓</div></div>
+<div class="item" data-id="score" onclick="toggle(this)"><div class="symbol green">评</div><div class="item-info"><div class="item-name">身体评分</div><div class="item-desc">分 · 具体含义取决于设备评分算法</div></div><div class="check">✓</div></div>
+</div>
+<p class="note">指标数值为独立页面演示配置。不同设备支持的指标、计算方法和参考范围可能不同；本页面不会保存到真实账户。</p>
+<div class="bottom"><button class="confirm" onclick="apply()">确认选择</button></div>
+<div class="toast" id="toast"></div>
+</div>
+<script>
+const defaults=['weight','fat','bmi','muscle'];const max=8;
+function updateCount(){const n=document.querySelectorAll('.item.active').length;document.getElementById('count').innerHTML=n+' <small>/ '+max+'</small>'}
+function toggle(el){const active=el.classList.contains('active');if(!active&&document.querySelectorAll('.item.active').length>=max){showToast('最多选择 8 项指标');return}el.classList.toggle('active');updateCount()}
+function resetAll(){document.querySelectorAll('.item').forEach(el=>el.classList.toggle('active',defaults.includes(el.dataset.id)));updateCount();showToast('已恢复默认选择')}
+function apply(){const selected=[...document.querySelectorAll('.item.active .item-name')].map(el=>el.textContent);if(!selected.length){showToast('请至少选择一项指标');return}showToast('已确认 '+selected.length+' 项：'+selected.slice(0,3).join('、')+(selected.length>3?'…':''))}
+function showToast(s){const t=document.getElementById('toast');t.textContent=s;t.style.display='block';clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>t.style.display='none',2200)}
+updateCount();
+</script>
+</body>
+</html>

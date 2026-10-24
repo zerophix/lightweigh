@@ -1,0 +1,170 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#f5f8f5">
+<title>登录 - 轻刻健康</title>
+<style>
+:root{--green:#21a675;--deep:#147d58;--bg:#f5f8f5;--text:#20332b;--muted:#7d8982;--line:#e5ece7;--red:#d95e5e}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;color:var(--text)}
+.app{max-width:430px;min-height:100vh;min-height:100dvh;margin:auto;background:#fff;padding:0 25px 28px;display:flex;flex-direction:column}
+header{height:58px;display:flex;align-items:center}
+.back{border:0;background:none;font-size:27px;cursor:pointer;color:var(--text);padding:0 8px 0 0}
+main{flex:1}
+.brand{margin:25px 0 34px}
+.logo{width:52px;height:52px;border-radius:17px;background:var(--green);display:grid;place-items:center;color:white;font-size:28px;font-weight:700;box-shadow:0 7px 18px #21a67525}
+h1{font-size:27px;letter-spacing:.5px;margin:20px 0 9px}
+.subtitle{font-size:13px;color:var(--muted);line-height:1.7}
+.tabs{display:flex;border-bottom:1px solid var(--line);gap:26px;margin-bottom:24px}
+.tab{padding:0 0 12px;border:0;background:none;color:var(--muted);font-size:14px;cursor:pointer;position:relative}
+.tab.active{color:var(--deep);font-weight:650}
+.tab.active:after{content:"";height:3px;width:25px;border-radius:3px;background:var(--green);position:absolute;bottom:-1px;left:50%;transform:translateX(-50%)}
+.field{margin-bottom:17px}
+.label{display:block;font-size:12px;color:#627168;margin-bottom:9px}
+.input-wrap{height:49px;border:1px solid var(--line);border-radius:12px;display:flex;align-items:center;padding:0 13px;gap:10px}
+.input-wrap:focus-within{border-color:var(--green)}
+.prefix{font-size:13px;color:#52645a;white-space:nowrap}
+input[type="tel"],input[type="password"],input[type="text"]{border:0;outline:0;background:transparent;width:100%;min-width:0;font:inherit;font-size:14px;color:var(--text)}
+input::placeholder{color:#b1bbb5}
+.show{border:0;background:none;color:var(--deep);font-size:12px;white-space:nowrap;cursor:pointer}
+.row-between{display:flex;justify-content:space-between;align-items:center;margin:2px 0 22px}
+.small-link{border:0;background:none;color:var(--deep);font-size:12px;padding:4px 0;cursor:pointer;text-decoration:none}
+.check{display:flex;align-items:flex-start;gap:8px;font-size:11px;color:var(--muted);line-height:1.8;margin:17px 0}
+.check input{accent-color:var(--green);margin-top:4px;flex-shrink:0}
+.check a{color:var(--deep);text-decoration:none}
+.primary{width:100%;border:0;border-radius:13px;background:var(--green);color:#fff;padding:14px;font:inherit;font-size:15px;font-weight:650;cursor:pointer}
+.primary:disabled{opacity:.5;cursor:not-allowed}
+.error{display:none;font-size:11px;color:var(--red);line-height:1.6;margin-top:7px}
+.divider{display:flex;align-items:center;gap:12px;color:#a0aaa3;font-size:11px;margin:25px 0 17px}
+.divider:before,.divider:after{content:"";height:1px;background:var(--line);flex:1}
+.alt{display:flex;justify-content:center;gap:12px}
+.alt button{border:1px solid var(--line);background:#fff;border-radius:12px;padding:12px 16px;font-size:12px;color:#56675d;cursor:pointer}
+.bottom{text-align:center;font-size:12px;color:var(--muted);margin-top:25px}
+.bottom a{color:var(--deep);text-decoration:none;font-weight:600}
+.notice{font-size:10px;line-height:1.7;color:#a0aaa3;text-align:center;margin-top:25px}
+.toast{display:none;background:#e6f7ef;color:var(--deep);border-radius:10px;padding:11px;margin-bottom:12px;font-size:12px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="app">
+<header><button class="back" onclick="history.length>1?history.back():location.href='welcome-onboarding.html'" aria-label="返回">‹</button></header>
+<main>
+<div class="brand">
+<div class="logo">轻</div>
+<h1>欢迎回来</h1>
+<div class="subtitle">登录轻刻健康，继续记录你的健康变化。</div>
+</div>
+
+<div class="tabs">
+<button class="tab active" id="passwordTab" onclick="setMode('password')">密码登录</button>
+<button class="tab" id="codeTab" onclick="setMode('code')">验证码登录</button>
+</div>
+
+<div id="toast" class="toast" role="status"></div>
+
+<form id="loginForm">
+<div class="field">
+<label class="label" for="phone">手机号</label>
+<div class="input-wrap">
+<span class="prefix">+86</span>
+<input id="phone" type="tel" inputmode="numeric" maxlength="11" placeholder="请输入手机号" autocomplete="tel" required>
+</div>
+<div class="error" id="phoneError">请输入有效的 11 位中国大陆手机号。</div>
+</div>
+
+<div class="field" id="passwordField">
+<label class="label" for="password">登录密码</label>
+<div class="input-wrap">
+<input id="password" type="password" minlength="8" maxlength="64" placeholder="请输入密码" autocomplete="current-password">
+<button class="show" type="button" onclick="togglePassword()">显示</button>
+</div>
+<div class="error" id="passwordError">请输入至少 8 位密码。</div>
+</div>
+
+<div class="field" id="codeField" style="display:none">
+<label class="label" for="loginCode">短信验证码</label>
+<div class="input-wrap">
+<input id="loginCode" type="text" inputmode="numeric" maxlength="6" placeholder="请输入 6 位验证码">
+<button class="show" type="button" onclick="sendLoginCode()">获取验证码</button>
+</div>
+<div class="error" id="codeError">请输入 6 位数字验证码。</div>
+</div>
+
+<div class="row-between">
+<span style="font-size:11px;color:#8a978f">请使用已注册的手机号</span>
+<button type="button" class="small-link" onclick="showToast('正式产品应进入账号验证与密码重置流程。当前没有连接身份验证服务。')">忘记密码？</button>
+</div>
+
+<button class="primary" type="submit">登录</button>
+
+<label class="check">
+<input type="checkbox" id="agreement">
+<span>我已阅读并同意 <a href="javascript:void(0)" onclick="showToast('这里应打开正式的用户服务协议页面。')">《用户服务协议》</a>和 <a href="javascript:void(0)" onclick="showToast('这里应打开正式的隐私政策页面。')">《隐私政策》</a>。</span>
+</label>
+<div class="error" id="agreementError">请阅读并同意相关协议后继续。</div>
+</form>
+
+<div class="divider">其他方式</div>
+<div class="alt">
+<button onclick="showToast('第三方登录尚未接入。')">其他登录方式</button>
+<button onclick="location.href='account-register.html'">创建新账号</button>
+</div>
+<div class="bottom">还没有账号？ <a href="account-register.html">立即注册</a></div>
+</main>
+<div class="notice">登录即将进入个人健康管理空间。请妥善保管账号信息。<br>当前为前端交互原型，不会创建真实登录会话。</div>
+</div>
+<script>
+let mode='password';
+function setMode(next){
+ mode=next;
+ document.getElementById('passwordTab').classList.toggle('active',mode==='password');
+ document.getElementById('codeTab').classList.toggle('active',mode==='code');
+ document.getElementById('passwordField').style.display=mode==='password'?'block':'none';
+ document.getElementById('codeField').style.display=mode==='code'?'block':'none';
+ document.getElementById('password').required=mode==='password';
+ document.getElementById('loginCode').required=mode==='code';
+ clearErrors();
+}
+function togglePassword(){
+ const input=document.getElementById('password');
+ input.type=input.type==='password'?'text':'password';
+ document.querySelector('.show').textContent=input.type==='password'?'显示':'隐藏';
+}
+function showToast(message){
+ const el=document.getElementById('toast');el.textContent=message;el.style.display='block';
+}
+function clearErrors(){
+ ['phoneError','passwordError','codeError','agreementError'].forEach(id=>document.getElementById(id).style.display='none');
+}
+let codeTimer=null;
+function sendLoginCode(){
+ const phone=document.getElementById('phone').value.trim();
+ if(!/^1[3-9]\d{9}$/.test(phone)){
+ document.getElementById('phoneError').style.display='block';return;
+ }
+ showToast('已模拟发送验证码。没有调用短信服务，演示验证码为 123456。');
+ const btn=document.querySelector('#codeField button');
+ if(codeTimer)return;
+ let left=60;btn.disabled=true;btn.textContent=left+' 秒后重试';
+ codeTimer=setInterval(()=>{
+ left--;btn.textContent=left+' 秒后重试';
+ if(left<=0){clearInterval(codeTimer);codeTimer=null;btn.disabled=false;btn.textContent='获取验证码'}
+ },1000);
+}
+document.getElementById('loginForm').addEventListener('submit',event=>{
+ event.preventDefault();clearErrors();
+ const phone=document.getElementById('phone').value.trim();
+ let valid=true;
+ if(!/^1[3-9]\d{9}$/.test(phone)){document.getElementById('phoneError').style.display='block';valid=false}
+ if(mode==='password'&&document.getElementById('password').value.length<8){document.getElementById('passwordError').style.display='block';valid=false}
+ if(mode==='code'&&!/^\d{6}$/.test(document.getElementById('loginCode').value)){document.getElementById('codeError').style.display='block';valid=false}
+ if(!document.getElementById('agreement').checked){document.getElementById('agreementError').style.display='block';valid=false}
+ if(!valid)return;
+ showToast(mode==='password'?'表单校验通过。真实账号密码验证尚未接入，未建立登录会话。':'表单校验通过。真实短信验证码校验尚未接入，未建立登录会话。');
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,94 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>数据同步 - 轻衡健康</title>
+<style>
+:root{--g:#21a675;--gd:#147d58;--red:#d94b4b;--amber:#ad7928;--bg:#f5f8f5;--text:#202923;--muted:#87928a;--line:#e7ece8}
+*{box-sizing:border-box}body{margin:0;background:#e9eeea;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:var(--text)}button{font:inherit;cursor:pointer}
+.app{max-width:430px;min-height:100vh;margin:auto;background:var(--bg);padding-bottom:30px}
+header{height:58px;background:white;display:flex;align-items:center;justify-content:space-between;padding:0 20px}header button{border:0;background:none;color:var(--muted);font-size:14px}header strong{font-size:16px}
+main{padding:20px 17px}
+.overview{padding:19px;background:white;border:1px solid var(--line);border-radius:17px}
+.overview-top{display:flex;align-items:center;gap:13px}
+.icon{width:47px;height:47px;border-radius:15px;background:#e8f6ed;color:var(--gd);display:grid;place-items:center;font-size:23px}
+.icon.pending{background:#fff4df;color:var(--amber)}.icon.error{background:#fff0ed;color:var(--red)}.icon.syncing{background:#eaf3fb;color:#5385b5}
+.overview-copy{flex:1}.overview-copy strong{font-size:15px}.overview-copy p{font-size:11px;color:var(--muted);margin:6px 0 0;line-height:1.6}
+.tag{font-size:10px;padding:5px 8px;border-radius:15px;background:#e8f6ed;color:var(--gd)}.tag.pending{background:#fff4df;color:var(--amber)}.tag.error{background:#fff0ed;color:var(--red)}
+.progress{height:6px;border-radius:8px;background:#e9eeea;margin-top:18px;overflow:hidden}.bar{height:100%;width:72%;background:var(--g);border-radius:8px}
+.progress-text{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:8px}
+.section-head{display:flex;justify-content:space-between;align-items:center;margin:23px 2px 12px}.section-head strong{font-size:14px}.section-head span{font-size:11px;color:var(--muted)}
+.card{background:white;border:1px solid var(--line);border-radius:15px;padding:0 15px}
+.item{display:flex;align-items:center;gap:11px;padding:15px 0;border-bottom:1px solid var(--line)}.item:last-child{border:0}
+.item-icon{width:36px;height:36px;border-radius:12px;background:#f1f5f1;color:#68776b;display:grid;place-items:center;font-size:16px}
+.item-copy{flex:1;min-width:0}.item-copy strong{font-size:12px}.item-copy p{font-size:10px;color:var(--muted);margin:5px 0 0}
+.item-state{font-size:10px;color:var(--gd);white-space:nowrap}.item-state.pending{color:var(--amber)}.item-state.error{color:var(--red)}
+.notice{margin-top:14px;padding:14px;background:#edf7f0;border-radius:12px;color:#567b63;font-size:11px;line-height:1.8}.notice.warn{background:#fff5e6;color:#8e6a31}.notice.error{background:#fff2ef;color:#9b5a50}
+.actions{display:grid;gap:10px;margin-top:20px}.actions button{height:46px;border-radius:13px;font-size:13px;font-weight:600}
+.primary{background:var(--g);border:0;color:white}.secondary{background:white;border:1px solid var(--line);color:var(--text)}
+.demo{margin-top:20px;border:1px dashed #cbd6cd;border-radius:13px;padding:13px}.demo p{font-size:10px;color:var(--muted);margin:0 0 10px}.buttons{display:flex;gap:7px;flex-wrap:wrap}.buttons button{border:1px solid var(--line);border-radius:9px;background:white;padding:8px 10px;font-size:11px;color:#59665c}
+.toast{position:fixed;bottom:25px;left:50%;transform:translateX(-50%);background:#25352b;color:white;padding:11px 15px;border-radius:10px;font-size:12px;opacity:0;transition:.2s;white-space:nowrap}.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="app">
+<header><button onclick="notify('返回个人中心')">‹ 返回</button><strong>数据同步</strong><button onclick="notify('原型演示：刷新状态')">刷新</button></header>
+<main>
+<section class="overview">
+<div class="overview-top">
+<div class="icon" id="mainIcon">✓</div>
+<div class="overview-copy"><strong id="mainTitle">数据已同步</strong><p id="mainDesc">最近同步于今天 08:35<br>本地记录已保存</p></div>
+<span class="tag" id="mainTag">正常</span>
+</div>
+<div class="progress" id="progress"><div class="bar"></div></div>
+<div class="progress-text" id="progressText"><span>同步任务</span><span>全部完成</span></div>
+</section>
+
+<div class="section-head"><strong>同步记录</strong><span id="recordCount">共 3 项</span></div>
+<section class="card">
+<div class="item"><div class="item-icon">◷</div><div class="item-copy"><strong>10 月 22 日 · 08:32</strong><p>体重 62.4 kg · 测量记录</p></div><span class="item-state" id="s1">已同步</span></div>
+<div class="item"><div class="item-icon">◷</div><div class="item-copy"><strong>10 月 21 日 · 08:04</strong><p>体重 62.7 kg · 测量记录</p></div><span class="item-state" id="s2">已同步</span></div>
+<div class="item"><div class="item-icon">◷</div><div class="item-copy"><strong>10 月 20 日 · 07:50</strong><p>体重 62.9 kg · 测量记录</p></div><span class="item-state" id="s3">已同步</span></div>
+</section>
+
+<div class="notice" id="notice">本地保存与云端同步是两个不同的环节。即使暂时无法连接云端，已成功保存在本地的测量记录也应继续可查看。</div>
+
+<div class="actions">
+<button class="primary" id="mainAction" onclick="retrySync()">立即同步</button>
+<button class="secondary" onclick="notify('原型演示：查看本地记录')">查看本地记录</button>
+</div>
+
+<div class="demo">
+<p>原型预览控制（正式产品中移除此区域）</p>
+<div class="buttons">
+<button onclick="setState('success')">同步成功</button>
+<button onclick="setState('pending')">待同步</button>
+<button onclick="setState('syncing')">同步中</button>
+<button onclick="setState('error')">同步失败</button>
+<button onclick="setState('conflict')">数据冲突</button>
+</div>
+</div>
+</main>
+</div>
+<div id="toast" class="toast" role="status"></div>
+<script>
+let current="success";
+function notify(t){const e=document.getElementById("toast");e.textContent=t;e.classList.add("show");clearTimeout(window.tt);window.tt=setTimeout(()=>e.classList.remove("show"),2200)}
+function setState(state){
+current=state;
+const icon=document.getElementById("mainIcon"),title=document.getElementById("mainTitle"),desc=document.getElementById("mainDesc"),tag=document.getElementById("mainTag"),notice=document.getElementById("notice"),action=document.getElementById("mainAction"),progress=document.getElementById("progress"),pt=document.getElementById("progressText");
+icon.className="icon";tag.className="tag";notice.className="notice";progress.style.display="block";pt.style.display="flex";
+document.querySelectorAll(".item-state").forEach(e=>{e.className="item-state";e.textContent="已同步"});
+if(state==="success"){icon.textContent="✓";title.textContent="数据已同步";desc.innerHTML="最近同步于今天 08:35<br>本地记录已保存";tag.textContent="正常";action.textContent="再次同步";notice.textContent="所有示例记录均已同步。正式版本应以服务端确认的同步结果更新状态。";progress.style.display="none";pt.style.display="none"}
+if(state==="pending"){icon.classList.add("pending");icon.textContent="◷";title.textContent="有记录等待同步";desc.innerHTML="有 2 条记录保存在本地<br>联网后可以继续同步";tag.classList.add("pending");tag.textContent="待同步";document.getElementById("s2").textContent="待同步";document.getElementById("s2").classList.add("pending");document.getElementById("s3").textContent="待同步";document.getElementById("s3").classList.add("pending");notice.className="notice warn";notice.textContent="本地记录仍可查看。请勿因待同步状态而重复测量或删除原始记录。";action.textContent="开始同步"}
+if(state==="syncing"){icon.classList.add("syncing");icon.textContent="↻";title.textContent="正在同步数据";desc.innerHTML="正在上传待同步记录<br>请稍候，避免重复提交";tag.classList.add("pending");tag.textContent="同步中";document.getElementById("s2").textContent="同步中";document.getElementById("s2").classList.add("pending");progress.querySelector(".bar").style.width="72%";pt.lastElementChild.textContent="正在处理";action.textContent="查看任务状态"}
+if(state==="error"){icon.classList.add("error");icon.textContent="!";title.textContent="同步暂时失败";desc.innerHTML="云端暂时无法确认同步结果<br>本地已保存的数据不会因此消失";tag.classList.add("error");tag.textContent="需处理";document.getElementById("s2").textContent="同步失败";document.getElementById("s2").classList.add("error");document.getElementById("s3").textContent="待同步";document.getElementById("s3").classList.add("pending");notice.className="notice error";notice.textContent="可能是网络中断或服务暂不可用。重试前应检查服务端是否已经接收，避免产生重复记录。";action.textContent="重试同步";progress.style.display="none";pt.style.display="none"}
+if(state==="conflict"){icon.classList.add("pending");icon.textContent="!";title.textContent="发现数据冲突";desc.innerHTML="本地与云端的记录内容不一致<br>请核对后再决定如何处理";tag.classList.add("pending");tag.textContent="需核对";document.getElementById("s2").textContent="需核对";document.getElementById("s2").classList.add("pending");notice.className="notice warn";notice.textContent="正式版本应展示冲突字段、更新时间和数据来源，提供明确的合并或保留策略，不应静默覆盖用户数据。";action.textContent="查看冲突详情";progress.style.display="none";pt.style.display="none"}
+}
+function retrySync(){if(current==="conflict"){notify("原型演示：进入冲突详情");return}setState("syncing");notify("已切换到同步中演示状态")}
+setState("success");
+</script>
+</body>
+</html>

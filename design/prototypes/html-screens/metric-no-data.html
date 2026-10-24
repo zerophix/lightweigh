@@ -1,0 +1,68 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>暂无指标数据 - 轻刻健康</title>
+<style>
+:root{--g:#21a675;--deep:#147d58;--bg:#f5f8f5;--text:#202923;--sub:#859087;--line:#e8eee8}
+*{box-sizing:border-box}body{margin:0;background:#eaf0eb;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}button{font:inherit;cursor:pointer}
+.app{max-width:430px;min-height:100vh;margin:auto;background:var(--bg);padding-bottom:28px}.top{height:58px;display:flex;align-items:center;padding:0 20px;gap:14px;background:#fff;border-bottom:1px solid var(--line)}.back{border:0;background:none;font-size:27px;padding:0}.title{font-size:17px;font-weight:750}
+.context{padding:23px 20px 15px}.eyebrow{font-size:11px;color:var(--g);font-weight:800;letter-spacing:1.3px}.context h1{font-size:24px;margin:8px 0}.context p{font-size:13px;line-height:1.7;color:var(--sub);margin:0}
+.state-card{margin:0 16px;background:#fff;border-radius:20px;padding:28px 21px 24px;text-align:center;box-shadow:0 4px 18px #193b2505}.illustration{height:150px;display:grid;place-items:center;margin-bottom:15px}.state-title{font-size:19px;font-weight:800}.state-desc{font-size:13px;color:var(--sub);line-height:1.85;margin:10px 0 19px}.pill{display:inline-flex;background:#eaf7f0;color:var(--deep);border-radius:8px;padding:7px 10px;font-size:11px;margin-bottom:17px}.primary{display:block;width:100%;border:0;background:var(--g);color:white;font-weight:750;padding:14px;border-radius:13px}.secondary{display:block;width:100%;border:1px solid #dfe8e0;background:#fff;color:#405147;font-weight:650;padding:13px;border-radius:13px;margin-top:10px}
+.reasons{margin:16px;background:#fff;border-radius:17px;padding:17px}.section-title{font-size:14px;font-weight:800;margin-bottom:13px}.reason{display:flex;gap:11px;padding:12px 0;border-bottom:1px solid #eff3ef;align-items:flex-start}.reason:last-child{border:0;padding-bottom:0}.num{width:27px;height:27px;display:grid;place-items:center;border-radius:9px;background:#eaf7f0;color:var(--deep);font-size:12px;font-weight:800;flex-shrink:0}.reason strong{font-size:12px}.reason p{font-size:11px;color:var(--sub);line-height:1.65;margin:5px 0 0}
+.switcher{display:flex;gap:8px;overflow-x:auto;padding:0 16px 15px;scrollbar-width:none}.switcher button{flex-shrink:0;border:1px solid #e0e8e0;background:#fff;border-radius:10px;padding:9px 12px;font-size:11px;color:#667368}.switcher button.active{border-color:var(--g);background:#eaf7f0;color:var(--deep);font-weight:750}
+.foot{font-size:10px;line-height:1.7;color:#8b958d;margin:14px 20px}.toast{display:none;position:fixed;bottom:25px;left:50%;transform:translateX(-50%);background:#24372c;color:#fff;padding:11px 15px;border-radius:10px;font-size:12px;white-space:nowrap;z-index:5}
+@media(min-width:431px){.app{box-shadow:0 10px 40px #17291c12}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top"><button class="back" onclick="history.length>1?history.back():toast('这是独立页面原型')">‹</button><div class="title">指标数据</div></header>
+<section class="context"><div class="eyebrow">YOUR TREND</div><h1>查看身体指标</h1><p>当前没有可展示的指标记录。你可以更换指标、调整时间范围，或完成一次新的测量。</p></section>
+<div class="switcher" id="metricTabs">
+<button class="active" onclick="setMetric('体重',this)">体重</button><button onclick="setMetric('体脂率',this)">体脂率</button><button onclick="setMetric('BMI',this)">BMI</button><button onclick="setMetric('肌肉量',this)">肌肉量</button><button onclick="setMetric('水分率',this)">水分率</button>
+</div>
+<section class="state-card">
+<div class="illustration">
+<svg width="190" height="145" viewBox="0 0 190 145" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="空数据插画">
+<circle cx="95" cy="70" r="59" fill="#EDF8F0"/>
+<circle cx="95" cy="70" r="45" fill="#DDF2E5"/>
+<rect x="64" y="34" width="62" height="82" rx="12" fill="#fff" stroke="#A6DCC0" stroke-width="2"/>
+<rect x="76" y="45" width="38" height="21" rx="5" fill="#EAF7F0"/>
+<path d="M83 57L90 51L96 56L105 48" stroke="#21A675" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M79 82H111M79 91H102M79 100H108" stroke="#D7E9DC" stroke-width="3" stroke-linecap="round"/>
+<circle cx="132" cy="38" r="15" fill="#fff" stroke="#B8E5CB" stroke-width="2"/>
+<path d="M132 30V46M124 38H140" stroke="#21A675" stroke-width="2.5" stroke-linecap="round"/>
+<circle cx="49" cy="98" r="8" fill="#C2E9D1"/><circle cx="146" cy="105" r="5" fill="#9EDBB8"/>
+<path d="M42 120C55 112 66 112 77 120M116 125C128 118 139 119 151 125" stroke="#B8DEC7" stroke-width="2" stroke-linecap="round"/>
+</svg>
+</div>
+<div class="state-title" id="stateTitle">还没有体重记录</div>
+<div class="state-desc" id="stateDesc">完成首次测量后，这里就会展示你的体重变化趋势。持续在相近条件下测量，更容易观察长期变化。</div>
+<div class="pill" id="statePill">首次使用 · 暂无记录</div>
+<button class="primary" onclick="toast('原型演示：进入设备连接与测量流程')">开始测量</button>
+<button class="secondary" onclick="toast('原型演示：打开时间范围选择器')">调整时间范围</button>
+</section>
+<section class="reasons"><div class="section-title">为什么看不到数据？</div>
+<div class="reason"><span class="num">01</span><div><strong>还没有完成测量</strong><p>先连接支持的体脂秤，完成测量并确认记录保存成功。</p></div></div>
+<div class="reason"><span class="num">02</span><div><strong>所选时间范围没有记录</strong><p>尝试选择近 30 天或更长时间范围。扩大范围只会查找已有记录，不会生成新数据。</p></div></div>
+<div class="reason"><span class="num">03</span><div><strong>当前成员没有对应指标</strong><p>确认家庭成员是否选对，以及设备是否支持当前指标。</p></div></div>
+</section>
+<p class="foot">这是独立 HTML 原型，展示状态由页面脚本模拟。真实产品应根据成员、指标、时间范围和数据查询结果决定显示内容；网络请求失败不应显示为“暂无记录”。</p>
+<div class="toast" id="toast"></div>
+</div>
+<script>
+const descriptions={
+'体重':['还没有体重记录','完成首次测量后，这里就会展示你的体重变化趋势。持续在相近条件下测量，更容易观察长期变化。'],
+'体脂率':['暂无体脂率记录','确认设备支持体脂率测量，并检查该次记录是否包含有效的体脂率数据。'],
+'BMI':['暂无 BMI 记录','BMI 通常需要有效体重和已设置的身高。检查个人资料中的身高信息和测量记录。'],
+'肌肉量':['暂无肌肉量记录','肌肉量通常由兼容设备估算。请确认设备支持此项指标，且测量结果已完整保存。'],
+'水分率':['暂无水分率记录','确认设备支持水分率，并检查最新测量记录是否包含该项数据。']
+};
+function setMetric(name,el){document.querySelectorAll('#metricTabs button').forEach(b=>b.classList.toggle('active',b===el));const d=descriptions[name];document.getElementById('stateTitle').textContent=d[0];document.getElementById('stateDesc').textContent=d[1];document.getElementById('statePill').textContent='当前指标 · '+name}
+function toast(s){const t=document.getElementById('toast');t.textContent=s;t.style.display='block';clearTimeout(window.tt);window.tt=setTimeout(()=>t.style.display='none',2200)}
+</script>
+</body>
+</html>

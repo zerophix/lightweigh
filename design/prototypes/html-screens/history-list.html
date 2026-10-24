@@ -1,0 +1,138 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>测量记录 - 轻衡健康</title>
+<style>
+:root{--g:#21a675;--gd:#147d58;--bg:#f5f8f5;--text:#202923;--muted:#87928a;--line:#e7ece8;--white:#fff}
+*{box-sizing:border-box}
+body{margin:0;background:#e9eeea;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:var(--text)}
+button{font:inherit;cursor:pointer}
+.app{max-width:430px;min-height:100vh;margin:auto;background:var(--bg);padding-bottom:25px}
+header{height:58px;background:white;display:flex;align-items:center;justify-content:space-between;padding:0 20px}
+header button{border:0;background:none;color:var(--muted);font-size:14px}
+header strong{font-size:16px}
+main{padding:20px 16px}
+.overview{padding:19px;border-radius:19px;background:linear-gradient(135deg,#e2f5e9,#f2faf4);border:1px solid #dcefe2}
+.overview-label{font-size:12px;color:#62806d}
+.overview-value{font-size:31px;font-weight:700;margin:10px 0 5px}
+.overview-value small{font-size:13px;font-weight:400;color:#62806d}
+.overview-foot{font-size:12px;color:#62806d}
+.filters{display:flex;gap:9px;margin:17px 0;overflow-x:auto}
+.chip{flex-shrink:0;padding:9px 13px;border:1px solid var(--line);border-radius:20px;background:white;color:#667168;font-size:12px}
+.chip.active{background:#e5f6ec;color:var(--gd);border-color:#c7e8d3;font-weight:600}
+.day-head{display:flex;align-items:center;justify-content:space-between;margin:22px 2px 11px}
+.day-title{font-size:14px;font-weight:650}
+.day-count{font-size:11px;color:var(--muted)}
+.record{padding:17px;margin-bottom:11px;background:white;border:1px solid var(--line);border-radius:17px;cursor:pointer}
+.record-top{display:flex;align-items:center;justify-content:space-between}
+.record-time{font-size:12px;color:var(--muted)}
+.record-tag{font-size:11px;padding:5px 8px;border-radius:20px;background:#e8f6ed;color:var(--gd)}
+.weight{font-size:29px;font-weight:700;margin:15px 0 3px}
+.weight small{font-size:13px;color:var(--muted);font-weight:400}
+.delta{font-size:11px;color:var(--muted)}
+.metrics{display:flex;gap:22px;border-top:1px solid var(--line);padding-top:13px;margin-top:14px}
+.metric-label{font-size:11px;color:var(--muted)}
+.metric-value{font-size:13px;font-weight:650;margin-top:5px}
+.record-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding-top:11px;border-top:1px solid #f0f2f0;color:var(--muted);font-size:11px}
+.record-bottom span:last-child{color:var(--gd)}
+.empty{display:none;padding:45px 20px;text-align:center;color:var(--muted);background:white;border-radius:17px}
+.empty-icon{font-size:36px;margin-bottom:12px;color:#b4c6b9}
+.empty strong{display:block;font-size:15px;color:var(--text);margin-bottom:7px}
+.empty p{font-size:12px;line-height:1.7}
+.load{width:100%;height:42px;border:1px solid var(--line);border-radius:12px;background:transparent;color:var(--muted);font-size:12px;margin:8px 0 15px}
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);padding:11px 15px;background:#25352b;color:white;border-radius:10px;font-size:13px;opacity:0;transition:.2s;white-space:nowrap}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="app">
+<header><button onclick="notify('返回首页')">‹ 返回</button><strong>测量记录</strong><button onclick="notify('原型演示：导出记录')">导出</button></header>
+<main>
+<section class="overview">
+<div class="overview-label">最近 30 天平均体重</div>
+<div class="overview-value">62.8 <small>kg</small></div>
+<div class="overview-foot">共测量 12 次 · 最近一次今天 08:32</div>
+</section>
+
+<div class="filters">
+<button class="chip active" onclick="setFilter(this,'全部记录')">全部记录</button>
+<button class="chip" onclick="setFilter(this,'近 7 天')">近 7 天</button>
+<button class="chip" onclick="setFilter(this,'近 30 天')">近 30 天</button>
+<button class="chip" onclick="openFilter()">日期筛选⌄</button>
+<button class="chip" onclick="openMember()">家庭成员⌄</button>
+</div>
+
+<div id="records">
+<div class="day-head"><div class="day-title">今天 · 10 月 22 日</div><div class="day-count">2 次测量</div></div>
+
+<article class="record" onclick="openRecord('08:32')">
+<div class="record-top"><span class="record-time">08:32</span><span class="record-tag">测量成功</span></div>
+<div class="weight">62.4 <small>kg</small></div>
+<div class="delta">较上次 −0.3 kg</div>
+<div class="metrics">
+<div><div class="metric-label">体脂率</div><div class="metric-value">21.8%</div></div>
+<div><div class="metric-label">BMI</div><div class="metric-value">22.1</div></div>
+<div><div class="metric-label">肌肉量</div><div class="metric-value">45.2 kg</div></div>
+</div>
+<div class="record-bottom"><span>轻衡智能体脂秤</span><span>查看详情 ›</span></div>
+</article>
+
+<article class="record" onclick="openRecord('07:15')">
+<div class="record-top"><span class="record-time">07:15</span><span class="record-tag">测量成功</span></div>
+<div class="weight">62.7 <small>kg</small></div>
+<div class="delta">较上次 +0.1 kg</div>
+<div class="metrics">
+<div><div class="metric-label">体脂率</div><div class="metric-value">22.0%</div></div>
+<div><div class="metric-label">BMI</div><div class="metric-value">22.2</div></div>
+<div><div class="metric-label">肌肉量</div><div class="metric-value">45.1 kg</div></div>
+</div>
+<div class="record-bottom"><span>轻衡智能体脂秤</span><span>查看详情 ›</span></div>
+</article>
+
+<div class="day-head"><div class="day-title">昨天 · 10 月 21 日</div><div class="day-count">1 次测量</div></div>
+<article class="record" onclick="openRecord('08:04')">
+<div class="record-top"><span class="record-time">08:04</span><span class="record-tag">测量成功</span></div>
+<div class="weight">62.7 <small>kg</small></div>
+<div class="delta">较前次 −0.2 kg</div>
+<div class="metrics">
+<div><div class="metric-label">体脂率</div><div class="metric-value">22.1%</div></div>
+<div><div class="metric-label">BMI</div><div class="metric-value">22.2</div></div>
+<div><div class="metric-label">肌肉量</div><div class="metric-value">45.0 kg</div></div>
+</div>
+<div class="record-bottom"><span>轻衡智能体脂秤</span><span>查看详情 ›</span></div>
+</article>
+</div>
+
+<div class="empty" id="empty"><div class="empty-icon">◷</div><strong>没有找到测量记录</strong><p>调整日期范围或切换家庭成员后再试试。</p><button class="chip" onclick="resetRecords()">查看全部记录</button></div>
+<button class="load" id="loadMore" onclick="loadMore()">加载更早的记录</button>
+</main>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+<script>
+let loaded=3;
+function notify(t){const e=document.getElementById("toast");e.textContent=t;e.classList.add("show");clearTimeout(window.timer);window.timer=setTimeout(()=>e.classList.remove("show"),2000)}
+function setFilter(btn,name){
+document.querySelectorAll(".chip").forEach(x=>x.classList.remove("active"));btn.classList.add("active");
+notify("已选择："+name+"（演示筛选）");
+}
+function openFilter(){notify("下一页：日期与成员筛选")}
+function openMember(){notify("演示：当前家庭成员")}
+function openRecord(time){notify("打开 "+time+" 的测量详情")}
+function loadMore(){
+if(loaded>=6){document.getElementById("loadMore").textContent="没有更早的记录了";return}
+loaded++;
+const card=document.createElement("article");
+card.className="record";
+card.innerHTML='<div class="record-top"><span class="record-time">10 月 '+(22-loaded)+' 日 · 08:10</span><span class="record-tag">测量成功</span></div><div class="weight">63.0 <small>kg</small></div><div class="delta">历史测量记录</div><div class="metrics"><div><div class="metric-label">体脂率</div><div class="metric-value">22.3%</div></div><div><div class="metric-label">BMI</div><div class="metric-value">22.3</div></div><div><div class="metric-label">肌肉量</div><div class="metric-value">44.9 kg</div></div></div><div class="record-bottom"><span>轻衡智能体脂秤</span><span>查看详情 ›</span></div>';
+card.onclick=()=>openRecord("历史记录");
+document.getElementById("records").appendChild(card);
+notify("已加载一条演示记录");
+}
+function resetRecords(){document.getElementById("empty").style.display="none";document.getElementById("records").style.display="block";document.getElementById("loadMore").style.display="block"}
+</script>
+</body>
+</html>

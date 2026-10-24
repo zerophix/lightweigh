@@ -1,0 +1,40 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>指标异常提示 - 轻刻健康</title>
+<style>
+:root{--green:#21a675;--dark:#147d58;--bg:#f5f8f5;--text:#24332b;--muted:#87938b;--line:#edf1ed;--orange:#d78b35;--red:#d65c58}
+*{box-sizing:border-box}body{margin:0;background:#eaf0eb;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;color:var(--text)}button{font:inherit;cursor:pointer}.phone{max-width:430px;min-height:100vh;margin:auto;background:var(--bg);padding:0 20px 32px}.nav{height:58px;display:flex;align-items:center;justify-content:space-between}.back{border:0;background:none;font-size:25px;color:var(--text);padding:4px}.nav-title{font-size:17px;font-weight:650}.help{font-size:13px;color:var(--muted)}.hero{padding:17px 0 20px}.eyebrow{font-size:12px;color:var(--muted);letter-spacing:1px}.hero h1{font-size:25px;margin:8px 0}.hero p{font-size:14px;line-height:1.7;color:#748078;margin:0}.card{background:white;border-radius:19px;padding:18px;margin-bottom:13px;box-shadow:0 4px 18px #173c1d05}.status{display:flex;align-items:center;gap:12px}.status-icon{width:45px;height:45px;border-radius:15px;background:#fff2df;color:var(--orange);display:grid;place-items:center;font-size:23px}.status h2{font-size:16px;margin:0 0 5px}.status p{font-size:12px;color:var(--muted);margin:0}.pill{font-size:11px;padding:5px 9px;border-radius:20px;background:#fff2df;color:#b77a2c;margin-left:auto;white-space:nowrap}.metric{display:flex;align-items:end;justify-content:space-between;margin:23px 0 12px}.metric .label{font-size:13px;color:#758078}.value{font-size:35px;font-weight:720;letter-spacing:-1px}.unit{font-size:13px;color:var(--muted);font-weight:400}.range{height:8px;border-radius:20px;background:linear-gradient(90deg,#d8eee1 0 25%,#8fd5b0 25% 60%,#f3d5a7 60% 82%,#f1b6b1 82%);position:relative;margin:22px 0 9px}.marker{position:absolute;width:17px;height:17px;border:3px solid white;background:var(--orange);border-radius:50%;top:50%;left:88%;transform:translate(-50%,-50%);box-shadow:0 1px 5px #0002}.range-labels{display:flex;justify-content:space-between;font-size:10px;color:#9ba49d}.section-title{font-size:15px;font-weight:650;margin:0 0 13px}.info-row{display:flex;gap:11px;margin:14px 0}.bullet{width:27px;height:27px;flex-shrink:0;border-radius:9px;background:#edf7f1;color:var(--dark);display:grid;place-items:center;font-size:13px}.info-row strong{font-size:13px;display:block;margin:1px 0 5px}.info-row p{font-size:12px;color:#7e8981;line-height:1.6;margin:0}.notice{background:#eff7f1;border:1px solid #dcefe2;padding:13px;border-radius:13px;font-size:12px;line-height:1.7;color:#47745a;margin-bottom:14px}.actions{display:grid;gap:10px}.primary,.secondary{height:48px;border-radius:14px;font-weight:650;border:0}.primary{background:var(--green);color:white}.secondary{background:white;color:var(--dark);border:1px solid #dce9df}.switcher{display:flex;gap:7px;margin:10px 0 15px;flex-wrap:wrap}.switcher button{border:1px solid #e0e8e1;background:white;color:#68766d;border-radius:20px;padding:8px 11px;font-size:11px}.switcher button.active{background:#e4f4e9;border-color:#b9e1c7;color:var(--dark)}.toast{display:none;background:#243b2e;color:white;padding:12px 15px;border-radius:12px;font-size:13px;margin-bottom:12px}
+</style>
+</head>
+<body><main class="phone">
+<header class="nav"><button class="back" onclick="history.back()" aria-label="返回">‹</button><div class="nav-title">指标说明</div><span class="help">轻刻健康</span></header>
+<section class="hero"><div class="eyebrow">BODY METRICS</div><h1>这项数据需要留意</h1><p>我们发现本次测量数据存在需要确认的情况。先了解原因，再决定是否重新测量。</p></section>
+<div class="switcher" aria-label="切换异常场景"><button class="active" onclick="setCase(0,this)">数值偏离</button><button onclick="setCase(1,this)">数据未计算</button><button onclick="setCase(2,this)">记录被拒绝</button></div>
+<div id="toast" class="toast" role="status"></div>
+<section class="card">
+<div class="status"><div class="status-icon" id="icon">!</div><div><h2 id="statusTitle">体脂率数值偏离常见范围</h2><p id="statusDesc">本次测量 · 今天 08:42</p></div><span class="pill" id="pill">需确认</span></div>
+<div class="metric"><div><div class="label" id="metricLabel">本次体脂率</div><div class="value" id="metricValue">48.6 <span class="unit">%</span></div></div><div class="label" id="metricSide">仅供核对</div></div>
+<div class="range"><span class="marker" id="marker"></span></div><div class="range-labels"><span>偏低</span><span>常见范围</span><span>偏高</span></div>
+</section>
+<section class="card"><h3 class="section-title" id="reasonHeading">可能的原因</h3>
+<div class="info-row"><div class="bullet">1</div><div><strong id="reason1">测量姿势或接触不充分</strong><p id="reasonText1">双脚应与电极充分接触，测量期间尽量保持稳定。</p></div></div>
+<div class="info-row"><div class="bullet">2</div><div><strong id="reason2">测量条件有所变化</strong><p id="reasonText2">运动、饮水、进食及测量时间等因素可能影响体成分结果。</p></div></div>
+<div class="info-row"><div class="bullet">3</div><div><strong id="reason3">设备或算法未能准确估算</strong><p id="reasonText3">体脂秤的体成分数据属于估算结果，异常时应先核对原始记录。</p></div></div>
+</section>
+<section class="card"><h3 class="section-title">建议你这样处理</h3><div class="notice" id="notice">请确认设备放置平稳、双脚接触电极，并在相近的时间与条件下重新测量。不要仅凭一次体脂率结果判断健康状况。</div>
+<div class="actions"><button class="primary" onclick="showToast('已进入重新测量演示流程；真实设备连接尚未实现。')">重新测量</button><button class="secondary" onclick="showToast('已模拟保留当前记录；不会写入真实数据库。')">保留记录并继续</button></div></section>
+<p style="text-align:center;font-size:11px;color:#9aa59d;line-height:1.7">指标参考范围会受年龄、性别、设备算法等因素影响。本页面不用于医学诊断。</p>
+</main>
+<script>
+const cases=[
+{icon:"!",title:"体脂率数值偏离常见范围",desc:"本次测量 · 今天 08:42",pill:"需确认",label:"本次体脂率",value:'48.6 <span class="unit">%</span>',side:"仅供核对",pos:"88%",r1:"测量姿势或接触不充分",t1:"双脚应与电极充分接触，测量期间尽量保持稳定。",r2:"测量条件有所变化",t2:"运动、饮水、进食及测量时间等因素可能影响体成分结果。",r3:"设备或算法未能准确估算",t3:"体成分数据属于估算结果，异常时应先核对原始记录。",notice:"请确认设备放置平稳、双脚接触电极，并在相近的时间与条件下重新测量。不要仅凭一次结果判断健康状况。"},
+{icon:"—",title:"本次未能计算该项指标",desc:"本次测量 · 今天 08:42",pill:"暂无结果",label:"本次体脂率",value:'— <span class="unit">%</span>',side:"未生成数值",pos:"50%",r1:"有效测量信号不足",t1:"设备可能未获取到足够的阻抗或其他必要测量信息。",r2:"测量过程提前中断",t2:"请检查双脚接触情况，并确认测量过程中设备保持稳定。",r3:"设备算法不支持当前计算条件",t3:"部分指标依赖设备型号、算法版本及有效输入数据。",notice:"未计算不代表指标为零，也不等于身体出现异常。请先确认测量是否完整，再尝试重新测量。"},
+{icon:"×",title:"这条测量数据未通过校验",desc:"数据校验 · 今天 08:42",pill:"未保存",label:"待校验记录",value:'无效 <span class="unit">数据</span>',side:"未纳入趋势",pos:"50%",r1:"数据超出产品允许范围",t1:"记录中的部分字段可能不满足应用的数据完整性约束。",r2:"测量时间或字段缺失",t2:"系统会检查必要字段，避免不完整记录进入统计和趋势分析。",r3:"原始记录与计算结果不一致",t3:"应用会保留校验边界，不会为了展示而擅自修改原始值。",notice:"本条数据不会自动纳入趋势统计。请重新测量；若问题持续出现，可保留设备型号和错误信息以便排查。"}
+];
+function setCase(i,btn){document.querySelectorAll('.switcher button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');const c=cases[i];['icon','statusTitle','statusDesc','pill','metricLabel','metricValue','metricSide','reason1','reasonText1','reason2','reasonText2','reason3','reasonText3','notice'].forEach((id,n)=>{const keys=['icon','title','desc','pill','label','value','side','r1','t1','r2','t2','r3','t3','notice'];document.getElementById(id).innerHTML=c[keys[n]]});document.getElementById('marker').style.left=c.pos}
+function showToast(s){const t=document.getElementById('toast');t.textContent=s;t.style.display='block'}
+</script></body></html>

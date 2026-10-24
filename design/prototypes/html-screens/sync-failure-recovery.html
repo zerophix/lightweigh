@@ -1,0 +1,92 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>同步失败恢复 - 轻刻健康</title>
+<style>
+:root{--green:#21a675;--deep:#147d58;--bg:#f5f8f5;--text:#20332b;--muted:#7d8982;--line:#e8eee9;--red:#d95e5e;--orange:#d9912d}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;color:var(--text)}
+.app{max-width:430px;min-height:100vh;margin:auto;padding-bottom:35px}
+header{height:58px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:0 20px}
+header button{border:0;background:none;font-size:25px;cursor:pointer}
+h1{font-size:18px;margin:0}
+main{padding:18px 16px}
+.hero{text-align:center;padding:22px 18px;background:#fff;border-radius:18px}
+.icon{width:68px;height:68px;border-radius:23px;background:#fff0ed;color:var(--red);display:grid;place-items:center;font-size:31px;margin:0 auto 13px}
+h2{font-size:18px;margin:0 0 8px}
+p{font-size:13px;color:var(--muted);line-height:1.7;margin:0}
+.badge{display:inline-block;margin-top:12px;background:#fff0ed;color:var(--red);font-size:11px;border-radius:20px;padding:5px 10px}
+.section-title{font-size:15px;font-weight:650;margin:22px 2px 11px}
+.card{background:#fff;border-radius:16px;padding:16px;margin-bottom:13px}
+label.issue{display:flex;gap:11px;padding:13px 0;border-bottom:1px solid var(--line);cursor:pointer}
+label.issue:last-child{border-bottom:0;padding-bottom:0}
+label.issue input{accent-color:var(--green);margin-top:3px}
+.issue strong{font-size:13px}
+.issue p{font-size:12px;margin-top:4px}
+.detail{background:#f7faf7;border-radius:12px;padding:14px;margin-top:13px}
+.detail h3{font-size:13px;margin:0 0 8px}
+.detail ul{padding-left:18px;margin:0}
+.detail li{font-size:12px;color:#627269;line-height:1.9}
+button.primary{width:100%;border:0;border-radius:12px;padding:14px;background:var(--green);color:white;font-size:15px;font-weight:600;margin-top:13px;cursor:pointer}
+button.secondary{width:100%;border:1px solid #dbe8df;border-radius:12px;padding:13px;background:#fff;color:var(--deep);font-size:14px;margin-top:9px;cursor:pointer}
+.result{display:none;margin-top:13px;border-radius:12px;padding:13px;background:#e6f7ef;color:var(--deep);font-size:12px;line-height:1.7}
+.note{font-size:11px;margin:15px 3px}
+</style>
+</head>
+<body>
+<div class="app">
+<header><button onclick="history.length>1?history.back():location.href='sync-status-detail.html'" aria-label="返回">‹</button><h1>同步失败恢复</h1></header>
+<main>
+<section class="hero">
+<div class="icon">!</div>
+<h2 id="heroTitle">部分数据尚未同步</h2>
+<p id="heroDesc">你的测量记录仍保存在当前设备的原型状态中。选择下方问题类型，查看建议处理步骤。</p>
+<span class="badge" id="errorBadge">示例错误：SYNC_NETWORK_ERROR</span>
+</section>
+
+<div class="section-title">选择遇到的问题</div>
+<section class="card">
+<label class="issue"><input type="radio" name="issue" value="network" checked onchange="updateIssue()"><div><strong>网络连接异常</strong><p>当前网络不可用或连接不稳定</p></div></label>
+<label class="issue"><input type="radio" name="issue" value="auth" onchange="updateIssue()"><div><strong>登录状态失效</strong><p>账号需要重新验证</p></div></label>
+<label class="issue"><input type="radio" name="issue" value="server" onchange="updateIssue()"><div><strong>服务暂时不可用</strong><p>服务器繁忙或请求超时</p></div></label>
+<label class="issue"><input type="radio" name="issue" value="unknown" onchange="updateIssue()"><div><strong>其他同步问题</strong><p>无法判断具体原因</p></div></label>
+</section>
+
+<section class="card">
+<h3 style="font-size:15px;margin:0 0 8px">建议处理步骤</h3>
+<div class="detail" id="steps"></div>
+<button class="primary" id="retryBtn" onclick="retry()">重新尝试（模拟）</button>
+<button class="secondary" onclick="location.href='help-center.html'">查看帮助中心</button>
+<div class="result" id="result" role="status"></div>
+</section>
+<p class="note">原型说明：故障类型由用户手动选择，重试只显示演示结果，不会检测真实网络、刷新令牌或发送网络请求。实际产品应保留待同步数据，并提供可追踪的错误码。</p>
+</main>
+</div>
+<script>
+const issues={
+ network:{title:'网络连接异常',code:'SYNC_NETWORK_ERROR',desc:'连接失败可能与当前网络环境有关。',steps:['确认 Wi-Fi 或移动网络可正常访问互联网。','尝试切换网络后再次操作。','避免重复创建同一条测量记录。'],btn:'重新尝试（模拟）'},
+ auth:{title:'登录状态需要确认',code:'SYNC_AUTH_EXPIRED',desc:'账号身份验证可能已过期。',steps:['进入账号安全页面确认登录状态。','按正式产品流程重新验证身份。','验证完成后再发起同步。'],btn:'模拟重新验证'},
+ server:{title:'服务暂时不可用',code:'SYNC_SERVER_UNAVAILABLE',desc:'远端服务可能暂时无法处理请求。',steps:['稍等片刻后再尝试。','避免连续快速点击重试。','若持续失败，请记录发生时间与错误码。'],btn:'稍后重试（模拟）'},
+ unknown:{title:'需要进一步排查',code:'SYNC_UNKNOWN_ERROR',desc:'当前无法确定失败原因。',steps:['查看同步状态详情中的失败记录。','记录错误码、时间与操作步骤。','联系支持人员时不要提交账号密码。'],btn:'模拟排查完成'}
+};
+function updateIssue(){
+ const key=document.querySelector('input[name="issue"]:checked').value,d=issues[key];
+ document.getElementById('heroTitle').textContent=d.title;
+ document.getElementById('heroDesc').textContent=d.desc;
+ document.getElementById('errorBadge').textContent='示例错误：'+d.code;
+ document.getElementById('steps').innerHTML='<h3>推荐操作</h3><ul>'+d.steps.map(s=>'<li>'+s+'</li>').join('')+'</ul>';
+ document.getElementById('retryBtn').textContent=d.btn;
+ document.getElementById('result').style.display='none';
+}
+function retry(){
+ const key=document.querySelector('input[name="issue"]:checked').value;
+ const result=document.getElementById('result');result.style.display='block';
+ result.textContent=key==='auth'?'演示：已进入重新验证流程入口。没有执行真实登录或身份验证。':key==='unknown'?'演示：已展示排查完成状态。实际问题仍需通过日志与后端错误信息判断。':'演示：已触发一次重试流程，但没有真实网络请求。原有数据不会因该按钮被删除。';
+}
+updateIssue();
+</script>
+</body>
+</html>

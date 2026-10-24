@@ -1,0 +1,116 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>历史健康报告 - 轻衡健康</title>
+<style>
+:root{--g:#21a675;--gd:#147d58;--bg:#f5f8f5;--text:#202923;--muted:#87928a;--line:#e7ece8}
+*{box-sizing:border-box}
+body{margin:0;background:#e9eeea;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:var(--text)}
+button{font:inherit;cursor:pointer}
+.app{max-width:430px;min-height:100vh;margin:auto;background:var(--bg);padding-bottom:35px}
+header{height:58px;background:white;display:flex;align-items:center;justify-content:space-between;padding:0 20px}
+header button{border:0;background:none;color:var(--muted);font-size:14px}
+header strong{font-size:16px}
+main{padding:20px 17px}
+.cover{padding:23px 20px 22px;border-radius:21px;background:linear-gradient(140deg,#dff4e7,#f4faf5);border:1px solid #dcefe2}
+.eyebrow{font-size:11px;letter-spacing:1px;color:var(--gd);font-weight:650}
+.cover h1{font-size:24px;line-height:1.4;margin:13px 0 8px}
+.cover p{font-size:12px;color:#688171;line-height:1.7;margin:0}
+.period{display:flex;align-items:center;justify-content:space-between;margin-top:20px;padding-top:15px;border-top:1px solid #cfe7d6}
+.period span{font-size:11px;color:#688171}
+.period strong{font-size:13px}
+.section-head{display:flex;justify-content:space-between;align-items:center;margin:24px 2px 12px}
+.section-title{font-size:15px;font-weight:650}
+.small{font-size:11px;color:var(--muted)}
+.summary{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{padding:16px;background:white;border:1px solid var(--line);border-radius:15px}
+.tile-label{font-size:12px;color:var(--muted)}
+.tile-value{font-size:25px;font-weight:700;margin:12px 0 6px}
+.tile-value small{font-size:12px;font-weight:400;color:var(--muted)}
+.tile-foot{font-size:11px;color:var(--gd)}
+.chart-card{padding:16px;background:white;border:1px solid var(--line);border-radius:16px}
+.chart-head{display:flex;justify-content:space-between;align-items:center}
+.chart-head strong{font-size:13px}
+.chart-head span{font-size:11px;color:var(--muted)}
+.chart{width:100%;height:155px;margin-top:12px;display:block}
+.legend{display:flex;gap:16px;font-size:11px;color:var(--muted)}
+.legend span:before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--g);margin-right:5px}
+.insight{padding:17px;background:white;border:1px solid var(--line);border-radius:16px}
+.insight h3{font-size:14px;margin:0 0 10px}
+.insight p{font-size:12px;line-height:1.8;color:#667269;margin:0}
+.recommendations{padding:0 16px;background:white;border:1px solid var(--line);border-radius:16px}
+.rec{padding:14px 0;border-bottom:1px solid var(--line);display:flex;gap:11px}
+.rec:last-child{border-bottom:0}
+.rec-icon{width:32px;height:32px;display:grid;place-items:center;background:#e8f6ed;color:var(--gd);border-radius:10px}
+.rec strong{font-size:13px}
+.rec p{margin:5px 0 0;font-size:11px;color:var(--muted);line-height:1.7}
+.actions{display:flex;gap:10px;margin-top:23px}
+.actions button{height:47px;border-radius:13px;font-size:13px;font-weight:600}
+.secondary{flex:1;border:1px solid var(--line);background:white}
+.primary{flex:1;border:0;background:var(--g);color:white}
+.disclaimer{font-size:11px;line-height:1.8;color:var(--muted);margin:15px 3px}
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);padding:11px 15px;background:#25352b;color:white;border-radius:10px;font-size:13px;opacity:0;transition:.2s;white-space:nowrap}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="app">
+<header><button onclick="notify('返回测量记录')">‹ 返回</button><strong>历史健康报告</strong><button onclick="share()">分享</button></header>
+<main>
+<section class="cover">
+<div class="eyebrow">HEALTH SUMMARY</div>
+<h1>你的身体变化<br>值得持续关注</h1>
+<p>基于选定时间范围内的测量记录，帮助你观察指标变化，而非只看单次结果。</p>
+<div class="period"><div><span>报告周期</span><br><strong>10 月 1 日 — 10 月 22 日</strong></div><div><span>有效测量</span><br><strong>12 次</strong></div></div>
+</section>
+
+<div class="section-head"><div class="section-title">阶段数据摘要</div><span class="small">与周期初始值对比</span></div>
+<section class="summary">
+<div class="tile"><div class="tile-label">当前体重</div><div class="tile-value">62.4<small> kg</small></div><div class="tile-foot">较期初 −0.8 kg</div></div>
+<div class="tile"><div class="tile-label">体脂率</div><div class="tile-value">21.8<small>%</small></div><div class="tile-foot">较期初 −0.4 个百分点</div></div>
+<div class="tile"><div class="tile-label">肌肉量</div><div class="tile-value">45.2<small> kg</small></div><div class="tile-foot">较期初 +0.2 kg</div></div>
+<div class="tile"><div class="tile-label">测量频率</div><div class="tile-value">4.0<small> 次/周</small></div><div class="tile-foot">基于有效记录计算</div></div>
+</section>
+
+<div class="section-head"><div class="section-title">体重变化趋势</div><span class="small">近 3 周</span></div>
+<section class="chart-card">
+<div class="chart-head"><strong>体重（kg）</strong><span>示例趋势数据</span></div>
+<svg class="chart" viewBox="0 0 340 155" role="img" aria-label="体重趋势示意图">
+<defs><linearGradient id="fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#21a675" stop-opacity=".22"/><stop offset="1" stop-color="#21a675" stop-opacity="0"/></linearGradient></defs>
+<g stroke="#edf0ed" stroke-width="1"><path d="M30 20H328"/><path d="M30 55H328"/><path d="M30 90H328"/><path d="M30 125H328"/></g>
+<g fill="#8b958d" font-size="9"><text x="1" y="23">64</text><text x="1" y="58">63.5</text><text x="1" y="93">63</text><text x="1" y="128">62.5</text></g>
+<path d="M30 32 L74 45 L118 39 L162 69 L206 78 L250 99 L294 105 L328 119 L328 125 L30 125Z" fill="url(#fill)"/>
+<path d="M30 32 L74 45 L118 39 L162 69 L206 78 L250 99 L294 105 L328 119" fill="none" stroke="#21a675" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<g fill="#21a675" stroke="white" stroke-width="2"><circle cx="30" cy="32" r="4"/><circle cx="118" cy="39" r="4"/><circle cx="206" cy="78" r="4"/><circle cx="328" cy="119" r="4"/></g>
+<g fill="#8b958d" font-size="9"><text x="25" y="145">10/1</text><text x="104" y="145">10/7</text><text x="190" y="145">10/14</text><text x="304" y="145">10/22</text></g>
+</svg>
+<div class="legend"><span>体重</span><span>下降趋势仅代表本周期记录</span></div>
+</section>
+
+<div class="section-head"><div class="section-title">阶段观察</div></div>
+<section class="insight">
+<h3>体重整体呈缓慢下降趋势</h3>
+<p>在本周期的示例数据中，体重逐渐下降。短期波动可能与饮水、进食、运动和测量时间有关，建议保持相对一致的测量条件，结合更长周期观察变化。</p>
+</section>
+
+<div class="section-head"><div class="section-title">后续建议</div></div>
+<section class="recommendations">
+<div class="rec"><div class="rec-icon">↗</div><div><strong>保持规律测量</strong><p>选择相近的时间和条件记录，减少测量条件差异造成的干扰。</p></div></div>
+<div class="rec"><div class="rec-icon">◷</div><div><strong>关注长期趋势</strong><p>不要仅凭单次体重或身体成分的变化做判断。</p></div></div>
+<div class="rec"><div class="rec-icon">◎</div><div><strong>结合生活习惯</strong><p>将测量趋势与饮食、运动和睡眠等情况一起观察。</p></div></div>
+</section>
+
+<div class="actions"><button class="secondary" onclick="notify('原型演示：返回记录列表')">返回记录</button><button class="primary" onclick="share()">生成分享报告</button></div>
+<p class="disclaimer">本页数值及趋势均为界面演示数据，不是实际健康评估。身体成分测量可能存在误差，不能替代专业医疗建议。</p>
+</main>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+function notify(t){const e=document.getElementById("toast");e.textContent=t;e.classList.add("show");clearTimeout(window.tt);window.tt=setTimeout(()=>e.classList.remove("show"),2200)}
+function share(){notify("原型演示：正式版本应生成可预览的报告图片，并在分享前确认隐私范围")}
+</script>
+</body>
+</html>

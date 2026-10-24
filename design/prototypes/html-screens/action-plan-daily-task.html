@@ -1,0 +1,42 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>今日任务 - 轻刻健康</title>
+<style>
+:root{--g:#21a675;--d:#147d58;--bg:#f5f8f5;--text:#24362d;--muted:#84928b;--line:#e7eee9}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:var(--text);font-size:14px}.app{max-width:430px;min-height:100vh;margin:auto;padding-bottom:36px}.header{display:flex;align-items:center;gap:13px;padding:20px}.back{width:39px;height:39px;border:0;border-radius:12px;background:white;font-size:23px;cursor:pointer}.header h1{margin:0;font-size:21px}.header p{margin:5px 0 0;color:var(--muted);font-size:12px}.section{padding:0 20px;margin-bottom:15px}.hero{background:linear-gradient(135deg,#e2f6e9,#f7fcf8);border:1px solid #d9eee1;border-radius:20px;padding:18px}.date{font-size:12px;color:var(--muted)}.hero h2{font-size:20px;margin:9px 0 5px}.hero p{font-size:12px;color:#6c8074;line-height:1.7;margin:0}.progressrow{display:flex;justify-content:space-between;align-items:end;margin:20px 0 9px}.progressrow strong{font-size:28px;color:var(--d)}.track{height:8px;background:#dcebe0;border-radius:9px;overflow:hidden}.fill{height:100%;width:33.3%;background:var(--g);border-radius:9px;transition:width .2s}.card{background:white;border:1px solid #edf1ee;border-radius:18px;padding:15px}.heading{display:flex;justify-content:space-between;align-items:center;margin:0 0 10px}.heading h3{font-size:16px;margin:0}.count{font-size:11px;color:var(--muted)}.task{display:flex;gap:12px;align-items:flex-start;padding:15px 0;border-bottom:1px solid var(--line)}.task:last-child{border-bottom:0}.check{width:24px;height:24px;border:1.5px solid #cbd8d0;background:white;border-radius:8px;flex-shrink:0;cursor:pointer;color:white;font-size:14px}.check.checked{background:var(--g);border-color:var(--g)}.taskbody{flex:1}.tasktitle{font-size:14px;font-weight:650}.taskdesc{font-size:12px;color:var(--muted);line-height:1.6;margin-top:5px}.taskmeta{font-size:11px;color:var(--d);margin-top:8px}.task.completed .tasktitle{text-decoration:line-through;color:#93a097}.task.completed .taskdesc{color:#a0aaa3}.note{width:100%;min-height:88px;border:1px solid #dfe8e1;border-radius:13px;padding:12px;font:inherit;font-size:13px;resize:vertical;outline:none}.note:focus{border-color:var(--g)}.moods{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.mood{padding:12px 3px;border:1px solid var(--line);background:white;border-radius:12px;font-size:12px;color:var(--text);cursor:pointer}.mood.active{background:#eaf8f0;border-color:var(--g);color:var(--d);font-weight:600}.mood span{display:block;font-size:20px;margin-bottom:7px}.btn{width:100%;padding:14px;border:0;border-radius:13px;background:var(--g);color:white;font-size:14px;font-weight:650;cursor:pointer}.btn.light{margin-top:9px;background:#e7f5ed;color:var(--d)}.notice{font-size:11px;color:var(--muted);line-height:1.7;margin-top:11px}.toast{display:none;position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#25372e;color:white;padding:12px 16px;border-radius:12px;white-space:nowrap}
+</style>
+</head>
+<body>
+<main class="app">
+<header class="header"><button class="back" onclick="location.href='action-plan-detail.html'">‹</button><div><h1>今日任务</h1><p>完成适合自己的小行动</p></div></header>
+<section class="section"><div class="hero"><div class="date" id="todayDate">今日行动 · 每一步都算数</div><h2>不必一次完成所有事情</h2><p>根据今天的时间和状态安排行动。如果感到疲惫，可以适当减少任务，不需要为了打卡勉强自己。</p><div class="progressrow"><div><div class="date">今日完成进度</div><strong id="percent">1/3</strong></div><div class="date" id="summary">完成 33%</div></div><div class="track"><div class="fill" id="fill"></div></div></div></section>
+<section class="section"><div class="heading"><h3>计划内任务</h3><span class="count" id="taskCount">已完成 1 / 3</span></div>
+<div class="card" id="taskList">
+<div class="task completed"><button class="check checked" aria-label="切换记录健康状态" onclick="toggle(this)">✓</button><div class="taskbody"><div class="tasktitle">记录健康状态</div><div class="taskdesc">记录体重、精力或其他你关心的状态。没有测量条件时，可以跳过体重记录。</div><div class="taskmeta">约 2 分钟 · 弹性任务</div></div></div>
+<div class="task"><button class="check" aria-label="切换日常活动" onclick="toggle(this)"></button><div class="taskbody"><div class="tasktitle">安排一段日常活动</div><div class="taskdesc">根据自身情况选择散步、拉伸或其他舒适的活动；身体不适时不要勉强。</div><div class="taskmeta">按个人状态安排</div></div></div>
+<div class="task"><button class="check" aria-label="切换休息回顾" onclick="toggle(this)"></button><div class="taskbody"><div class="tasktitle">回顾休息与睡眠</div><div class="taskdesc">睡前简单回想今天的休息情况，思考明天可以调整的一件小事。</div><div class="taskmeta">约 2 分钟 · 睡前</div></div></div>
+</div></section>
+<section class="section"><div class="heading"><h3>今天的状态</h3><span class="count">选填</span></div><div class="card"><div class="moods" id="moods">
+<button class="mood" data-mood="不错" onclick="chooseMood(this)"><span>☺</span>不错</button>
+<button class="mood active" data-mood="一般" onclick="chooseMood(this)"><span>◡</span>一般</button>
+<button class="mood" data-mood="疲惫" onclick="chooseMood(this)"><span>⌁</span>疲惫</button>
+<button class="mood" data-mood="不舒服" onclick="chooseMood(this)"><span>○</span>不舒服</button>
+</div><label for="note" style="display:block;margin:16px 0 8px;font-size:12px;color:var(--muted)">今日备注</label><textarea class="note" id="note" maxlength="300" placeholder="今天有什么值得记录的？也可以留空。"></textarea><div class="count" style="text-align:right;margin-top:6px"><span id="charCount">0</span>/300</div></div></section>
+<section class="section"><button class="btn" onclick="saveProgress()">保存今日记录</button><button class="btn light" onclick="location.href='action-plan-review.html'">查看计划复盘</button><div class="notice">当前为交互原型。保存仅在本页面模拟提示，不会上传健康数据或创建真实提醒。</div></section>
+<div class="toast" id="toast"></div>
+</main>
+<script>
+const now=new Date();document.getElementById('todayDate').textContent=now.getFullYear()+'年'+(now.getMonth()+1)+'月'+now.getDate()+'日 · 今日行动';
+let mood='一般';
+function toggle(btn){const row=btn.closest('.task');const active=btn.classList.toggle('checked');btn.textContent=active?'✓':'';row.classList.toggle('completed',active);updateProgress()}
+function updateProgress(){const tasks=[...document.querySelectorAll('#taskList .task')];const n=tasks.filter(x=>x.querySelector('.check').classList.contains('checked')).length;const p=Math.round(n/tasks.length*100);document.getElementById('percent').textContent=n+'/'+tasks.length;document.getElementById('summary').textContent='完成 '+p+'%';document.getElementById('taskCount').textContent='已完成 '+n+' / '+tasks.length;document.getElementById('fill').style.width=p+'%'}
+function chooseMood(btn){document.querySelectorAll('.mood').forEach(x=>x.classList.remove('active'));btn.classList.add('active');mood=btn.dataset.mood}
+document.getElementById('note').addEventListener('input',e=>document.getElementById('charCount').textContent=e.target.value.length);
+function saveProgress(){const data={mood,note:document.getElementById('note').value,tasks:[...document.querySelectorAll('#taskList .task')].map(x=>({title:x.querySelector('.tasktitle').textContent,done:x.querySelector('.check').classList.contains('checked')}))};try{sessionStorage.setItem('demoDailyProgress',JSON.stringify(data))}catch(e){}const t=document.getElementById('toast');t.textContent='今日记录已在原型中模拟保存';t.style.display='block';setTimeout(()=>t.style.display='none',1800)}
+</script>
+</body>
+</html>

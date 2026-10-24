@@ -1,0 +1,38 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>我的 - 轻刻健康</title>
+<style>
+:root{--g:#21a675;--d:#147d58;--bg:#f5f8f5;--text:#24362d;--muted:#84928b;--line:#e7eee9}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;color:var(--text);font-size:14px}.app{max-width:430px;min-height:100vh;margin:auto;padding-bottom:90px}.top{padding:25px 20px 19px;display:flex;justify-content:space-between;align-items:center}.top h1{font-size:25px;margin:0}.top p{font-size:12px;color:var(--muted);margin:7px 0 0}.settings{border:0;border-radius:13px;background:white;width:42px;height:42px;font-size:20px;cursor:pointer}.profile{margin:0 20px 16px;padding:19px;background:linear-gradient(135deg,#e3f6eb,#f8fcf9);border:1px solid #d8eee1;border-radius:21px;display:flex;align-items:center;gap:14px}.avatar{width:62px;height:62px;border-radius:20px;background:#c8edd8;color:var(--d);display:grid;place-items:center;font-size:29px;flex-shrink:0}.identity{flex:1;min-width:0}.identity h2{font-size:19px;margin:0 0 6px}.identity p{font-size:12px;color:#718277;margin:0}.edit{border:0;background:white;color:var(--d);padding:9px 11px;border-radius:10px;font-size:12px;cursor:pointer}.section{padding:0 20px;margin-bottom:15px}.card{background:white;border:1px solid #edf1ee;border-radius:18px;padding:16px}.section-title{font-size:15px;font-weight:700;margin:0 0 13px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{text-align:center;padding:12px 4px;background:#f7faf7;border-radius:13px}.stat strong{display:block;font-size:19px}.stat span{display:block;font-size:11px;color:var(--muted);margin-top:5px}.row{display:flex;align-items:center;gap:12px;padding:15px 0;border-bottom:1px solid var(--line);text-decoration:none;color:var(--text);cursor:pointer}.row:first-child{padding-top:2px}.row:last-child{border:0;padding-bottom:2px}.rowicon{width:38px;height:38px;border-radius:12px;background:#edf8f1;display:grid;place-items:center;color:var(--d);font-size:18px;flex-shrink:0}.rowmain{flex:1}.rowmain b{font-size:13px;display:block}.rowmain small{font-size:11px;color:var(--muted);display:block;margin-top:5px}.arrow{font-size:19px;color:#a0aca4}.badge{font-size:10px;background:#fff1dd;color:#a76d26;padding:5px 7px;border-radius:7px}.footer-note{text-align:center;font-size:11px;color:#9aa59d;margin-top:19px}.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(100%,430px);background:#ffffffed;backdrop-filter:blur(12px);border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:10px 4px 17px}.nav a{text-decoration:none;color:#84928b;text-align:center;font-size:10px;min-width:55px}.nav a span{display:block;font-size:20px;margin-bottom:4px}.nav a.active{color:var(--g);font-weight:650}.toast{display:none;position:fixed;bottom:88px;left:50%;transform:translateX(-50%);background:#25372e;color:white;padding:12px 16px;border-radius:12px;white-space:nowrap}
+</style>
+</head>
+<body>
+<main class="app">
+<header class="top"><div><h1>我的</h1><p>管理个人信息与健康服务</p></div><button class="settings" aria-label="设置" onclick="location.href='app-preferences.html'">⚙</button></header>
+<section class="profile"><div class="avatar">♙</div><div class="identity"><h2 id="userName">轻刻用户</h2><p id="userId">轻刻健康 · 个人账户</p></div><button class="edit" onclick="location.href='profile-edit.html'">编辑资料</button></section>
+<section class="section"><div class="card"><div class="section-title">我的健康概览</div><div class="stats"><div class="stat"><strong>--</strong><span>最近体重</span></div><div class="stat"><strong>--</strong><span>体脂率</span></div><div class="stat"><strong>--</strong><span>测量次数</span></div></div><p style="font-size:11px;color:var(--muted);line-height:1.6;margin:12px 0 0">连接设备并完成测量后，这里可以展示你的健康数据。当前为原型占位。</p></div></section>
+<section class="section"><div class="card">
+<div class="row" onclick="location.href='health-profile.html'"><div class="rowicon">♡</div><div class="rowmain"><b>健康档案</b><small>查看和管理个人健康信息</small></div><span class="arrow">›</span></div>
+<div class="row" onclick="location.href='account-security.html'"><div class="rowicon">♙</div><div class="rowmain"><b>账号与安全</b><small>登录方式、验证与账号管理</small></div><span class="arrow">›</span></div>
+<div class="row" onclick="location.href='family-member-detail.html'"><div class="rowicon">♧</div><div class="rowmain"><b>家庭成员</b><small>管理家庭成员与数据共享</small></div><span class="arrow">›</span></div>
+<div class="row" onclick="location.href='action-plan-home.html'"><div class="rowicon">✓</div><div class="rowmain"><b>行动计划</b><small>查看日常任务与计划进度</small></div><span class="arrow">›</span></div>
+</div></section>
+<section class="section"><div class="card">
+<div class="row" onclick="location.href='app-preferences.html'"><div class="rowicon">☷</div><div class="rowmain"><b>应用偏好设置</b><small>单位、提醒和显示偏好</small></div><span class="arrow">›</span></div>
+<div class="row" onclick="location.href='privacy-data-home.html'"><div class="rowicon">◈</div><div class="rowmain"><b>隐私与数据管理</b><small>了解数据用途与管理方式</small></div><span class="arrow">›</span></div>
+<div class="row" onclick="location.href='help-center.html'"><div class="rowicon">?</div><div class="rowmain"><b>帮助与反馈</b><small>常见问题、意见反馈与客服</small></div><span class="arrow">›</span></div>
+<div class="row" onclick="location.href='about-app.html'"><div class="rowicon">ⓘ</div><div class="rowmain"><b>关于轻刻健康</b><small>版本信息、协议与开源声明</small></div><span class="arrow">›</span></div>
+</div></section>
+<div class="footer-note">轻刻健康 · 关注每一天的健康变化<br><br>原型版本 v2.0.0 · 展示数据不代表真实账户</div>
+<nav class="nav"><a href="#"><span>⌂</span>首页</a><a href="#"><span>◉</span>测量</a><a href="#"><span>▥</span>趋势</a><a href="action-plan-home.html"><span>✓</span>计划</a><a class="active" href="profile-home.html"><span>♙</span>我的</a></nav>
+<div class="toast" id="toast"></div>
+</main>
+<script>
+try{const p=JSON.parse(sessionStorage.getItem('demoProfile')||'null');if(p&&p.name)document.getElementById('userName').textContent=p.name;if(p&&p.nickname)document.getElementById('userId').textContent=p.nickname}catch(e){}
+</script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#21a675">
+<title>轻刻健康 · 启动</title>
+<style>
+:root{--green:#21a675;--deep:#147d58;--text:#20332b;--muted:#809188}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:#f5fbf7;color:var(--text)}
+.app{max-width:430px;min-height:100vh;min-height:100dvh;margin:auto;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:70px 26px 30px;background:radial-gradient(ellipse at 50% 40%,#e3f7ed 0%,#f5fbf7 65%)}
+.brand{display:flex;flex-direction:column;align-items:center;margin-top:12vh}
+.logo{width:92px;height:92px;border-radius:29px;background:var(--green);display:grid;place-items:center;box-shadow:0 14px 30px #21a67535}
+.logo svg{width:58px;height:58px}
+h1{font-size:29px;letter-spacing:2px;margin:22px 0 9px;font-weight:750}
+.tagline{font-size:13px;letter-spacing:2px;color:#6f8b7b}
+.center-message{margin-top:44px;text-align:center}
+.center-message p{font-size:13px;color:#7d9386;line-height:1.8;margin:0}
+.dots{display:flex;gap:6px;justify-content:center;margin-top:20px}
+.dots span{width:6px;height:6px;border-radius:50%;background:#c7e7d5;animation:pulse 1s infinite ease-in-out}
+.dots span:nth-child(2){animation-delay:.15s}.dots span:nth-child(3){animation-delay:.3s}
+@keyframes pulse{0%,80%,100%{opacity:.35;transform:scale(.8)}40%{opacity:1;transform:scale(1.1)}}
+.footer{text-align:center;width:100%}
+.footer .version{font-size:11px;color:#a0afa6;margin-bottom:12px}
+.footer .disclaimer{font-size:10px;color:#9aa9a0;line-height:1.7}
+.skip{border:1px solid #d4e9dc;background:#fff;color:var(--deep);border-radius:12px;padding:11px 20px;margin-bottom:20px;font-size:13px;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="brand">
+    <div class="logo" aria-label="轻刻健康标志">
+      <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
+        <path d="M32 51V28" stroke="white" stroke-width="4" stroke-linecap="round"/>
+        <path d="M32 36C16 36 12 25 13 13C25 12 36 18 36 31" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M32 43C32 30 42 23 53 24C53 36 46 44 32 43Z" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <h1>轻刻健康</h1>
+    <div class="tagline">记录每一次进步</div>
+    <div class="center-message">
+      <p id="loadingText">正在开启健康管理之旅</p>
+      <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
+    </div>
+  </div>
+  <div class="footer">
+    <button class="skip" onclick="goNext()">进入应用原型</button>
+    <div class="version">轻刻健康 · 原型版本 2.0.0</div>
+    <div class="disclaimer">关注身体变化，建立长期健康习惯<br>本页面仅为交互原型，不代表实际启动流程</div>
+  </div>
+</div>
+<script>
+function goNext(){location.href='welcome-onboarding.html'}
+/* 原型中不自动跳转，避免用户来不及查看页面。
+   正式应用应由启动路由根据登录状态和引导完成状态决定目标页面。 */
+</script>
+</body>
+</html>

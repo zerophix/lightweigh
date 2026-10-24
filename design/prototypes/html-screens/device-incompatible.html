@@ -1,0 +1,82 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>设备不兼容 - 轻刻健康</title>
+<style>
+:root{--g:#21a675;--d:#147d58;--t:#20332b;--m:#7d8982;--line:#e5ece7;--orange:#c58a39}
+*{box-sizing:border-box}
+body{margin:0;background:#f5f8f5;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;color:var(--t)}
+.app{max-width:430px;min-height:100vh;min-height:100dvh;margin:auto;background:#fff;display:flex;flex-direction:column}
+header{height:58px;display:flex;align-items:center;gap:12px;padding:0 20px;border-bottom:1px solid var(--line)}
+header button{border:0;background:none;font-size:27px;cursor:pointer}
+header h1{font-size:17px;margin:0}
+main{padding:25px 21px;flex:1}
+.hero{text-align:center;padding:13px 0 24px}
+.icon{width:78px;height:78px;border-radius:25px;background:#fff4e6;color:var(--orange);display:grid;place-items:center;font-size:34px;margin:0 auto 18px}
+h2{font-size:21px;margin:0 0 10px}
+.hero p{font-size:12px;line-height:1.9;color:var(--m);max-width:310px;margin:0 auto}
+.device{border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;gap:12px;align-items:center;margin-bottom:22px}
+.device-icon{width:47px;height:47px;border-radius:14px;background:#f0f5f1;color:var(--d);display:grid;place-items:center;font-size:22px;flex-shrink:0}
+.device-info{flex:1;min-width:0}
+.device-info strong{font-size:12px;display:block;margin-bottom:5px;overflow-wrap:anywhere}
+.device-info small{font-size:10px;color:var(--m);overflow-wrap:anywhere}
+.tag{font-size:10px;color:#a2763a;background:#fff4e6;padding:6px 8px;border-radius:7px;white-space:nowrap}
+.title{font-size:13px;font-weight:700;margin-bottom:11px}
+.checks{border:1px solid var(--line);border-radius:13px;padding:0 13px}
+.check-row{display:flex;gap:10px;padding:13px 0;border-bottom:1px solid #f0f3f0}
+.check-row:last-child{border-bottom:0}
+.num{width:25px;height:25px;border-radius:8px;background:#e8f7ef;color:var(--d);display:grid;place-items:center;font-size:11px;flex-shrink:0}
+.check-row strong{font-size:12px;display:block;margin:3px 0 5px}
+.check-row p{font-size:11px;color:var(--m);line-height:1.8;margin:0}
+.note{background:#f6faf7;border-radius:11px;padding:13px;font-size:11px;color:#728176;line-height:1.9;margin-top:16px}
+.actions{padding:0 21px 27px}
+.primary{width:100%;border:0;border-radius:13px;background:var(--g);color:white;padding:14px;font:inherit;font-size:14px;font-weight:650;cursor:pointer}
+.secondary{width:100%;border:1px solid var(--line);border-radius:13px;background:white;color:var(--d);padding:13px;font:inherit;font-size:13px;cursor:pointer;margin-top:10px}
+.feedback{display:none;margin-top:12px;border-radius:10px;background:#e8f7ef;color:var(--d);padding:12px;font-size:11px;line-height:1.8}
+</style>
+</head>
+<body>
+<div class="app">
+<header><button onclick="location.href='device-scan.html'" aria-label="返回">‹</button><h1>设备兼容性</h1></header>
+<main>
+<section class="hero">
+<div class="icon">⚠</div>
+<h2>暂时无法使用该设备</h2>
+<p>当前示例设备未通过兼容性校验。正式应用应根据设备型号、通信协议和固件能力给出准确原因。</p>
+</section>
+
+<div class="device">
+<div class="device-icon">▱</div>
+<div class="device-info"><strong id="deviceName">未知蓝牙设备</strong><small id="deviceId">UNKNOWN-DEVICE</small></div>
+<span class="tag">未验证兼容性</span>
+</div>
+
+<div class="title">你可以尝试以下操作</div>
+<div class="checks">
+<div class="check-row"><span class="num">1</span><div><strong>确认设备型号</strong><p>查看体脂秤底部标签或说明书，确认型号是否在轻刻健康支持列表中。</p></div></div>
+<div class="check-row"><span class="num">2</span><div><strong>确认设备协议</strong><p>蓝牙名称相似并不代表通信协议相同。设备必须通过正式的协议识别与能力校验。</p></div></div>
+<div class="check-row"><span class="num">3</span><div><strong>检查固件版本</strong><p>某些设备型号可能需要指定固件版本。请以官方兼容性说明为准。</p></div></div>
+<div class="check-row"><span class="num">4</span><div><strong>选择受支持的设备</strong><p>如果设备确实不受支持，请勿通过猜测协议或强行解析数据的方式进行测量。</p></div></div>
+</div>
+
+<div class="note">兼容性检查应区分“尚未识别”“协议不支持”“固件版本不符合要求”和“设备通信异常”。当前页面仅用于展示这些场景的设计方向，不代表已检测到真实设备问题。</div>
+<div class="feedback" id="feedback" role="status"></div>
+</main>
+<div class="actions">
+<button class="primary" onclick="location.href='device-scan.html'">重新选择设备</button>
+<button class="secondary" onclick="location.href='device-permission-guide.html'">查看设备连接要求</button>
+<button class="secondary" onclick="document.getElementById('feedback').style.display='block';document.getElementById('feedback').textContent='原型演示：尚未连接客服、工单系统或设备识别服务。正式版本可在此提供设备型号、协议版本及错误码，便于定位问题。'">查看帮助与支持</button>
+</div>
+</div>
+<script>
+const params=new URLSearchParams(location.search);
+const deviceId=params.get('device')||'UNKNOWN-DEVICE';
+const deviceName=params.get('alias')||'未知蓝牙设备';
+document.getElementById('deviceId').textContent=deviceId;
+document.getElementById('deviceName').textContent=deviceName;
+</script>
+</body>
+</html>

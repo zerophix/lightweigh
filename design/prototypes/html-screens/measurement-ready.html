@@ -1,0 +1,561 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>测量准备 - 轻衡健康</title>
+  <style>
+    :root {
+      --green: #21A675;
+      --green-dark: #147D58;
+      --green-light: #E9F7F0;
+      --bg: #F6F8F6;
+      --white: #FFFFFF;
+      --text: #202923;
+      --subtext: #89938C;
+      --line: #E9EDE9;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC",
+        "Microsoft YaHei", sans-serif;
+      background: #E8ECE9;
+      color: var(--text);
+    }
+
+    button { font: inherit; cursor: pointer; }
+
+    .app {
+      max-width: 430px;
+      min-height: 100vh;
+      margin: 0 auto;
+      background: var(--bg);
+      padding-bottom: 24px;
+    }
+
+    .topbar {
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      background: var(--white);
+    }
+
+    .back {
+      width: 32px;
+      border: 0;
+      padding: 0;
+      background: none;
+      font-size: 26px;
+      color: var(--text);
+    }
+
+    .top-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .top-help {
+      border: 0;
+      padding: 8px 0;
+      background: none;
+      color: var(--subtext);
+      font-size: 13px;
+    }
+
+    .main { padding: 24px 20px 0; }
+
+    .progress {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 25px;
+    }
+
+    .progress-track {
+      height: 4px;
+      flex: 1;
+      overflow: hidden;
+      border-radius: 8px;
+      background: #E1E8E3;
+    }
+
+    .progress-fill {
+      width: 50%;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--green);
+    }
+
+    .progress-label {
+      color: var(--subtext);
+      font-size: 12px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 26px;
+      line-height: 1.4;
+      letter-spacing: -.5px;
+    }
+
+    .intro {
+      margin: 8px 0 22px;
+      color: var(--subtext);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .illustration {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 265px;
+      overflow: hidden;
+      border-radius: 22px;
+      background:
+        radial-gradient(ellipse at 50% 85%, #CDEBDD 0%, #E9F6EF 42%, #F4FAF6 75%);
+    }
+
+    .circle {
+      position: absolute;
+      width: 218px;
+      height: 218px;
+      border: 1px solid #D3EBDD;
+      border-radius: 50%;
+    }
+
+    .circle::before,
+    .circle::after {
+      content: "";
+      position: absolute;
+      border: 1px solid #D3EBDD;
+      border-radius: 50%;
+    }
+
+    .circle::before { inset: 18px; }
+    .circle::after { inset: 36px; }
+
+    .person {
+      position: relative;
+      z-index: 1;
+      width: 100px;
+      height: 205px;
+    }
+
+    .head {
+      position: absolute;
+      top: 5px;
+      left: 37px;
+      width: 27px;
+      height: 32px;
+      border-radius: 45% 45% 42% 42%;
+      background: #E9BFA0;
+    }
+
+    .hair {
+      position: absolute;
+      top: 1px;
+      left: 34px;
+      width: 32px;
+      height: 18px;
+      border-radius: 18px 18px 5px 5px;
+      background: #4E6656;
+    }
+
+    .neck {
+      position: absolute;
+      top: 32px;
+      left: 44px;
+      width: 13px;
+      height: 14px;
+      background: #E9BFA0;
+    }
+
+    .body-shape {
+      position: absolute;
+      top: 40px;
+      left: 23px;
+      width: 52px;
+      height: 79px;
+      border-radius: 18px 18px 11px 11px;
+      background: #55B78A;
+    }
+
+    .arm {
+      position: absolute;
+      top: 47px;
+      width: 13px;
+      height: 70px;
+      border-radius: 10px;
+      background: #E9BFA0;
+    }
+
+    .arm.left {
+      left: 15px;
+      transform: rotate(8deg);
+    }
+
+    .arm.right {
+      right: 15px;
+      transform: rotate(-8deg);
+    }
+
+    .leg {
+      position: absolute;
+      top: 112px;
+      width: 21px;
+      height: 76px;
+      border-radius: 7px 7px 9px 9px;
+      background: #547765;
+    }
+
+    .leg.left { left: 28px; }
+    .leg.right { right: 28px; }
+
+    .foot {
+      position: absolute;
+      bottom: 9px;
+      width: 28px;
+      height: 10px;
+      border-radius: 10px 8px 5px 5px;
+      background: #E9BFA0;
+    }
+
+    .foot.left { left: 20px; }
+    .foot.right { right: 20px; }
+
+    .platform {
+      position: absolute;
+      bottom: 19px;
+      width: 152px;
+      height: 18px;
+      border-radius: 50%;
+      background: #8FCDB0;
+      box-shadow: 0 8px 16px #6BAE8A30;
+    }
+
+    .tip-badge {
+      position: absolute;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 12px;
+      border: 1px solid #E5F1E9;
+      border-radius: 12px;
+      background: #FFFFFFE8;
+      box-shadow: 0 4px 16px #244D3610;
+      font-size: 12px;
+    }
+
+    .tip-badge span {
+      color: var(--green-dark);
+      font-size: 16px;
+    }
+
+    .tip-badge.left {
+      top: 39px;
+      left: 12px;
+    }
+
+    .tip-badge.right {
+      right: 12px;
+      bottom: 49px;
+    }
+
+    .instruction {
+      padding: 20px 0 8px;
+    }
+
+    .instruction-title {
+      margin-bottom: 15px;
+      font-size: 16px;
+      font-weight: 650;
+    }
+
+    .step {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .step-number {
+      display: grid;
+      place-items: center;
+      width: 29px;
+      height: 29px;
+      flex-shrink: 0;
+      border-radius: 10px;
+      background: var(--green-light);
+      color: var(--green-dark);
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .step-title {
+      margin: 2px 0 4px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .step-desc {
+      color: var(--subtext);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .device-state {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 8px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--white);
+    }
+
+    .device-icon {
+      display: grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      border-radius: 11px;
+      background: var(--green-light);
+      color: var(--green-dark);
+      font-size: 20px;
+    }
+
+    .device-copy { flex: 1; }
+
+    .device-name {
+      margin-bottom: 4px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .device-detail {
+      color: var(--subtext);
+      font-size: 11px;
+    }
+
+    .connected {
+      color: var(--green-dark);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .bottom {
+      padding: 22px 20px 12px;
+    }
+
+    .start {
+      width: 100%;
+      height: 52px;
+      border: 0;
+      border-radius: 15px;
+      background: var(--green);
+      color: white;
+      font-size: 15px;
+      font-weight: 650;
+      box-shadow: 0 6px 15px #21A67525;
+    }
+
+    .start:active { background: var(--green-dark); }
+
+    .privacy {
+      margin-top: 12px;
+      text-align: center;
+      color: var(--subtext);
+      font-size: 11px;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 11px 16px;
+      border-radius: 10px;
+      background: #26372D;
+      color: white;
+      font-size: 13px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s;
+      white-space: nowrap;
+    }
+
+    .toast.show { opacity: 1; }
+
+    @media (max-width: 360px) {
+      .main { padding-right: 16px; padding-left: 16px; }
+      h1 { font-size: 23px; }
+      .illustration { height: 235px; }
+      .tip-badge { font-size: 11px; padding: 8px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <button class="back" onclick="goBack()" aria-label="返回">‹</button>
+      <div class="top-title">测量准备</div>
+      <button class="top-help" onclick="showToast('请检查站姿和设备状态')">
+        测量帮助
+      </button>
+    </header>
+
+    <section class="main">
+      <div class="progress">
+        <div class="progress-track">
+          <div class="progress-fill"></div>
+        </div>
+        <span class="progress-label">第 1 步 / 共 2 步</span>
+      </div>
+
+      <h1>准备好了吗？</h1>
+      <p class="intro">
+        请按照下方提示调整站姿，让每一次测量都更准确。
+      </p>
+
+      <div class="illustration" aria-label="正确测量站姿示意图">
+        <div class="circle"></div>
+        <div class="platform"></div>
+
+        <div class="person">
+          <div class="hair"></div>
+          <div class="head"></div>
+          <div class="neck"></div>
+          <div class="body-shape"></div>
+          <div class="arm left"></div>
+          <div class="arm right"></div>
+          <div class="leg left"></div>
+          <div class="leg right"></div>
+          <div class="foot left"></div>
+          <div class="foot right"></div>
+        </div>
+
+        <div class="tip-badge left">
+          <span>✓</span> 双脚接触电极
+        </div>
+        <div class="tip-badge right">
+          <span>✓</span> 身体保持稳定
+        </div>
+      </div>
+
+      <section class="instruction">
+        <div class="instruction-title">正确测量姿势</div>
+
+        <div class="step">
+          <div class="step-number">1</div>
+          <div>
+            <div class="step-title">赤脚站上体脂秤</div>
+            <div class="step-desc">
+              双脚分别放在秤面两侧，确保脚底与金属电极充分接触。
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-number">2</div>
+          <div>
+            <div class="step-title">自然站立，保持不动</div>
+            <div class="step-desc">
+              双臂自然下垂，身体不要晃动，等待设备完成数据采集。
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="device-state">
+        <div class="device-icon">⌁</div>
+        <div class="device-copy">
+          <div class="device-name">轻衡智能体脂秤</div>
+          <div class="device-detail" id="deviceDetail">
+            蓝牙连接正常 · 设备已就绪
+          </div>
+        </div>
+        <span class="connected" id="deviceStatus">已连接</span>
+      </div>
+    </section>
+
+    <footer class="bottom">
+      <button class="start" id="startButton" onclick="startMeasure()">
+        我已准备好，开始测量
+      </button>
+      <div class="privacy">请在安全、平稳的环境中完成测量</div>
+    </footer>
+  </main>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <script>
+    let measuring = false;
+
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(window.toastTimer);
+      window.toastTimer = setTimeout(() => {
+        toast.classList.remove("show");
+      }, 2200);
+    }
+
+    function startMeasure() {
+      if (measuring) return;
+
+      measuring = true;
+      const button = document.getElementById("startButton");
+
+      button.textContent = "正在进入测量…";
+      button.disabled = true;
+
+      showToast("请保持站姿稳定");
+
+      setTimeout(() => {
+        document.querySelector(".progress-label").textContent =
+          "第 2 步 / 共 2 步";
+        document.querySelector(".progress-fill").style.width = "100%";
+        document.querySelector("h1").textContent = "正在测量";
+        document.querySelector(".intro").textContent =
+          "请保持身体稳定，暂时不要离开体脂秤。";
+        document.querySelector(".instruction-title").textContent =
+          "数据采集中";
+        document.querySelectorAll(".step-title")[0].textContent =
+          "正在测量体重";
+        document.querySelectorAll(".step-desc")[0].textContent =
+          "请保持静止，等待体重数据稳定。";
+        document.querySelectorAll(".step-title")[1].textContent =
+          "正在采集身体成分";
+        document.querySelectorAll(".step-desc")[1].textContent =
+          "请保持双脚与电极接触，直至测量完成。";
+
+        button.disabled = false;
+        button.textContent = "模拟测量完成";
+        button.onclick = finishMeasure;
+        measuring = false;
+      }, 900);
+    }
+
+    function finishMeasure() {
+      showToast("测量完成，下一步进入结果页");
+      document.getElementById("startButton").textContent = "测量已完成";
+      document.getElementById("startButton").disabled = true;
+    }
+
+    function goBack() {
+      if (history.length > 1) history.back();
+      else showToast("返回测量入口");
+    }
+  </script>
+</body>
+</html>

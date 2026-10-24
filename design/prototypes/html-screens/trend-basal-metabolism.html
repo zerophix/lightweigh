@@ -1,0 +1,77 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>基础代谢趋势 - 轻刻健康</title>
+<style>
+:root{--brand:#21a675;--deep:#147d58;--bg:#f5f8f5;--text:#202923;--muted:#89938c;--line:#edf1ed}
+*{box-sizing:border-box}body{margin:0;background:#eaf0eb;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}button{font:inherit;cursor:pointer}
+.app{max-width:430px;min-height:100vh;margin:auto;background:var(--bg);padding-bottom:28px}
+.header{background:#fff;padding:20px 20px 18px}.nav{height:32px;display:flex;align-items:center;justify-content:space-between}.back{border:0;background:none;font-size:25px;padding:0 8px 0 0;color:#26342b}.title{font-size:17px;font-weight:700}.help{width:34px;height:34px;border:1px solid var(--line);border-radius:11px;background:#fff;color:#68766d}
+.metric{display:flex;align-items:center;gap:12px;margin-top:21px}.iconbox{width:46px;height:46px;border-radius:15px;background:#e6f7ed;color:#1c9a68;display:grid;place-items:center;font-size:23px}.label{font-size:12px;color:#7c887f}.value{display:flex;align-items:baseline;gap:5px;margin-top:3px}.value strong{font-size:36px;letter-spacing:-1px}.value span{font-size:13px;color:#7c887f}.change{display:inline-block;margin-top:8px;padding:6px 9px;background:#e8f7ee;border-radius:8px;color:var(--deep);font-size:11px}.note{margin-top:11px;font-size:11px;color:#8c978e;line-height:1.65}
+.period{display:flex;gap:4px;background:#f0f4f0;border-radius:12px;padding:4px;margin-top:20px}.period button{flex:1;padding:9px 0;border:0;border-radius:9px;background:transparent;color:#7c887f;font-size:12px}.period button.active{background:#fff;color:var(--deep);font-weight:650;box-shadow:0 1px 4px #142a1c0b}
+.content{padding:16px}.card{background:#fff;border:1px solid #edf1ed;border-radius:18px;padding:17px;margin-bottom:13px}.head{display:flex;align-items:center;justify-content:space-between}.head h2{font-size:15px;margin:0}.head button{border:0;background:none;color:#89938c;font-size:12px}.chart{width:100%;display:block;margin-top:18px}.labels{display:flex;justify-content:space-between;color:#98a29a;font-size:10px;margin-top:4px}
+.selected{display:flex;justify-content:space-between;align-items:center;background:#f2f8f3;padding:12px 13px;border-radius:12px;margin-top:14px}.selected small{display:block;color:#89938c;font-size:11px}.selected strong{display:block;margin-top:4px;font-size:19px}.right{text-align:right}.right strong{font-size:12px;color:var(--deep)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);margin-top:18px}.stat{padding:0 8px;border-right:1px solid var(--line)}.stat:first-child{padding-left:0}.stat:last-child{border:0}.stat label{font-size:11px;color:#89938c}.stat strong{display:block;font-size:17px;margin-top:7px}.stat small{font-size:10px;color:#89938c;font-weight:400}
+.record{display:flex;align-items:center;padding:13px 0;border-bottom:1px solid #f0f3f0}.record:last-child{border:0;padding-bottom:0}.date{width:53px;flex-shrink:0}.date b{font-size:13px}.date small,.info small{display:block;font-size:10px;color:#939d95;margin-top:4px}.info{flex:1}.info b{font-size:13px;font-weight:550}.rv{text-align:right;font-size:14px;font-weight:700}.rv small{display:block;font-size:10px;color:#939d95;font-weight:400;margin-top:4px}.arrow{margin-left:8px;color:#aab4ac;font-size:19px}
+.explain{font-size:12px;color:#68766d;line-height:1.85;margin-top:12px}.notice{display:flex;gap:9px;background:#edf6f0;border-radius:14px;padding:13px;color:#587461;font-size:11px;line-height:1.8}.footnote{font-size:10px;color:#9aa49c;line-height:1.7;padding:5px 4px 0}
+.toast{position:fixed;bottom:25px;left:50%;transform:translateX(-50%);background:#25352b;color:white;border-radius:12px;padding:11px 15px;font-size:12px;white-space:nowrap;opacity:0;pointer-events:none;transition:.2s}.toast.show{opacity:1}
+@media(min-width:500px){.app{margin:18px auto;border-radius:26px;overflow:hidden;box-shadow:0 12px 45px #21352712;min-height:calc(100vh - 36px)}}
+</style>
+</head>
+<body><div class="app">
+<header class="header">
+<div class="nav"><button class="back" onclick="history.length>1?history.back():location.href='metrics-overview.html'">‹</button><div class="title">基础代谢趋势</div><button class="help" onclick="document.getElementById('explain').scrollIntoView({behavior:'smooth'})">i</button></div>
+<div class="metric"><div class="iconbox">ϟ</div><div><div class="label">最近一次基础代谢估算值</div><div class="value"><strong>1,560</strong><span>kcal/天</span></div><div class="change" id="change">近 7 天增加 18 kcal/天</div></div></div>
+<div class="note">测量时间：2026年10月22日 08:15<br>此数值为设备估算结果，实际计算方法以设备算法为准。</div>
+<div class="period" id="period"><button class="active" data-p="week">近 7 天</button><button data-p="month">近 30 天</button><button data-p="quarter">近 3 个月</button><button data-p="year">近 1 年</button></div>
+</header>
+<main class="content">
+<section class="card">
+<div class="head"><h2>基础代谢变化</h2><button onclick="showToast('当前为模拟数据')">图表说明 ⓘ</button></div>
+<svg class="chart" viewBox="0 0 340 180" role="img" aria-label="基础代谢趋势图">
+<g stroke="#edf1ed"><line x1="36" y1="25" x2="328" y2="25"/><line x1="36" y1="61" x2="328" y2="61"/><line x1="36" y1="97" x2="328" y2="97"/><line x1="36" y1="133" x2="328" y2="133"/></g>
+<g fill="#9aa49c" font-size="10"><text x="0" y="28">1,580</text><text x="0" y="64">1,560</text><text x="0" y="100">1,540</text><text x="0" y="136">1,520</text></g>
+<path id="area" d="" fill="#21a675" opacity=".11"/><path id="line" d="" fill="none" stroke="#21a675" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><g id="points"></g>
+</svg>
+<div class="labels" id="labels"></div>
+<div class="selected"><div><small id="selectedDate">10/22 · 最新记录</small><strong><span id="selectedValue">1,560</span> <small style="display:inline">kcal/天</small></strong></div><div class="right"><small>较前一次</small><strong id="selectedChange">+6 kcal</strong></div></div>
+<div class="stats"><div class="stat"><label>周期最高</label><strong id="max">1,560 <small>kcal</small></strong></div><div class="stat"><label>周期最低</label><strong id="min">1,542 <small>kcal</small></strong></div><div class="stat"><label>周期平均</label><strong id="avg">1,550 <small>kcal</small></strong></div></div>
+</section>
+<section class="card">
+<div class="head"><h2>最近测量记录</h2><button onclick="location.href='history-list.html'">全部记录 ›</button></div>
+<div class="record"><div class="date"><b>22日</b><small>周四</small></div><div class="info"><b>早晨测量</b><small>08:15 · 设备测量</small></div><div class="rv">1,560<small>+6 kcal/天</small></div><span class="arrow">›</span></div>
+<div class="record"><div class="date"><b>21日</b><small>周三</small></div><div class="info"><b>早晨测量</b><small>07:52 · 设备测量</small></div><div class="rv">1,554<small>+2 kcal/天</small></div><span class="arrow">›</span></div>
+<div class="record"><div class="date"><b>20日</b><small>周二</small></div><div class="info"><b>晚间测量</b><small>20:34 · 设备测量</small></div><div class="rv">1,552<small>−3 kcal/天</small></div><span class="arrow">›</span></div>
+</section>
+<section class="card" id="explain">
+<div class="head"><h2>了解基础代谢</h2><button onclick="showToast('可扩展完整指标说明页')">更多说明 ›</button></div>
+<p class="explain">基础代谢是人体在静息状态下维持基本生理功能所需能量的估算指标。设备可能依据个人资料和身体组成，通过算法估算，并不等同于实验室测量结果。</p>
+<p class="explain">基础代谢也不等于全天总能量消耗。活动、运动、食物热效应等都会影响一天的总能量需求。</p>
+</section>
+<div class="notice"><span>ⓘ</span><div><b>不要直接把基础代谢当作每日摄入目标</b><br>饮食能量需求需要结合年龄、身高、体重、活动水平和个人目标等因素判断。不能仅凭体脂秤上的基础代谢值决定饮食摄入量。</div></div>
+<div class="footnote">页面数据为模拟数据。正式版本应展示设备算法来源与估算口径，并在缺少数据时明确显示未测得，而不是自行填充数值。</div>
+</main></div><div class="toast" id="toast"></div>
+<script>
+const sets={
+week:{v:[1542,1548,1545,1550,1552,1554,1560],l:['10/16','10/17','10/18','10/19','10/20','10/21','10/22'],c:'近 7 天增加 18 kcal/天'},
+month:{v:[1538,1540,1542,1545,1546,1548,1550,1552,1555,1560],l:['09/23','09/26','09/29','10/02','10/05','10/08','10/11','10/14','10/18','10/22'],c:'近 30 天增加 22 kcal/天'},
+quarter:{v:[1518,1522,1526,1530,1535,1538,1542,1548,1552,1560],l:['07/24','08/02','08/12','08/22','09/01','09/11','09/21','10/01','10/11','10/22'],c:'近 3 个月增加 42 kcal/天'},
+year:{v:[1480,1488,1494,1500,1508,1515,1524,1535,1546,1560],l:['11月','12月','1月','2月','3月','4月','5月','6月','8月','10月'],c:'近 1 年增加 80 kcal/天'}
+};
+function showToast(s){let e=document.getElementById('toast');e.textContent=s;e.classList.add('show');clearTimeout(window.t);window.t=setTimeout(()=>e.classList.remove('show'),2000)}
+function draw(d){
+let lo=Math.min(...d.v)-4,hi=Math.max(...d.v)+4,L=43,R=328,T=25,B=133;
+let ps=d.v.map((v,i)=>({x:L+(R-L)*i/(d.v.length-1),y:B-(v-lo)/(hi-lo)*(B-T),v}));
+let path=ps.map((p,i)=>(i?'L':'M')+p.x.toFixed(1)+' '+p.y.toFixed(1)).join(' ');
+document.getElementById('line').setAttribute('d',path);document.getElementById('area').setAttribute('d',path+' L '+R+' '+B+' L '+L+' '+B+' Z');
+document.getElementById('points').innerHTML=ps.map((p,i)=>`<circle cx="${p.x}" cy="${p.y}" r="${i===ps.length-1?5:4}" fill="#21a675" stroke="white" stroke-width="2" style="cursor:pointer" onclick="selectPoint(${i})"/>`).join('');
+document.getElementById('labels').innerHTML=d.l.map(x=>'<span>'+x+'</span>').join('');window.d=d;window.ps=ps;
+document.getElementById('max').innerHTML=Math.max(...d.v).toLocaleString()+' <small>kcal</small>';document.getElementById('min').innerHTML=Math.min(...d.v).toLocaleString()+' <small>kcal</small>';document.getElementById('avg').innerHTML=Math.round(d.v.reduce((a,b)=>a+b,0)/d.v.length).toLocaleString()+' <small>kcal</small>';selectPoint(ps.length-1);
+}
+function selectPoint(i){let p=window.ps[i],d=window.d,prev=d.v[Math.max(0,i-1)],diff=p.v-prev;document.getElementById('selectedDate').textContent=d.l[i];document.getElementById('selectedValue').textContent=p.v.toLocaleString();document.getElementById('selectedChange').textContent=(diff>0?'+':'')+diff+' kcal'}
+document.querySelectorAll('#period button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#period button').forEach(x=>x.classList.toggle('active',x===b));document.getElementById('change').textContent=sets[b.dataset.p].c;draw(sets[b.dataset.p])});
+draw(sets.week);
+</script></body></html>

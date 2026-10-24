@@ -1,0 +1,98 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>同步冲突处理 - 轻刻健康</title>
+<style>
+:root{--green:#21a675;--deep:#147d58;--bg:#f5f8f5;--text:#20332b;--muted:#7d8982;--line:#e8eee9;--orange:#d98d28}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;color:var(--text)}
+.app{max-width:430px;min-height:100vh;margin:auto;padding-bottom:35px}
+header{height:58px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:0 20px}
+header button{border:0;background:none;font-size:25px;cursor:pointer}
+h1{font-size:18px;margin:0}
+main{padding:18px 16px}
+.banner{background:#fff6e7;border:1px solid #f4e2c0;border-radius:15px;padding:15px;display:flex;gap:11px;margin-bottom:18px}
+.banner-icon{font-size:23px}
+.banner strong{font-size:14px}
+.banner p{font-size:12px;color:#8b754e;line-height:1.7;margin:5px 0 0}
+.section-title{font-size:15px;font-weight:650;margin:21px 2px 11px}
+.card{background:#fff;border-radius:17px;padding:16px;margin-bottom:13px}
+.meta{display:flex;justify-content:space-between;gap:10px;font-size:12px;color:var(--muted);margin-bottom:14px}
+.tag{background:#fff1d9;color:#a76c14;padding:4px 8px;border-radius:8px;white-space:nowrap}
+.data-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.version{border:1px solid var(--line);border-radius:13px;padding:13px;min-width:0}
+.version.selected{border:1.5px solid var(--green);background:#f0faf5}
+.version h3{font-size:13px;margin:0 0 9px}
+.version .big{font-size:22px;font-weight:700;margin-bottom:4px}
+.version p{font-size:11px;color:var(--muted);line-height:1.6;margin:0}
+.version input{accent-color:var(--green);margin:0 5px 0 0}
+.radio-label{display:flex;align-items:center;font-size:12px;font-weight:600;margin-top:13px;cursor:pointer}
+.diff{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+.diff-row{display:flex;justify-content:space-between;font-size:12px;padding:7px 0;gap:8px}
+.diff-row span:first-child{color:var(--muted)}
+.diff-row strong{font-weight:600;text-align:right}
+.option{display:flex;align-items:flex-start;gap:10px;border:1px solid var(--line);padding:13px;border-radius:12px;margin-bottom:9px;cursor:pointer}
+.option input{accent-color:var(--green);margin-top:3px}
+.option strong{font-size:13px}
+.option p{font-size:12px;color:var(--muted);line-height:1.6;margin:4px 0 0}
+button.action{width:100%;border:0;border-radius:12px;padding:14px;background:var(--green);color:#fff;font-size:15px;font-weight:600;margin-top:8px}
+button.secondary{background:#fff;color:var(--deep);border:1px solid #dbe8df;margin-top:9px}
+.note{font-size:11px;color:var(--muted);line-height:1.7;margin:14px 3px}
+.result{display:none;background:#e6f7ef;color:var(--deep);padding:13px;border-radius:12px;font-size:13px;line-height:1.7;margin-top:12px}
+</style>
+</head>
+<body>
+<div class="app">
+<header><button onclick="history.length>1?history.back():location.href='sync-status-detail.html'" aria-label="返回">‹</button><h1>同步冲突处理</h1></header>
+<main>
+<div class="banner"><div class="banner-icon">⚠</div><div><strong>发现 1 条数据存在差异</strong><p>同一条行动计划在不同设备上有修改。请选择你希望保留的版本。处理前不会覆盖任何真实数据。</p></div></div>
+
+<div class="section-title">冲突记录</div>
+<section class="card">
+<div class="meta"><span>行动计划 · 每周运动目标</span><span class="tag">待处理</span></div>
+<div class="data-grid">
+<div class="version selected" id="localCard">
+<h3>本地版本</h3><div class="big">4 天 / 周</div><p>修改设备：当前设备</p><p>更新时间：今天 09:12</p>
+<label class="radio-label"><input type="radio" name="version" value="local" checked onchange="choose('local')">保留本地版本</label>
+</div>
+<div class="version" id="cloudCard">
+<h3>云端版本</h3><div class="big">3 天 / 周</div><p>修改设备：其他设备</p><p>更新时间：今天 08:56</p>
+<label class="radio-label"><input type="radio" name="version" value="cloud" onchange="choose('cloud')">保留云端版本</label>
+</div>
+</div>
+<div class="diff">
+<div class="diff-row"><span>冲突字段</span><strong>每周运动天数</strong></div>
+<div class="diff-row"><span>本地修改时间</span><strong>今天 09:12</strong></div>
+<div class="diff-row"><span>云端修改时间</span><strong>今天 08:56</strong></div>
+</div>
+</section>
+
+<div class="section-title">处理方式</div>
+<label class="option"><input type="radio" name="strategy" value="selected" checked><div><strong>保留选定版本</strong><p>按上方选择的版本作为预期结果。</p></div></label>
+<label class="option"><input type="radio" name="strategy" value="later"><div><strong>稍后处理</strong><p>暂不做决定，保留冲突待处理状态。</p></div></label>
+<button class="action" onclick="resolve()">确认处理（模拟）</button>
+<button class="action secondary" onclick="location.href='sync-status-detail.html'">返回同步详情</button>
+<div class="result" id="result" role="status"></div>
+<p class="note">原型说明：这里不会真实读取本地数据库或云端记录，也不会覆盖任何数据。实际产品应在后端实现版本号校验、冲突审计与失败恢复。</p>
+</main>
+</div>
+<script>
+let chosen='local';
+function choose(value){
+ chosen=value;
+ document.getElementById('localCard').classList.toggle('selected',value==='local');
+ document.getElementById('cloudCard').classList.toggle('selected',value==='cloud');
+}
+function resolve(){
+ const strategy=document.querySelector('input[name="strategy"]:checked').value;
+ const result=document.getElementById('result');
+ result.style.display='block';
+ if(strategy==='later'){result.textContent='已模拟暂缓处理。该冲突仍显示为待处理；没有更改任何数据。';return;}
+ result.textContent='已模拟选择'+(chosen==='local'?'本地版本（4 天 / 周）':'云端版本（3 天 / 周）')+'。实际记录未被覆盖，需接入后端后才能真正完成冲突解决。';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>邀请成员 - 轻刻健康</title>
+<style>
+:root{--g:#21a675;--d:#147d58;--t:#20332b;--m:#7d8982;--line:#e5ece7}
+*{box-sizing:border-box}
+body{margin:0;background:#f5f8f5;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;color:var(--t)}
+.app{max-width:430px;min-height:100vh;min-height:100dvh;margin:auto;background:white;display:flex;flex-direction:column}
+header{height:58px;display:flex;align-items:center;padding:0 20px;gap:12px;border-bottom:1px solid var(--line)}
+header button{border:0;background:none;font-size:27px;cursor:pointer}
+header h1{font-size:17px;margin:0}
+main{padding:23px 21px;flex:1}
+.hero{text-align:center;padding:12px 0 22px}
+.icon{width:72px;height:72px;border-radius:24px;background:#e5f7ed;color:var(--d);display:grid;place-items:center;font-size:31px;margin:0 auto 15px}
+h2{font-size:21px;margin:0 0 8px}
+.hero p{font-size:12px;color:var(--m);line-height:1.9;margin:0}
+.family{display:flex;align-items:center;gap:11px;padding:14px;border:1px solid var(--line);border-radius:13px}
+.homeicon{width:42px;height:42px;border-radius:13px;background:#e9f7ef;color:var(--d);display:grid;place-items:center;font-size:21px}
+.family strong{font-size:12px;display:block;margin-bottom:5px}
+.family small{font-size:10px;color:var(--m)}
+.field{margin-top:22px}
+label{font-size:12px;font-weight:650;display:block;margin-bottom:9px}
+.input{height:49px;border:1px solid var(--line);border-radius:11px;display:flex;align-items:center;padding:0 12px}
+.input:focus-within{border-color:var(--g)}
+.input input{border:0;outline:0;width:100%;font:inherit;font-size:13px}
+.hint{font-size:10px;color:#99a49b;margin-top:7px;line-height:1.8}
+.section{font-size:12px;font-weight:700;margin:23px 0 10px}
+.option{display:flex;align-items:flex-start;gap:10px;padding:13px;border:1px solid var(--line);border-radius:12px;margin-top:9px;cursor:pointer}
+.option input{accent-color:var(--g);margin-top:3px}
+.option strong{font-size:12px;display:block;margin-bottom:5px}
+.option small{font-size:10px;color:var(--m);line-height:1.8;display:block}
+.notice{padding:12px;background:#f6faf7;border-radius:10px;font-size:11px;color:#748378;line-height:1.9;margin-top:16px}
+.actions{padding:0 21px 26px}
+.primary{width:100%;border:0;border-radius:13px;background:var(--g);color:white;padding:14px;font:inherit;font-size:14px;font-weight:650;cursor:pointer}
+.secondary{width:100%;border:1px solid var(--line);border-radius:13px;background:white;color:var(--d);padding:13px;font:inherit;font-size:13px;cursor:pointer;margin-top:10px}
+.result{display:none;background:#e7f7ee;color:var(--d);padding:13px;border-radius:11px;font-size:12px;line-height:1.9;margin-top:15px}
+.error{display:none;color:#d95353;font-size:11px;margin-top:7px}
+</style>
+</head>
+<body>
+<div class="app">
+<header><button onclick="location.href='family-invitation-status.html'" aria-label="返回">‹</button><h1>邀请成员</h1></header>
+<main>
+<section class="hero">
+<div class="icon">＋</div>
+<h2>邀请家人加入家庭</h2>
+<p>通过邀请让家人加入家庭空间，之后可按成员分别设置数据访问权限。</p>
+</section>
+<div class="family"><div class="homeicon">⌂</div><div><strong id="familyName">我的家庭</strong><small>家庭管理员：当前账号（示例）</small></div></div>
+<div class="field">
+<label for="contact">受邀人的手机号或账号</label>
+<div class="input"><input id="contact" maxlength="64" placeholder="输入对方注册账号" autocomplete="off"></div>
+<div class="hint">仅输入用于邀请的必要信息。不要在备注或公开分享内容中填写额外敏感信息。</div>
+<div class="error" id="error">请输入有效的手机号或账号标识。</div>
+</div>
+<div class="section">邀请方式</div>
+<label class="option"><input type="radio" name="method" value="code" checked><span><strong>邀请码邀请</strong><small>生成一组演示邀请码，由对方在加入家庭页面输入。</small></span></label>
+<label class="option"><input type="radio" name="method" value="link"><span><strong>邀请链接</strong><small>演示生成邀请链接。正式产品应使用有期限、可撤销且不可预测的邀请凭证。</small></span></label>
+<div class="notice">邀请家庭不等于授予健康数据查看权限。成员加入后，应由数据所有者或有权限的角色明确选择共享范围。</div>
+<div class="result" id="result" role="status"></div>
+</main>
+<div class="actions">
+<button class="primary" onclick="invite()">生成邀请</button>
+<button class="secondary" onclick="location.href='family-invitation-status.html'">查看邀请状态</button>
+</div>
+</div>
+<script>
+const params=new URLSearchParams(location.search);
+document.getElementById('familyName').textContent=params.get('name')||'我的家庭';
+function invite(){
+ const contact=document.getElementById('contact').value.trim();
+ if(!contact){document.getElementById('error').style.display='block';return}
+ document.getElementById('error').style.display='none';
+ const method=document.querySelector('input[name="method"]:checked').value;
+ const result=document.getElementById('result');
+ result.style.display='block';
+ const code='QK'+Math.random().toString(36).slice(2,7).toUpperCase();
+ result.innerHTML='邀请已生成（原型演示）<br>邀请对象：'+escapeHTML(contact)+'<br>邀请方式：'+(method==='code'?'邀请码':'邀请链接')+'<br>'+(method==='code'?'演示邀请码：<strong style="font-size:18px;letter-spacing:2px">'+code+'</strong>':'演示链接：<br><code>https://example.invalid/family-invite/'+code+'</code>')+'<br><br>此邀请未发送给对方，也未写入服务端。<br><button type="button" style="border:0;background:#21a675;color:white;border-radius:9px;padding:10px 13px;margin-top:7px;cursor:pointer" onclick="location.href=\'family-invitation-status.html\'">查看邀请管理</button>';
+}
+function escapeHTML(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+</script>
+</body>
+</html>

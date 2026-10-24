@@ -1,0 +1,45 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>创建计划 - 轻刻健康</title>
+<style>
+:root{--g:#21a675;--d:#147d58;--bg:#f5f8f5;--text:#24362d;--muted:#84928b;--line:#e6ede8}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:var(--text);font-size:14px}.app{max-width:430px;min-height:100vh;margin:auto;padding-bottom:35px}.header{padding:20px;display:flex;align-items:center;gap:14px}.back{border:0;background:white;border-radius:12px;width:40px;height:40px;font-size:22px;color:var(--text);cursor:pointer}.header h1{font-size:21px;margin:0}.header p{font-size:12px;color:var(--muted);margin:5px 0 0}.step{margin:0 20px 20px;display:flex;gap:6px}.step span{height:4px;flex:1;background:#dfe9e2;border-radius:8px}.step span:first-child{background:var(--g)}.section{padding:0 20px;margin-bottom:22px}.heading{font-weight:700;font-size:15px;margin-bottom:12px}.hint{color:var(--muted);font-size:12px;margin-top:6px;line-height:1.6}.card{background:white;border:1px solid #edf1ee;border-radius:17px;padding:15px}.goals{display:grid;grid-template-columns:1fr 1fr;gap:10px}.goal{padding:15px 12px;border:1px solid var(--line);border-radius:15px;background:white;text-align:left;cursor:pointer;color:var(--text)}.goal .emoji{font-size:23px}.goal b{display:block;margin:9px 0 4px}.goal small{color:var(--muted);font-size:11px}.goal.selected{border:1.5px solid var(--g);background:#eef9f2}.goal.selected b{color:var(--d)}label{display:block;font-size:12px;color:#5f7067;margin:13px 0 7px}.input,select,textarea{width:100%;border:1px solid #dfe8e1;border-radius:12px;background:white;padding:13px;font-size:14px;color:var(--text);outline:none;font-family:inherit}.input:focus,select:focus,textarea:focus{border-color:var(--g)}.durations{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.duration{border:1px solid var(--line);border-radius:11px;padding:11px 0;background:white;color:var(--text);cursor:pointer}.duration.active{border-color:var(--g);background:#eaf8f0;color:var(--d);font-weight:700}.switchrow{display:flex;align-items:center;justify-content:space-between;padding:12px 0}.switchrow b{font-size:13px}.switchrow small{display:block;color:var(--muted);font-size:11px;margin-top:4px}.switch{width:44px;height:25px;border-radius:20px;border:0;background:#cdd8d0;padding:3px;cursor:pointer}.switch i{display:block;width:19px;height:19px;border-radius:50%;background:white;transition:transform .2s}.switch.on{background:var(--g)}.switch.on i{transform:translateX(19px)}.notice{background:#edf7f0;color:#5b7767;padding:13px;border-radius:13px;font-size:12px;line-height:1.7}.footer{padding:0 20px}.btn{width:100%;border:0;border-radius:13px;padding:15px;background:var(--g);color:white;font-size:14px;font-weight:700;cursor:pointer}.toast{display:none;position:fixed;bottom:25px;left:50%;transform:translateX(-50%);background:#25372e;color:white;padding:12px 16px;border-radius:12px;white-space:nowrap}
+</style>
+</head>
+<body><main class="app">
+<header class="header"><button class="back" onclick="location.href='action-plan-home.html'">‹</button><div><h1>创建行动计划</h1><p>选择一个适合当下的目标</p></div></header>
+<div class="step"><span></span><span></span><span></span></div>
+<section class="section"><div class="heading">01 · 你想改善什么？</div>
+<div class="goals">
+<button class="goal selected" data-goal="健康生活习惯" onclick="chooseGoal(this)"><div class="emoji">🌱</div><b>健康生活习惯</b><small>建立稳定的日常节奏</small></button>
+<button class="goal" data-goal="日常活动" onclick="chooseGoal(this)"><div class="emoji">🚶</div><b>日常活动</b><small>增加适合自己的活动</small></button>
+<button class="goal" data-goal="睡眠与休息" onclick="chooseGoal(this)"><div class="emoji">☾</div><b>睡眠与休息</b><small>留出规律休息时间</small></button>
+<button class="goal" data-goal="健康记录" onclick="chooseGoal(this)"><div class="emoji">▤</div><b>健康记录</b><small>养成记录健康数据的习惯</small></button>
+</div>
+<label for="name">计划名称</label><input class="input" id="name" maxlength="40" value="建立健康生活节奏" placeholder="例如：养成日常活动习惯">
+<div class="hint">建议聚焦一个目标，方便持续执行和复盘。</div>
+</section>
+<section class="section"><div class="heading">02 · 计划周期</div><div class="card">
+<div class="durations"><button class="duration" data-days="7" onclick="chooseDuration(this)">7 天</button><button class="duration active" data-days="14" onclick="chooseDuration(this)">14 天</button><button class="duration" data-days="28" onclick="chooseDuration(this)">28 天</button><button class="duration" data-days="30" onclick="chooseDuration(this)">30 天</button></div>
+<label for="start">开始日期</label><input class="input" type="date" id="start">
+<label for="frequency">每周行动频率</label><select id="frequency"><option value="3">每周 3 天</option><option value="5" selected>每周 5 天</option><option value="7">每天</option></select>
+</div></section>
+<section class="section"><div class="heading">03 · 提醒设置</div><div class="card">
+<div class="switchrow"><div><b>每日提醒</b><small>仅记录你的提醒偏好</small></div><button class="switch" id="reminder" aria-label="每日提醒开关" onclick="this.classList.toggle('on')"><i></i></button></div>
+<label for="remindTime">提醒时间（示例设置）</label><input class="input" type="time" id="remindTime" value="20:00">
+</div></section>
+<section class="section"><div class="notice">创建的是可调整的生活习惯计划。请按个人状态安排强度，不必追求连续打卡；如有身体不适，应优先休息并按需咨询专业人员。</div></section>
+<div class="footer"><button class="btn" onclick="savePlan()">创建计划</button><p class="hint" style="text-align:center">原型演示：不会保存到云端，也不会发送真实通知。</p></div>
+<div class="toast" id="toast"></div>
+</main>
+<script>
+let days=14,goal='健康生活习惯';
+const today=new Date();document.getElementById('start').value=[today.getFullYear(),String(today.getMonth()+1).padStart(2,'0'),String(today.getDate()).padStart(2,'0')].join('-');
+function chooseGoal(btn){document.querySelectorAll('.goal').forEach(x=>x.classList.remove('selected'));btn.classList.add('selected');goal=btn.dataset.goal;if(!document.getElementById('name').value.trim())document.getElementById('name').value=goal}
+function chooseDuration(btn){document.querySelectorAll('.duration').forEach(x=>x.classList.remove('active'));btn.classList.add('active');days=Number(btn.dataset.days)}
+function savePlan(){const name=document.getElementById('name').value.trim();if(!name){document.getElementById('name').focus();return toast('请填写计划名称')}if(!document.getElementById('start').value)return toast('请选择开始日期');const data={name,goal,days,start:document.getElementById('start').value,frequency:document.getElementById('frequency').value,reminder:document.getElementById('reminder').classList.contains('on'),remindTime:document.getElementById('remindTime').value};try{sessionStorage.setItem('demoActionPlan',JSON.stringify(data))}catch(e){}toast('计划已在本原型中创建');setTimeout(()=>location.href='action-plan-detail.html',800)}
+function toast(s){const t=document.getElementById('toast');t.textContent=s;t.style.display='block';setTimeout(()=>t.style.display='none',1800)}
+</script></body></html>
