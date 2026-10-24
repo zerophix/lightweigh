@@ -171,6 +171,13 @@ cmd_run() {
   fi
   say "  ✅ 候选验证通过（$(grep -c . /dev/null 2>/dev/null; tail -2 /tmp/wf-queue-ci.log | tr '\n' ' ')）"
 
+  # 2b) 回填任务板（在候选上完成，随候选一起推送；避免主树留脏改动）
+  say "  [回填] 任务板（候选侧）…"
+  bash scripts/governance/gov-board-reconcile.sh 2>&1 | sed 's/^/      /' || true
+  if ! git diff --quiet; then
+    git add -A && git commit -q -m "chore(board): reconcile tasks from merged PRs" || true
+  fi
+
   # 3) 推送 master
   cd "$candidate" || return 2
   if ! git push -q origin HEAD:master; then
