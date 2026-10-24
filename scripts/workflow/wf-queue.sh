@@ -237,7 +237,14 @@ cmd_run() {
     wt="$(worktree_of "$branch")"
     nr="$(gh pr list --head "$branch" --json number -q '.[0].number' 2>/dev/null)"
     [ -n "$nr" ] && gh pr close "$nr" --comment "已由本地合并队列合入 master（${sha}，DEC-068：批次单次验证）" --delete-branch=false >/dev/null 2>&1
-    [ -n "$wt" ] && { git worktree remove --force "$wt" 2>/dev/null; rm -rf "$wt"; }
+    if [ -n "$wt" ]; then
+      # 破坏性操作必须先证明可恢复：有未提交改动就停手，交给人
+      if [ -n "$(git -C "$wt" status --porcelain 2>/dev/null)" ]; then
+        say "  [保留] ${wt} 有未提交改动，不删除（清理后重跑）"
+      else
+        git worktree remove --force "$wt" 2>/dev/null; rm -rf "$wt"
+      fi
+    fi
     git branch -D "$branch" >/dev/null 2>&1
     git push -q origin --delete "$branch" >/dev/null 2>&1
     say "  [清理] $branch"

@@ -130,6 +130,8 @@ bash scripts/session/ses-session-end.sh
 | 原型文案一致 | `gov-prototype-verify --strict`（任务 DoD） | `gov-task-done.sh T-xxx` |
 | 黄金向量 / Room schema | `gov-schema-guard`（local-ci + CI） | `gov-local-ci.sh` |
 | AC 完成定义 | `gov-task-done.sh` | 同上 |
+| 任务归属（分支名不作数） | 提交 trailer `Task: T-XXX`（prepare-commit-msg 自动注入） | `git log -1 --format=%B` |
+| 完成证据（谁/哪个提交/跑了什么） | `gov-task-done` 写 `.ai/evidence/<ID>.json`，队列据此回填 | `cat .ai/evidence/T-xxx.json` |
 | 无障碍（a11y 名 / 固定高度裁剪 / 对比度） | `gov-a11y-check`（local-ci 全车道） | `python3 scripts/governance/gov-a11y-check.py` |
 | 预览覆盖（每个对外屏有 @Preview） | `gov-validate` → `check_previews` | `python3 scripts/governance/gov-preview-check.py` |
 | 屏可达性（点不到的屏不得新增） | `gov-reachability-check`（local-ci 全车道，棘轮基线） | `python3 scripts/governance/gov-reachability-check.py` |

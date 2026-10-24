@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 # scripts/governance/gov-prepare-commit-msg
-# Git prepare-commit-msg hook — 自动注入 Session-Id 到提交信息 footer
+# Git prepare-commit-msg hook — 自动注入 Session-Id 与 Task trailer 到 footer
 #
-# 安装: cp scripts/governance/gov-prepare-commit-msg .git/hooks/prepare-commit-msg && chmod +x
+# 生效方式：core.hooksPath=scripts/hooks（DEC-073），无需拷贝安装。
+#
+# Task trailer 是任务归属的第一权威（DEC-073）：
+#   提交时若暂存文件命中了某个任务的认领锁，就写入 "Task: T-XXX"，
+#   合并队列据此回填任务板，不再依赖分支名。
 
 COMMIT_MSG_FILE="$1"
 COMMIT_SOURCE="$2"
@@ -35,5 +39,40 @@ fi
 # 注入 Session-Id 到 footer
 echo "" >> "$COMMIT_MSG_FILE"
 echo "Session-Id: $SESSION_ID" >> "$COMMIT_MSG_FILE"
+
+# 注入 Task trailer：暂存文件 + 认领锁 → 任务号（可能多个）
+if ! grep -q "^Task:" "$COMMIT_MSG_FILE"; then
+  TASKS="$(cd "$ROOT" && python3 - <<'PY' 2>/dev/null
+import json, subprocess, sys
+from pathlib import Path
+
+root = Path.cwd()
+locks = root / ".ai" / "locks"
+if not locks.is_dir():
+    sys.exit(0)
+staged = subprocess.run(["git", "diff", "--cached", "--name-only"],
+                        capture_output=True, text=True).stdout.split()
+hit = []
+for lock in sorted(locks.iterdir()):
+    if not lock.is_dir() or not lock.name.startswith("T-"):
+        continue
+    meta = lock / "meta.json"
+    files = []
+    if meta.exists():
+        try:
+            files = json.loads(meta.read_text(encoding="utf-8")).get("files") or []
+        except Exception:
+            files = []
+    if not files or any(f in staged for f in files):
+        hit.append(lock.name)
+print(" ".join(hit))
+PY
+)"
+  if [ -n "${TASKS:-}" ]; then
+    for t in $TASKS; do
+      echo "Task: $t" >> "$COMMIT_MSG_FILE"
+    done
+  fi
+fi
 
 exit 0
