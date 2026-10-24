@@ -131,7 +131,7 @@ class HistoryViewModelTest {
     fun `导出文本_月视图含标题与行_按日只导当日`() {
         val vm = vm(FakeRepo(listOf(rec(ts(10, 1, 8), 75.0, 20.0), rec(ts(10, 15, 8), 72.0, 19.0))))
         val monthText = buildExportText(vm.state.value)
-        assertThat(monthText).contains("轻刻健康 · 测量记录导出")
+        assertThat(monthText).contains("轻衡健康 · 测量记录导出")
         assertThat(monthText).contains("2026年10月: 共减重3.0公斤")
         assertThat(monthText).contains("72.0 kg")
         assertThat(monthText).contains("体脂 19.0%")
