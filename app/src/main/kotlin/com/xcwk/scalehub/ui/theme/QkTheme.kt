@@ -30,6 +30,7 @@ object QkColor {
     val Card = Color(0xFFFFFFFF)        // --white
     val Fg = Color(0xFF20312D)          // --ink
     val Muted = Color(0xFF87948F)       // --muted
+    val Sub = Color(0xFF5D756D)         // --sub 次级文本（原型 .banner 正文）
     val Hint = Color(0xFFA8B3AE)
     val Border = Color(0xFFEDF1EF)      // --line
     val CardBorder = Color(0xFFEDF2EF)
@@ -94,6 +95,13 @@ object QkRadius {
     val SegmentItem = 9.dp
     val NavFab = 16.dp
     val Field = 11.dp
+    val Tile = 14.dp                 // 原型外观页主题选项卡
+}
+
+/** 描边刻度（原型 1px 细边 / 2px 选中边）。 */
+object QkStroke {
+    val Thin = 1.dp
+    val Selected = 2.dp
 }
 
 /** 间距刻度。页面边距 14、卡片内边距 15、卡片间距 11（原型实测值）。 */

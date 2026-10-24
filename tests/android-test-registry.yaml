@@ -219,7 +219,27 @@ commands:
   path: app/src/test/kotlin/com/xcwk/scalehub/ui/components/QkSkeletonLongPressTest.kt
   status: stable
   type: gradle-test
+- description: Wave1 纯逻辑（AI 周总结空态分支 / 目标进度除零兜底 / 成员详情无假行, T-084）
+  path: app/src/test/kotlin/com/xcwk/scalehub/feature/Wave1AiWeeklyTest.kt
+  status: stable
+  type: gradle-test
+  status: stable
+  type: gradle-test
 - description: Wave1 纯逻辑（编辑字段限制与同源 / 趋势缺日切段与数据不足 / 指标文案, T-081+T-082）
   path: app/src/test/kotlin/com/xcwk/scalehub/feature/Wave1HistoryTrendTest.kt
+- description: settings 语言与外观选项/保存状态纯逻辑（原型24 文案逐字守卫, T-091）
+  path: app/src/test/kotlin/com/xcwk/scalehub/feature/settings/LanguageAppearanceSettingsTest.kt
+  status: stable
+  type: gradle-test
+- description: Wave1 纯逻辑（隐私授权五态转移 / 授权撤回两步语义 / 五 view 文案逐字, T-096）
+  path: app/src/test/kotlin/com/xcwk/scalehub/feature/privacy/PrivacyAuthFlowTest.kt
+  status: stable
+  type: gradle-test
+- description: 网络与服务状态页文案逐字与呈现式约束（无 ConnectivityManager / 无硬编码色距, T-102）
+  path: app/src/test/kotlin/com/xcwk/scalehub/feature/sync/NetworkServiceStatusTest.kt
+  status: stable
+  type: gradle-test
+  status: stable
+  type: gradle-test
 configs: []
 orphans: []
