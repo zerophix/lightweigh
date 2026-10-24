@@ -105,6 +105,7 @@ def test_dry_run_creates_no_worktree(tmp_path):
     root = _repo(tmp_path)
     _install_script(root)
     _git(root, "branch", "feat/with-wt")
+    _git(root, "push", "-q", "-u", "origin", "feat/with-wt")
     _git(root, "worktree", "add", "-q", str(tmp_path / "wt"), "feat/with-wt")
     bindir = _fake_gh(tmp_path, [{"number": 1, "headRefName": "feat/with-wt"}])
     before = subprocess.run(["git", "worktree", "list"], cwd=root, capture_output=True, text=True).stdout
