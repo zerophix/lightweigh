@@ -67,7 +67,11 @@ def test_queue_merge_message_is_valid_commit_subject():
 
 
 def test_queue_handles_shared_state_conflict():
-    """队列必须包含"共享状态冲突取候选侧"的逻辑，否则双分支改注册表就卡死。"""
+    """队列必须包含"共享状态冲突取候选侧"的逻辑，否则双分支改注册表就卡死。
+
+    board 分支例外：它是共享状态的授权写者，冲突时取 theirs（见 DEC-067）。
+    """
     text = (ROOT / "scripts" / "workflow" / "wf-queue.sh").read_text(encoding="utf-8")
     assert "SHARED_PATHS" in text
-    assert "checkout --ours" in text
+    assert 'local side="--ours"' in text
+    assert 'chore/board-*) side="--theirs"' in text
