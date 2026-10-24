@@ -19,10 +19,11 @@ DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT="${WF_AUTOPILOT_ROOT:-$(cd "$DIR/../.." && pwd)}"
 cd "$ROOT" || exit 1
 
-DAYS=30; DRY=0; JSON=0; BRANCHES=""
+DAYS=30; DRY=0; JSON=0; BRANCHES=""; TASKS=""
 while [ $# -gt 0 ]; do
   case "$1" in
     --branches) BRANCHES="${2:-}"; shift 2 ;;
+    --tasks) TASKS="${2:-}"; shift 2 ;;
     --since-days) DAYS="${2:-30}"; shift 2 ;;
     --dry) DRY=1; shift ;;
     --json) JSON=1; shift ;;
@@ -52,7 +53,7 @@ print(json.dumps(out))
 " "$DAYS"
 )"
 
-DRY="$DRY" JSON="$JSON" PRS_JSON="$PRS_JSON" BRANCHES="$BRANCHES" python3 - <<'PY'
+DRY="$DRY" JSON="$JSON" PRS_JSON="$PRS_JSON" BRANCHES="$BRANCHES" TASKS="$TASKS" python3 - <<'PY'
 import json, os, re, sys
 from pathlib import Path
 
@@ -68,6 +69,11 @@ tasks = {t["id"]: t for t in data.get("tasks", [])}
 # PR → 任务号（title/body 里的 T-xxx）
 # 分支名里带任务号（feat/t085-xxx）→ 队列合并的唯一可靠交付依据
 branch_ids = set()
+# 一批任务共用一条分支（feat/wire-dead-views）时，分支名里没有任务号，
+# 由调用方显式给出：--tasks "T-053 T-054 T-055"
+for t in (os.environ.get("TASKS") or "").split():
+    if re.fullmatch(r"[Tt]-?\d{3}", t):
+        branch_ids.add("T-" + re.sub(r"[Tt]-?", "", t))
 for b in (os.environ.get("BRANCHES") or "").split():
     branch_ids.update(re.findall(r"[tT]-?(\d{3})", b))
     branch_ids.update("T-" + m for m in re.findall(r"[tT]-?(\d{3})", b))
