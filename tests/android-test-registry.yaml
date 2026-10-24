@@ -401,5 +401,37 @@ commands:
   path: app/src/test/kotlin/com/xcwk/scalehub/feature/trend/MetricArchiveEntryTest.kt
   status: stable
   type: gradle-test
+- description: 自动登记（gov-registry-sync）
+  path: app/src/test/kotlin/com/xcwk/scalehub/feature/ai/AiWeeklyEntryTest.kt
+  status: stable
+  type: gradle-test
+- description: 自动登记（gov-registry-sync）
+  path: app/src/test/kotlin/com/xcwk/scalehub/feature/auth/AuthBoundaryHostTest.kt
+  status: stable
+  type: gradle-test
+- description: 自动登记（gov-registry-sync）
+  path: app/src/test/kotlin/com/xcwk/scalehub/feature/device/DeviceSetupEntryTest.kt
+  status: stable
+  type: gradle-test
+- description: 自动登记（gov-registry-sync）
+  path: app/src/test/kotlin/com/xcwk/scalehub/feature/history/HistoryDetailEntryTest.kt
+  status: stable
+  type: gradle-test
+- description: 自动登记（gov-registry-sync）
+  path: app/src/test/kotlin/com/xcwk/scalehub/feature/member/FamilyShareEntryTest.kt
+  status: stable
+  type: gradle-test
+- description: 自动登记（gov-registry-sync）
+  path: app/src/test/kotlin/com/xcwk/scalehub/feature/mine/MineEntriesTest.kt
+  status: stable
+  type: gradle-test
+- description: 自动登记（gov-registry-sync）
+  path: app/src/test/kotlin/com/xcwk/scalehub/feature/privacy/PrivacyAuthEntryTest.kt
+  status: stable
+  type: gradle-test
+- description: 自动登记（gov-registry-sync）
+  path: app/src/test/kotlin/com/xcwk/scalehub/feature/settings/SettingsDisplayEntryTest.kt
+  status: stable
+  type: gradle-test
 configs: []
 orphans: []
