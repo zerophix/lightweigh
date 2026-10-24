@@ -33,7 +33,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.xcwk.scalehub.domain.model.Member
 import com.xcwk.scalehub.ui.components.QkAvatar
 import com.xcwk.scalehub.ui.components.QkCard
+import com.xcwk.scalehub.ui.components.QkListRow
 import com.xcwk.scalehub.ui.components.QkTextField
+import com.xcwk.scalehub.ui.shell.WiringEntries
 import com.xcwk.scalehub.ui.theme.QkTheme
 
 /**
@@ -53,6 +55,13 @@ fun MembersScreen(
     onIntent: (MembersIntent) -> Unit,
     onBack: () -> Unit = {},
 ) {
+    // 接入波：行动计划（T-087）从本页进入，返回即回成员列表
+    var showPlans by remember { mutableStateOf(false) }
+    if (showPlans) {
+        ActionPlansRoute(onBack = { showPlans = false })
+        return
+    }
+
     Column(modifier = Modifier.fillMaxSize().padding(16.dp).verticalScroll(rememberScrollState())) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
@@ -68,6 +77,15 @@ fun MembersScreen(
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+        // 接入波入口：行动计划六态（计划列表 / 编辑 / 提醒 / 空态 / 通知被拒）
+        QkCard(modifier = Modifier.padding(bottom = 8.dp)) {
+            QkListRow(
+                title = WiringEntries.ActionPlans.title,
+                subtitle = WiringEntries.ActionPlans.hint,
+                showDivider = false,
+                onClick = { showPlans = true },
+            )
+        }
         QkCard {
             state.members.forEach { member ->
                 val current = member.id == state.activeId

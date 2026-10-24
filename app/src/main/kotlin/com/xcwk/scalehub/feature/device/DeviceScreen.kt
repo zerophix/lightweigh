@@ -50,6 +50,9 @@ import com.xcwk.scalehub.ui.components.QkPill
 import com.xcwk.scalehub.ui.components.QkPillTone
 import com.xcwk.scalehub.ui.components.QkSectionHead
 import com.xcwk.scalehub.ui.components.rememberBtEnabled
+import com.xcwk.scalehub.ui.shell.WiringEntries
+import com.xcwk.scalehub.ui.shell.WiringHost
+import com.xcwk.scalehub.ui.shell.WiringTarget
 import com.xcwk.scalehub.ui.theme.QkColor
 import com.xcwk.scalehub.ui.theme.QkSpacing
 import com.xcwk.scalehub.ui.theme.QkTheme
@@ -66,6 +69,14 @@ import com.xcwk.scalehub.ui.theme.QkTheme
 @Composable
 fun DeviceScreen(vm: DeviceViewModel = viewModel(factory = DeviceViewModel.Factory)) {
     val state by vm.state.collectAsStateWithLifecycle()
+
+    // 接入波：设备管理三屏（固件 / 重命名 / 成员关联）覆盖设备页，返回即回本页
+    var manageTarget by remember { mutableStateOf<WiringTarget?>(null) }
+    manageTarget?.let { target ->
+        DeviceManageRoute(target = target, onBack = { manageTarget = null })
+        return
+    }
+
     // 蓝牙开关态 + 权限门均由共享组件提供（ui/components/BleSupport.kt）
     val btEnabled = rememberBtEnabled()
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -123,6 +134,7 @@ fun DeviceScreen(vm: DeviceViewModel = viewModel(factory = DeviceViewModel.Facto
                 )
             },
             onHelp = { showHelp = true },
+            onOpenManage = { manageTarget = it },
         )
     }
 
@@ -154,6 +166,7 @@ fun DeviceContent(
     onEnableBluetooth: () -> Unit = {},
     onScanQr: () -> Unit = {},
     onHelp: () -> Unit = {},
+    onOpenManage: (WiringTarget) -> Unit = {},
 ) {
     // 配对流程三态整屏接管（原型 04-device.html）：
     // v-pairing「正在连接」/ v-pair-success「连接成功」/ v-pair-fail「连接失败」，
@@ -345,6 +358,22 @@ fun DeviceContent(
                         },
                     )
                 }
+            }
+        }
+        // 接入波入口：固件更新 / 设备重命名 / 成员设备关联（T-079、T-080）
+        QkSectionHead(
+            title = "设备管理",
+            modifier = Modifier.padding(top = QkSpacing.Lg),
+        )
+        QkCard(modifier = Modifier.padding(top = 2.dp)) {
+            val entries = WiringEntries.forHost(WiringHost.Device)
+            entries.forEachIndexed { index, entry ->
+                QkListRow(
+                    title = entry.title,
+                    subtitle = entry.hint,
+                    showDivider = index != entries.lastIndex,
+                    onClick = { onOpenManage(entry.target) },
+                )
             }
         }
         state.message?.let {

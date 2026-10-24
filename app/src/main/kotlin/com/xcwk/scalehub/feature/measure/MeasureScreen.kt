@@ -57,6 +57,7 @@ import com.xcwk.scalehub.ui.components.QkProgress
 import com.xcwk.scalehub.ui.components.QkSectionHead
 import com.xcwk.scalehub.ui.components.QkTextField
 import com.xcwk.scalehub.ui.components.QkWheelPicker
+import com.xcwk.scalehub.ui.shell.WiringEntries
 import com.xcwk.scalehub.ui.theme.QkColor
 import com.xcwk.scalehub.ui.theme.QkRadius
 import com.xcwk.scalehub.ui.theme.QkSpacing
@@ -86,6 +87,13 @@ fun MeasureScreen(
     onOpenMine: () -> Unit = {},
     onOpenQuick: () -> Unit = {},
 ) {
+    // 接入波：测量结果的分享 / 导出（T-078）全屏覆盖首页，返回即回首页
+    var showShare by rememberSaveable { mutableStateOf(false) }
+    if (showShare) {
+        ResultShareRoute(onBack = { showShare = false })
+        return
+    }
+
     val state by vm.state.collectAsStateWithLifecycle()
     val unitPrefs by vm.unitPrefs.collectAsStateWithLifecycle()
     val home = state.home
@@ -103,6 +111,13 @@ fun MeasureScreen(
             onOpenHistory = onOpenHistory,
             onSetHeight = onOpenMine,
         )
+        // 接入波入口：分享本次结果 / 导出（T-078）
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(top = QkSpacing.Sm),
+            horizontalArrangement = Arrangement.End,
+        ) {
+            TextAction(WiringEntries.ResultShare.title) { showShare = true }
+        }
         AiAskRow(onAskAi = onAskAi)
         TodayDietCard(home = home, onOpenRecord = onOpenRecord, onOpenQuick = onOpenQuick)
         Row(modifier = Modifier.padding(top = QkSpacing.CardGap), horizontalArrangement = Arrangement.spacedBy(10.dp)) {

@@ -15,13 +15,19 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.xcwk.scalehub.ui.components.QkButton
 import com.xcwk.scalehub.ui.components.QkCard
+import com.xcwk.scalehub.ui.components.QkListRow
 import com.xcwk.scalehub.ui.components.QkTextField
+import com.xcwk.scalehub.ui.shell.WiringEntries
 import com.xcwk.scalehub.ui.theme.QkTheme
 
 /**
@@ -33,12 +39,27 @@ fun AiScreen(
     onIntent: (AiIntent) -> Unit,
     onBack: () -> Unit = {},
 ) {
+    // 接入波：AI 边界与降级示例（T-085）从本页进入，返回即回问答页
+    var showBoundaries by rememberSaveable { mutableStateOf(false) }
+    if (showBoundaries) {
+        AiBoundariesRoute(onBack = { showBoundaries = false })
+        return
+    }
+
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = onBack) {
                 Icon(Icons.Filled.ArrowBack, contentDescription = "返回")
             }
             Text("AI 问答", style = MaterialTheme.typography.headlineSmall)
+        }
+        QkCard(modifier = Modifier.padding(top = 8.dp)) {
+            QkListRow(
+                title = WiringEntries.AiBoundaries.title,
+                subtitle = WiringEntries.AiBoundaries.hint,
+                showDivider = false,
+                onClick = { showBoundaries = true },
+            )
         }
         if (!state.formal) {
             QkCard(modifier = Modifier.padding(top = 8.dp)) {
