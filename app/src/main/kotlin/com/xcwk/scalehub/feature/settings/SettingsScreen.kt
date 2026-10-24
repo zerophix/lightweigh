@@ -54,6 +54,9 @@ fun SettingsScreen(
     onOpenPrivacySettings: () -> Unit = {},
     onOpenSyncStatus: () -> Unit = {},
     onOpenSetPassword: () -> Unit = {},
+    // 接入波（第三批・设置区）：入口 id 交给 SettingsEntriesRoute 决定去哪一屏
+    onOpenEntry: (String) -> Unit = {},
+    maintenanceActive: Boolean = false,
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
     // 关于/清单/缓存（旧库 SettingsPages about/collect/share/清缓存 四分支）
@@ -123,6 +126,18 @@ fun SettingsScreen(
             }
         }
 
+        // 维护模式按服务状态显示：非维护态不占位
+        if (maintenanceActive) {
+            QkSectionHead(title = "服务状态", modifier = Modifier.padding(top = QkSpacing.Lg))
+            QkCard(modifier = Modifier.padding(top = 2.dp)) {
+                SettingsEntryRows(
+                    group = SettingsEntryGroup.Other,
+                    onOpenEntry = onOpenEntry,
+                    maintenanceActive = maintenanceActive,
+                )
+            }
+        }
+
         QkSectionHead(title = "隐私与协议", modifier = Modifier.padding(top = QkSpacing.Lg))
         QkCard(modifier = Modifier.padding(top = 2.dp)) {
             QkListRow(
@@ -150,9 +165,23 @@ fun SettingsScreen(
                 title = "第三方信息共享清单",
                 icon = QkIcons.Share,
                 glyphSize = 32.dp,
-                showDivider = false,
                 onClick = { extraSheet = "share" },
                 trailing = { QkIcon(QkIcons.ChevronRight, size = 18.dp) },
+            )
+            // SDK 清单 / 数据恢复（入口与文案见 SettingsEntriesRoute 登记表）
+            SettingsEntryRows(
+                group = SettingsEntryGroup.PrivacyAndData,
+                onOpenEntry = onOpenEntry,
+                maintenanceActive = maintenanceActive,
+            )
+        }
+
+        QkSectionHead(title = "帮助", modifier = Modifier.padding(top = QkSpacing.Lg))
+        QkCard(modifier = Modifier.padding(top = 2.dp)) {
+            SettingsEntryRows(
+                group = SettingsEntryGroup.Help,
+                onOpenEntry = onOpenEntry,
+                maintenanceActive = maintenanceActive,
             )
         }
 
@@ -420,6 +449,6 @@ private fun clearCache(context: android.content.Context) {
 @Composable
 private fun SettingsScreenPreview() {
     QkTheme {
-        SettingsScreen(state = SettingsUiState(loading = false, formal = true, phone = "13800138000"), onIntent = {}) {}
+        SettingsScreen(state = SettingsUiState(loading = false, formal = true, phone = "13800138000"), onIntent = {}, onBack = {})
     }
 }
