@@ -918,12 +918,12 @@
       "id": "T-078",
       "description": "measure: 测量结果分享与导出（分享预览/导出PDF/导出完成）",
       "why": "原型16 v-share/v-export/v-export-done · 新增 measure/ResultShare.kt",
-      "status": "pending",
+      "status": "completed",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:51:46Z",
-      "updated_at": "2026-10-24T13:00:00Z",
-      "notes": "",
+      "updated_at": "2026-10-24T13:45:00Z",
+      "notes": "已合入 master（本地合并队列，DEC-068）；代码 + 单测 + 原型 strict 通过",
       "prototype_ref": {
         "file": "design/prototypes/interactive/16-measure-result.html",
         "views": [
@@ -981,12 +981,12 @@
       "id": "T-079",
       "description": "device: 设备固件管理（检查/更新/最新）",
       "why": "原型18 v-firmware-check/v-firmware-update/v-firmware-latest · 新增 device/FirmwareManager.kt",
-      "status": "pending",
+      "status": "completed",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:51:54Z",
-      "updated_at": "2026-10-24T13:00:00Z",
-      "notes": "",
+      "updated_at": "2026-10-24T13:45:00Z",
+      "notes": "已合入 master（本地合并队列，DEC-068）；代码 + 单测 + 原型 strict 通过",
       "prototype_ref": {
         "file": "design/prototypes/interactive/18-device-setup.html",
         "views": [
@@ -1044,12 +1044,12 @@
       "id": "T-080",
       "description": "device: 设备重命名与成员关联",
       "why": "原型24 v-rename-device/v-member-device · 新增 device/DeviceRename.kt device/MemberDeviceLink.kt",
-      "status": "pending",
+      "status": "completed",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:51:54Z",
-      "updated_at": "2026-10-24T13:00:00Z",
-      "notes": "",
+      "updated_at": "2026-10-24T13:45:00Z",
+      "notes": "已合入 master（本地合并队列，DEC-068）；代码 + 单测 + 原型 strict 通过",
       "prototype_ref": {
         "file": "design/prototypes/interactive/24-remaining-gaps.html",
         "views": [
@@ -2432,8 +2432,8 @@
     }
   ],
   "acceptance_schema": "GC-task-acceptance@1",
-  "updated_at": "2026-10-24T13:20:00Z",
-  "next_action": "并行派发：T-085/T-087（本批已 ready）→ wave3: T-088/089/090/092/093（AC 已 ready）",
-  "next_action_why": "上一批（T-072/073/074/075/100）已合入 master；本批 AC 已按原型逐字生成并通过校验",
-  "next_action_confirmed": true
+  "updated_at": "2026-10-24T13:45:00Z",
+  "next_action": "下一批：T-085 / T-087（AC ready）并行编码；另需补“接入波”——已交付 19 个呈现式屏尚未接入导航与 ViewModel",
+  "next_action_why": "8 个任务（T-072/073/074/075/078/079/080/100）已合入但均为组件级；功能可用需接入层",
+  "next_action_confirmed": false
 }
