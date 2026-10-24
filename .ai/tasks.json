@@ -500,12 +500,12 @@
       "id": "T-053",
       "description": "P1-12: 设备页扩展（测量小贴士卡/最近测量时间/开始称重快捷按钮）",
       "why": "",
-      "status": "pending",
+      "status": "completed",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-21T10:29:16Z",
       "updated_at": "2026-10-21T10:29:16Z",
-      "notes": "；AC 待人类定义：原型 v-device 只覆盖「已连接/电量/开始测量按钮/添加设备」3 项中的「开始称重」；「测量小贴士卡」正文与「最近测量时间」在原型里没有对应 view（小贴士文案仅在 12-measure-full.html v-prep 的 4 步准备里，语义不同）。需人类确认小贴士/最近测量的文案来源。；清理结论：组件已实现但无调用方，转为「接入并补测」任务（AC 已机械化为可达性断言）",
+      "notes": "；AC 待人类定义：原型 v-device 只覆盖「已连接/电量/开始测量按钮/添加设备」3 项中的「开始称重」；「测量小贴士卡」正文与「最近测量时间」在原型里没有对应 view（小贴士文案仅在 12-measure-full.html v-prep 的 4 步准备里，语义不同）。需人类确认小贴士/最近测量的文案来源。；清理结论：组件已实现但无调用方，转为「接入并补测」任务（AC 已机械化为可达性断言）\n已由合并队列按分支名回填（DEC-071）",
       "prototype_ref": {
         "file": "design/prototypes/interactive/04-device.html",
         "views": [
@@ -543,12 +543,12 @@
       "id": "T-054",
       "description": "P1-13: 我的资料扩展（个人简介/所在地/展示标签）",
       "why": "",
-      "status": "pending",
+      "status": "completed",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-21T10:29:16Z",
       "updated_at": "2026-10-21T10:29:16Z",
-      "notes": "；AC 待人类定义：「个人简介/所在地/展示标签」在原型库中无任何 view（grep 简介/所在地/标签 无命中，07-mine-settings.html v-profile 只有昵称/年龄/性别/身高）；代码侧 mine/MineExtensions.kt 已实现 ProfileExtraCard（DEC-043-M）。；清理结论：组件已实现但无调用方，转为「接入并补测」任务（AC 已机械化为可达性断言）",
+      "notes": "；AC 待人类定义：「个人简介/所在地/展示标签」在原型库中无任何 view（grep 简介/所在地/标签 无命中，07-mine-settings.html v-profile 只有昵称/年龄/性别/身高）；代码侧 mine/MineExtensions.kt 已实现 ProfileExtraCard（DEC-043-M）。；清理结论：组件已实现但无调用方，转为「接入并补测」任务（AC 已机械化为可达性断言）\n已由合并队列按分支名回填（DEC-071）",
       "target_files": [
         "app/src/main/kotlin/com/xcwk/scalehub/feature/mine/MineExtensions.kt"
       ],
@@ -580,12 +580,12 @@
       "id": "T-055",
       "description": "P1-14: 我的档案页扩展（围度/内脏脂肪/目标进度条）",
       "why": "",
-      "status": "pending",
+      "status": "completed",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-21T10:29:23Z",
       "updated_at": "2026-10-21T10:29:23Z",
-      "notes": "；AC 待人类定义：只有「内脏脂肪」在原型里有逐字证据（17-metric-details.html v-visceral）；「围度」与「目标进度条」在整个 interactive 原型库中没有对应 view（目标进度条仅在 11-home-states.html v-home 的 pbar 组件，无文案）。需人类补原型或改用现有实现（MineExtensions.kt）反推 AC。；清理结论：组件已实现但无调用方，转为「接入并补测」任务（AC 已机械化为可达性断言）",
+      "notes": "；AC 待人类定义：只有「内脏脂肪」在原型里有逐字证据（17-metric-details.html v-visceral）；「围度」与「目标进度条」在整个 interactive 原型库中没有对应 view（目标进度条仅在 11-home-states.html v-home 的 pbar 组件，无文案）。需人类补原型或改用现有实现（MineExtensions.kt）反推 AC。；清理结论：组件已实现但无调用方，转为「接入并补测」任务（AC 已机械化为可达性断言）\n已由合并队列按分支名回填（DEC-071）",
       "prototype_ref": {
         "file": "design/prototypes/interactive/17-metric-details.html",
         "views": [
