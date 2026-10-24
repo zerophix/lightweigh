@@ -153,6 +153,13 @@ cmd_run() {
 
   # 1) 依次合并（分支间应无交集；冲突即停并指名）
   for branch in "${branches[@]}"; do
+    # 防御：零提交分支（曾出现「提交被钩子拒绝但仍 push」导致 merge 空转，
+    # 随后队列把它当已合并清理，worktree 里未提交的改动被静默丢弃）
+    ahead=$(git rev-list --count "origin/master..origin/$branch" 2>/dev/null || echo 0)
+    if [ "${ahead:-0}" -eq 0 ]; then
+      say "  [跳过] ${branch}（相对 master 零提交，无可合并内容）"
+      continue
+    fi
     say "  [合并] $branch"
     if ! git merge --no-ff -q -m "chore(merge): $branch via queue $stamp" "origin/$branch" 2>/tmp/wf-queue-merge.log; then
       # 先尝试中和共享状态冲突（取候选侧）

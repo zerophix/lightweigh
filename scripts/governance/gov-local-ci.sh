@@ -176,6 +176,7 @@ DOC_STEPS=(
   "gov-secrets-scan"
   "gov-schema-guard"
   "gov-test-guard"
+  "gov-a11y-check"
 )
 
 echo "gov-local-ci — 仓库: $ROOT"
@@ -318,6 +319,7 @@ run_step "gov-custom-checks" bash scripts/governance/gov-custom-checks.sh
 run_step "gov-secrets-scan" bash scripts/governance/gov-secrets-scan.sh
 run_step "gov-schema-guard" bash scripts/governance/gov-schema-guard.sh
 run_step "gov-test-guard" bash scripts/governance/gov-test-guard.sh
+run_step "gov-a11y-check" python3 scripts/governance/gov-a11y-check.py
 set -e
 
 echo ""

@@ -130,6 +130,8 @@ bash scripts/session/ses-session-end.sh
 | 原型文案一致 | `gov-prototype-verify --strict`（任务 DoD） | `gov-task-done.sh T-xxx` |
 | 黄金向量 / Room schema | `gov-schema-guard`（local-ci + CI） | `gov-local-ci.sh` |
 | AC 完成定义 | `gov-task-done.sh` | 同上 |
+| 无障碍（a11y 名 / 固定高度裁剪 / 对比度） | `gov-a11y-check`（local-ci 全车道） | `python3 scripts/governance/gov-a11y-check.py` |
+| 预览覆盖（每个对外屏有 @Preview） | `gov-validate` → `check_previews` | `python3 scripts/governance/gov-preview-check.py` |
 | 工作区卫生（worktree/分支/锁） | `gov-workspace-doctor`（会话结束 + 手动） | `gov-workspace-doctor.sh` |
 | 派生数据不手写 | 合并队列（单一写者） | `gov-board-sync.sh --dry` |
 | 慢命令不阻塞 | **约定**（见 §2；靠纪律，无强制） | — |
@@ -166,6 +168,8 @@ bash scripts/governance/gov-task-done.sh T-xxx
 bash scripts/governance/gov-merge.sh <PR>
 bash scripts/governance/gov-local-ci.sh            # 合入门禁（慢，用 wf-run 后台）
 bash scripts/governance/gov-validate.sh            # 文档/协议校验（秒级）
+python3 scripts/governance/gov-a11y-check.py       # 无障碍静态检查（秒级）
+python3 scripts/governance/gov-preview-check.py    # 预览覆盖检查（秒级）
 bash scripts/governance/gov-board-sync.sh          # 派生物同步（合并队列内部调用）
 ```
 

@@ -49,12 +49,7 @@ DECL_START = re.compile(r"^\s*(@|(private|internal|public|override|suspend)\s+)*
 # 跨代理写域豁免：(相对仓库路径, 规则号) -> 理由。
 # 豁免只用于「确实违规但本分支无权改」的项：必须打印为 [EXEMPT] 并写明归属，
 # 由所属代理修复后删除本条目。豁免不是通过——它是挂账。
-EXEMPT: dict[tuple[str, str], str] = {
-    (
-        "app/src/main/kotlin/com/xcwk/scalehub/feature/sync/FeedbackFlow.kt",
-        "A11Y-002",
-    ): "FeedbackFlow.DiagnosticCheck 勾选框无 a11y 名；feature/sync 由其他代理改动中，交回其修复",
-}
+EXEMPT: dict[tuple[str, str], str] = {}
 
 
 def mask_source(src: str) -> str:

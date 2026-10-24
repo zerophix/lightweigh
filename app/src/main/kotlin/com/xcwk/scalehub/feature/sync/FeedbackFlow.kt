@@ -2,7 +2,7 @@ package com.xcwk.scalehub.feature.sync
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,6 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -505,15 +506,14 @@ fun FeedbackFailScreen(
 
 /** 诊断勾选框（原型 .chk：22dp 圆角方块，选中主绿底白勾）。 */
 @Composable
-private fun DiagnosticCheck(checked: Boolean, onClick: () -> Unit) {
+private fun DiagnosticCheck(checked: Boolean) {
     val shape = RoundedCornerShape(QkRadius.Field)
     Box(
         modifier = Modifier
             .size(QkSpacing.Xl)
             .clip(shape)
             .background(if (checked) QkColor.Primary else Color.Transparent)
-            .border(QkStroke.Thin, if (checked) QkColor.Primary else QkColor.Border, shape)
-            .clickable(onClick = onClick),
+            .border(QkStroke.Thin, if (checked) QkColor.Primary else QkColor.Border),
         contentAlignment = Alignment.Center,
     ) {
         if (checked) {
@@ -534,7 +534,7 @@ private fun DiagnosticItemRow(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clickable(onClick = onToggle)
+            .toggleable(value = checked, role = Role.Checkbox, onValueChange = { onToggle() })
             .padding(vertical = QkSpacing.Md),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -549,7 +549,7 @@ private fun DiagnosticItemRow(
                 )
             }
         }
-        DiagnosticCheck(checked = checked, onClick = onToggle)
+        DiagnosticCheck(checked = checked)
     }
 }
 
