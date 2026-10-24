@@ -215,8 +215,14 @@ commands:
   path: app/src/test/kotlin/com/xcwk/scalehub/ui/Wave0ComponentsTest.kt
   status: stable
   type: gradle-test
+- description: Wave0 骨架屏尺寸稳定与长按菜单回调（T-099）
+  path: app/src/test/kotlin/com/xcwk/scalehub/ui/components/QkSkeletonLongPressTest.kt
+  status: stable
+  type: gradle-test
 - description: Wave1 纯逻辑（AI 周总结空态分支 / 目标进度除零兜底 / 成员详情无假行, T-084）
   path: app/src/test/kotlin/com/xcwk/scalehub/feature/Wave1AiWeeklyTest.kt
+  status: stable
+  type: gradle-test
   status: stable
   type: gradle-test
 - description: Wave1 纯逻辑（编辑字段限制与同源 / 趋势缺日切段与数据不足 / 指标文案, T-081+T-082）

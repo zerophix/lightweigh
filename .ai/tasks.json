@@ -860,12 +860,12 @@
       "id": "T-081",
       "description": "history: 历史详情与记录编辑",
       "why": "原型05 v-detail/v-edit · 新增 history/HistoryDetail.kt history/RecordEdit.kt",
-      "status": "in_progress",
+      "status": "completed",
       "assigned_to": "ai",
       "dec": "",
       "created_at": "2026-10-23T03:51:54Z",
-      "updated_at": "2026-10-23T09:14:30Z",
-      "notes": "",
+      "updated_at": "2026-10-23T14:35:00Z",
+      "notes": "代码与单测已随 PR #36 (feat/wave1-history-trend, merge 754c37a) 合入 master：HistoryDetail.kt/RecordEdit.kt/MetricDetailScreen.kt + Wave1HistoryTrendTest 存在；本提交同步任务板状态",
       "prototype_ref": {
         "file": "design/prototypes/interactive/05-history-trend.html",
         "views": [
@@ -918,12 +918,12 @@
       "id": "T-082",
       "description": "trend: 指标详情页（体重/BMI/肌肉/水分/内脏/代谢/评分/骨骼）",
       "why": "原型17全部9屏 · 新增 trend/MetricDetailScreen.kt",
-      "status": "in_progress",
+      "status": "completed",
       "assigned_to": "ai",
       "dec": "",
       "created_at": "2026-10-23T03:51:54Z",
-      "updated_at": "2026-10-23T09:14:30Z",
-      "notes": "",
+      "updated_at": "2026-10-23T14:35:00Z",
+      "notes": "代码与单测已随 PR #36 (feat/wave1-history-trend, merge 754c37a) 合入 master：HistoryDetail.kt/RecordEdit.kt/MetricDetailScreen.kt + Wave1HistoryTrendTest 存在；本提交同步任务板状态",
       "prototype_ref": {
         "file": "design/prototypes/interactive/17-metric-details.html",
         "views": [
@@ -1630,8 +1630,8 @@
       "assigned_to": "ai",
       "dec": "",
       "created_at": "2026-10-23T03:52:45Z",
-      "updated_at": "2026-10-23T09:46:01Z",
-      "notes": "",
+      "updated_at": "2026-10-23T14:35:00Z",
+      "notes": "会话 ses-20261023-t099 于 feat/wave1-module-screens 认领：QkSkeleton.kt + QkLongPressMenu.kt + QkSkeletonLongPressTest.kt",
       "prototype_ref": {
         "file": "design/prototypes/interactive/09-components-demo.html",
         "views": [
