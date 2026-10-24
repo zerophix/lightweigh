@@ -249,5 +249,17 @@ commands:
   path: app/src/test/kotlin/com/xcwk/scalehub/feature/guide/ProfileSetupTest.kt
   status: stable
   type: gradle-test
+- description: 自动登记（gov-registry-sync）
+  path: app/src/test/kotlin/com/xcwk/scalehub/feature/auth/AccountLifecycleTest.kt
+  status: stable
+  type: gradle-test
+- description: 自动登记（gov-registry-sync）
+  path: app/src/test/kotlin/com/xcwk/scalehub/feature/auth/AuthLoginMethodsTest.kt
+  status: stable
+  type: gradle-test
+- description: 自动登记（gov-registry-sync）
+  path: app/src/test/kotlin/com/xcwk/scalehub/feature/auth/PasswordRecoveryFlowTest.kt
+  status: stable
+  type: gradle-test
 configs: []
 orphans: []

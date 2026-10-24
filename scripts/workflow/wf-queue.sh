@@ -115,12 +115,15 @@ cmd_run() {
 
   git worktree add -q --detach "$candidate" origin/master || { say "无法创建候选 worktree"; return 2; }
   # 无论成功/失败/被 kill，退出时都删除候选目录（避免再次堆积）
+  QUEUE_CANDIDATE="$candidate"
   cleanup_candidate() {
-    if [ "$KEEP" -eq 1 ]; then say "  保留候选: $candidate"; return; fi
+    [ -z "${QUEUE_CANDIDATE:-}" ] && return 0
+    if [ "${KEEP:-0}" -eq 1 ]; then say "  保留候选: ${QUEUE_CANDIDATE}"; return 0; fi
     cd "$ROOT" 2>/dev/null || true
-    git worktree remove --force "$candidate" 2>/dev/null
-    rm -rf "$candidate"
+    git worktree remove --force "$QUEUE_CANDIDATE" 2>/dev/null
+    rm -rf "$QUEUE_CANDIDATE"
     git worktree prune 2>/dev/null
+    QUEUE_CANDIDATE=""
   }
   trap cleanup_candidate EXIT INT TERM
   # local.properties 是 gitignore 的本机文件；缺它 gradle 直接报 SDK location not found
@@ -180,6 +183,7 @@ cmd_run() {
   # 回填会改任务状态 → 计数文档必须同步，否则主干 GOV-DOCS-004 红
   bash scripts/session/ses-claim-staged.sh >/dev/null 2>&1 || true
   bash scripts/governance/gov-board-sync.sh >/dev/null 2>&1 || true
+  python3 scripts/governance/gov-registry-sync.py >/dev/null 2>&1 || true
   if ! git diff --quiet; then
     git add -A && git commit -q -m "chore(lifecycle): sync derived docs after board reconcile" || true
   fi
