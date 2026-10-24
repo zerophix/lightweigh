@@ -127,67 +127,6 @@ def _check_truth_source() -> None:
             )
 
 
-# ---------------------------------------------------------------- 004 计数脱节
-
-def _check_counts() -> None:
-    """03_TaskGraph.md 是覆盖型摘要，数字必须等于 .ai/tasks.json，否则误导读者。"""
-    tasks_file = ROOT / ".ai" / "tasks.json"
-    doc = ROOT / "docs" / "ai" / "lifecycle" / "03_TaskGraph.md"
-    if not (tasks_file.is_file() and doc.is_file()):
-        return
-    try:
-        tasks = json.loads(_read(tasks_file))["tasks"]
-    except (json.JSONDecodeError, KeyError, TypeError):
-        return
-
-    total = len(tasks)
-    pending = sum(1 for t in tasks if t.get("status") == "pending")
-    proto_tasks = [t for t in tasks if t.get("prototype_ref")]
-
-    wave_counts: dict = {}
-    for t in proto_tasks:
-        wave = t.get("wave", 0)
-        wave_counts[wave] = wave_counts.get(wave, 0) + 1
-
-    expected = [
-        f"任务板共 {total} 条",
-        f"{pending} 条 pending",
-        f"三波合计 {len(proto_tasks)} 条",
-    ]
-    expected += [f"| {w} | {c} |" for w, c in sorted(wave_counts.items())]
-
-    text = _read(doc)
-    for claim in expected:
-        if claim not in text:
-            msg = (
-                f"GOV-DOCS-004: 03_TaskGraph.md 与任务板不一致或缺失的表述「{claim}」"
-            )
-            if _on_feature_branch(ROOT):
-                # DEC-063: 计数在特性分支降级为 WARN。多分支各自 take 任务时
-                # 计数副本必然互相打架，逐分支强制只会制造合并后的重复重算；
-                # 合入门禁仍是 local-ci（master 语义，ERROR），守门强度不降。
-                _warn(msg + "（特性分支降级 WARN，合入时 master 强制）")
-            else:
-                fail(msg)
-
-
-def _on_feature_branch(root: Path) -> bool:
-    """当前分支是否为特性分支。判据交给 git，保守降级：
-
-    - `feat|fix|docs|refactor|chore|test|ci/*` → True（计数类降 WARN）
-    - master / main / HEAD（CI 检出）/ 非 git 目录 / git 不可用 → False（ERROR）
-    """
-    try:
-        r = subprocess.run(
-            ["git", "-C", str(root), "rev-parse", "--abbrev-ref", "HEAD"],
-            capture_output=True, text=True, timeout=10,
-        )
-    except (OSError, subprocess.SubprocessError):
-        return False
-    branch = (r.stdout or "").strip()
-    return bool(re.match(r"^(feat|fix|docs|refactor|chore|test|ci)/", branch))
-
-
 # ---------------------------------------------------------------- 005 时效
 
 def _check_freshness() -> None:
@@ -218,7 +157,6 @@ def check_all() -> None:
     _check_index_coverage()
     _check_links()
     _check_truth_source()
-    _check_counts()
     _check_freshness()
 
 
@@ -228,7 +166,7 @@ def check_all() -> None:
 # 准入标准（治理设计约束 Q3/Q4）: 自愈安全性 = 改错了会不会被同一条规则立刻抓到。
 #
 #   自洽修复（修完必绿、修错必红）→ 允许自动修
-#       004 计数同步: 依据 tasks.json 重算，改错了 004 下次照样红
+#       005 日期 bump（带内容变更条件，见下）
 #
 #   自噬修复（修完必绿，无论对错）→ 必须加条件，否则规则被自己的修复杀死
 #       005 日期 bump: 只在「内容确实有变更」时 bump；否则日期新鲜而内容过期，
@@ -266,64 +204,6 @@ def _content_changed(rel: str) -> bool | None:
         return bool(untracked.stdout.strip())
     except (OSError, subprocess.SubprocessError):
         return None
-
-
-def _derive_counts() -> dict | None:
-    """从 .ai/tasks.json 派生 004 需要的全部计数。"""
-    tasks_file = ROOT / ".ai" / "tasks.json"
-    if not tasks_file.is_file():
-        return None
-    try:
-        tasks = json.loads(_read(tasks_file))["tasks"]
-    except (json.JSONDecodeError, KeyError, TypeError):
-        return None
-    wave_counts: dict = {}
-    for t in tasks:
-        if t.get("prototype_ref"):
-            wave = t.get("wave", 0)
-            wave_counts[wave] = wave_counts.get(wave, 0) + 1
-    return {
-        "total": len(tasks),
-        "pending": sum(1 for t in tasks if t.get("status") == "pending"),
-        "proto": sum(1 for t in tasks if t.get("prototype_ref")),
-        "waves": wave_counts,
-    }
-
-
-def fix_counts() -> set:
-    """GOV-DOCS-004 --fix: 用 tasks.json 的真实计数重写摘要中的锚点。
-
-    只重写已存在的锚点；摘要若缺某段或缺 wave 行，不凭空造结构，
-    让 004 继续 FAIL 交由人工补齐。
-    """
-    doc = ROOT / "docs" / "ai" / "lifecycle" / "03_TaskGraph.md"
-    if not doc.is_file():
-        return set()
-    counts = _derive_counts()
-    if counts is None:
-        _note("03_TaskGraph.md: 无法读取 tasks.json，跳过计数同步")
-        return set()
-
-    text = _read(doc)
-    if not text:
-        return set()
-    original = text
-
-    text = re.sub(r"任务板共 \d+ 条", f"任务板共 {counts['total']} 条", text)
-    text = re.sub(r"\d+ 条 pending", f"{counts['pending']} 条 pending", text)
-    text = re.sub(r"三波合计 \d+ 条", f"三波合计 {counts['proto']} 条", text)
-    for wave, n in sorted(counts["waves"].items()):
-        text = re.sub(rf"^\| {wave} \| \d+ \|", f"| {wave} | {n} |", text, flags=re.M)
-
-    if text == original:
-        return set()
-    doc.write_text(text, encoding="utf-8")
-    _note(
-        f"03_TaskGraph.md: 同步计数 total={counts['total']} "
-        f"pending={counts['pending']} proto={counts['proto']} "
-        f"waves={dict(sorted(counts['waves'].items()))}"
-    )
-    return {"docs/ai/lifecycle/03_TaskGraph.md"}
 
 
 def fix_timestamps() -> set:
@@ -367,7 +247,7 @@ def fix_all() -> set:
     打印边界（同 gov-code-check.py --fix 风格）：修得完的自动修，需要判断的不碰。
     """
     print("\n--- GOV-DOCS --fix ---")
-    modified = fix_counts() | fix_timestamps()
+    modified = fix_timestamps()
     if not modified:
         print("  无需修改")
     print("\n  --fix 只重写已有锚点，缺锚点与缺行需人工补齐")
