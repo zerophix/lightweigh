@@ -119,10 +119,9 @@ fun MainShell() {
 
     // 首次进入引导：设计稿 19-onboarding-guide 的入口曾整块缺失（树里没有任何 push 点）。
     // 只弹一次，用本机标记记住；跳过/完成都落在同一条回首页路径。
-    val uiPrefs = appContext.getSharedPreferences("qk_ui_prefs", android.content.Context.MODE_PRIVATE)
     LaunchedEffect(Unit) {
-        if (!uiPrefs.getBoolean("guide_seen", false)) {
-            uiPrefs.edit().putBoolean("guide_seen", true).apply()
+        if (!container.guideSeen) {
+            container.markGuideSeen()
             nav = nav.reduce(NavEvent.Push(NavOverlay.Guide))
         }
     }

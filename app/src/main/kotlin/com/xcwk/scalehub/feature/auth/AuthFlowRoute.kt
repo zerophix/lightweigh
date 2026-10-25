@@ -236,6 +236,9 @@ fun AuthFlowRoute(
                 // 资料落库仍是空回调（ProfileSetupFlow 的默认实现）
                 onRestart = { go(AuthFlowEvent.BackToEntry) },
                 onBackToLogin = onExit,
+                // 跳过 / 完成都离开登录流程进入首页，避免卡在资料页
+                onSkipProfile = onExit,
+                onFinished = onExit,
             )
         }
     }
@@ -320,6 +323,8 @@ fun GuideFlowRoute(
                 profileStage = false
             },
             onBackToLogin = onDone,
+            onSkipProfile = onDone,
+            onFinished = onDone,
         )
     }
 }

@@ -48,7 +48,7 @@ class GuideFlowTest {
         assertThat(GuideText.GoalDesc).isEqualTo("目标可以随时调整，\n先选一个方向就好。")
         assertThat(GuideText.GoalWeightLabel).isEqualTo("目标体重")
         assertThat(GuideText.GoalWeightUnit).isEqualTo("kg")
-        assertThat(GuideText.GoalWeightHint).isEqualTo("从 62.4 kg 到 58.0 kg，需减 4.4 kg")
+        assertThat(GuideText.GoalWeightHint).isEqualTo("设好目标体重后，这里会显示与当前体重的差值")
         assertThat(GuideText.GoalSkip).isEqualTo("跳过，稍后设置")
         assertThat(GuideText.Next).isEqualTo("下一步")
 

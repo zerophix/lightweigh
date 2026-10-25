@@ -263,6 +263,17 @@ class AppContainer(context: Context) {
         context.getSharedPreferences("measure", android.content.Context.MODE_PRIVATE)
     }
 
+    /** UI 一次性标记（引导是否看过）。SharedPreferences 藏在容器后，ui 层不直触。 */
+    private val uiPrefs: android.content.SharedPreferences by lazy {
+        context.getSharedPreferences("qk_ui_prefs", android.content.Context.MODE_PRIVATE)
+    }
+
+    /** 首次引导是否已经展示过。 */
+    val guideSeen: Boolean get() = uiPrefs.getBoolean("guide_seen", false)
+
+    /** 标记首次引导已展示（只记一次，不做业务语义）。 */
+    val markGuideSeen: () -> Unit = { uiPrefs.edit().putBoolean("guide_seen", true).apply() }
+
     /** "不再提示只存体重"读取口（SharedPreferences 藏在容器后，feature 层不直触）。 */
     val skipWeightOnlyPrompt: () -> Boolean = { measurePrefs.getBoolean("skip_weight_only", false) }
 

@@ -201,6 +201,7 @@ fun ProfileSetupFlow(
     onSkipProfile: () -> Unit = {},
     onRestart: () -> Unit = {},
     onBackToLogin: () -> Unit = {},
+    onFinished: () -> Unit = {},
 ) {
     when (state.step) {
         ProfileSetupStep.AgeGender -> ProfileAgeGenderScreen(
@@ -232,6 +233,7 @@ fun ProfileSetupFlow(
         )
 
         ProfileSetupStep.Done -> ProfileDoneScreen(
+            onEnterApp = onFinished,
             onRestart = onRestart,
             onBackToLogin = onBackToLogin,
             modifier = modifier,
@@ -381,6 +383,7 @@ fun ProfileHeightScreen(
 @Composable
 fun ProfileDoneScreen(
     modifier: Modifier = Modifier,
+    onEnterApp: () -> Unit = {},
     onRestart: () -> Unit = {},
     onBackToLogin: () -> Unit = {},
 ) {
@@ -421,12 +424,21 @@ fun ProfileDoneScreen(
             textAlign = TextAlign.Center,
         )
         Spacer(Modifier.weight(1f))
+        // 完成页必须有一个"进入应用"的正向出口：原实现只有"重新走一遍/回登录"，
+        // 用户填完资料反而没有前进按钮。
+        QkButton(
+            text = "开始使用轻衡",
+            modifier = Modifier.fillMaxWidth(),
+            onClick = onEnterApp,
+        )
+        Spacer(Modifier.height(QkSpacing.Md))
         QkButton(
             text = PROFILE_DONE_RESTART,
             modifier = Modifier.fillMaxWidth(),
+            style = QkButtonStyle.Ghost,
             onClick = onRestart,
         )
-        Spacer(Modifier.height(QkSpacing.Md))
+        Spacer(Modifier.height(QkSpacing.Sm))
         QkButton(
             text = PROFILE_DONE_BACK_TO_LOGIN,
             modifier = Modifier.fillMaxWidth(),

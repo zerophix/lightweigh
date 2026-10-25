@@ -83,7 +83,7 @@ class ReportViewModelTest {
     fun `无阻抗_免责两态切换`() {
         val vm = vm(1000L, MeasureRecord(1000L, 70.0, 0.0, -1.0, "", "builtin-1", true, 30, 175))
         assertThat(vm.state.value.disclaimer).contains("没有阻抗")
-        assertThat(vm.state.value.deltaLine).contains("--")   // 首条无上次
+        assertThat(vm.state.value.deltaLine).isEqualTo("首次记录，暂无对比")   // 首条无上次
     }
 
     @Test
