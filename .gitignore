@@ -36,3 +36,4 @@ scripts/tools/gitleaks-*
 .worktrees/
 .ai/gov-mode.json
 .ai/gov-skips/
+.ai/gov-mode/

@@ -5,38 +5,81 @@
 #
 # 用法:
 #   bash scripts/governance/gov-mode.sh status
-#   bash scripts/governance/gov-mode.sh off [时长]      # 默认 2h；支持 30m / 90s / 2h
+#   bash scripts/governance/gov-mode.sh off [时长]      # 默认 2h；支持 30m / 90s / 2h；上限 8h
 #   bash scripts/governance/gov-mode.sh on
+#
+# 作用域（多 AI 并发时按这个顺序判定）:
+#   1. 环境变量 GOV_MODE=off        → 只对当前命令生效，不影响任何人
+#   2. GOV_SESSION=xxx 时的 Session 文件 → .ai/gov-mode/<session>.json（同 worktree 内多会话隔离）
+#   3. 缺省                          → 当前 worktree 的 .ai/gov-mode.json（每个 worktree 各自一份）
 #
 # 设计:
 #   - 钩子与门禁脚本都 source 本文件，调 gov_mode_is_off 决定是否放行；
-#   - core.hooksPath / 钩子文件始终不动，开关只是数据；
-#   - off 有到期时间，过期自动回到 on，避免忘记恢复；
-#   - 每次跳过记一行到 .ai/gov-skips/YYYY-MM-DD.log（可审计）；
-#   - 环境变量 GOV_MODE=off 可只对单条命令生效（不影响其他会话）。
+#   - core.hooksPath 指向主仓库的绝对路径，所有 worktree 共用同一份钩子，旧分支无法绕过；
+#   - off 有到期时间（最长 8h），过期自动回到 on；
+#   - 每次跳过记一行到 .ai/gov-skips/YYYY-MM-DD.log，并在 commit 时打印一行提示（GOV_QUIET=1 可静音）；
+#   - 写文件用临时文件 + mv，避免并发读到半截 JSON。
 #
 # 退出码: 0=off（放行） 1=on（照常门禁） 2=参数错误
 # ============================================================
 set -uo pipefail
 
+GOV_MODE_MAX_SECS=$(( 8 * 3600 ))
+
 gov_mode_root() {
   git rev-parse --show-toplevel 2>/dev/null || pwd
 }
 
-gov_mode_file() {
-  echo "$(gov_mode_root)/.ai/gov-mode.json"
+gov_mode_dir() {
+  echo "$(gov_mode_root)/.ai"
 }
 
-# 把 30m / 2h / 90s / 纯数字(分钟) 解析成秒
+# Session 作用域优先；否则按 worktree
+gov_mode_file() {
+  local dir; dir="$(gov_mode_dir)"
+  if [ -n "${GOV_SESSION:-}" ]; then
+    local safe
+    safe="$(printf '%s' "$GOV_SESSION" | tr -c 'A-Za-z0-9._-' '-')"
+    echo "$dir/gov-mode/$safe.json"
+  else
+    echo "$dir/gov-mode.json"
+  fi
+}
+
+gov_mode_scope() {
+  if [ -n "${GOV_SESSION:-}" ]; then
+    echo "session:${GOV_SESSION}"
+  else
+    echo "worktree:$(gov_mode_root)"
+  fi
+}
+
+# 把 30m / 2h / 90s / 纯数字(分钟) 解析成秒；超过上限则截断
 gov_mode_secs() {
-  local raw="${1:-2h}"
+  local raw="${1:-2h}" secs
   case "$raw" in
-    *h) echo $(( ${raw%h} * 3600 )) ;;
-    *m) echo $(( ${raw%m} * 60 )) ;;
-    *s) echo $(( ${raw%s} )) ;;
-    *[!0-9]*) echo "" ;;
-    *) echo $(( raw * 60 )) ;;
+    *h) secs=$(( ${raw%h} * 3600 )) ;;
+    *m) secs=$(( ${raw%m} * 60 )) ;;
+    *s) secs=$(( ${raw%s} )) ;;
+    *[!0-9]*) return 1 ;;
+    *) secs=$(( raw * 60 )) ;;
   esac
+  [ "$secs" -le 0 ] && return 1
+  if [ "$secs" -gt "$GOV_MODE_MAX_SECS" ]; then
+    secs="$GOV_MODE_MAX_SECS"
+  fi
+  echo "$secs"
+}
+
+# 读取 JSON 字段（无 jq 依赖）
+gov_mode_field() {
+  local f="$1" key="$2"
+  sed -n "s/.*\"$key\"[[:space:]]*:[[:space:]]*\"\\([^\"]*\\)\".*/\\1/p" "$f" | head -1
+}
+
+gov_mode_epoch_field() {
+  local f="$1"
+  sed -n 's/.*"until_epoch"[[:space:]]*:[[:space:]]*\([0-9]*\).*/\1/p' "$f" | head -1
 }
 
 # off 时返回 0（放行），on 时返回 1（继续门禁）
@@ -47,8 +90,8 @@ gov_mode_is_off() {
   local f; f="$(gov_mode_file)"
   [ -f "$f" ] || return 1
   local mode until_epoch now
-  mode="$(sed -n 's/.*"mode"[[:space:]]*:[[:space:]]*"\([a-z]*\)".*/\1/p' "$f" | head -1)"
-  until_epoch="$(sed -n 's/.*"until_epoch"[[:space:]]*:[[:space:]]*\([0-9]*\).*/\1/p' "$f" | head -1)"
+  mode="$(gov_mode_field "$f" mode)"
+  until_epoch="$(gov_mode_epoch_field "$f")"
   [ "$mode" = "off" ] || return 1
   now="$(date +%s)"
   if [ -n "$until_epoch" ] && [ "$now" -ge "$until_epoch" ]; then
@@ -58,66 +101,94 @@ gov_mode_is_off() {
   return 0
 }
 
+# 一行描述（给 commit 时的提示与 status 用）
+gov_mode_describe() {
+  if [ "${GOV_MODE:-}" = "off" ]; then
+    echo "env GOV_MODE=off（仅本次命令）"
+    return
+  fi
+  local f; f="$(gov_mode_file)"
+  [ -f "$f" ] || { echo "on"; return; }
+  local until_human by reason until_epoch now left
+  until_human="$(gov_mode_field "$f" until)"
+  by="$(gov_mode_field "$f" by)"
+  reason="$(gov_mode_field "$f" reason)"
+  until_epoch="$(gov_mode_epoch_field "$f")"
+  now="$(date +%s)"
+  left=$(( (until_epoch - now) / 60 ))
+  printf 'off，剩 %s 分钟（到 %s，by %s%s）' "$left" "$until_human" "${by:-local}" "${reason:+，$reason}"
+}
+
 # 记录一次"因 off 而跳过"的门禁
 gov_mode_audit_skip() {
   local gate="${1:-unknown}" root dir
   root="$(gov_mode_root)"
   dir="$root/.ai/gov-skips"
   mkdir -p "$dir"
-  printf '%s gate=%s branch=%s\n' \
-    "$(date -Iseconds)" "$gate" "$(git -C "$root" branch --show-current 2>/dev/null || echo '-')" \
+  printf '%s gate=%s scope=%s branch=%s\n' \
+    "$(date -Iseconds)" "$gate" "$(gov_mode_scope)" \
+    "$(git -C "$root" branch --show-current 2>/dev/null || echo '-')" \
     >> "$dir/$(date +%F).log"
 }
 
+# commit/push 时的一行可见提示（GOV_QUIET=1 静音）
+gov_mode_banner() {
+  [ "${GOV_QUIET:-}" = "1" ] && return 0
+  echo "[gov] governance $(gov_mode_describe) → 跳过 ${1:-gate}" >&2
+}
+
+# 原子写：临时文件 + mv，避免并发读到半截
 gov_mode_write() {
-  local secs="$1" reason="${2:-}" root f now until
+  local secs="$1" reason="${2:-}" root dir f now until tmp
   root="$(gov_mode_root)"
+  dir="$(gov_mode_dir)"
   f="$(gov_mode_file)"
-  mkdir -p "$root/.ai"
+  mkdir -p "$dir" "$(dirname "$f")"
   now="$(date +%s)"
   until=$(( now + secs ))
-  printf '{"mode":"off","until_epoch":%s,"until":"%s","by":"%s","reason":"%s"}\n' \
+  tmp="$f.tmp.$$"
+  printf '{"mode":"off","until_epoch":%s,"until":"%s","by":"%s","scope":"%s","reason":"%s"}\n' \
     "$until" "$(date -r "$until" '+%Y-%m-%dT%H:%M:%S%z' 2>/dev/null || echo '-')" \
-    "${SESSION_ID:-local}" "$reason" > "$f"
+    "${SESSION_ID:-local}" "$(gov_mode_scope)" "$reason" > "$tmp"
+  mv -f "$tmp" "$f"
 }
 
 gov_mode_status() {
   local f; f="$(gov_mode_file)"
-  if [ "${GOV_MODE:-}" = "off" ]; then
-    echo "governance: off（环境变量 GOV_MODE=off，仅本次命令）"
+  local hooks_path
+  hooks_path="$(git config --get core.hooksPath 2>/dev/null || echo '<未设置>')"
+  if gov_mode_is_off; then
+    local skips
+    skips="$(cat "$(gov_mode_dir)/gov-skips/$(date +%F).log" 2>/dev/null | wc -l | tr -d ' ')"
+    echo "governance: $(gov_mode_describe)"
+    echo "  作用域: $(gov_mode_scope)"
+    echo "  钩子来源: $hooks_path"
+    echo "  今日跳过: ${skips} 次"
     return 0
   fi
-  if [ -f "$f" ]; then
-    local mode until_human until_epoch now skips
-    mode="$(sed -n 's/.*"mode"[[:space:]]*:[[:space:]]*"\([a-z]*\)".*/\1/p' "$f" | head -1)"
-    until_human="$(sed -n 's/.*"until"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' "$f" | head -1)"
-    until_epoch="$(sed -n 's/.*"until_epoch"[[:space:]]*:[[:space:]]*\([0-9]*\).*/\1/p' "$f" | head -1)"
-    now="$(date +%s)"
-    if [ "$mode" = "off" ] && [ -n "$until_epoch" ] && [ "$now" -lt "$until_epoch" ]; then
-      skips="$(cat "$(gov_mode_root)/.ai/gov-skips/$(date +%F).log" 2>/dev/null | wc -l | tr -d ' ')"
-      echo "governance: off  到期 $until_human  今日跳过 $skips 次"
-      [ $(( until_epoch - now )) -gt 86400 ] && echo "  警告: 关闭时间超过 24h，建议缩短或改回 on"
-      return 0
-    fi
-    rm -f "$f"
-  fi
   echo "governance: on（全门禁生效）"
+  echo "  作用域: $(gov_mode_scope)"
+  echo "  钩子来源: $hooks_path"
+  case "$hooks_path" in
+    /*) ;;
+    *) echo "  提示: 钩子路径不是绝对路径，旧 worktree 可能用到过期钩子；用 gov-hook-doctor.sh --fix 修正" ;;
+  esac
 }
 
 gov_mode_cli() {
   case "${1:-status}" in
     on)
       rm -f "$(gov_mode_file)"
-      echo "governance: on"
+      echo "governance: on（作用域 $(gov_mode_scope)）"
       ;;
     off)
-      local secs; secs="$(gov_mode_secs "${2:-2h}")"
-      if [ -z "$secs" ]; then
-        echo "用法: gov-mode.sh off [30m|2h|90s]" >&2
+      local secs
+      if ! secs="$(gov_mode_secs "${2:-2h}")"; then
+        echo "用法: gov-mode.sh off [30m|2h|90s]（上限 8h）" >&2
         exit 2
       fi
       gov_mode_write "$secs" "${3:-}"
-      echo "governance: off（$(( secs / 60 )) 分钟，到期自动恢复）"
+      echo "governance: off（$(( secs / 60 )) 分钟，上限 8h，到期自动恢复；作用域 $(gov_mode_scope)）"
       ;;
     status)
       gov_mode_status

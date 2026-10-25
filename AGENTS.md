@@ -13,8 +13,10 @@ bash scripts/governance/gov-mode.sh on
 bash scripts/governance/gov-mode.sh status
 ```
 
-off 有到期时间，过期自动回到 on；构建、测试、装机验证**不受开关影响**，它们才是"完成"的依据。
-开关只是数据：`core.hooksPath` 与钩子文件始终不动。
+- 作用域：默认**每个 worktree 各一份**（`.ai/gov-mode.json`），互不影响；同 worktree 多会话用 `GOV_SESSION=xxx gov-mode.sh off` 隔离；单条命令可用 `GOV_MODE=off git commit ...`。
+- 有期限：默认 2h，**上限 8h**，到期自动回到 on；off 期间每次 commit/push 会打印一行提示（`GOV_QUIET=1` 静音），跳过记录写在 `.ai/gov-skips/`。
+- 钩子来源：`core.hooksPath` 指向主仓库的**绝对路径**，所有 worktree 共用同一份，旧分支绕不过开关；用 `gov-hook-doctor.sh --fix` 校正。
+- 不受开关影响：`gradlew build`、`pytest`、装机验证——它们才是"完成"的依据。
 
 ## 0. 30 秒启动
 

@@ -27,7 +27,7 @@ for a in "$@"; do
   esac
 done
 
-EXPECTED="scripts/hooks"
+EXPECTED="$(cd "$ROOT/scripts/hooks" && pwd)"
 
 # name:source
 pairs=(
@@ -45,7 +45,7 @@ fi
 
 configured="$(git config --get core.hooksPath 2>/dev/null || true)"
 issues=()
-[ "$configured" = "$EXPECTED" ] || issues+=("core.hooksPath=${configured:-<未设置>}（应为 ${EXPECTED}）")
+[ "$configured" = "$EXPECTED" ] || issues+=("core.hooksPath=${configured:-<未设置>}（应为绝对路径 ${EXPECTED}，所有 worktree 共用一份）")
 
 for pair in "${pairs[@]}"; do
   name="${pair%%:*}"; src="${pair##*:}"

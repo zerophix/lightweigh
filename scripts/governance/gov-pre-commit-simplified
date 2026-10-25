@@ -15,6 +15,7 @@ if [ -f "$_gov_root/scripts/governance/gov-mode.sh" ]; then
   . "$_gov_root/scripts/governance/gov-mode.sh"
   if gov_mode_is_off; then
     gov_mode_audit_skip "pre-commit"
+    gov_mode_banner "pre-commit"
     exit 0
   fi
 fi

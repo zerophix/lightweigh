@@ -17,6 +17,7 @@ if [ -f "$_gov_root/scripts/governance/gov-mode.sh" ]; then
   . "$_gov_root/scripts/governance/gov-mode.sh"
   if gov_mode_is_off; then
     gov_mode_audit_skip "prepare-commit-msg"
+    gov_mode_banner "prepare-commit-msg"
     exit 0
   fi
 fi
