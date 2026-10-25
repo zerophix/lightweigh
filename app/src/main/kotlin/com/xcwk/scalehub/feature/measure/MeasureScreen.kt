@@ -35,14 +35,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.xcwk.scalehub.application.query.HomeGoalState
-import com.xcwk.scalehub.feature.home.HomeStatesRoute
-import com.xcwk.scalehub.feature.home.HomeUiState
-import com.xcwk.scalehub.feature.home.homeStageOf
-import com.xcwk.scalehub.feature.home.homeStatesReplacesHome
 import com.xcwk.scalehub.feature.sync.SYNC_CENTER_ENTRY_TITLE
 import com.xcwk.scalehub.feature.sync.SyncCenterRoute
 import com.xcwk.scalehub.feature.trend.TrendPointUi
@@ -110,35 +107,10 @@ fun MeasureScreen(
     val home = state.home
 
     when (layerName) {
-        MeasureHomeLayer.MeasureFlow.name -> {
-            MeasureFlowEntry(onExit = closeLayer)
-            return
-        }
-
         MeasureHomeLayer.SyncCenter.name -> {
             SyncCenterRoute(onBack = closeLayer)
             return
         }
-    }
-
-    // 接入波第三批：按真实信号渲染首页八态（只替换能证实的态，其余保持真实首页）
-    // 注：MeasureUiState.error 是「保存失败」而非加载失败，语义不同，故不当作 Error 态信号；
-    // 加载失败的信号待 ViewModel 提供后再接（homeStageOf 已留参数）。
-    var statesDismissed by rememberSaveable { mutableStateOf(false) }
-    val realStage = homeStageOf(
-        hasMeasurements = !state.loaded || home.latestWeight != null,
-        loadFailed = false,
-    )
-    if (!statesDismissed && homeStatesReplacesHome(realStage)) {
-        HomeStatesRoute(
-            initial = HomeUiState(stage = realStage),
-            onClose = { statesDismissed = true },
-            onStartMeasure = {
-                statesDismissed = true
-                openLayer(MeasureHomeLayer.MeasureFlow)
-            },
-        )
-        return
     }
 
     Column(
@@ -147,14 +119,25 @@ fun MeasureScreen(
             .verticalScroll(rememberScrollState())
             .padding(horizontal = QkSpacing.Page),
     ) {
-        WeightCard(
-            home = home,
-            unitPrefs = unitPrefs,
-            onOpenReport = onOpenReport,
-            onOpenHistory = onOpenHistory,
-            onSetHeight = onOpenMine,
-            onStartMeasure = { openLayer(MeasureHomeLayer.MeasureFlow) },
-        )
+        // 无数据时给真实空态（不含演示数值/演示按钮）；有数据才画体重卡。
+        // 空态与体重卡二选一，避免原型镜像那样「同一屏两套数据表达」。
+        if (home.latestWeight == null && state.loaded) {
+            HomeEmptyHeader(
+                onStartMeasure = onOpenScale,
+                onOpenHistory = onOpenHistory,
+            )
+        } else {
+            WeightCard(
+                home = home,
+                unitPrefs = unitPrefs,
+                onOpenReport = onOpenReport,
+                onOpenHistory = onOpenHistory,
+                onSetHeight = onOpenMine,
+                // 首页主 CTA 走真实蓝牙测量（ScaleRoute）；原型镜像的演示流程不再可达，
+                // 否则会出现「显示已保存 62.4kg 但首页仍无数据」的假成功。
+                onStartMeasure = onOpenScale,
+            )
+        }
         // 接入波入口：分享本次结果 / 导出（T-078）、数据同步 → 数据冲突（T-094）
         Row(
             modifier = Modifier.fillMaxWidth().padding(top = QkSpacing.Sm),
@@ -281,6 +264,66 @@ fun MeasureScreen(
 }
 
 // ---------------------------------------------------------------- 体重卡
+
+/**
+ * 首页空态（真实数据驱动）：没有任何测量记录时展示。
+ *
+ * 只保留「引导 + 入口」，不放演示数值、不放原型里的「返回正常首页」跳转按钮：
+ * 主 CTA 与「开始测量」一致，走真实蓝牙测量。
+ */
+@Composable
+private fun HomeEmptyHeader(
+    onStartMeasure: () -> Unit,
+    onOpenHistory: () -> Unit,
+) {
+    Column(modifier = Modifier.padding(top = QkSpacing.Md)) {
+        Text(
+            "你好，开始记录吧",
+            style = MaterialTheme.typography.headlineSmall,
+            color = QkColor.Fg,
+        )
+        Text(
+            "完成第一次测量，就能看到身体概览。",
+            modifier = Modifier.padding(top = 6.dp),
+            style = MaterialTheme.typography.bodyMedium,
+            color = QkColor.Muted,
+        )
+        QkCard(modifier = Modifier.padding(top = QkSpacing.Md), padding = QkSpacing.CardPad) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
+                QkIconBubble(QkIcons.Weight, QkGlyphTone.Green, 44.dp)
+                Text(
+                    "还没有测量数据",
+                    modifier = Modifier.padding(top = QkSpacing.Sm),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = QkColor.Fg,
+                )
+                Text(
+                    "连接体脂秤完成一次测量，或先手动记录一次体重。",
+                    modifier = Modifier.padding(top = 4.dp),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = QkColor.Muted,
+                    textAlign = TextAlign.Center,
+                )
+            }
+        }
+        Row(
+            modifier = Modifier.padding(top = QkSpacing.Md),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            QkButton(
+                text = "开始第一次测量",
+                modifier = Modifier.weight(1f),
+                onClick = onStartMeasure,
+            )
+            QkButton(
+                text = "历史记录",
+                style = QkButtonStyle.Secondary,
+                modifier = Modifier.weight(1f),
+                onClick = onOpenHistory,
+            )
+        }
+    }
+}
 
 @Composable
 private fun WeightCard(
