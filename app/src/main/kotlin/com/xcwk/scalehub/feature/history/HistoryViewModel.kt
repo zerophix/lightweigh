@@ -116,12 +116,13 @@ class HistoryViewModel(
         // 月在前（降序），组内行已按展示序（新→旧）；展开态默认全部收起（同旧库 collapsed 默认）
         val expandedMap = _state.value.months.associate { it.month to it.expanded }
         val months = monthly.map { summary ->
+            val monthRows = rows.filter { monthOf(it.record.time) == summary.yearMonth }
             HistoryMonthUi(
                 month = summary.yearMonth,
-                titleText = monthTitle(summary.yearMonth, summary),
+                // 只有一条记录时没有"共减重"可言，直接报次数
+                titleText = monthTitle(summary.yearMonth, summary, monthRows.size),
                 expanded = expandedMap[summary.yearMonth] ?: false,
-                rows = rows.filter { monthOf(it.record.time) == summary.yearMonth }
-                    .map { row -> rowUi(row) },
+                rows = monthRows.map { row -> rowUi(row) },
             )
         }
         _state.update {
@@ -134,8 +135,13 @@ class HistoryViewModel(
     }
 
     /** 旧库 MonthBanner 文案（TrendPages:457-458 + fatMonth:610-614）。 */
-    private fun monthTitle(month: String, s: com.xcwk.scalehub.application.query.MonthSummary): String {
+    private fun monthTitle(
+        month: String,
+        s: com.xcwk.scalehub.application.query.MonthSummary,
+        count: Int,
+    ): String {
         val (y, m) = month.split("-")
+        if (count <= 1) return "${y}年${m}月: ${count} 次测量"
         val weightText = if (s.weightLoss >= 0) "共减重${one(s.weightLoss)}公斤" else "共增重${one(-s.weightLoss)}公斤"
         val fatPart = s.fatDelta?.let {
             if (it >= 0) "减脂${one(it)}%" else "增脂${one(-it)}%"

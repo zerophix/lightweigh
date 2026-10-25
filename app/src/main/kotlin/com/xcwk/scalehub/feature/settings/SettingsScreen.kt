@@ -119,11 +119,16 @@ fun SettingsScreen(
                     subtitle = "删除云端记录与登录身份，不可恢复",
                     icon = QkIcons.DeleteAccount,
                     glyphSize = 32.dp,
-                    showDivider = false,
                     onClick = { onIntent(SettingsIntent.DeleteAsk) },
                     trailing = { QkIcon(QkIcons.ChevronRight, size = 18.dp, tint = QkColor.Danger) },
                 )
             }
+            // 数据恢复属于账号/数据范畴，不再混在「隐私与协议」里
+            SettingsEntryRows(
+                group = SettingsEntryGroup.DataAndAccount,
+                onOpenEntry = onOpenEntry,
+                maintenanceActive = maintenanceActive,
+            )
         }
 
         // 维护模式按服务状态显示：非维护态不占位
@@ -134,6 +139,51 @@ fun SettingsScreen(
                     group = SettingsEntryGroup.Other,
                     onOpenEntry = onOpenEntry,
                     maintenanceActive = maintenanceActive,
+                )
+            }
+        }
+
+        // 通用：外观 / 语言 / 单位 / 隐私设置 / 同步 / 密码——日常设置就是这几项，
+        // 原先它们分散在「显示」「其他」两组并沉到设置页最底部。
+        QkSectionHead(title = "通用", modifier = Modifier.padding(top = QkSpacing.Lg))
+        QkCard(modifier = Modifier.padding(top = 2.dp)) {
+            SettingsEntryRows(
+                group = SettingsEntryGroup.Display,
+                onOpenEntry = onOpenEntry,
+                maintenanceActive = maintenanceActive,
+            )
+            QkListRow(
+                title = "单位设置",
+                subtitle = "重量 kg/斤/磅、长度 cm/in",
+                icon = QkIcons.More,
+                glyphSize = 32.dp,
+                onClick = onOpenUnitSettings,
+                trailing = { QkIcon(QkIcons.ChevronRight, size = 18.dp) },
+            )
+            QkListRow(
+                title = "隐私设置",
+                subtitle = "数据收集与共享说明",
+                icon = QkIcons.Privacy,
+                glyphSize = 32.dp,
+                onClick = onOpenPrivacySettings,
+                trailing = { QkIcon(QkIcons.ChevronRight, size = 18.dp) },
+            )
+            QkListRow(
+                title = "同步状态",
+                subtitle = "查看云同步状态",
+                icon = QkIcons.Restore,
+                glyphSize = 32.dp,
+                onClick = onOpenSyncStatus,
+                trailing = { QkIcon(QkIcons.ChevronRight, size = 18.dp) },
+            )
+            if (state.formal) {
+                QkListRow(
+                    title = "设置登录密码",
+                    subtitle = "为账号设置密码登录",
+                    icon = QkIcons.About,
+                    glyphSize = 32.dp,
+                    onClick = onOpenSetPassword,
+                    trailing = { QkIcon(QkIcons.ChevronRight, size = 18.dp) },
                 )
             }
         }
@@ -185,52 +235,8 @@ fun SettingsScreen(
             )
         }
 
-        // 显示：外观（主题模式）与语言（T-091 两屏，入口文案见 SettingsEntriesRoute 登记表）
-        QkSectionHead(title = "显示", modifier = Modifier.padding(top = QkSpacing.Lg))
-        QkCard(modifier = Modifier.padding(top = 2.dp)) {
-            SettingsEntryRows(
-                group = SettingsEntryGroup.Display,
-                onOpenEntry = onOpenEntry,
-                maintenanceActive = maintenanceActive,
-            )
-        }
-
         QkSectionHead(title = "其他", modifier = Modifier.padding(top = QkSpacing.Lg))
         QkCard(modifier = Modifier.padding(top = 2.dp)) {
-            QkListRow(
-                title = "单位设置",
-                subtitle = "重量 kg/斤/磅、长度 cm/in",
-                icon = QkIcons.More,
-                glyphSize = 32.dp,
-                onClick = onOpenUnitSettings,
-                trailing = { QkIcon(QkIcons.ChevronRight, size = 18.dp) },
-            )
-            QkListRow(
-                title = "隐私设置",
-                subtitle = "数据收集与共享说明",
-                icon = QkIcons.Privacy,
-                glyphSize = 32.dp,
-                onClick = onOpenPrivacySettings,
-                trailing = { QkIcon(QkIcons.ChevronRight, size = 18.dp) },
-            )
-            QkListRow(
-                title = "同步状态",
-                subtitle = "查看云同步状态",
-                icon = QkIcons.Restore,
-                glyphSize = 32.dp,
-                onClick = onOpenSyncStatus,
-                trailing = { QkIcon(QkIcons.ChevronRight, size = 18.dp) },
-            )
-            if (state.formal) {
-                QkListRow(
-                    title = "设置登录密码",
-                    subtitle = "为账号设置密码登录",
-                    icon = QkIcons.About,
-                    glyphSize = 32.dp,
-                    onClick = onOpenSetPassword,
-                    trailing = { QkIcon(QkIcons.ChevronRight, size = 18.dp) },
-                )
-            }
             QkListRow(
                 title = "清除缓存",
                 subtitle = "只清临时缓存，测量与档案保留",

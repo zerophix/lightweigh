@@ -35,7 +35,10 @@ import com.xcwk.scalehub.ui.components.QkListRow
 
 /** 入口所属分组（枚举顺序即设置页里的呈现顺序）。 */
 enum class SettingsEntryGroup {
-    /** 隐私与数据：隐私协议卡片内的补充入口。 */
+    /** 账号与数据：账号卡内的数据类入口（数据恢复）。 */
+    DataAndAccount,
+
+    /** 隐私与协议：协议卡片内的补充入口。 */
     PrivacyAndData,
 
     /** 帮助：帮助中心 / 意见反馈 / 问题诊断。 */
@@ -91,7 +94,7 @@ object SettingsEntries {
 
     val DataRecovery = SettingsEntry(
         id = "settings.dataRecovery",
-        group = SettingsEntryGroup.PrivacyAndData,
+        group = SettingsEntryGroup.DataAndAccount,
         title = "数据恢复",
         hint = "从云端按时间段恢复记录",
         target = SettingsEntryTarget.DataRecovery,

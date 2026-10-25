@@ -83,9 +83,11 @@ class SettingsEntriesTest {
 
     @Test
     fun `分组归属符合设置页分组`() {
+        assertThat(settingsEntryIdsFor(SettingsEntryGroup.DataAndAccount)).containsExactly(
+            SettingsEntries.DataRecovery.id,
+        )
         assertThat(settingsEntryIdsFor(SettingsEntryGroup.PrivacyAndData)).containsExactly(
             SettingsEntries.SdkList.id,
-            SettingsEntries.DataRecovery.id,
         )
         assertThat(settingsEntryIdsFor(SettingsEntryGroup.Help)).containsExactly(
             SettingsEntries.HelpCenter.id,

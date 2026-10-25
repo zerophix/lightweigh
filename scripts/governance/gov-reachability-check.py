@@ -56,6 +56,25 @@ def read_files() -> dict[Path, str]:
     return out
 
 
+def overlay_push_audit(files: dict[Path, str]) -> list[str]:
+    """覆盖页的"用户入口"审计。
+
+    静态可达性把「宿主 when 分支里出现过」算可达，于是 Guide 这类
+    "有宿主映射、但全库没有任何 Push" 的屏会被误判为可达。这里单独查一件事：
+    每个 NavOverlay 是否至少有一个真实的 push 调用点（排除宿主映射与序列化）。
+    """
+    nav_file = SRC / "ui/shell/NavState.kt"
+    text = files.get(nav_file, "")
+    overlays = re.findall(r"data (?:object|class)\s+(\w+)\s*(?:\([^)]*\))?\s*:\s*NavOverlay", text)
+    ignore = {"MainShell.kt", "NavState.kt"}
+    missing = []
+    for name in overlays:
+        pat = re.compile(r"(?:Push|ReplaceTop)\(\s*NavOverlay\." + re.escape(name) + r"\b")
+        if not any(pat.search(t) for f, t in files.items() if f.name not in ignore):
+            missing.append(name)
+    return missing
+
+
 def build_graph(files: dict[Path, str]):
     defs: dict[str, set[Path]] = defaultdict(set)
     for path, text in files.items():
@@ -117,6 +136,9 @@ def main() -> int:
 
     unreachable = sorted((name, p) for name, p in targets if p not in seen)
 
+    # 覆盖页必须真的有 push 点：宿主映射不算用户入口
+    missing_overlays = overlay_push_audit(files)
+
     if args.json:
         import json
 
@@ -134,12 +156,17 @@ def main() -> int:
         return 0 if not unreachable else 1
 
     print(f"[reach] 入口 {len(roots)} 个，目标屏 {len(targets)} 个，可达 {len(targets) - len(unreachable)} 个")
+    if missing_overlays:
+        print(f"[reach] 覆盖页缺 push 入口 {len(missing_overlays)} 个：")
+        for name in missing_overlays:
+            print(f"  ✗ NavOverlay.{name} — 宿主有映射，但全库没有 Push/ReplaceTop 调用点")
     if args.all:
         for name, p in sorted(targets):
             mark = "可达" if (name, p) not in set(unreachable) else "不可达"
             print(f"  [{mark}] {p.relative_to(ROOT)} :: {name}")
 
     current = {f"{p.relative_to(ROOT)} :: {name}" for name, p in unreachable}
+    current |= {f"NavOverlay.{name} :: 无 push 入口" for name in missing_overlays}
 
     if args.update_baseline:
         previous = set()
