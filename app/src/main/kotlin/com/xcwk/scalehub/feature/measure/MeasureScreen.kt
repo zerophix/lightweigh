@@ -147,14 +147,17 @@ fun MeasureScreen(
                 onStartMeasure = onOpenScale,
             )
         }
-        ManualWeightCard(
-            value = state.weightInput,
-            saving = state.saving,
-            onChange = { vm.onIntent(MeasureIntent.WeightChanged(it)) },
-            onSave = { vm.onIntent(MeasureIntent.Save) },
-            onScale = onOpenScale,
-            unitPrefs = unitPrefs,
-        )
+        // 空态已经有「手动记录一次」主按钮，同一屏不再重复放一张录入卡。
+        if (home.latestWeight != null) {
+            ManualWeightCard(
+                value = state.weightInput,
+                saving = state.saving,
+                onChange = { vm.onIntent(MeasureIntent.WeightChanged(it)) },
+                onSave = { vm.onIntent(MeasureIntent.Save) },
+                onScale = onOpenScale,
+                unitPrefs = unitPrefs,
+            )
+        }
 
         // 手动记录紧挨体重卡：没接秤时这是最短的一条录入路径
         AiAskRow(onAskAi = onAskAi)

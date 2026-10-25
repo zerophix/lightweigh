@@ -119,8 +119,10 @@ fun MainShell() {
 
     // 首次进入引导：设计稿 19-onboarding-guide 的入口曾整块缺失（树里没有任何 push 点）。
     // 只弹一次，用本机标记记住；跳过/完成都落在同一条回首页路径。
-    LaunchedEffect(Unit) {
-        if (!container.guideSeen) {
+    // 游客是"先能用，再补资料"的通道：进来直接到首页，不压 5 屏引导。
+    // 正式账号第一次进入才走引导，且只走一次。
+    LaunchedEffect(authState.isUser) {
+        if (authState.isUser && !container.guideSeen) {
             container.markGuideSeen()
             nav = nav.reduce(NavEvent.Push(NavOverlay.Guide))
         }
