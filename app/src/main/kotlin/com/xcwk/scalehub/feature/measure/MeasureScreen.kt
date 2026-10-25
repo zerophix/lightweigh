@@ -147,14 +147,16 @@ fun MeasureScreen(
                 onStartMeasure = onOpenScale,
             )
         }
-        // 接入波入口：分享本次结果 / 导出（T-078）、数据同步 → 数据冲突（T-094）
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(top = QkSpacing.Sm),
-            horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.End),
-        ) {
-            TextAction(SYNC_CENTER_ENTRY_TITLE) { openLayer(MeasureHomeLayer.SyncCenter) }
-            TextAction(WiringEntries.ResultShare.title) { showShare = true }
-        }
+        ManualWeightCard(
+            value = state.weightInput,
+            saving = state.saving,
+            onChange = { vm.onIntent(MeasureIntent.WeightChanged(it)) },
+            onSave = { vm.onIntent(MeasureIntent.Save) },
+            onScale = onOpenScale,
+            unitPrefs = unitPrefs,
+        )
+
+        // 手动记录紧挨体重卡：没接秤时这是最短的一条录入路径
         AiAskRow(onAskAi = onAskAi)
         TodayDietCard(home = home, onOpenRecord = onOpenRecord, onOpenQuick = onOpenQuick)
         Row(modifier = Modifier.padding(top = QkSpacing.CardGap), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -201,14 +203,6 @@ fun MeasureScreen(
                 onClick = { onOpenFeature("period") },
             )
         }
-        ManualWeightCard(
-            value = state.weightInput,
-            saving = state.saving,
-            onChange = { vm.onIntent(MeasureIntent.WeightChanged(it)) },
-            onSave = { vm.onIntent(MeasureIntent.Save) },
-            onScale = onOpenScale,
-            unitPrefs = unitPrefs,
-        )
         state.lastRecord?.let {
             Text(
                 it,
@@ -224,6 +218,15 @@ fun MeasureScreen(
                 style = MaterialTheme.typography.bodySmall,
                 color = QkColor.Danger,
             )
+        }
+
+        // 同步 / 分享属于维护类操作，放在内容之后，不与「记录一次」争首屏
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(top = QkSpacing.CardGap),
+            horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.End),
+        ) {
+            TextAction(SYNC_CENTER_ENTRY_TITLE) { openLayer(MeasureHomeLayer.SyncCenter) }
+            TextAction(WiringEntries.ResultShare.title) { showShare = true }
         }
 
         QkSectionHead(
