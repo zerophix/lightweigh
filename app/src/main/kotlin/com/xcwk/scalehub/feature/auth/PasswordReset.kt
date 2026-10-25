@@ -1,5 +1,7 @@
 package com.xcwk.scalehub.feature.auth
 
+import com.xcwk.scalehub.ui.components.QkHeaderStyle
+import com.xcwk.scalehub.ui.components.QkScreenHeader
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -249,18 +251,7 @@ fun PasswordResetView(
 /** 压栈页导航条：返回圆钮 + 页标题（原型 .navbar）。 */
 @Composable
 internal fun AuthNavBar(title: String, onBack: () -> Unit, modifier: Modifier = Modifier) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        QkBackButton(onClick = onBack)
-        Text(
-            title,
-            modifier = Modifier.weight(1f).padding(start = QkSpacing.Sm),
-            style = MaterialTheme.typography.titleLarge,
-            color = QkColor.Fg,
-        )
-    }
+    QkScreenHeader(title, onBack, modifier = modifier, style = QkHeaderStyle.Title)
 }
 
 /** 页头：大标题 + 一句说明（原型 .hero 的 .h1.sm / .h2）。 */

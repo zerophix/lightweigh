@@ -165,7 +165,7 @@ class TrendExtensionsTest {
     }
 
     @Test
-    fun `页面引用文案真源与两个弹层`() {
+    fun `页面引用文案真源与两个弹层（范围控件只留一套）`() {
         val screen = sourceOf("TrendScreen.kt")
         listOf(
             "TrendText.HeroTitle",
@@ -173,8 +173,8 @@ class TrendExtensionsTest {
             "TrendText.AllRecords",
             "TrendMetricSheet(",
             "TrendRangeSheet(",
-            "trendAggregationFor(",
-            "trendRangeFor(",
+
+
             "trendHeroSubtitle(",
         ).forEach { symbol ->
             assertWithMessage("TrendScreen.kt 缺少 $symbol").that(screen).contains(symbol)

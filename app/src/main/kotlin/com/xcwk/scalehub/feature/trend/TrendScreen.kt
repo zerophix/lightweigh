@@ -103,17 +103,6 @@ fun TrendScreen(
             )
         }
 
-        // 聚合粒度（原型 .seg：周/月/年 → 近7天/近30天/全部）
-        QkSegmented(
-            items = TrendAggregation.entries.map { it.label },
-            selectedIndex = trendAggregationFor(state.range).ordinal,
-            onSelect = { index ->
-                customRange = false
-                onIntent(TrendIntent.RangeChanged(trendRangeFor(TrendAggregation.entries[index])))
-            },
-            modifier = Modifier.padding(top = QkSpacing.Md),
-        )
-
         QkCard(modifier = Modifier.padding(top = QkSpacing.Md)) {
             // 卡头（原型 .sthead）：指标名 ▾ 打开选择指标；右侧范围打开时间范围
             Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -124,12 +113,6 @@ fun TrendScreen(
                     color = QkColor.Fg,
                 )
                 Spacer(modifier = Modifier.weight(1f))
-                Text(
-                    "$rangeLabel ${TrendText.Chevron}",
-                    modifier = Modifier.clickable { showRangeSheet = true },
-                    style = MaterialTheme.typography.bodySmall,
-                    color = QkColor.Muted,
-                )
             }
 
             // 范围：原型 rangeTabs（今天为应用特有档，旧库默认近7天）

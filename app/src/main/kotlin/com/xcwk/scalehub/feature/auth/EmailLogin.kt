@@ -1,5 +1,7 @@
 package com.xcwk.scalehub.feature.auth
 
+import com.xcwk.scalehub.ui.components.QkHeaderStyle
+import com.xcwk.scalehub.ui.components.QkScreenHeader
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -212,21 +214,7 @@ object WechatLoginText {
 /** 登录子页导航条：返回圆钮 + 居中标题（原型 .navbar）。 */
 @Composable
 internal fun AuthSubNavBar(title: String, onBack: () -> Unit, modifier: Modifier = Modifier) {
-    Row(
-        modifier = modifier.fillMaxWidth().padding(top = QkSpacing.Md),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        QkBackButton(onClick = onBack)
-        Text(
-            title,
-            modifier = Modifier.weight(1f).padding(end = QkSpacing.Md),
-            style = MaterialTheme.typography.titleMedium,
-            color = QkColor.Fg,
-            textAlign = TextAlign.Center,
-        )
-        // 右侧留出与返回钮等宽的占位，保证标题视觉居中
-        Spacer(modifier = Modifier.width(QkSpacing.Xl))
-    }
+    QkScreenHeader(title, onBack, modifier = modifier, style = QkHeaderStyle.Centered)
 }
 
 /** 页面主标题 + 副标题（原型 .hero）。 */

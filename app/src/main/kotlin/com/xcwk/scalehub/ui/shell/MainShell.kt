@@ -498,9 +498,9 @@ private fun SheetRow(title: String, enabled: Boolean, hint: String? = null, onCl
 /** 顶栏副标题随页签变化（原型 pageTitles 口径）。 */
 private fun subtitleFor(tab: MainTab): String = when (tab) {
     MainTab.HOME -> "关注身体，记录更好的自己"
-    MainTab.TREND -> "用趋势理解身体变化"
+    MainTab.TREND -> "记录与趋势"
     MainTab.DEVICE -> "管理你的健康设备"
-    MainTab.MINE -> "你的健康档案"
+    MainTab.MINE -> "资料、数据与隐私"
 }
 
 @Composable

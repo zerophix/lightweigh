@@ -1,5 +1,6 @@
 package com.xcwk.scalehub.feature.device
 
+import com.xcwk.scalehub.ui.components.QkScreenHeader
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -617,13 +618,7 @@ private val QkStrokeWidth: Dp = QkSpacing.Xs / 4
 /** 压栈页导航条：返回圆钮 + 页标题（原型 .navbar）。两页与连接阶段共用。 */
 @Composable
 internal fun DeviceFlowNavBar(title: String, onBack: () -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(top = QkSpacing.Md),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        QkBackButton(onClick = onBack)
-        QkPageTitle(title, modifier = Modifier.weight(1f).padding(start = QkSpacing.Md))
-    }
+    QkScreenHeader(title, onBack)
 }
 
 /** 提示横幅（原型 .banner：薄荷底圆角条 + 左侧线性图标 + 小字）。 */

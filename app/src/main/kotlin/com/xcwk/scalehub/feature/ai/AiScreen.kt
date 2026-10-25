@@ -1,5 +1,6 @@
 package com.xcwk.scalehub.feature.ai
 
+import com.xcwk.scalehub.ui.components.QkScreenHeader
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -127,24 +128,25 @@ private fun AiTopBar(
     actionText: String? = null,
     onAction: (() -> Unit)? = null,
 ) {
-    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        QkBackButton(onClick = onBack)
-        QkPageTitle(
-            title = title,
-            modifier = Modifier.weight(1f).padding(start = QkSpacing.Md),
-        )
-        if (actionText != null && onAction != null) {
-            Text(
-                text = actionText,
-                modifier = Modifier
-                    .clip(RoundedCornerShape(QkRadius.SegmentItem))
-                    .clickable(onClick = onAction)
-                    .padding(horizontal = QkSpacing.Sm, vertical = QkSpacing.Xs),
-                style = MaterialTheme.typography.labelLarge,
-                color = QkColor.Primary,
-            )
-        }
-    }
+    QkScreenHeader(
+        title = title,
+        onBack = onBack,
+        action = if (actionText != null && onAction != null) {
+            {
+                Text(
+                    text = actionText,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(QkRadius.SegmentItem))
+                        .clickable(onClick = onAction)
+                        .padding(horizontal = QkSpacing.Sm, vertical = QkSpacing.Xs),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = QkColor.Primary,
+                )
+            }
+        } else {
+            null
+        },
+    )
 }
 
 /** 用户气泡（靠右，浅底）。 */

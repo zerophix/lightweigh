@@ -1,5 +1,7 @@
 package com.xcwk.scalehub.feature.device
 
+import com.xcwk.scalehub.ui.components.QkHeaderStyle
+import com.xcwk.scalehub.ui.components.QkScreenHeader
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -113,17 +115,7 @@ internal fun DevicePageNavBar(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier = modifier.fillMaxWidth().padding(vertical = QkSpacing.Md)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            QkBackButton(onClick = onBack)
-            Text(
-                title,
-                modifier = Modifier.padding(start = QkSpacing.Sm),
-                style = MaterialTheme.typography.titleLarge,
-                color = QkColor.Fg,
-            )
-        }
-    }
+    QkScreenHeader(title, onBack, modifier = modifier, style = QkHeaderStyle.Title)
 }
 
 /** 提示横幅（原型 .banner：薄荷底圆角 + 线性信息图标 + 小字，两个 view 共用）。 */

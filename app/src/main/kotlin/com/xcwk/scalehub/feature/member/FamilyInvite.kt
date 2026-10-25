@@ -1,5 +1,6 @@
 package com.xcwk.scalehub.feature.member
 
+import com.xcwk.scalehub.ui.components.QkScreenHeader
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -725,13 +726,7 @@ fun FamilyRevokeScreen(
 /** 六屏共用的页头（返回圆钮 + 页面标题，原型 .navbar 口径）。 */
 @Composable
 private fun FamilyTopBar(title: String, onBack: () -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = QkSpacing.Md),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        QkBackButton(onClick = onBack)
-        QkPageTitle(title = title, modifier = Modifier.weight(1f).padding(start = QkSpacing.Md))
-    }
+    QkScreenHeader(title, onBack)
 }
 
 /** 六屏共用的 hero（图标泡 + 标题 + 副标题，原型 .hero.center 口径）。 */

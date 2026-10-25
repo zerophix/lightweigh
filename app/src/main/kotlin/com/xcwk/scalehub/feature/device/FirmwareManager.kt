@@ -1,5 +1,7 @@
 package com.xcwk.scalehub.feature.device
 
+import com.xcwk.scalehub.ui.components.QkHeaderStyle
+import com.xcwk.scalehub.ui.components.QkScreenHeader
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -540,18 +542,7 @@ private fun FirmwareNavBar(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Row(
-        modifier = modifier.fillMaxWidth().padding(top = QkSpacing.Md),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        QkBackButton(onClick = onBack)
-        Text(
-            title,
-            modifier = Modifier.weight(1f).padding(start = QkSpacing.Sm),
-            style = MaterialTheme.typography.titleLarge,
-            color = QkColor.Fg,
-        )
-    }
+    QkScreenHeader(title, onBack, modifier = modifier, style = QkHeaderStyle.Title)
 }
 
 /** 警示横幅（原型 .banner.warn：琥珀底圆角条 + 线性警示图标 + 小字）。 */

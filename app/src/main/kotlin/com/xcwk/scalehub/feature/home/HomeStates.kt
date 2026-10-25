@@ -1,5 +1,7 @@
 package com.xcwk.scalehub.feature.home
 
+import com.xcwk.scalehub.ui.components.QkHeaderStyle
+import com.xcwk.scalehub.ui.components.QkScreenHeader
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -910,13 +912,7 @@ private fun HomeLoadingBanner(text: String) {
 /** 二级页导航条：返回圆钮 + 标题（原型 .navbar）。 */
 @Composable
 private fun HomeNavBar(title: String, onBack: () -> Unit) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        QkBackButton(onClick = onBack)
-        QkPageTitle(
-            title = title,
-            modifier = Modifier.padding(start = QkSpacing.Md),
-        )
-    }
+    QkScreenHeader(title, onBack, style = QkHeaderStyle.Title)
 }
 
 /** 居中的幽灵按钮（原型 .btn.ghost + align-self:center）。 */

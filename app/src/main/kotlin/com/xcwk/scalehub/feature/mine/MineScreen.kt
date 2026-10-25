@@ -121,7 +121,6 @@ fun MineScreen(
         }
 
         if (state.unsetHint) {
-            QkEmptyHint("未设身高，体脂估算会不准确——请先完善资料", modifier = Modifier.padding(top = QkSpacing.Sm))
         }
 
         QkSectionHead(title = "我的健康档案", modifier = Modifier.padding(top = QkSpacing.Lg))
@@ -193,14 +192,6 @@ fun MineScreen(
                 label = "昵称（≤20 字，可空）",
                 modifier = Modifier.padding(top = 6.dp),
             )
-            if (state.summary.isNotBlank()) {
-                Text(
-                    state.summary,
-                    modifier = Modifier.padding(top = 8.dp),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = QkColor.Muted,
-                )
-            }
             state.error?.let {
                 Text(
                     it,

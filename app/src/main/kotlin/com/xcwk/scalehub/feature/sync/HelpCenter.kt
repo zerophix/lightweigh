@@ -1,5 +1,6 @@
 package com.xcwk.scalehub.feature.sync
 
+import com.xcwk.scalehub.ui.components.QkScreenHeader
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -126,16 +127,7 @@ val WEIGHT_FLUCTUATION_FAQ = FaqDetail(
 /** 压栈页导航条：返回圆钮 + 页标题（原型 .navbar）。 */
 @Composable
 internal fun HelpNavBar(title: String, onBack: () -> Unit, modifier: Modifier = Modifier) {
-    Row(
-        modifier = modifier.fillMaxWidth().padding(vertical = QkSpacing.Md),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        QkBackButton(onClick = onBack)
-        QkPageTitle(
-            title = title,
-            modifier = Modifier.weight(1f).padding(start = QkSpacing.Md),
-        )
-    }
+    QkScreenHeader(title, onBack, modifier = modifier)
 }
 
 /** 提示横幅（原型 .banner：薄荷底圆角条 + 左侧线性图标 + 小字）。 */
