@@ -2,6 +2,17 @@
 # Git pre-push hook — 分支命名 + 校验必须 PASS + 密钥扫描（DEC-049）
 set -euo pipefail
 
+# ---- 治理总开关（scripts/governance/gov-mode.sh off 时直接放行）----
+_gov_root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+# shellcheck source=/dev/null
+if [ -f "$_gov_root/scripts/governance/gov-mode.sh" ]; then
+  . "$_gov_root/scripts/governance/gov-mode.sh"
+  if gov_mode_is_off; then
+    gov_mode_audit_skip "pre-push"
+    exit 0
+  fi
+fi
+
 # DEC-050: worktree 下优先 show-toplevel，避免共享 hooks 时 ROOT 落到主树
 ROOT="$(git rev-parse --show-toplevel 2>/dev/null || true)"
 if [ -z "${ROOT:-}" ] || [ ! -f "$ROOT/scripts/governance/gov-validate.sh" ]; then

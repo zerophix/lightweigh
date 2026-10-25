@@ -12,6 +12,17 @@
 
 COMMIT_MSG_FILE="$1"
 
+# ---- 治理总开关（scripts/governance/gov-mode.sh off 时直接放行）----
+_gov_root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+# shellcheck source=/dev/null
+if [ -f "$_gov_root/scripts/governance/gov-mode.sh" ]; then
+  . "$_gov_root/scripts/governance/gov-mode.sh"
+  if gov_mode_is_off; then
+    gov_mode_audit_skip "commit-msg"
+    exit 0
+  fi
+fi
+
 FIRST_LINE=$(head -1 "$COMMIT_MSG_FILE")
 if echo "$FIRST_LINE" | grep -qE '^(Merge|Revert)\b'; then
   exit 0

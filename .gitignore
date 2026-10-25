@@ -34,3 +34,5 @@ scripts/tools/gitleaks-*
 
 # DEC-050: in-repo git worktrees
 .worktrees/
+.ai/gov-mode.json
+.ai/gov-skips/

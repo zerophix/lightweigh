@@ -23,6 +23,19 @@
 # 任一步失败即非 0 退出。
 set -euo pipefail
 
+# ---- 治理总开关（scripts/governance/gov-mode.sh off 时直接放行）----
+_gov_root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+# shellcheck source=/dev/null
+if [ -f "$_gov_root/scripts/governance/gov-mode.sh" ]; then
+  . "$_gov_root/scripts/governance/gov-mode.sh"
+  if gov_mode_is_off; then
+    gov_mode_audit_skip "local-ci"
+    exit 0
+  fi
+fi
+
+if gov_mode_is_off; then echo "[gov-local-ci] governance off，跳过本地门禁（构建/测试仍可手动跑）"; fi
+
 ROOT="$(git rev-parse --show-toplevel 2>/dev/null || true)"
 if [ -z "${ROOT:-}" ] || [ ! -f "$ROOT/scripts/governance/gov-validate.sh" ]; then
   ROOT="$(cd "$(dirname "$0")/../.." && pwd)"

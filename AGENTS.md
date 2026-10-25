@@ -5,6 +5,17 @@
 
 ---
 
+## 0. 治理总开关（写代码前先看这条）
+
+```bash
+bash scripts/governance/gov-mode.sh off 2h   # 纯写码：跳过认领锁/文档校验/密钥扫描/队列/DoD
+bash scripts/governance/gov-mode.sh on
+bash scripts/governance/gov-mode.sh status
+```
+
+off 有到期时间，过期自动回到 on；构建、测试、装机验证**不受开关影响**，它们才是"完成"的依据。
+开关只是数据：`core.hooksPath` 与钩子文件始终不动。
+
 ## 0. 30 秒启动
 
 ```bash

@@ -17,6 +17,20 @@
 #   - 验证失败：报告失败步骤；候选保留（便于排查），不推送
 set -uo pipefail
 
+# ---- 治理总开关（scripts/governance/gov-mode.sh off 时直接放行）----
+_gov_root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+# status 是只读查询，不受开关影响
+if [ "${1:-}" != "status" ]; then
+  # shellcheck source=/dev/null
+  if [ -f "$_gov_root/scripts/governance/gov-mode.sh" ]; then
+    . "$_gov_root/scripts/governance/gov-mode.sh"
+    if gov_mode_is_off; then
+      gov_mode_audit_skip "queue"
+      exit 0
+    fi
+  fi
+fi
+
 DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT="${WF_QUEUE_ROOT:-$(cd "$DIR/../.." && pwd)}"
 cd "$ROOT" || exit 1

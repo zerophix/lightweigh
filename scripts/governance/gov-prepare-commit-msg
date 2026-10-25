@@ -9,6 +9,17 @@
 #   合并队列据此回填任务板，不再依赖分支名。
 
 COMMIT_MSG_FILE="$1"
+
+# ---- 治理总开关（scripts/governance/gov-mode.sh off 时直接放行）----
+_gov_root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+# shellcheck source=/dev/null
+if [ -f "$_gov_root/scripts/governance/gov-mode.sh" ]; then
+  . "$_gov_root/scripts/governance/gov-mode.sh"
+  if gov_mode_is_off; then
+    gov_mode_audit_skip "prepare-commit-msg"
+    exit 0
+  fi
+fi
 COMMIT_SOURCE="$2"
 SHA1="$3"
 
