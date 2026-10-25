@@ -3,6 +3,7 @@ package com.xcwk.scalehub.ui.debug
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
@@ -74,6 +75,7 @@ private val tabNames = listOf("全部", "抓包", "Session", "BLE")
  * - 球可拖动、松手吸附左右边缘；点击展开全屏面板。
  * - 面板：LazyColumn 滚动 + 一键复制 + 清空 + 跟随底部（用户上滑暂停跟随）。
  */
+@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
 fun DebugOverlay() {
     if (!BuildConfig.DEBUG) return
@@ -85,7 +87,7 @@ fun DebugOverlay() {
         if (!panelOpen) {
             BoxWithConstraints(Modifier.fillMaxSize()) {
                 val density = LocalDensity.current
-                val ballPx = with(density) { 48.dp.toPx() }
+                val ballPx = with(density) { 34.dp.toPx() }
                 val marginPx = with(density) { 12.dp.toPx() }
                 val maxW = constraints.maxWidth.toFloat().coerceAtLeast(ballPx)
                 val maxH = constraints.maxHeight.toFloat().coerceAtLeast(ballPx)
@@ -97,9 +99,10 @@ fun DebugOverlay() {
                     Modifier
                         .align(Alignment.TopStart)
                         .offset { IntOffset(x.floatValue.roundToInt(), y.floatValue.roundToInt()) }
-                        .size(48.dp)
+                        .size(34.dp)
                         .clip(CircleShape)
-                        .background(Color(0xCC159B72))
+                        // 半透明 + 长按唤出：普通点击不再抢列表行的点击，也不挡视线
+                        .background(Color(0x99159B72))
                         .pointerInput(maxW, maxH) {
                             detectDragGestures(
                                 onDrag = { change, dragAmount ->
@@ -113,7 +116,10 @@ fun DebugOverlay() {
                                 },
                             )
                         }
-                        .clickable { panelOpen = true },
+                        .combinedClickable(
+                            onClick = {},
+                            onLongClick = { panelOpen = true },
+                        ),
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(Icons.Outlined.BugReport, contentDescription = "调试日志", tint = Color.White)

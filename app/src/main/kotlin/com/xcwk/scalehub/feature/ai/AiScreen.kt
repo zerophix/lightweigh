@@ -1,5 +1,7 @@
 package com.xcwk.scalehub.feature.ai
 
+import com.xcwk.scalehub.BuildConfig
+
 import com.xcwk.scalehub.ui.components.QkScreenHeader
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -202,11 +204,14 @@ private fun AiChatBody(
             onAction = { onIntent(AiIntent.OpenAuthSettings) },
         )
         QkCard(modifier = Modifier.padding(top = QkSpacing.Sm)) {
-            QkListRow(
-                title = WiringEntries.AiBoundaries.title,
-                subtitle = WiringEntries.AiBoundaries.hint,
-                onClick = onOpenBoundaries,
-            )
+            // 六态降级演示是调试入口，不进正式产品的入口层。
+            if (BuildConfig.DEBUG) {
+                QkListRow(
+                    title = "（调试）${WiringEntries.AiBoundaries.title}",
+                    subtitle = WiringEntries.AiBoundaries.hint,
+                    onClick = onOpenBoundaries,
+                )
+            }
             // 接入波第四批：AI 周总结（入口文案见 AiWeeklyEntry）
             QkListRow(
                 title = AiWeeklyEntry.TITLE,
