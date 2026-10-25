@@ -1,5 +1,7 @@
 package com.xcwk.scalehub.feature.member
 
+import com.xcwk.scalehub.ui.components.QkHeaderStyle
+import com.xcwk.scalehub.ui.components.QkScreenHeader
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -448,19 +450,7 @@ private fun ActionPlanNavBar(
     modifier: Modifier = Modifier,
     action: (@Composable () -> Unit)? = null,
 ) {
-    Row(
-        modifier = modifier.fillMaxWidth().padding(top = QkSpacing.Md),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        QkBackButton(onClick = onBack)
-        Text(
-            title,
-            modifier = Modifier.weight(1f).padding(start = QkSpacing.Sm),
-            style = MaterialTheme.typography.titleLarge,
-            color = QkColor.Fg,
-        )
-        action?.invoke()
-    }
+    QkScreenHeader(title, onBack, modifier = modifier, style = QkHeaderStyle.Title, action = action)
 }
 
 /** 页面骨架：统一边距 + 纵向滚动。 */

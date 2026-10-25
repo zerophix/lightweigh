@@ -1,5 +1,7 @@
 package com.xcwk.scalehub.feature.device
 
+import com.xcwk.scalehub.ui.components.QkHeaderStyle
+import com.xcwk.scalehub.ui.components.QkScreenHeader
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -50,18 +52,7 @@ internal fun PairingFlow(state: PairingState, onIntent: (DeviceIntent) -> Unit) 
 /** 压栈页导航条（原型 .navbar：返回圆钮 + 页标题）。 */
 @Composable
 private fun PairingNavBar(onBack: () -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(top = QkSpacing.Md),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        QkBackButton(onClick = onBack)
-        Text(
-            PAIRING_TITLE,
-            modifier = Modifier.weight(1f).padding(start = QkSpacing.Sm),
-            style = MaterialTheme.typography.titleLarge,
-            color = QkColor.Fg,
-        )
-    }
+    QkScreenHeader(PAIRING_TITLE, onBack, style = QkHeaderStyle.Title)
 }
 
 /** v-pairing：蓝牙环 + 「正在连接 …」+ 底部「模拟失败/超时」「模拟成功」。 */

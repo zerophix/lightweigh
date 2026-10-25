@@ -1,5 +1,7 @@
 package com.xcwk.scalehub.feature.privacy
 
+import com.xcwk.scalehub.ui.components.QkHeaderStyle
+import com.xcwk.scalehub.ui.components.QkScreenHeader
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -228,19 +230,7 @@ internal fun PrivacyNavBar(
     modifier: Modifier = Modifier,
     action: (@Composable () -> Unit)? = null,
 ) {
-    Row(
-        modifier = modifier.fillMaxWidth().padding(top = QkSpacing.Md),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        QkBackButton(onClick = onBack)
-        Text(
-            title,
-            modifier = Modifier.weight(1f).padding(start = QkSpacing.Sm),
-            style = MaterialTheme.typography.titleLarge,
-            color = QkColor.Fg,
-        )
-        action?.invoke()
-    }
+    QkScreenHeader(title, onBack, modifier = modifier, style = QkHeaderStyle.Title, action = action)
 }
 
 /** 提示横幅（原型 .banner：薄荷底圆角条 + 左侧线性图标 + 小字）。 */

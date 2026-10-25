@@ -1,5 +1,6 @@
 package com.xcwk.scalehub.ui.components
 
+import com.xcwk.scalehub.ui.components.QkHeaderStyle
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -661,6 +663,70 @@ fun QkPageTitle(title: String, modifier: Modifier = Modifier) {
         style = MaterialTheme.typography.headlineSmall,
         color = QkColor.Fg,
     )
+}
+
+/** 详情页页头版式（三档，收敛全库 14 份各自实现的返回条）。 */
+enum class QkHeaderStyle {
+    /** 大标题（原型 .page-title）：历史/报告/设置等主详情页。 */
+    Page,
+
+    /** 次一级标题（titleLarge）：认证、隐私、固件、行动计划等流程页。 */
+    Title,
+
+    /** 居中标题（titleMedium）：验证码/邮箱等窄流程页。 */
+    Centered,
+}
+
+/**
+ * 详情页页头：返回钮 + 标题 + 可选右侧动作。
+ *
+ * 为什么要有它：14 个 feature 各写了一份几乎相同的返回条（相似度 85%~99%），
+ * 改一处样式要改 14 处，且已经出现 34dp/小标题/居中三种漂移。统一走这里。
+ */
+@Composable
+fun QkScreenHeader(
+    title: String,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier,
+    style: QkHeaderStyle = QkHeaderStyle.Page,
+    action: (@Composable () -> Unit)? = null,
+) {
+    val vertical = if (style == QkHeaderStyle.Page) {
+        Modifier.padding(vertical = QkSpacing.Md)
+    } else {
+        Modifier.padding(top = QkSpacing.Md)
+    }
+    Row(
+        modifier = modifier.fillMaxWidth().then(vertical),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        QkBackButton(onClick = onBack)
+        when (style) {
+            QkHeaderStyle.Page -> QkPageTitle(
+                title = title,
+                modifier = Modifier.weight(1f).padding(start = QkSpacing.Md),
+            )
+            QkHeaderStyle.Title -> Text(
+                title,
+                modifier = Modifier.weight(1f).padding(start = QkSpacing.Sm),
+                style = MaterialTheme.typography.titleLarge,
+                color = QkColor.Fg,
+            )
+            QkHeaderStyle.Centered -> Text(
+                title,
+                modifier = Modifier.weight(1f).padding(end = QkSpacing.Md),
+                style = MaterialTheme.typography.titleMedium,
+                color = QkColor.Fg,
+                textAlign = TextAlign.Center,
+            )
+        }
+        if (style == QkHeaderStyle.Centered) {
+            // 右侧留出与返回钮等宽的占位，保证标题视觉居中
+            Spacer(modifier = Modifier.width(QkSpacing.Xl))
+        } else {
+            action?.invoke()
+        }
+    }
 }
 
 /** 压栈页的返回圆钮（原型 .icon-btn 口径：34dp 白底细边圆）。 */

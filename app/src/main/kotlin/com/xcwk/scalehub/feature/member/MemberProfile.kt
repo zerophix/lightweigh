@@ -1,5 +1,6 @@
 package com.xcwk.scalehub.feature.member
 
+import com.xcwk.scalehub.ui.components.QkScreenHeader
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -623,13 +624,7 @@ fun MemberNoDeviceScreen(
 /** 二级页导航条（返回 + 标题），四屏共用。 */
 @Composable
 private fun ProfileNavBar(title: String, onBack: () -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = QkSpacing.Md),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        QkBackButton(onClick = onBack)
-        QkPageTitle(title = title, modifier = Modifier.weight(1f).padding(start = QkSpacing.Md))
-    }
+    QkScreenHeader(title, onBack)
 }
 
 /** 「当前查看」横幅：头像字块 + 成员名（+ 可选副标题）。 */

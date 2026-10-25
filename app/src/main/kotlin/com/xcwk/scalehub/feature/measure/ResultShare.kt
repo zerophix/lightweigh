@@ -1,5 +1,6 @@
 package com.xcwk.scalehub.feature.measure
 
+import com.xcwk.scalehub.ui.components.QkScreenHeader
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -578,16 +579,7 @@ internal fun ResultExportDoneView(
 /** 压栈页导航条（原型 .navbar：返回 + 居中偏左标题）。 */
 @Composable
 private fun ShareNavBar(title: String, onBack: () -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(top = QkSpacing.Md),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        QkBackButton(onClick = onBack)
-        QkPageTitle(
-            title = title,
-            modifier = Modifier.weight(1f).padding(start = QkSpacing.Md),
-        )
-    }
+    QkScreenHeader(title, onBack)
 }
 
 /** v-share 的数据安全警示（原型 .banner.warn：警示图标 + 说明）。 */
