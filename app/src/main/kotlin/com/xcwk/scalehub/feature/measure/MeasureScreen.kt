@@ -132,8 +132,8 @@ fun MeasureScreen(
         // 空态与体重卡二选一，避免原型镜像那样「同一屏两套数据表达」。
         if (home.latestWeight == null && state.loaded) {
             HomeEmptyHeader(
-                onStartMeasure = onOpenScale,
-                onOpenHistory = onOpenHistory,
+                onManualRecord = onOpenQuick,
+                onConnectScale = onOpenScale,
             )
         } else {
             WeightCard(
@@ -282,8 +282,8 @@ fun MeasureScreen(
  */
 @Composable
 private fun HomeEmptyHeader(
-    onStartMeasure: () -> Unit,
-    onOpenHistory: () -> Unit,
+    onManualRecord: () -> Unit,
+    onConnectScale: () -> Unit,
 ) {
     Column(modifier = Modifier.padding(top = QkSpacing.Md)) {
         Text(
@@ -307,7 +307,7 @@ private fun HomeEmptyHeader(
                     color = QkColor.Fg,
                 )
                 Text(
-                    "连接体脂秤完成一次测量，或先手动记录一次体重。",
+                    "有秤就贴上去自动记录，没秤也能先手动输入一次。",
                     modifier = Modifier.padding(top = 4.dp),
                     style = MaterialTheme.typography.bodySmall,
                     color = QkColor.Muted,
@@ -320,15 +320,15 @@ private fun HomeEmptyHeader(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             QkButton(
-                text = "开始第一次测量",
+                text = "手动记录一次",
                 modifier = Modifier.weight(1f),
-                onClick = onStartMeasure,
+                onClick = onManualRecord,
             )
             QkButton(
-                text = "历史记录",
+                text = "连接体脂秤",
                 style = QkButtonStyle.Secondary,
                 modifier = Modifier.weight(1f),
-                onClick = onOpenHistory,
+                onClick = onConnectScale,
             )
         }
     }

@@ -27,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
@@ -116,6 +117,16 @@ fun MainShell() {
     val appContext = LocalContext.current.applicationContext as App
     val container = appContext.container
 
+    // 首次进入引导：设计稿 19-onboarding-guide 的入口曾整块缺失（树里没有任何 push 点）。
+    // 只弹一次，用本机标记记住；跳过/完成都落在同一条回首页路径。
+    val uiPrefs = appContext.getSharedPreferences("qk_ui_prefs", android.content.Context.MODE_PRIVATE)
+    LaunchedEffect(Unit) {
+        if (!uiPrefs.getBoolean("guide_seen", false)) {
+            uiPrefs.edit().putBoolean("guide_seen", true).apply()
+            nav = nav.reduce(NavEvent.Push(NavOverlay.Guide))
+        }
+    }
+
     // 通知铃：产品未定义通知中心前，给诚实的空态反馈（无通知后端，不造假红点/假列表）。
     val onBell: () -> Unit = {
         Toast.makeText(appContext, "暂无新通知", Toast.LENGTH_SHORT).show()
@@ -139,15 +150,19 @@ fun MainShell() {
             }
         },
         bottomBar = {
-            QkBottomNav(
-                tab = nav.tab,
-                canPop = nav.canPop,
-                onTab = { go(NavEvent.SelectTab(it)) },
-                onAdd = {
-                    nav = nav.reduce(NavEvent.CloseAll)
-                    showQuick = true
-                },
-            )
+            // 详情页（压栈/记录表单）只保留右上返回，不给第二个退出方向：
+            // 底栏常驻会占掉内容高度，也让学生原型里没有的"双出口"出现在产品里。
+            if (!nav.canPop) {
+                QkBottomNav(
+                    tab = nav.tab,
+                    canPop = nav.canPop,
+                    onTab = { go(NavEvent.SelectTab(it)) },
+                    onAdd = {
+                        nav = nav.reduce(NavEvent.CloseAll)
+                        showQuick = true
+                    },
+                )
+            }
         },
     ) { padding ->
         Box(modifier = Modifier.padding(padding)) {
@@ -179,7 +194,13 @@ fun MainShell() {
                     MainTab.TREND -> TrendRoute(
                         onOpenHistory = { go(NavEvent.Push(NavOverlay.History)) },
                     )
-                    MainTab.DEVICE -> DeviceRoute()
+                    MainTab.DEVICE -> DeviceRoute(
+                        // 设备页扫描无结果时的手动记录出口：回首页并打开快捷记录
+                        onManualRecord = {
+                            nav = nav.reduce(NavEvent.SelectTab(MainTab.HOME))
+                            showQuick = true
+                        },
+                    )
                     MainTab.MINE -> MineRoute(
                         onOpenSettings = { go(NavEvent.Push(NavOverlay.Settings)) },
                         onOpenMembers = { go(NavEvent.Push(NavOverlay.Members)) },

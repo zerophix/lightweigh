@@ -32,9 +32,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import com.journeyapps.barcodescanner.ScanContract
-import com.journeyapps.barcodescanner.ScanIntentResult
-import com.journeyapps.barcodescanner.ScanOptions
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.xcwk.scalehub.ui.components.BlePermissionGate
@@ -49,6 +46,7 @@ import com.xcwk.scalehub.ui.components.QkListRow
 import com.xcwk.scalehub.ui.components.QkPill
 import com.xcwk.scalehub.ui.components.QkPillTone
 import com.xcwk.scalehub.ui.components.QkSectionHead
+import com.xcwk.scalehub.ui.components.QkTextField
 import com.xcwk.scalehub.ui.components.rememberBtEnabled
 import com.xcwk.scalehub.ui.shell.WiringEntries
 import com.xcwk.scalehub.ui.shell.WiringHost
@@ -67,11 +65,16 @@ import com.xcwk.scalehub.ui.theme.QkTheme
  * 两张列表卡用 list-row 语法。
  */
 @Composable
-fun DeviceScreen(vm: DeviceViewModel = viewModel(factory = DeviceViewModel.Factory)) {
+fun DeviceScreen(
+    vm: DeviceViewModel = viewModel(factory = DeviceViewModel.Factory),
+    onManualRecord: () -> Unit = {},
+) {
     val state by vm.state.collectAsStateWithLifecycle()
 
     // 接入波：设备管理三屏（固件 / 重命名 / 成员关联）覆盖设备页，返回即回本页
     var manageTarget by remember { mutableStateOf<WiringTarget?>(null) }
+    var showQrEntry by remember { mutableStateOf(false) }
+    var macInput by remember { mutableStateOf("") }
     manageTarget?.let { target ->
         DeviceManageRoute(target = target, onBack = { manageTarget = null })
         return
@@ -140,21 +143,6 @@ fun DeviceScreen(vm: DeviceViewModel = viewModel(factory = DeviceViewModel.Facto
         if (btEnabled) vm.onIntent(DeviceIntent.ToggleScan) else vm.onIntent(DeviceIntent.Refresh)
     }
 
-    // 扫码绑定（旧库 BindActivity btnQr → ScanContract）
-    val qrLauncher = rememberLauncherForActivityResult<ScanOptions, ScanIntentResult>(
-      ScanContract() as ActivityResultContract<ScanOptions, ScanIntentResult>,
-    ) { result ->
-        val contents = result.contents
-        if (contents != null) {
-            val qr = com.xcwk.scalehub.domain.device.ScaleQr.parse(contents)
-            if (qr == null) {
-                vm.onIntent(DeviceIntent.Refresh)
-            } else {
-                vm.onIntent(DeviceIntent.QrBind(qr.name, qr.mac))
-            }
-        }
-    }
-
     // 授权成功即自动开扫（旧库 onRequestPermissionsResult → prepareScan）
     BlePermissionGate(onGranted = { vm.onIntent(DeviceIntent.ToggleScan) }) { granted, requestPermission ->
         if (showSetup) {
@@ -184,20 +172,57 @@ fun DeviceScreen(vm: DeviceViewModel = viewModel(factory = DeviceViewModel.Facto
             onEnableBluetooth = {
                 enableBtLauncher.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
             },
-            onScanQr = {
-                qrLauncher.launch(
-                    ScanOptions()
-                        .setDesiredBarcodeFormats(ScanOptions.QR_CODE)
-                        .setPrompt("将体脂秤二维码放入框内")
-                        .setBeepEnabled(false)
-                        .setOrientationLocked(true),
-                )
-            },
+            // 原实现直接拉起外部扫码 App：相机被拒时用户看到的是别的 App 的报错。
+            // 改为应用内输入 MAC（秤身/包装上都有），相机可用与否都能完成绑定。
+            onScanQr = { showQrEntry = true },
             onHelp = { showHelp = true },
             onOpenManage = { manageTarget = it },
             onOpenDetail = { showDetail = true },
             onOpenTips = { showTips = true },
             onOpenSetup = { showSetup = true },
+            onManualRecord = onManualRecord,
+        )
+    }
+
+    if (showQrEntry) {
+        val raw = macInput.trim()
+        val manualMac = raw.matches(Regex("^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$"))
+        val scanned = if (!manualMac) com.xcwk.scalehub.domain.device.ScaleQr.parse(raw) else null
+        val macOk = manualMac || scanned != null
+        AlertDialog(
+            onDismissRequest = { showQrEntry = false },
+            title = { Text("输入体脂秤编号") },
+            text = {
+                Column {
+                    Text(
+                        "输入秤身/包装上的 MAC（形如 AA:BB:CC:DD:EE:FF），或粘贴二维码里的内容。",
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                    QkTextField(
+                        value = macInput,
+                        onValueChange = { macInput = it },
+                        label = "设备 MAC",
+                        placeholder = "AA:BB:CC:DD:EE:FF",
+                        modifier = Modifier.padding(top = QkSpacing.Sm),
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    enabled = macOk,
+                    onClick = {
+                        val qr = scanned
+                        if (qr != null) {
+                            vm.onIntent(DeviceIntent.QrBind(qr.name, qr.mac))
+                        } else {
+                            vm.onIntent(DeviceIntent.QrBind("体脂秤", raw))
+                        }
+                        showQrEntry = false
+                        macInput = ""
+                    },
+                ) { Text("绑定") }
+            },
+            dismissButton = { TextButton(onClick = { showQrEntry = false }) { Text("取消") } },
         )
     }
 
@@ -233,6 +258,7 @@ fun DeviceContent(
     onOpenDetail: () -> Unit = {},
     onOpenTips: () -> Unit = {},
     onOpenSetup: () -> Unit = {},
+    onManualRecord: () -> Unit = {},
 ) {
     // 配对流程三态整屏接管（原型 04-device.html）：
     // v-pairing「正在连接」/ v-pair-success「连接成功」/ v-pair-fail「连接失败」，
@@ -324,6 +350,15 @@ fun DeviceContent(
                     style = MaterialTheme.typography.bodySmall,
                     color = QkColor.Muted,
                 )
+                // 扫描没结果时不要留死路：没有体脂秤也能先手动记录一次
+                if (!state.scanning && state.notice.contains("未发现")) {
+                    QkButton(
+                        text = "没有体脂秤？先手动记录",
+                        style = QkButtonStyle.Ghost,
+                        modifier = Modifier.padding(top = QkSpacing.Sm),
+                        onClick = onManualRecord,
+                    )
+                }
             }
             Text(
                 "本页直接扫描并连接真实蓝牙体脂秤；二维码绑定请对准秤身或包装上的二维码。",

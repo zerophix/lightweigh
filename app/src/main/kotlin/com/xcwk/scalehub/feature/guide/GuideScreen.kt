@@ -98,7 +98,7 @@ object GuideText {
     const val GoalDesc = "目标可以随时调整，\n先选一个方向就好。"
     const val GoalWeightLabel = "目标体重"
     const val GoalWeightUnit = "kg"
-    const val GoalWeightHint = "从 62.4 kg 到 58.0 kg，需减 4.4 kg"
+    const val GoalWeightHint = "设好目标体重后，这里会显示与当前体重的差值"
     const val GoalSkip = "跳过，稍后设置"
 
     // v-prepare

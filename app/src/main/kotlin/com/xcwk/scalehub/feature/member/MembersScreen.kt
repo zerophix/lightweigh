@@ -126,12 +126,12 @@ fun MembersScreen(
         QkCard(modifier = Modifier.padding(bottom = 8.dp)) {
             QkListRow(
                 title = MemberProfileText.NavRecord,
-                subtitle = "当前成员还没有测量记录时的引导",
+                subtitle = "查看这位成员的全部测量",
                 onClick = { memberPage = MemberPage.NoRecord },
             )
             QkListRow(
                 title = MemberProfileText.NavDevice,
-                subtitle = "成员还没有上过秤时的引导",
+                subtitle = "这位成员连接过的体脂秤",
                 showDivider = false,
                 onClick = { memberPage = MemberPage.NoDevice },
             )

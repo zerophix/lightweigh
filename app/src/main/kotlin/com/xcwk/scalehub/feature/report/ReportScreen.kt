@@ -1,6 +1,7 @@
 package com.xcwk.scalehub.feature.report
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -70,7 +71,7 @@ fun ReportScreen(
             ?.takeIf { it.valueText != "--" }
             ?.let { "身高 ${it.valueText} ${it.unit}" },
         state.metrics.firstOrNull { it.name == "实际年龄" }
-            ?.takeIf { it.valueText != "--" }
+            ?.takeIf { it.valueText != "--" && it.valueText != "0" && it.valueText.isNotBlank() }
             ?.let { "年龄 ${it.valueText} 岁" },
     ).joinToString(" · ")
     val bodyMetrics = state.metrics.filter { it.name != "身高" && it.name != "实际年龄" }
@@ -127,6 +128,7 @@ fun ReportScreen(
                         .padding(horizontal = 4.dp)
                         .clip(RoundedCornerShape(8.dp))
                         .background(if (selected) QkColor.Primary else QkColor.Mint)
+                        .clickable { tab = i }
                         .padding(vertical = 8.dp),
                     contentAlignment = Alignment.Center,
                 ) {

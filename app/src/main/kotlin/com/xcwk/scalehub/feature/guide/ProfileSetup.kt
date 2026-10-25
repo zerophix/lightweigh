@@ -207,6 +207,7 @@ fun ProfileSetupFlow(
             state = state,
             onIntent = onIntent,
             modifier = modifier,
+            onSkipProfile = onSkipProfile,
         )
 
         ProfileSetupStep.Height -> ProfileHeightScreen(
@@ -244,6 +245,7 @@ fun ProfileAgeGenderScreen(
     state: ProfileSetupUiState,
     onIntent: (ProfileSetupIntent) -> Unit,
     modifier: Modifier = Modifier,
+    onSkipProfile: () -> Unit = {},
 ) {
     ProfileStepScaffold(
         counter = PROFILE_STEP1_COUNTER,
@@ -253,11 +255,26 @@ fun ProfileAgeGenderScreen(
         desc = PROFILE_STEP1_DESC,
         modifier = modifier,
         footer = {
+            // 禁用态按钮不解释原因时，用户只会反复点它：给出下一步条件 + 允许稍后补。
+            if (!canGoNextStep(state.ageText, state.gender)) {
+                Text(
+                    text = "填写年龄并选择性别后即可继续",
+                    modifier = Modifier.fillMaxWidth().padding(bottom = QkSpacing.Sm),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = QkColor.Muted,
+                )
+            }
             QkButton(
                 text = PROFILE_NEXT,
                 modifier = Modifier.fillMaxWidth(),
                 enabled = canGoNextStep(state.ageText, state.gender),
                 onClick = { onIntent(ProfileSetupIntent.Next) },
+            )
+            QkButton(
+                text = "稍后再说",
+                style = QkButtonStyle.Ghost,
+                modifier = Modifier.fillMaxWidth().padding(top = QkSpacing.Sm),
+                onClick = onSkipProfile,
             )
         },
     ) {

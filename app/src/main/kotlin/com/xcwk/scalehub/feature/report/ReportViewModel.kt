@@ -121,14 +121,18 @@ class ReportViewModel(
 
     /** Pages:663 —— 双端有效给带符号值，否则 "--"。 */
     private fun deltaLineOf(prevWeight: Double?, prevFat: Double?, record: com.xcwk.scalehub.domain.model.MeasureRecord): String {
-        val weightDiff = prevWeight?.let { "%+.1f".format(Locale.US, record.weight - it) } ?: "--"
-        val prevFatValue = prevFat
-        val fatDiff = if (record.fat >= 0 && prevFatValue != null) {
-            "%+.1f".format(Locale.US, record.fat - prevFatValue)
+        val weightDiff = prevWeight?.let { "%+.1f".format(Locale.US, record.weight - it) }
+        val fatDiff = if (record.fat >= 0 && prevFat != null) {
+            "%+.1f".format(Locale.US, record.fat - prevFat)
         } else {
-            "--"
+            null
         }
-        return "比上次  体重 $weightDiff 公斤  体脂率 $fatDiff %"
+        if (weightDiff == null && fatDiff == null) return "首次记录，暂无对比"
+        val parts = buildList {
+            weightDiff?.let { add("体重 $it 公斤") }
+            fatDiff?.let { add("体脂率 $it %") }
+        }
+        return "比上次  " + parts.joinToString("  ")
     }
 
     private fun fmt(pattern: String) = java.time.format.DateTimeFormatter.ofPattern(pattern).withZone(zone)
