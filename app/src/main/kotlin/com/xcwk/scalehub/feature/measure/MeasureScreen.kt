@@ -78,6 +78,15 @@ import kotlin.math.absoluteValue
  * 而是编进同一套卡片语法里：腰围并入体重卡的第三个指标格，轻断食与生理期用同尺寸的
  * 浅底卡承接，热量明细展开在「今日饮食」的四格内。
  */
+/** 首页体重卡上的入口文案。 */
+const val MEASURE_ENTRY_TITLE = "开始测量"
+
+/** 首页可整屏覆盖的接入层；[Home] 即真实首页本身。 */
+enum class MeasureHomeLayer {
+    Home,
+    SyncCenter,
+}
+
 @Composable
 fun MeasureScreen(
     vm: MeasureViewModel = viewModel(factory = MeasureViewModel.Factory),

@@ -23,6 +23,8 @@ ADB="${ADB:-$HOME/Library/Android/sdk/platform-tools/adb}"
 APK="app/build/outputs/apk/debug/app-debug.apk"
 PKG="com.xcwk.scalehub"
 
+bash "$(dirname "$0")/check-superseded.sh" || exit 2
+
 if [ "$BUILD" -eq 1 ]; then
   echo "[1/3] 编译"
   JAVA_HOME="${JAVA_HOME:-/Applications/Android Studio.app/Contents/jbr/Contents/Home}" \

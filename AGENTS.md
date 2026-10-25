@@ -39,6 +39,8 @@ scripts/dev/merge-mine.sh              # rebase origin/master → 推送（撞�
 - `TOUCHED` 有重叠先谈好归属；`⚠共享文件`（AGENTS.md / .ai/tasks.json / docs/ / .github/ / 测试注册表）只由一人改。
 - `merge-mine.sh` 只做快进推送，不解冲突；真冲突它会列出文件并退出。
 - 想做"单写者"模式时：其他人 `merge-mine.sh --branch-only` 只推分支，由一人合 master。
+- **原型换代 = 替换，不是叠加**：新设计上线时同一提交删掉旧实现，并把路径登记到 `scripts/dev/superseded.txt`；
+  旧 UI 不作为"参考版"保留（参考就是原型文件本身）。`check-superseded.sh` 会拦住回流。
 
 ## 1. 开工决策表
 

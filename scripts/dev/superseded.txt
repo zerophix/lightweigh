@@ -1,0 +1,9 @@
+# 已被新设计替换、禁止回流的旧实现。
+# 规则：原型换代时，同一提交里删除旧实现，并把路径登记在这里。
+# 检查：scripts/dev/check-superseded.sh（dev-verify.sh 会自动跑）
+app/src/main/kotlin/com/xcwk/scalehub/feature/home/HomeStates.kt
+app/src/main/kotlin/com/xcwk/scalehub/feature/home/HomeStateEntry.kt
+app/src/main/kotlin/com/xcwk/scalehub/feature/home/HomePreviews.kt
+app/src/main/kotlin/com/xcwk/scalehub/feature/measure/MeasureFlow.kt
+app/src/main/kotlin/com/xcwk/scalehub/feature/measure/MeasureFlowScreen.kt
+app/src/main/kotlin/com/xcwk/scalehub/feature/measure/MeasureFlowEntry.kt
