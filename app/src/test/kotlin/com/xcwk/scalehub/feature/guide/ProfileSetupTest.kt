@@ -30,18 +30,6 @@ class ProfileSetupTest {
     }
 
     @Test
-    fun `第 2 步文案逐字取自原型 v-onboard-height`() {
-        assertThat(PROFILE_STEP2_COUNTER).isEqualTo("2/2")
-        assertThat(PROFILE_STEP2_LABEL).isEqualTo("第 2 步 · 身高")
-        assertThat(PROFILE_STEP2_HEADLINE).isEqualTo("你的身高是多少？")
-        assertThat(PROFILE_STEP2_DESC).isEqualTo("用于身体成分与 BMI 计算")
-        assertThat(PROFILE_HEIGHT_UNIT).isEqualTo("cm")
-        assertThat(PROFILE_HEIGHT_PLACEHOLDER).isEqualTo("168")
-        assertThat(PROFILE_COMPLETE).isEqualTo("完成，开始使用")
-        assertThat(PROFILE_SKIP).isEqualTo("稍后在我的里补充")
-    }
-
-    @Test
     fun `完成页文案逐字取自原型 v-done`() {
         assertThat(PROFILE_DONE_TITLE).isEqualTo("登录成功，欢迎回来")
         assertThat(PROFILE_DONE_BODY_LINE1).isEqualTo("资料已完善，现在可以连接体脂秤")
@@ -105,7 +93,7 @@ class ProfileSetupTest {
     fun `身高合法区间两端都含`() {
         assertThat(isHeightValid(PROFILE_HEIGHT_MIN_CM.toString())).isTrue()
         assertThat(isHeightValid(PROFILE_HEIGHT_MAX_CM.toString())).isTrue()
-        assertThat(isHeightValid(PROFILE_HEIGHT_PLACEHOLDER)).isTrue()
+        assertThat(isHeightValid("168")).isTrue()
     }
 
     @Test
@@ -126,13 +114,23 @@ class ProfileSetupTest {
     // ---- 步进 ----
 
     @Test
-    fun `校验通过后下一步进第 2 步`() {
+    fun `年龄性别身高齐全时下一步直达完成页`() {
         val state = ProfileSetupUiState()
             .reduce(ProfileSetupIntent.AgeChanged("30"))
             .reduce(ProfileSetupIntent.GenderSelected(GenderOption.Undisclosed))
+            .reduce(ProfileSetupIntent.HeightChanged("168"))
             .reduce(ProfileSetupIntent.Next)
-        assertThat(state.step).isEqualTo(ProfileSetupStep.Height)
+        assertThat(state.step).isEqualTo(ProfileSetupStep.Done)
         assertThat(state.gender).isEqualTo(GenderOption.Undisclosed)
+    }
+
+    @Test
+    fun `缺身高时下一步原地不动`() {
+        val state = ProfileSetupUiState()
+            .reduce(ProfileSetupIntent.AgeChanged("30"))
+            .reduce(ProfileSetupIntent.GenderSelected(GenderOption.Male))
+            .reduce(ProfileSetupIntent.Next)
+        assertThat(state.step).isEqualTo(ProfileSetupStep.AgeGender)
     }
 
     @Test
@@ -151,19 +149,19 @@ class ProfileSetupTest {
 
     @Test
     fun `身高合法时完成进完成页`() {
-        val state = onHeightStep("168").reduce(ProfileSetupIntent.Complete)
+        val state = filled("168").reduce(ProfileSetupIntent.Complete)
         assertThat(state.step).isEqualTo(ProfileSetupStep.Done)
     }
 
     @Test
     fun `身高非法时完成原地不动`() {
-        val state = onHeightStep("300").reduce(ProfileSetupIntent.Complete)
-        assertThat(state.step).isEqualTo(ProfileSetupStep.Height)
+        val state = filled("300").reduce(ProfileSetupIntent.Complete)
+        assertThat(state.step).isEqualTo(ProfileSetupStep.AgeGender)
     }
 
     @Test
     fun `稍后补充直接进完成页且不校验身高`() {
-        val state = onHeightStep("").reduce(ProfileSetupIntent.SkipProfile)
+        val state = ProfileSetupUiState().reduce(ProfileSetupIntent.SkipProfile)
         assertThat(state.step).isEqualTo(ProfileSetupStep.Done)
     }
 
@@ -186,10 +184,9 @@ class ProfileSetupTest {
         assertThat(state.ageText).isEmpty()
     }
 
-    /** 造一个「已在第 2 步」的状态，避免每个用例重复三步意图。 */
-    private fun onHeightStep(heightText: String): ProfileSetupUiState = ProfileSetupUiState()
+    /** 造一个「年龄/性别/身高都填好」的状态。 */
+    private fun filled(heightText: String): ProfileSetupUiState = ProfileSetupUiState()
         .reduce(ProfileSetupIntent.AgeChanged("30"))
         .reduce(ProfileSetupIntent.GenderSelected(GenderOption.Male))
-        .reduce(ProfileSetupIntent.Next)
         .reduce(ProfileSetupIntent.HeightChanged(heightText))
 }

@@ -61,7 +61,6 @@ import com.xcwk.scalehub.ui.theme.QkSpacing
 // 两步共用
 const val PROFILE_TITLE = "完善资料"
 const val PROFILE_STEP1_COUNTER = "1/2"
-const val PROFILE_STEP2_COUNTER = "2/2"
 
 // v-onboard-age
 const val PROFILE_STEP1_LABEL = "第 1 步 · 年龄与性别"
@@ -73,13 +72,7 @@ const val PROFILE_GENDER_LABEL = "性别"
 const val PROFILE_NEXT = "下一步"
 
 // v-onboard-height
-const val PROFILE_STEP2_LABEL = "第 2 步 · 身高"
-const val PROFILE_STEP2_HEADLINE = "你的身高是多少？"
-const val PROFILE_STEP2_DESC = "用于身体成分与 BMI 计算"
 const val PROFILE_HEIGHT_LABEL = "身高"
-const val PROFILE_HEIGHT_UNIT = "cm"
-const val PROFILE_HEIGHT_PLACEHOLDER = "168"
-const val PROFILE_COMPLETE = "完成，开始使用"
 const val PROFILE_SKIP = "稍后在我的里补充"
 
 // v-done
@@ -130,7 +123,7 @@ fun canCompleteProfile(heightText: String): Boolean = isHeightValid(heightText)
 // ---- 状态机（纯函数，JVM 单测钉死） ----
 
 /** 资料完善三态（与原型 v-onboard-age / v-onboard-height / v-done 对应）。 */
-enum class ProfileSetupStep { AgeGender, Height, Done }
+enum class ProfileSetupStep { AgeGender, Done }
 
 /**
  * 资料完善呈现态。
@@ -166,14 +159,18 @@ fun ProfileSetupUiState.reduce(intent: ProfileSetupIntent): ProfileSetupUiState 
     is ProfileSetupIntent.GenderSelected -> copy(gender = intent.gender)
     is ProfileSetupIntent.HeightChanged -> copy(heightText = intent.text)
     ProfileSetupIntent.Next ->
-        if (step == ProfileSetupStep.AgeGender && canGoNextStep(ageText, gender)) {
-            copy(step = ProfileSetupStep.Height)
+        // 年龄/性别/身高在同一屏收齐：填全直接进完成页，不再多一步
+        if (step == ProfileSetupStep.AgeGender &&
+            canGoNextStep(ageText, gender) &&
+            canCompleteProfile(heightText)
+        ) {
+            copy(step = ProfileSetupStep.Done)
         } else {
             this
         }
 
     ProfileSetupIntent.Complete ->
-        if (step == ProfileSetupStep.Height && canCompleteProfile(heightText)) {
+        if (canCompleteProfile(heightText) && canGoNextStep(ageText, gender)) {
             copy(step = ProfileSetupStep.Done)
         } else {
             this
@@ -211,27 +208,6 @@ fun ProfileSetupFlow(
             onSkipProfile = onSkipProfile,
         )
 
-        ProfileSetupStep.Height -> ProfileHeightScreen(
-            state = state,
-            onIntent = { intent ->
-                if (intent == ProfileSetupIntent.Complete && canCompleteProfile(state.heightText)) {
-                    // 校验口径与 reduce 一致：只有合法身高才会走到回调。
-                    val age = state.ageText.trim().toIntOrNull()
-                    val gender = state.gender
-                    val heightCm = state.heightText.trim().toIntOrNull()
-                    if (age != null && gender != null && heightCm != null) {
-                        onProfileCompleted(age, gender, heightCm)
-                    }
-                }
-                onIntent(intent)
-            },
-            onSkipProfile = {
-                onIntent(ProfileSetupIntent.SkipProfile)
-                onSkipProfile()
-            },
-            modifier = modifier,
-        )
-
         ProfileSetupStep.Done -> ProfileDoneScreen(
             onEnterApp = onFinished,
             onRestart = onRestart,
@@ -258,9 +234,9 @@ fun ProfileAgeGenderScreen(
         modifier = modifier,
         footer = {
             // 禁用态按钮不解释原因时，用户只会反复点它：给出下一步条件 + 允许稍后补。
-            if (!canGoNextStep(state.ageText, state.gender)) {
+            if (!(canGoNextStep(state.ageText, state.gender) && canCompleteProfile(state.heightText))) {
                 Text(
-                    text = "填写年龄并选择性别后即可继续",
+                    text = "填写年龄、性别和身高后即可继续",
                     modifier = Modifier.fillMaxWidth().padding(bottom = QkSpacing.Sm),
                     style = MaterialTheme.typography.labelSmall,
                     color = QkColor.Muted,
@@ -269,7 +245,7 @@ fun ProfileAgeGenderScreen(
             QkButton(
                 text = PROFILE_NEXT,
                 modifier = Modifier.fillMaxWidth(),
-                enabled = canGoNextStep(state.ageText, state.gender),
+                enabled = canGoNextStep(state.ageText, state.gender) && canCompleteProfile(state.heightText),
                 onClick = { onIntent(ProfileSetupIntent.Next) },
             )
             QkButton(
@@ -314,67 +290,28 @@ fun ProfileAgeGenderScreen(
                 selectedIndex = state.gender?.ordinal ?: NO_SELECTION,
                 onSelect = { index -> onIntent(ProfileSetupIntent.GenderSelected(GenderOption.entries[index])) },
             )
-        }
-    }
-}
 
-/** v-onboard-height 第 2/2 步：身高（示例 168 cm）。 */
-@Composable
-fun ProfileHeightScreen(
-    state: ProfileSetupUiState,
-    onIntent: (ProfileSetupIntent) -> Unit,
-    onSkipProfile: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    ProfileStepScaffold(
-        counter = PROFILE_STEP2_COUNTER,
-        stepLabel = PROFILE_STEP2_LABEL,
-        icon = QkIcons.Height,
-        headline = PROFILE_STEP2_HEADLINE,
-        desc = PROFILE_STEP2_DESC,
-        modifier = modifier,
-        footer = {
-            QkButton(
-                text = PROFILE_COMPLETE,
-                modifier = Modifier.fillMaxWidth(),
-                enabled = canCompleteProfile(state.heightText),
-                onClick = { onIntent(ProfileSetupIntent.Complete) },
+            Spacer(Modifier.height(QkSpacing.Lg))
+            Text(
+                text = "身高",
+                style = MaterialTheme.typography.labelMedium,
+                color = QkColor.FieldLabel,
             )
-            Spacer(Modifier.height(QkSpacing.Md))
-            QkButton(
-                text = PROFILE_SKIP,
-                modifier = Modifier.fillMaxWidth(),
-                style = QkButtonStyle.Ghost,
-                onClick = onSkipProfile,
-            )
-        },
-    ) {
-        QkCard {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.Bottom,
-            ) {
-                Text(
-                    text = state.heightText.ifEmpty { PROFILE_HEIGHT_PLACEHOLDER },
-                    style = MaterialTheme.typography.displayLarge,
-                    color = if (state.heightText.isEmpty()) QkColor.Hint else QkColor.Fg,
+            Spacer(Modifier.height(QkSpacing.Sm))
+            Row(verticalAlignment = Alignment.Bottom) {
+                QkTextField(
+                    value = state.heightText,
+                    onValueChange = { onIntent(ProfileSetupIntent.HeightChanged(it)) },
+                    modifier = Modifier.weight(1f),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 )
                 Text(
-                    text = PROFILE_HEIGHT_UNIT,
-                    modifier = Modifier.padding(start = QkSpacing.Xs, bottom = QkSpacing.Xs),
-                    style = MaterialTheme.typography.titleMedium,
+                    text = "cm",
+                    modifier = Modifier.padding(start = QkSpacing.Sm, bottom = QkSpacing.Md),
+                    style = MaterialTheme.typography.bodyMedium,
                     color = QkColor.Sub,
                 )
             }
-            Spacer(Modifier.height(QkSpacing.Lg))
-            QkTextField(
-                value = state.heightText,
-                onValueChange = { onIntent(ProfileSetupIntent.HeightChanged(it)) },
-                label = PROFILE_HEIGHT_LABEL,
-                placeholder = PROFILE_HEIGHT_PLACEHOLDER,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            )
         }
     }
 }

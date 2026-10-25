@@ -169,15 +169,6 @@ private fun ProfileAgeGenderScreenPreviewDefault() {
     }
 }
 
-/** 档案 · 身高页。 */
-@Preview(name = "档案 · 身高", showBackground = true, widthDp = 393, heightDp = 852)
-@Composable
-private fun ProfileHeightScreenPreviewDefault() {
-    QkTheme {
-        ProfileHeightScreen(state = ProfileSetupUiState(), onIntent = {}, onSkipProfile = {})
-    }
-}
-
 /** 档案 · 完成页。 */
 @Preview(name = "档案 · 完成", showBackground = true, widthDp = 393, heightDp = 852)
 @Composable
