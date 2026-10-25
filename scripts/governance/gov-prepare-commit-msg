@@ -21,8 +21,8 @@ if [ -f "$_gov_root/scripts/governance/gov-mode.sh" ]; then
     exit 0
   fi
 fi
-COMMIT_SOURCE="$2"
-SHA1="$3"
+COMMIT_SOURCE="${2:-}"
+SHA1="${3:-}"
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 SESSION_FILE="$ROOT/.ai/current-session.json"

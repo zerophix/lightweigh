@@ -28,6 +28,18 @@ bash scripts/workflow/wf-claim.sh status     # 哪些任务已被占用
 bash scripts/governance/gov-workspace-doctor.sh   # 工作区是否干净（秒级）
 ```
 
+## 0.5 并发开发三件套（多 AI 同时写代码时）
+
+```bash
+scripts/dev/who-is-working.sh          # 谁在哪个 worktree、改到哪些模块、开关状态
+scripts/dev/dev-verify.sh              # 编译 → 装机 → 启动（+ --journey 跑一条路径）
+scripts/dev/merge-mine.sh              # rebase origin/master → 推送（撞车自动重试）
+```
+
+- `TOUCHED` 有重叠先谈好归属；`⚠共享文件`（AGENTS.md / .ai/tasks.json / docs/ / .github/ / 测试注册表）只由一人改。
+- `merge-mine.sh` 只做快进推送，不解冲突；真冲突它会列出文件并退出。
+- 想做"单写者"模式时：其他人 `merge-mine.sh --branch-only` 只推分支，由一人合 master。
+
 ## 1. 开工决策表
 
 | 你要做的事 | 动作 |
