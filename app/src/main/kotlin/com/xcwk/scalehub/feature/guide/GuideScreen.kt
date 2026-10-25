@@ -92,8 +92,8 @@ object GuideText {
 
     // v-goal
     const val GoalTitle = "健康目标"
-    const val GoalCounter = "2/3"
-    const val GoalStepLabel = "第 2 步 · 设定健康方向"
+    const val GoalCounter = "1/2"
+    const val GoalStepLabel = "第 1 步 · 设定健康方向"
     const val GoalHeadline = "你想达成什么？"
     const val GoalDesc = "目标可以随时调整，\n先选一个方向就好。"
     const val GoalWeightLabel = "目标体重"
@@ -103,8 +103,8 @@ object GuideText {
 
     // v-prepare
     const val PrepareTitle = "准备测量"
-    const val PrepareCounter = "3/3"
-    const val PrepareStepLabel = "第 3 步 · 准备第一次测量"
+    const val PrepareCounter = "2/2"
+    const val PrepareStepLabel = "第 2 步 · 准备第一次测量"
     const val PrepareHeadline = "准备好第一次测量"
     const val PrepareDesc = "连接体脂秤，完成第一次测量，\n就能看到你的身体概览。"
     const val PrepareRow1Title = "轻踩体脂秤唤醒"
@@ -158,7 +158,7 @@ enum class GuideGoalOption(val title: String, val detail: String) {
 // ---- 状态机（纯函数，JVM 单测钉死） ----
 
 /** 引导六屏状态，与原型 view 一一对应。 */
-enum class GuideStep { Intro, Goal, Prepare, Connected, Done, Skipped }
+enum class GuideStep { Goal, Prepare, Connected, Done, Skipped }
 
 /**
  * 引导呈现态。
@@ -167,21 +167,13 @@ enum class GuideStep { Intro, Goal, Prepare, Connected, Done, Skipped }
  * 引导允许一路「下一步 / 跳过」走完，硬校验交给资料完善与设备页。
  */
 data class GuideUiState(
-    val step: GuideStep = GuideStep.Intro,
-    val nickname: String = "",
-    val gender: GenderOption? = null,
-    val birthDate: String = "",
-    val heightText: String = "",
+    val step: GuideStep = GuideStep.Goal,
     val goal: GuideGoalOption = GuideGoalOption.LoseWeight,
     val targetWeightText: String = "",
 )
 
 /** 引导意图：输入变更 + 步进动作。 */
 sealed interface GuideIntent {
-    data class NicknameChanged(val text: String) : GuideIntent
-    data class GenderSelected(val gender: GenderOption) : GuideIntent
-    data class BirthDateChanged(val text: String) : GuideIntent
-    data class HeightChanged(val text: String) : GuideIntent
     data class GoalSelected(val goal: GuideGoalOption) : GuideIntent
     data class TargetWeightChanged(val text: String) : GuideIntent
 
@@ -214,21 +206,16 @@ sealed interface GuideIntent {
  * 纯状态转移。
  *
  * 口径：
- * - 「下一步」只沿 Intro → Goal → Prepare → Connected → Done 前进，
+ * - 「下一步」只沿 Goal → Prepare → Connected → Done 前进，
  *   v-prepare 必须走 [GuideIntent.StartConnecting] 或 [GuideIntent.SkipConnection]；
  * - 跳过连接是终态，不再接受前进，但仍可 [GuideIntent.Restart]；
  * - [GuideIntent.Finish] 不改变状态——落库/出栈是宿主的事。
  */
 fun guideReduce(state: GuideUiState, intent: GuideIntent): GuideUiState = when (intent) {
-    is GuideIntent.NicknameChanged -> state.copy(nickname = intent.text)
-    is GuideIntent.GenderSelected -> state.copy(gender = intent.gender)
-    is GuideIntent.BirthDateChanged -> state.copy(birthDate = intent.text)
-    is GuideIntent.HeightChanged -> state.copy(heightText = intent.text)
     is GuideIntent.GoalSelected -> state.copy(goal = intent.goal)
     is GuideIntent.TargetWeightChanged -> state.copy(targetWeightText = intent.text)
 
     GuideIntent.Next -> when (state.step) {
-        GuideStep.Intro -> state.copy(step = GuideStep.Goal)
         GuideStep.Goal -> state.copy(step = GuideStep.Prepare)
         GuideStep.Prepare -> state.copy(step = GuideStep.Connected)
         GuideStep.Connected -> state.copy(step = GuideStep.Done)
@@ -236,10 +223,9 @@ fun guideReduce(state: GuideUiState, intent: GuideIntent): GuideUiState = when (
     }
 
     GuideIntent.Back -> when (state.step) {
-        GuideStep.Goal -> state.copy(step = GuideStep.Intro)
         GuideStep.Prepare -> state.copy(step = GuideStep.Goal)
         GuideStep.Connected -> state.copy(step = GuideStep.Prepare)
-        GuideStep.Intro, GuideStep.Done, GuideStep.Skipped -> state
+        GuideStep.Goal, GuideStep.Done, GuideStep.Skipped -> state
     }
 
     GuideIntent.SkipGoal ->
@@ -296,92 +282,11 @@ fun GuideFlow(
     modifier: Modifier = Modifier,
 ) {
     when (state.step) {
-        GuideStep.Intro -> GuideIntroScreen(state, onIntent, modifier)
         GuideStep.Goal -> GuideGoalScreen(state, onIntent, modifier)
         GuideStep.Prepare -> GuidePrepareScreen(state, onIntent, modifier)
         GuideStep.Connected -> GuideConnectedScreen(onIntent, modifier)
         GuideStep.Done -> GuideDoneScreen(onIntent, modifier)
         GuideStep.Skipped -> GuideSkippedScreen(onIntent, modifier)
-    }
-}
-
-/** v-intro 第 1/3 步：认识你。 */
-@Composable
-fun GuideIntroScreen(
-    state: GuideUiState,
-    onIntent: (GuideIntent) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    GuidePageScaffold(
-        title = GuideText.IntroTitle,
-        counter = GuideText.IntroCounter,
-        stepLabel = GuideText.IntroStepLabel,
-        activeSteps = 1,
-        icon = QkIcons.Account,
-        headline = GuideText.IntroHeadline,
-        desc = GuideText.IntroDesc,
-        modifier = modifier,
-        footer = {
-            QkButton(
-                text = GuideText.Next,
-                modifier = Modifier.fillMaxWidth(),
-                onClick = { onIntent(GuideIntent.Next) },
-            )
-        },
-    ) {
-        QkCard {
-            QkTextField(
-                value = state.nickname,
-                onValueChange = { onIntent(GuideIntent.NicknameChanged(it)) },
-                label = GuideText.IntroNicknameLabel,
-                placeholder = GuideText.IntroNicknamePlaceholder,
-            )
-
-            Spacer(Modifier.height(QkSpacing.Lg))
-            Text(
-                text = GuideText.IntroGenderLabel,
-                style = MaterialTheme.typography.labelMedium,
-                color = QkColor.FieldLabel,
-            )
-            Spacer(Modifier.height(QkSpacing.Sm))
-            // 性别选项顺序：男 / 女 / 不告知（「不告知」是合法取值，不阻塞下一步）
-            QkSegmented(
-                items = GenderOption.entries.map { it.label },
-                selectedIndex = state.gender?.ordinal ?: GUIDE_NO_SELECTION,
-                onSelect = { index -> onIntent(GuideIntent.GenderSelected(GenderOption.entries[index])) },
-            )
-            Text(
-                text = GuideText.IntroGenderHint,
-                modifier = Modifier.padding(top = QkSpacing.Xs, start = QkSpacing.Xs),
-                style = MaterialTheme.typography.bodySmall,
-                color = QkColor.Muted,
-            )
-
-            Spacer(Modifier.height(QkSpacing.Lg))
-            QkTextField(
-                value = state.birthDate,
-                onValueChange = { onIntent(GuideIntent.BirthDateChanged(it)) },
-                label = GuideText.IntroBirthDateLabel,
-                placeholder = GuideText.IntroBirthDatePlaceholder,
-            )
-
-            Spacer(Modifier.height(QkSpacing.Lg))
-            Row(verticalAlignment = Alignment.Bottom) {
-                QkTextField(
-                    value = state.heightText,
-                    onValueChange = { onIntent(GuideIntent.HeightChanged(it)) },
-                    modifier = Modifier.weight(1f),
-                    label = GuideText.IntroHeightLabel,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                )
-                Text(
-                    text = GuideText.IntroHeightUnit,
-                    modifier = Modifier.padding(start = QkSpacing.Sm, bottom = QkSpacing.Md),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = QkColor.Sub,
-                )
-            }
-        }
     }
 }
 
@@ -396,7 +301,7 @@ fun GuideGoalScreen(
         title = GuideText.GoalTitle,
         counter = GuideText.GoalCounter,
         stepLabel = GuideText.GoalStepLabel,
-        activeSteps = 2,
+        activeSteps = 1,
         icon = QkIcons.Goal,
         headline = GuideText.GoalHeadline,
         desc = GuideText.GoalDesc,
@@ -463,7 +368,7 @@ fun GuidePrepareScreen(
         title = GuideText.PrepareTitle,
         counter = GuideText.PrepareCounter,
         stepLabel = GuideText.PrepareStepLabel,
-        activeSteps = 3,
+        activeSteps = 2,
         icon = QkIcons.Device,
         headline = GuideText.PrepareHeadline,
         desc = GuideText.PrepareDesc,

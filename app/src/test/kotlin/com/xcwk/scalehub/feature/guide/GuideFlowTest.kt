@@ -22,28 +22,10 @@ class GuideFlowTest {
     // ---- 1. 文案逐字（AC-J1-03 then 全部 6 条）----
 
     @Test
-    fun `v-intro 文案逐字取自原型`() {
-        assertThat(GuideText.IntroTitle).isEqualTo("完善资料")
-        assertThat(GuideText.IntroCounter).isEqualTo("1/3")
-        assertThat(GuideText.IntroStepLabel).isEqualTo("第 1 步 · 认识你")
-        assertThat(GuideText.IntroHeadline).isEqualTo("认识一下你")
-        assertThat(GuideText.IntroDesc).isEqualTo("这些信息用于计算你的身体指标参考区间。")
-        assertThat(GuideText.IntroNicknameLabel).isEqualTo("昵称")
-        assertThat(GuideText.IntroNicknamePlaceholder).isEqualTo("怎么称呼你？")
-        assertThat(GuideText.IntroGenderLabel).isEqualTo("性别")
-        assertThat(GuideText.IntroGenderHint).isEqualTo("性别影响体脂率参考区间")
-        assertThat(GuideText.IntroBirthDateLabel).isEqualTo("出生日期")
-        assertThat(GuideText.IntroBirthDatePlaceholder).isEqualTo("1996-05-12")
-        assertThat(GuideText.IntroHeightLabel).isEqualTo("身高")
-        assertThat(GuideText.IntroHeightUnit).isEqualTo("cm")
-        assertThat(GenderOption.entries.map { it.label }).containsExactly("男", "女", "不告知")
-    }
-
-    @Test
     fun `v-goal 文案逐字取自原型`() {
         assertThat(GuideText.GoalTitle).isEqualTo("健康目标")
-        assertThat(GuideText.GoalCounter).isEqualTo("2/3")
-        assertThat(GuideText.GoalStepLabel).isEqualTo("第 2 步 · 设定健康方向")
+        assertThat(GuideText.GoalCounter).isEqualTo("1/2")
+        assertThat(GuideText.GoalStepLabel).isEqualTo("第 1 步 · 设定健康方向")
         assertThat(GuideText.GoalHeadline).isEqualTo("你想达成什么？")
         assertThat(GuideText.GoalDesc).isEqualTo("目标可以随时调整，\n先选一个方向就好。")
         assertThat(GuideText.GoalWeightLabel).isEqualTo("目标体重")
@@ -63,8 +45,8 @@ class GuideFlowTest {
     @Test
     fun `v-prepare 文案逐字取自原型`() {
         assertThat(GuideText.PrepareTitle).isEqualTo("准备测量")
-        assertThat(GuideText.PrepareCounter).isEqualTo("3/3")
-        assertThat(GuideText.PrepareStepLabel).isEqualTo("第 3 步 · 准备第一次测量")
+        assertThat(GuideText.PrepareCounter).isEqualTo("2/2")
+        assertThat(GuideText.PrepareStepLabel).isEqualTo("第 2 步 · 准备第一次测量")
         assertThat(GuideText.PrepareHeadline).isEqualTo("准备好第一次测量")
         assertThat(GuideText.PrepareDesc).isEqualTo("连接体脂秤，完成第一次测量，\n就能看到你的身体概览。")
         assertThat(GuideText.PrepareRow1Title).isEqualTo("轻踩体脂秤唤醒")
@@ -107,11 +89,8 @@ class GuideFlowTest {
     // ---- 2. 状态推进（六屏） ----
 
     @Test
-    fun `主按钮沿 intro goal prepare connected done 前进`() {
+    fun `主按钮沿 goal prepare connected done 前进`() {
         var state = GuideUiState()
-        assertThat(state.step).isEqualTo(GuideStep.Intro)
-
-        state = guideReduce(state, GuideIntent.Next)
         assertThat(state.step).isEqualTo(GuideStep.Goal)
 
         state = guideReduce(state, GuideIntent.Next)
@@ -149,14 +128,13 @@ class GuideFlowTest {
 
     @Test
     fun `返回键逐步回退且首页与终态不回退`() {
+        // 首页（第 1 步）再按返回不再前进，交给宿主出栈
         assertThat(guideReduce(GuideUiState(step = GuideStep.Goal), GuideIntent.Back).step)
-            .isEqualTo(GuideStep.Intro)
+            .isEqualTo(GuideStep.Goal)
         assertThat(guideReduce(GuideUiState(step = GuideStep.Prepare), GuideIntent.Back).step)
             .isEqualTo(GuideStep.Goal)
         assertThat(guideReduce(GuideUiState(step = GuideStep.Connected), GuideIntent.Back).step)
             .isEqualTo(GuideStep.Prepare)
-        assertThat(guideReduce(GuideUiState(step = GuideStep.Intro), GuideIntent.Back).step)
-            .isEqualTo(GuideStep.Intro)
         assertThat(guideReduce(GuideUiState(step = GuideStep.Done), GuideIntent.Back).step)
             .isEqualTo(GuideStep.Done)
         assertThat(guideReduce(GuideUiState(step = GuideStep.Skipped), GuideIntent.Back).step)
@@ -166,44 +144,36 @@ class GuideFlowTest {
     @Test
     fun `跨屏意图不生效`() {
         // 未到 goal 就点跳过设置 / 未到 prepare 就连接 / 未到 connected 就模拟成功
-        assertThat(guideReduce(GuideUiState(step = GuideStep.Intro), GuideIntent.SkipGoal).step)
-            .isEqualTo(GuideStep.Intro)
+        assertThat(guideReduce(GuideUiState(step = GuideStep.Prepare), GuideIntent.SkipGoal).step)
+            .isEqualTo(GuideStep.Prepare)
         assertThat(guideReduce(GuideUiState(step = GuideStep.Goal), GuideIntent.StartConnecting).step)
             .isEqualTo(GuideStep.Goal)
         assertThat(guideReduce(GuideUiState(step = GuideStep.Prepare), GuideIntent.SimulatedConnected).step)
             .isEqualTo(GuideStep.Prepare)
-        assertThat(guideReduce(GuideUiState(step = GuideStep.Intro), GuideIntent.SkipConnection).step)
-            .isEqualTo(GuideStep.Intro)
+        assertThat(guideReduce(GuideUiState(step = GuideStep.Goal), GuideIntent.SkipConnection).step)
+            .isEqualTo(GuideStep.Goal)
     }
 
     @Test
     fun `输入与选项保持并随重启清空`() {
         var state = GuideUiState()
-        state = guideReduce(state, GuideIntent.NicknameChanged("林悦"))
-        state = guideReduce(state, GuideIntent.GenderSelected(GenderOption.Undisclosed))
-        state = guideReduce(state, GuideIntent.BirthDateChanged("1996-05-12"))
-        state = guideReduce(state, GuideIntent.HeightChanged("168"))
         state = guideReduce(state, GuideIntent.GoalSelected(GuideGoalOption.BuildMuscle))
         state = guideReduce(state, GuideIntent.TargetWeightChanged("58.0"))
         state = guideReduce(state, GuideIntent.Next)
 
-        assertThat(state.step).isEqualTo(GuideStep.Goal)
-        assertThat(state.nickname).isEqualTo("林悦")
-        assertThat(state.gender).isEqualTo(GenderOption.Undisclosed)
-        assertThat(state.birthDate).isEqualTo("1996-05-12")
-        assertThat(state.heightText).isEqualTo("168")
+        assertThat(state.step).isEqualTo(GuideStep.Prepare)
         assertThat(state.goal).isEqualTo(GuideGoalOption.BuildMuscle)
         assertThat(state.targetWeightText).isEqualTo("58.0")
 
         val restarted = guideReduce(state, GuideIntent.Restart)
         assertThat(restarted).isEqualTo(GuideUiState())
-        assertThat(restarted.step).isEqualTo(GuideStep.Intro)
+        assertThat(restarted.step).isEqualTo(GuideStep.Goal)
     }
 
     @Test
     fun `默认目标与原型选中项一致`() {
         assertThat(GuideUiState().goal).isEqualTo(GuideGoalOption.LoseWeight)
-        assertThat(GuideUiState().step).isEqualTo(GuideStep.Intro)
+        assertThat(GuideUiState().step).isEqualTo(GuideStep.Goal)
     }
 
     // ---- 3. 源码守卫（AC forbidden：硬编码颜色 / 裸 dp；且复用 Qk） ----

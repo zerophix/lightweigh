@@ -60,10 +60,10 @@ import com.xcwk.scalehub.ui.theme.QkSpacing
 
 // 两步共用
 const val PROFILE_TITLE = "完善资料"
-const val PROFILE_STEP1_COUNTER = "1/2"
+const val PROFILE_STEP1_COUNTER = "一步完成"
 
 // v-onboard-age
-const val PROFILE_STEP1_LABEL = "第 1 步 · 年龄与性别"
+const val PROFILE_STEP1_LABEL = "身体基础信息"
 const val PROFILE_STEP1_HEADLINE = "完善资料，让参考更适合你"
 const val PROFILE_STEP1_DESC = "年龄与性别用于计算 BMI、体脂率的个性化参考区间"
 const val PROFILE_AGE_LABEL = "年龄"

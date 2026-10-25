@@ -44,15 +44,6 @@ private fun GuideFlowPreviewDefault() {
     }
 }
 
-/** 引导 · 欢迎页。 */
-@Preview(name = "引导 · 欢迎", showBackground = true, widthDp = 393, heightDp = 852)
-@Composable
-private fun GuideIntroScreenPreviewDefault() {
-    QkTheme {
-        GuideIntroScreen(state = GuideUiState(), onIntent = {})
-    }
-}
-
 /** 引导 · 目标选择页。 */
 @Preview(name = "引导 · 目标", showBackground = true, widthDp = 393, heightDp = 852)
 @Composable

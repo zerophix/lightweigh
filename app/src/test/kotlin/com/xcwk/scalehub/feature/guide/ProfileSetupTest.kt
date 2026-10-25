@@ -19,8 +19,8 @@ class ProfileSetupTest {
     @Test
     fun `第 1 步文案逐字取自原型 v-onboard-age`() {
         assertThat(PROFILE_TITLE).isEqualTo("完善资料")
-        assertThat(PROFILE_STEP1_COUNTER).isEqualTo("1/2")
-        assertThat(PROFILE_STEP1_LABEL).isEqualTo("第 1 步 · 年龄与性别")
+        assertThat(PROFILE_STEP1_COUNTER).isEqualTo("一步完成")
+        assertThat(PROFILE_STEP1_LABEL).isEqualTo("身体基础信息")
         assertThat(PROFILE_STEP1_HEADLINE).isEqualTo("完善资料，让参考更适合你")
         assertThat(PROFILE_STEP1_DESC).isEqualTo("年龄与性别用于计算 BMI、体脂率的个性化参考区间")
         assertThat(PROFILE_AGE_LABEL).isEqualTo("年龄")
