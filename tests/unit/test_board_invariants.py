@@ -12,16 +12,30 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 BOARD = ROOT / ".ai" / "tasks.json"
+ARCHIVE = ROOT / ".ai" / "tasks-archive.json"
 
 
 def _board():
     return json.loads(BOARD.read_text(encoding="utf-8"))
 
 
-def test_merged_chain_is_shallow():
+def _archive():
+    if not ARCHIVE.exists():
+        return {"tasks": []}
+    return json.loads(ARCHIVE.read_text(encoding="utf-8"))
+
+
+def test_working_board_has_no_merged_or_archived():
+    """工作板只留有效任务；重复与归档必须移出。"""
     d = _board()
-    by_id = {t["id"]: t for t in d["tasks"]}
-    for t in d["tasks"]:
+    dirty = [t["id"] for t in d["tasks"] if t.get("merged_into") or t.get("archived")]
+    assert dirty == [], f"工作板仍有重复/归档任务: {dirty}"
+
+
+def test_merged_chain_is_shallow():
+    everything = _board()["tasks"] + _archive()["tasks"]
+    by_id = {t["id"]: t for t in everything}
+    for t in everything:
         target = t.get("merged_into")
         if not target:
             continue

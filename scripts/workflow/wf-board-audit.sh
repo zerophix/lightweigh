@@ -44,6 +44,10 @@ from collections import Counter, defaultdict
 
 board = json.load(open(os.environ["BOARD"], encoding="utf-8"))
 tasks = board.get("tasks", [])
+archive_path = os.path.join(os.path.dirname(os.environ["BOARD"]), "tasks-archive.json")
+archived_tasks = []
+if os.path.exists(archive_path):
+    archived_tasks = json.load(open(archive_path, encoding="utf-8")).get("tasks", [])
 groups = {g["id"]: g for g in board.get("groups", [])}
 by_id = {t["id"]: t for t in tasks}
 active = [t for t in tasks if not t.get("merged_into") and not t.get("archived")]
@@ -51,13 +55,14 @@ active = [t for t in tasks if not t.get("merged_into") and not t.get("archived")
 errors, debts = [], []
 
 # 1) 合并链
-for t in tasks:
+all_ids = {t["id"] for t in tasks} | {t["id"] for t in archived_tasks}
+for t in tasks + archived_tasks:
     target = t.get("merged_into")
     if not target:
         continue
-    if target not in by_id:
+    if target not in all_ids:
         errors.append(f"{t['id']} merged_into 指向不存在的任务 {target}")
-    elif by_id[target].get("merged_into"):
+    elif any(x.get("merged_into") for x in tasks + archived_tasks if x["id"] == target):
         errors.append(f"{t['id']} → {target} → 又指向别的任务（链）")
 
 # 2) 分组
@@ -146,10 +151,11 @@ for a, b, f in overlap_pairs:
     errors.append(f"{a} 与 {b} 的 target_files 重叠 {jac:.0%}（共享 {f.split('/')[-1]}）且未声明 overlaps_with")
 
 summary = {
-    "total": len(tasks),
+    "total": len(tasks) + len(archived_tasks),
+    "working": len(tasks),
+    "archived": len(archived_tasks),
     "active": len(active),
-    "merged": sum(1 for t in tasks if t.get("merged_into")),
-    "archived": sum(1 for t in tasks if t.get("archived")),
+    "merged": sum(1 for t in tasks + archived_tasks if t.get("merged_into")),
     "status": dict(Counter(t.get("status") for t in tasks)),
     "groups": {gid: len(g.get("tasks", [])) for gid, g in groups.items()},
     "errors": errors,
@@ -160,7 +166,7 @@ summary = {
 if os.environ.get("MODE") == "json":
     print(json.dumps(summary, ensure_ascii=False, indent=2))
 else:
-    print(f"任务 {summary['total']} 条：有效 {summary['active']}，重复合并 {summary['merged']}，归档 {summary['archived']}")
+    print(f"任务共 {summary['total']}：工作板 {summary['working']}（有效 {summary['active']}），归档 {summary['archived']}，其中合并 {summary['merged']}")
     print("状态: " + ", ".join(f"{k}={v}" for k, v in summary["status"].items()))
     print(f"分组 {len(groups)} 个: " + ", ".join(f"{k}({v})" for k, v in sorted(summary["groups"].items())))
     print(f"\n硬问题: {len(errors)}")
