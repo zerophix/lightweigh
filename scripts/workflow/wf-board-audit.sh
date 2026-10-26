@@ -108,7 +108,8 @@ for a, b, f in overlap_pairs:
 summary = {
     "total": len(tasks),
     "active": len(active),
-    "merged": len(tasks) - len(active),
+    "merged": sum(1 for t in tasks if t.get("merged_into")),
+    "archived": sum(1 for t in tasks if t.get("archived")),
     "status": dict(Counter(t.get("status") for t in tasks)),
     "groups": {gid: len(g.get("tasks", [])) for gid, g in groups.items()},
     "errors": errors,
@@ -119,7 +120,7 @@ summary = {
 if os.environ.get("MODE") == "json":
     print(json.dumps(summary, ensure_ascii=False, indent=2))
 else:
-    print(f"任务 {summary['total']} 条：有效 {summary['active']}，重复合并 {summary['merged']}")
+    print(f"任务 {summary['total']} 条：有效 {summary['active']}，重复合并 {summary['merged']}，归档 {summary['archived']}")
     print("状态: " + ", ".join(f"{k}={v}" for k, v in summary["status"].items()))
     print(f"分组 {len(groups)} 个: " + ", ".join(f"{k}({v})" for k, v in sorted(summary["groups"].items())))
     print(f"\n硬问题: {len(errors)}")
