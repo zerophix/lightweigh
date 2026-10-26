@@ -85,7 +85,12 @@ fi
 # 否则 gov-code-check 失败仍会落到下面的 exit 0（历史空转事故，DEC-046）。
 CODE_CHECK="$ROOT/scripts/governance/gov-code-check.py"
 if [ -f "$CODE_CHECK" ]; then
-  python3 "$CODE_CHECK"
+  # DEC-072: 快层只查暂存区（GOV_CODE_CHECK_STAGED=1），慢层保持全仓
+  if [ "${GOV_CODE_CHECK_STAGED:-0}" = "1" ]; then
+    python3 "$CODE_CHECK" --staged
+  else
+    python3 "$CODE_CHECK"
+  fi
   code=$?
   if [ "$code" -ne 0 ]; then
     exit "$code"

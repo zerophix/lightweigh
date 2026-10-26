@@ -212,7 +212,8 @@ if [ -n "$SRC_CHANGED" ] || [ -n "$GOV_CHANGED" ]; then
     echo "❌ 缺少 scripts/governance/gov-custom-checks.sh"
     exit 1
   fi
-  if ! bash "$ROOT/scripts/governance/gov-custom-checks.sh"; then
+  # DEC-072: 提交环只查暂存区，全仓扫描留给 local-ci（慢层）
+  if ! GOV_CODE_CHECK_STAGED=1 bash "$ROOT/scripts/governance/gov-custom-checks.sh"; then
     echo "❌ gov-custom-checks 失败，提交被拒绝"
     exit 1
   fi
