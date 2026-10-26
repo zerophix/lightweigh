@@ -45,6 +45,54 @@ has_kotlin_change() {
   ! bash scripts/governance/gov-affected.sh --json 2>/dev/null | grep -q '"kotlin":0'
 }
 
+# 改动文件 → 同名 Kotlin 测试文件（Xxx.kt → XxxTest.kt）。
+# 只做"改名匹配"这一条确定规则；匹配不到就跳过，绝不猜（猜错比跳过更贵）。
+kotlin_changed_tests() {
+  local files
+  files="$(git diff HEAD --name-only --diff-filter=ACM 2>/dev/null \
+    | grep -E '^(app|domain|application|infrastructure)/.*\.(kt|java)$' || true)"
+  [ -z "$files" ] && return 0
+  local f stem hit
+  for f in $files; do
+    stem="$(basename "$f")"
+    stem="${stem%.*}"
+    case "$stem" in
+      *Test) echo "$f"; continue ;;
+    esac
+    hit="$(find app/src/test domain/src/test application/src/test infrastructure/src/test \
+      -name "${stem}Test.kt" 2>/dev/null | head -1 || true)"
+    [ -n "$hit" ] && echo "$hit"
+  done | sort -u
+}
+
+run_kotlin_tests() {
+  local tests
+  tests="$(kotlin_changed_tests)"
+  if [ -z "$tests" ]; then
+    echo "  [kotlin] 无同名测试文件，跳过（批次环会跑全量）"
+    return 0
+  fi
+  local mod t cls task patterns
+  for mod in $(printf '%s\n' "$tests" | cut -d/ -f1 | sort -u); do
+    patterns=""
+    for t in $(printf '%s\n' "$tests" | grep "^${mod}/" || true); do
+      cls="${t#*/src/test/}"
+      cls="${cls#kotlin/}"
+      cls="${cls%.kt}"
+      cls="${cls//\//.}"
+      patterns="${patterns} --tests ${cls}"
+    done
+    if [ "$mod" = "app" ]; then task=":app:testDebugUnitTest"; else task=":${mod}:test"; fi
+    echo "  [kotlin] ${task}${patterns}"
+    # shellcheck disable=SC2086  # patterns 必须按空格拆成多个 --tests 参数
+    if ! "$GRADLE_BIN" "$task" $patterns -q --console=plain; then
+      echo "[kotlin] 测试失败"
+      return 3
+    fi
+  done
+  return 0
+}
+
 run_once() {
   local start end ok=0
   start=$(now_ms)
@@ -65,6 +113,7 @@ run_once() {
   if [ "$FULL" = "1" ]; then
     python3 -m pytest tests/unit -q || return 3
   else
+    run_kotlin_tests || return 3
     bash scripts/governance/gov-affected.sh --run || return 3
   fi
 
