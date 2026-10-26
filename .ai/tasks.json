@@ -36,7 +36,10 @@
       ],
       "overlaps_with": [
         "T-025"
-      ]
+      ],
+      "role": "dev",
+      "batch": "B-infra",
+      "source": "incident"
     },
     {
       "id": "T-025",
@@ -66,7 +69,10 @@
       ],
       "overlaps_with": [
         "T-024"
-      ]
+      ],
+      "role": "dev",
+      "batch": "B-infra",
+      "source": "incident"
     },
     {
       "id": "T-027",
@@ -93,7 +99,11 @@
       "group_id": "measure",
       "target_files": [
         "application/src/main/kotlin/com/xcwk/scalehub/application/measure/MeasureSession.kt"
-      ]
+      ],
+      "role": "dev",
+      "batch": "B-infra",
+      "source": "dec",
+      "source_ref": "DEC-024"
     },
     {
       "id": "T-042",
@@ -126,7 +136,11 @@
       "target_files": [
         "app/src/main/kotlin/com/xcwk/scalehub/feature/settings/SettingsScreen.kt",
         "app/src/main/kotlin/com/xcwk/scalehub/feature/settings/SettingsExtensions.kt"
-      ]
+      ],
+      "role": "dev",
+      "batch": "B-p0",
+      "source": "dec",
+      "source_ref": "DEC-026"
     },
     {
       "id": "T-043",
@@ -159,7 +173,10 @@
       "target_files": [
         "app/src/main/kotlin/com/xcwk/scalehub/feature/habit/HabitScreen.kt",
         "app/src/main/kotlin/com/xcwk/scalehub/feature/habit/HabitViewModel.kt"
-      ]
+      ],
+      "role": "dev",
+      "batch": "B-p0",
+      "source": "gap"
     },
     {
       "id": "T-044",
@@ -192,7 +209,10 @@
       "target_files": [
         "app/src/main/kotlin/com/xcwk/scalehub/feature/auth/EmailLogin.kt",
         "app/src/main/kotlin/com/xcwk/scalehub/feature/auth/AuthScreen.kt"
-      ]
+      ],
+      "role": "dev",
+      "batch": "B-p0",
+      "source": "gap"
     },
     {
       "id": "T-045",
@@ -252,7 +272,18 @@
       "overlaps_with": [
         "T-076",
         "T-100"
-      ]
+      ],
+      "role": "dev",
+      "batch": "B-p0",
+      "source": "prototype",
+      "source_ref": {
+        "file": "design/prototypes/interactive/19-onboarding-guide.html",
+        "views": [
+          "v-intro",
+          "v-goal",
+          "v-prepare"
+        ]
+      }
     },
     {
       "id": "T-046",
@@ -298,7 +329,10 @@
       "target_files": [
         "app/src/main/kotlin/com/xcwk/scalehub/feature/report/ReportAnalysisTab.kt"
       ],
-      "group_id": "report"
+      "group_id": "report",
+      "role": "dev",
+      "batch": "B-p0",
+      "source": "gap"
     },
     {
       "id": "T-047",
@@ -334,7 +368,10 @@
           "用空实现占位通过测试"
         ]
       },
-      "group_id": "ai"
+      "group_id": "ai",
+      "role": "dev",
+      "batch": "B-p1",
+      "source": "gap"
     },
     {
       "id": "T-048",
@@ -386,7 +423,11 @@
           "真机/模拟器走通流程（人类；AI 不伪称完成）"
         ]
       },
-      "group_id": "trend"
+      "group_id": "trend",
+      "role": "dev",
+      "batch": "B-p1",
+      "source": "dec",
+      "source_ref": "DEC-026"
     },
     {
       "id": "T-049",
@@ -438,7 +479,16 @@
         "app/src/main/kotlin/com/xcwk/scalehub/feature/history/HistoryCompareScreen.kt",
         "app/src/main/kotlin/com/xcwk/scalehub/feature/history/HistoryUiState.kt"
       ],
-      "group_id": "history"
+      "group_id": "history",
+      "role": "dev",
+      "batch": "B-p1",
+      "source": "prototype",
+      "source_ref": {
+        "file": "design/prototypes/interactive/05-history-trend.html",
+        "views": [
+          "v-compare"
+        ]
+      }
     },
     {
       "id": "T-050",
@@ -492,7 +542,17 @@
           "真机/模拟器走通流程（人类；AI 不伪称完成）"
         ]
       },
-      "group_id": "settings"
+      "group_id": "settings",
+      "role": "dev",
+      "batch": "B-p1",
+      "source": "prototype",
+      "source_ref": {
+        "file": "design/prototypes/interactive/07-mine-settings.html",
+        "views": [
+          "v-settings",
+          "v-privacy"
+        ]
+      }
     },
     {
       "id": "T-051",
@@ -519,7 +579,10 @@
         ],
         "source": "legacy-backfill"
       },
-      "group_id": "home"
+      "group_id": "home",
+      "role": "dev",
+      "batch": "B-p1",
+      "source": "gap"
     },
     {
       "id": "T-052",
@@ -561,7 +624,11 @@
         "MeasurementTipsCarousel",
         "ManualWeightCard",
         "MEASUREMENT_TIPS"
-      ]
+      ],
+      "role": "dev",
+      "batch": "B-p1",
+      "source": "dec",
+      "source_ref": "DEC-025"
     },
     {
       "id": "T-053",
@@ -605,7 +672,16 @@
           "删除既有组件以实现\"无死代码\""
         ]
       },
-      "group_id": "device"
+      "group_id": "device",
+      "role": "dev",
+      "batch": "B-p1",
+      "source": "prototype",
+      "source_ref": {
+        "file": "design/prototypes/interactive/04-device.html",
+        "views": [
+          "v-device"
+        ]
+      }
     },
     {
       "id": "T-054",
@@ -643,7 +719,10 @@
           "删除既有组件以实现\"无死代码\""
         ]
       },
-      "group_id": "mine"
+      "group_id": "mine",
+      "role": "dev",
+      "batch": "B-p1",
+      "source": "gap"
     },
     {
       "id": "T-055",
@@ -688,7 +767,11 @@
           "删除既有组件以实现\"无死代码\""
         ]
       },
-      "group_id": "mine"
+      "group_id": "mine",
+      "role": "dev",
+      "batch": "B-p1",
+      "source": "dec",
+      "source_ref": "DEC-061"
     },
     {
       "id": "T-057",
@@ -741,7 +824,17 @@
           "真机/模拟器走通流程（人类；AI 不伪称完成）"
         ]
       },
-      "group_id": "sync"
+      "group_id": "sync",
+      "role": "dev",
+      "batch": "B-p1",
+      "source": "prototype",
+      "source_ref": {
+        "file": "design/prototypes/interactive/22-data-conflict.html",
+        "views": [
+          "v-sync-conflict",
+          "v-sync-done"
+        ]
+      }
     },
     {
       "id": "T-058",
@@ -797,7 +890,11 @@
       "target_symbols": [
         "QrScanSheet",
         "qrScanNext"
-      ]
+      ],
+      "role": "dev",
+      "batch": "B-p1",
+      "source": "dec",
+      "source_ref": "DEC-026"
     },
     {
       "id": "T-059",
@@ -827,7 +924,10 @@
         "app/src/main/kotlin/com/xcwk/scalehub/feature/sync/HealthPlatform.kt",
         "app/src/main/kotlin/com/xcwk/scalehub/feature/sync/HealthConnectPlatform.kt"
       ],
-      "group_id": "sync"
+      "group_id": "sync",
+      "role": "dev",
+      "batch": "B-p0",
+      "source": "gap"
     },
     {
       "id": "T-060",
@@ -861,7 +961,11 @@
       ],
       "target_symbols": [
         "DeviceIntent.Activate"
-      ]
+      ],
+      "role": "dev",
+      "batch": "B-p0",
+      "source": "dec",
+      "source_ref": "DEC-026"
     },
     {
       "id": "T-061",
@@ -897,7 +1001,10 @@
       ],
       "target_symbols": [
         "buildDoctorReport"
-      ]
+      ],
+      "role": "dev",
+      "batch": "B-p0",
+      "source": "gap"
     },
     {
       "id": "T-062",
@@ -930,7 +1037,10 @@
       "group_id": "device",
       "overlaps_with": [
         "T-103"
-      ]
+      ],
+      "role": "dev",
+      "batch": "B-p1",
+      "source": "gap"
     },
     {
       "id": "T-063",
@@ -983,7 +1093,17 @@
           "真机/模拟器走通流程（人类；AI 不伪称完成）"
         ]
       },
-      "group_id": "platform"
+      "group_id": "platform",
+      "role": "dev",
+      "batch": "B-p1",
+      "source": "prototype",
+      "source_ref": {
+        "file": "design/prototypes/interactive/24-remaining-gaps.html",
+        "views": [
+          "v-recovery",
+          "v-recovery-done"
+        ]
+      }
     },
     {
       "id": "T-064",
@@ -1016,7 +1136,10 @@
       ],
       "target_symbols": [
         "bodyRecompositionOf"
-      ]
+      ],
+      "role": "dev",
+      "batch": "B-p1",
+      "source": "gap"
     },
     {
       "id": "T-066",
@@ -1055,7 +1178,11 @@
         "goalCurvePercents",
         "goalCurveDeltaPercents",
         "GoalCurveBars"
-      ]
+      ],
+      "role": "dev",
+      "batch": "B-p1",
+      "source": "dec",
+      "source_ref": "DEC-025"
     },
     {
       "id": "T-067",
@@ -1109,7 +1236,16 @@
       "group_id": "home",
       "overlaps_with": [
         "T-093"
-      ]
+      ],
+      "role": "dev",
+      "batch": "B-p2",
+      "source": "prototype",
+      "source_ref": {
+        "file": "design/prototypes/interactive/08-sync-network-help.html",
+        "views": [
+          "v-faq"
+        ]
+      }
     },
     {
       "id": "T-068",
@@ -1165,7 +1301,17 @@
       "group_id": "habit",
       "overlaps_with": [
         "T-087"
-      ]
+      ],
+      "role": "dev",
+      "batch": "B-p2",
+      "source": "prototype",
+      "source_ref": {
+        "file": "design/prototypes/interactive/13-members-plans.html",
+        "views": [
+          "v-remind",
+          "v-notif-denied"
+        ]
+      }
     },
     {
       "id": "T-069",
@@ -1203,7 +1349,11 @@
         "currentStreakDays",
         "reachedMilestone",
         "AchievementStrip"
-      ]
+      ],
+      "role": "dev",
+      "batch": "B-p2",
+      "source": "dec",
+      "source_ref": "DEC-025"
     },
     {
       "id": "T-070",
@@ -1241,7 +1391,10 @@
           "降低对比度阈值"
         ]
       },
-      "group_id": "platform"
+      "group_id": "platform",
+      "role": "dev",
+      "batch": "B-p2",
+      "source": "gap"
     },
     {
       "id": "T-071",
@@ -1271,7 +1424,10 @@
         ],
         "source": "legacy-backfill"
       },
-      "group_id": "member"
+      "group_id": "member",
+      "role": "dev",
+      "batch": "B-p2",
+      "source": "gap"
     },
     {
       "id": "T-072",
@@ -1336,7 +1492,19 @@
         ],
         "open_questions": []
       },
-      "group_id": "auth"
+      "group_id": "auth",
+      "role": "dev",
+      "batch": "B-w1-screens",
+      "source": "prototype",
+      "source_ref": {
+        "file": "design/prototypes/interactive/01-login.html",
+        "views": [
+          "v-email",
+          "v-wechat",
+          "v-guest",
+          "v-guest-done"
+        ]
+      }
     },
     {
       "id": "T-073",
@@ -1400,7 +1568,16 @@
         ],
         "open_questions": []
       },
-      "group_id": "auth"
+      "group_id": "auth",
+      "role": "dev",
+      "batch": "B-w1-screens",
+      "source": "prototype",
+      "source_ref": {
+        "file": "design/prototypes/interactive/01-login.html",
+        "views": [
+          "v-reset"
+        ]
+      }
     },
     {
       "id": "T-074",
@@ -1470,7 +1647,22 @@
         ],
         "open_questions": []
       },
-      "group_id": "auth"
+      "group_id": "auth",
+      "role": "dev",
+      "batch": "B-w1-screens",
+      "source": "prototype",
+      "source_ref": {
+        "file": "design/prototypes/interactive/14-account-lifecycle.html",
+        "views": [
+          "v-forceupdate",
+          "v-minver",
+          "v-privacy-lock",
+          "v-codeerr",
+          "v-expired",
+          "v-multidevice",
+          "v-healthinfo"
+        ]
+      }
     },
     {
       "id": "T-075",
@@ -1537,7 +1729,20 @@
         ],
         "open_questions": []
       },
-      "group_id": "guide"
+      "group_id": "guide",
+      "role": "dev",
+      "batch": "B-w1-screens",
+      "source": "prototype",
+      "source_ref": {
+        "file": "design/prototypes/interactive/02-onboarding-permission.html",
+        "views": [
+          "v-splash",
+          "v-terms",
+          "v-permissions",
+          "v-granted",
+          "v-denied"
+        ]
+      }
     },
     {
       "id": "T-076",
@@ -1606,7 +1811,21 @@
       "overlaps_with": [
         "T-045",
         "T-100"
-      ]
+      ],
+      "role": "dev",
+      "batch": "B-w2-screens",
+      "source": "prototype",
+      "source_ref": {
+        "file": "design/prototypes/interactive/19-onboarding-guide.html",
+        "views": [
+          "v-intro",
+          "v-goal",
+          "v-prepare",
+          "v-connected",
+          "v-done",
+          "v-skip"
+        ]
+      }
     },
     {
       "id": "T-077",
@@ -1684,7 +1903,11 @@
       ],
       "target_symbols": [
         "MeasureSession"
-      ]
+      ],
+      "role": "dev",
+      "batch": "B-w2-screens",
+      "source": "dec",
+      "source_ref": "DEC-025"
     },
     {
       "id": "T-078",
@@ -1755,7 +1978,18 @@
       "target_symbols": [
         "ResultShareFlow",
         "resultShareReduce"
-      ]
+      ],
+      "role": "dev",
+      "batch": "B-w1-screens",
+      "source": "prototype",
+      "source_ref": {
+        "file": "design/prototypes/interactive/16-measure-result.html",
+        "views": [
+          "v-share",
+          "v-export",
+          "v-export-done"
+        ]
+      }
     },
     {
       "id": "T-079",
@@ -1819,7 +2053,18 @@
         ],
         "open_questions": []
       },
-      "group_id": "device"
+      "group_id": "device",
+      "role": "dev",
+      "batch": "B-w1-screens",
+      "source": "prototype",
+      "source_ref": {
+        "file": "design/prototypes/interactive/18-device-setup.html",
+        "views": [
+          "v-firmware-check",
+          "v-firmware-update",
+          "v-firmware-latest"
+        ]
+      }
     },
     {
       "id": "T-080",
@@ -1882,7 +2127,17 @@
         ],
         "open_questions": []
       },
-      "group_id": "device"
+      "group_id": "device",
+      "role": "dev",
+      "batch": "B-w1-screens",
+      "source": "prototype",
+      "source_ref": {
+        "file": "design/prototypes/interactive/24-remaining-gaps.html",
+        "views": [
+          "v-rename-device",
+          "v-member-device"
+        ]
+      }
     },
     {
       "id": "T-081",
@@ -1941,7 +2196,11 @@
         ],
         "open_questions": []
       },
-      "group_id": "history"
+      "group_id": "history",
+      "role": "dev",
+      "batch": "B-w1-screens",
+      "source": "dec",
+      "source_ref": "DEC-061"
     },
     {
       "id": "T-083",
@@ -2006,7 +2265,11 @@
           "真机/模拟器走通流程（人类；AI 不伪称完成）"
         ]
       },
-      "group_id": "ai"
+      "group_id": "ai",
+      "role": "dev",
+      "batch": "B-w2-screens",
+      "source": "dec",
+      "source_ref": "DEC-035"
     },
     {
       "id": "T-084",
@@ -2069,7 +2332,17 @@
       ],
       "target_symbols": [
         "AiWeeklySummaryScreen"
-      ]
+      ],
+      "role": "dev",
+      "batch": "B-w1-screens",
+      "source": "prototype",
+      "source_ref": {
+        "file": "design/prototypes/interactive/20-ai-members.html",
+        "views": [
+          "v-weekly",
+          "v-member-detail"
+        ]
+      }
     },
     {
       "id": "T-085",
@@ -2139,7 +2412,21 @@
         ],
         "open_questions": []
       },
-      "group_id": "ai"
+      "group_id": "ai",
+      "role": "dev",
+      "batch": "B-w1-screens",
+      "source": "prototype",
+      "source_ref": {
+        "file": "design/prototypes/interactive/25-ai-boundaries.html",
+        "views": [
+          "v-ai-unavailable",
+          "v-report-expired",
+          "v-reanalyzing",
+          "v-report-done",
+          "v-unauth-consult",
+          "v-member-unauth"
+        ]
+      }
     },
     {
       "id": "T-086",
@@ -2202,7 +2489,19 @@
           "真机/模拟器走通流程（人类；AI 不伪称完成）"
         ]
       },
-      "group_id": "member"
+      "group_id": "member",
+      "role": "dev",
+      "batch": "B-w2-screens",
+      "source": "prototype",
+      "source_ref": {
+        "file": "design/prototypes/interactive/13-members-plans.html",
+        "views": [
+          "v-edit-member",
+          "v-savefail",
+          "v-member-norecord",
+          "v-member-nodevice"
+        ]
+      }
     },
     {
       "id": "T-087",
@@ -2275,7 +2574,21 @@
       "group_id": "member",
       "overlaps_with": [
         "T-068"
-      ]
+      ],
+      "role": "dev",
+      "batch": "B-w1-screens",
+      "source": "prototype",
+      "source_ref": {
+        "file": "design/prototypes/interactive/13-members-plans.html",
+        "views": [
+          "v-plans",
+          "v-edit-plan",
+          "v-edit-task",
+          "v-plan-empty",
+          "v-remind",
+          "v-notif-denied"
+        ]
+      }
     },
     {
       "id": "T-088",
@@ -2346,7 +2659,21 @@
         ],
         "open_questions": []
       },
-      "group_id": "member"
+      "group_id": "member",
+      "role": "dev",
+      "batch": "B-w1-screens",
+      "source": "prototype",
+      "source_ref": {
+        "file": "design/prototypes/interactive/23-family-invite.html",
+        "views": [
+          "v-invite",
+          "v-invite-done",
+          "v-accept",
+          "v-accept-confirm",
+          "v-accept-done",
+          "v-revoke"
+        ]
+      }
     },
     {
       "id": "T-089",
@@ -2413,7 +2740,19 @@
         ],
         "open_questions": []
       },
-      "group_id": "mine"
+      "group_id": "mine",
+      "role": "dev",
+      "batch": "B-w1-screens",
+      "source": "prototype",
+      "source_ref": {
+        "file": "design/prototypes/interactive/07-mine-settings.html",
+        "views": [
+          "v-closure-apply",
+          "v-closure-verify",
+          "v-closure-processing",
+          "v-closure-result"
+        ]
+      }
     },
     {
       "id": "T-090",
@@ -2477,7 +2816,17 @@
         ],
         "open_questions": []
       },
-      "group_id": "mine"
+      "group_id": "mine",
+      "role": "dev",
+      "batch": "B-w1-screens",
+      "source": "prototype",
+      "source_ref": {
+        "file": "design/prototypes/interactive/07-mine-settings.html",
+        "views": [
+          "v-about",
+          "v-privacy"
+        ]
+      }
     },
     {
       "id": "T-092",
@@ -2543,7 +2892,16 @@
         ],
         "open_questions": []
       },
-      "group_id": "settings"
+      "group_id": "settings",
+      "role": "dev",
+      "batch": "B-w1-screens",
+      "source": "prototype",
+      "source_ref": {
+        "file": "design/prototypes/interactive/26-final-gaps.html",
+        "views": [
+          "v-sdk-list"
+        ]
+      }
     },
     {
       "id": "T-093",
@@ -2620,7 +2978,22 @@
       "group_id": "sync",
       "overlaps_with": [
         "T-067"
-      ]
+      ],
+      "role": "dev",
+      "batch": "B-w1-screens",
+      "source": "prototype",
+      "source_ref": {
+        "file": "design/prototypes/interactive/08-sync-network-help.html",
+        "views": [
+          "v-help",
+          "v-faq",
+          "v-feedback",
+          "v-feedback-submit",
+          "v-feedback-success",
+          "v-feedback-fail",
+          "v-diag"
+        ]
+      }
     },
     {
       "id": "T-095",
@@ -2700,7 +3073,11 @@
       "target_symbols": [
         "HomeGoalState",
         "homeStatesOf"
-      ]
+      ],
+      "role": "dev",
+      "batch": "B-w2-screens",
+      "source": "dec",
+      "source_ref": "DEC-025"
     },
     {
       "id": "T-096",
@@ -2761,7 +3138,20 @@
         ],
         "open_questions": []
       },
-      "group_id": "privacy"
+      "group_id": "privacy",
+      "role": "dev",
+      "batch": "B-w1-screens",
+      "source": "prototype",
+      "source_ref": {
+        "file": "design/prototypes/interactive/10-privacy-authorization.html",
+        "views": [
+          "v-auth",
+          "v-granted",
+          "v-unauth",
+          "v-consult",
+          "v-rules"
+        ]
+      }
     },
     {
       "id": "T-097",
@@ -2833,7 +3223,30 @@
         ],
         "open_questions": []
       },
-      "group_id": "states"
+      "group_id": "states",
+      "role": "dev",
+      "batch": "B-w0-components",
+      "source": "prototype",
+      "source_ref": {
+        "file": "design/prototypes/interactive/15-states-errors.html",
+        "views": [
+          "v-rec-edit",
+          "v-export",
+          "v-score",
+          "v-anomaly",
+          "v-multimetric",
+          "v-pair-timeout",
+          "v-report-stale",
+          "v-sync-fail",
+          "v-fb-fail",
+          "v-connect-guide",
+          "v-troubleshoot",
+          "v-privacy-qa",
+          "v-notif-landing",
+          "v-fullscreen-load",
+          "v-longpress"
+        ]
+      }
     },
     {
       "id": "T-098",
@@ -2897,7 +3310,19 @@
         ],
         "open_questions": []
       },
-      "group_id": "components"
+      "group_id": "components",
+      "role": "dev",
+      "batch": "B-w0-components",
+      "source": "prototype",
+      "source_ref": {
+        "file": "design/prototypes/interactive/26-final-gaps.html",
+        "views": [
+          "v-pull-refresh",
+          "v-swipe-delete",
+          "v-infinite-scroll",
+          "v-search-filter"
+        ]
+      }
     },
     {
       "id": "T-099",
@@ -2956,7 +3381,17 @@
       },
       "updated_at": "2026-10-24T02:35:00Z",
       "notes": "已交付并合入 master（PR #48，2026-10-24）；local-ci 6/6 + JVM 单测 + gov-prototype-verify --strict 证据见各 PR",
-      "group_id": "components"
+      "group_id": "components",
+      "role": "dev",
+      "batch": "B-w0-components",
+      "source": "prototype",
+      "source_ref": {
+        "file": "design/prototypes/interactive/09-components-demo.html",
+        "views": [
+          "v-skeleton",
+          "v-longpress"
+        ]
+      }
     },
     {
       "id": "T-100",
@@ -3023,7 +3458,18 @@
       "overlaps_with": [
         "T-045",
         "T-076"
-      ]
+      ],
+      "role": "dev",
+      "batch": "B-w1-screens",
+      "source": "prototype",
+      "source_ref": {
+        "file": "design/prototypes/interactive/01-login.html",
+        "views": [
+          "v-onboard-age",
+          "v-onboard-height",
+          "v-done"
+        ]
+      }
     },
     {
       "id": "T-101",
@@ -3078,7 +3524,16 @@
           "真机/模拟器走通流程（人类；AI 不伪称完成）"
         ]
       },
-      "group_id": "mine"
+      "group_id": "mine",
+      "role": "dev",
+      "batch": "B-w1-screens",
+      "source": "prototype",
+      "source_ref": {
+        "file": "design/prototypes/interactive/07-mine-settings.html",
+        "views": [
+          "v-account"
+        ]
+      }
     },
     {
       "id": "T-102",
@@ -3135,7 +3590,17 @@
         ],
         "open_questions": []
       },
-      "group_id": "sync"
+      "group_id": "sync",
+      "role": "dev",
+      "batch": "B-w1-screens",
+      "source": "prototype",
+      "source_ref": {
+        "file": "design/prototypes/interactive/08-sync-network-help.html",
+        "views": [
+          "v-network",
+          "v-service"
+        ]
+      }
     },
     {
       "id": "T-103",
@@ -3200,7 +3665,19 @@
       "group_id": "device",
       "overlaps_with": [
         "T-062"
-      ]
+      ],
+      "role": "dev",
+      "batch": "B-w1-screens",
+      "source": "prototype",
+      "source_ref": {
+        "file": "design/prototypes/interactive/18-device-setup.html",
+        "views": [
+          "v-bt-permission",
+          "v-confirm-device",
+          "v-connecting",
+          "v-connected"
+        ]
+      }
     },
     {
       "id": "T-104",
@@ -3269,7 +3746,11 @@
       "target_symbols": [
         "PairingState",
         "pairingReduce"
-      ]
+      ],
+      "role": "dev",
+      "batch": "B-w2-screens",
+      "source": "dec",
+      "source_ref": "DEC-026"
     },
     {
       "id": "T-105",
@@ -3324,7 +3805,16 @@
           "真机/模拟器走通流程（人类；AI 不伪称完成）"
         ]
       },
-      "group_id": "device"
+      "group_id": "device",
+      "role": "dev",
+      "batch": "B-w1-screens",
+      "source": "prototype",
+      "source_ref": {
+        "file": "design/prototypes/interactive/04-device.html",
+        "views": [
+          "v-settings"
+        ]
+      }
     },
     {
       "id": "T-106",
@@ -3365,7 +3855,11 @@
           "改动 tasks.json 里的 views 数据来迁就实现"
         ]
       },
-      "group_id": "gov"
+      "group_id": "gov",
+      "role": "gov",
+      "batch": "B-infra",
+      "source": "dec",
+      "source_ref": "DEC-057"
     }
   ],
   "acceptance_schema": "GC-task-acceptance@1",

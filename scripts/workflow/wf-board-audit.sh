@@ -82,6 +82,19 @@ for t in active:
     elif not (t.get("acceptance") or {}).get("verify_commands"):
         debts.append(f"{t['id']} 无 verify_commands")
 
+# 3a) 批次 / 角色 / 来源
+ROLES = {"dev", "test", "docs", "gov", "review"}
+SOURCES = {"dec", "prototype", "incident", "gap", "review"}
+for t in active:
+    if not t.get("batch"):
+        errors.append(f"{t['id']} 缺 batch")
+    if t.get("role") not in ROLES:
+        errors.append(f"{t['id']} role={t.get('role')} 不在 {sorted(ROLES)}")
+    if t.get("source") not in SOURCES:
+        errors.append(f"{t['id']} source={t.get('source')} 不在 {sorted(SOURCES)}")
+    if t.get("source") == "dec" and not t.get("source_ref"):
+        errors.append(f"{t['id']} source=dec 但缺 source_ref")
+
 # 3b) 依赖图：未知依赖、父子一致、环
 for t in active:
     for dep in (t.get("depends_on") or []):

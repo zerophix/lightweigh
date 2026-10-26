@@ -213,6 +213,8 @@ bash scripts/workflow/wf-board-audit.sh               # 任务板审计（重复
 bash scripts/workflow/wf-task-board.sh ready          # 可开工任务（依赖已满足）
 bash scripts/workflow/wf-task-board.sh blocked        # 被谁阻塞
 bash scripts/workflow/wf-task-board.sh checkpoint T-xxx "进度/决定/下一步"
+bash scripts/workflow/wf-batch.sh list                # 批次进度
+bash scripts/workflow/wf-batch.sh start B-w1-screens   # 按角色切模式 + 打印测试计划
 bash scripts/workflow/wf-run.sh start <name> -- <cmd> # 后台执行
 bash scripts/workflow/wf-queue.sh run                 # 批次合入（唯一全量点）
 
