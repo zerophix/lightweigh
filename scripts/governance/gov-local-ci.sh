@@ -534,10 +534,15 @@ echo ""
 echo "=== 汇总 ==="
 echo "  车道: $LANE"
 echo "  通过: $PASS  失败: $FAIL"
-# 成本可见化（DEC-072）：批次环不进 5s 预算，但必须能回答"这次花了多久"
-echo "  耗时: ${SECONDS}s（预算 ${GOV_CI_BUDGET:-600}s）"
-if [ "$SECONDS" -gt "${GOV_CI_BUDGET:-600}" ]; then
-  echo "  [超预算] 超过 ${GOV_CI_BUDGET:-600}s：先查重复执行与全量扫描，再加新检查"
+# 成本可见化（DEC-080）：人类等待预算 5s；后台/队列才允许更长。
+CI_BUDGET="${GOV_CI_BUDGET:-}"
+if [ -z "$CI_BUDGET" ]; then
+  if [ "${GOV_CI_BACKGROUND:-0}" = "1" ]; then CI_BUDGET=600; else CI_BUDGET=5; fi
+fi
+CI_MODE="前台"; [ "${GOV_CI_BACKGROUND:-0}" = "1" ] && CI_MODE="后台"
+echo "  耗时: ${SECONDS}s（预算 ${CI_BUDGET}s，${CI_MODE}）"
+if [ "$SECONDS" -gt "$CI_BUDGET" ]; then
+  echo "  [超预算] ${SECONDS}s > ${CI_BUDGET}s：前台调用应改用 ship.sh 把全量放到后台"
 fi
 if [ "$FAIL" -ne 0 ]; then
   write_result fail
