@@ -52,6 +52,10 @@ collect_changed() {
       git diff "$BASE"...HEAD --name-only --diff-filter=ACM 2>/dev/null
       ;;
     *)
+      # 分支相对 master 的提交 + 工作区改动 + 未跟踪文件。
+      # 只取 git diff HEAD 会漏掉分支上已提交的改动，导致"改了却一条测试都不跑"。
+      branch_base="$(git merge-base HEAD origin/master 2>/dev/null || echo HEAD~1)"
+      git diff "$branch_base"...HEAD --name-only --diff-filter=ACM 2>/dev/null
       git diff HEAD --name-only --diff-filter=ACM 2>/dev/null
       git ls-files --others --exclude-standard 2>/dev/null
       ;;

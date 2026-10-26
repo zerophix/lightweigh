@@ -92,7 +92,9 @@ def test_pre_commit_uses_staged_scope():
 
 def test_local_ci_runs_pytest_as_separate_step():
     script = (ROOT / "scripts" / "governance" / "gov-local-ci.sh").read_text(encoding="utf-8")
-    assert 'run_step "pytest tests/unit"' in script
+    assert "run_pytest_step" in script
+    assert "gov-affected.sh --run" in script
+    assert "GOV_CI_FULL" in script
 
 
 def test_affected_emits_machine_readable_summary():

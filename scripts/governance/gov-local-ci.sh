@@ -331,40 +331,191 @@ print(f"  wrote evidence: {path}")
 PY
 }
 
+# ---------------- 结果缓存（DEC-072）----------------
+# 同一份输入（脚本内容 + 相关文件内容）跑第二次直接复用输出。
+# 只缓存纯读检查；会写共享状态的步骤不进缓存。
+CACHE_ROOT="$ROOT/.cache/gov"
+CI_STEP_DIR="$ROOT/.cache/ci-steps"
+mkdir -p "$CACHE_ROOT"
+
+cache_key() {
+  local p
+  {
+    for p in "$@"; do
+      if [ -d "$p" ]; then
+        find "$p" -type f \( -name '*.kt' -o -name '*.java' -o -name '*.py' \
+          -o -name '*.sh' -o -name '*.json' -o -name '*.yaml' -o -name '*.yml' \
+          -o -name '*.md' -o -name '*.xml' -o -name '*.kts' \) -exec shasum {} + 2>/dev/null
+      elif [ -f "$p" ]; then
+        shasum "$p" 2>/dev/null
+      fi
+    done
+  } | shasum | cut -d' ' -f1
+}
+
+run_with_cache() {
+  local name="$1" key="$2"
+  shift 2
+  local stamp="$CACHE_ROOT/$name.$key"
+  if [ -f "$stamp.out" ]; then
+    echo "[cache hit] $name"
+    cat "$stamp.out"
+    return "$(cat "$stamp.rc" 2>/dev/null || echo 0)"
+  fi
+  local out rc
+  out="$("$@" 2>&1)"
+  rc=$?
+  printf '%s\n' "$out"
+  # 原子落盘：并发跑两个 local-ci 时不留下半截缓存
+  printf '%s\n' "$out" > "$stamp.out.$$" && mv "$stamp.out.$$" "$stamp.out"
+  printf '%s\n' "$rc" > "$stamp.rc.$$" && mv "$stamp.rc.$$" "$stamp.rc"
+  # 每个步骤只保留最近 10 份缓存，避免无限增长
+  ls -t "$CACHE_ROOT/$name".*.out 2>/dev/null | tail -n +11 | while IFS= read -r old; do
+    rm -f "$old" "${old%.out}.rc"
+  done
+  return "$rc"
+}
+
+# 每步的 key 只包含它真正读的输入：改文档不应让源码检查失效，反之亦然
+step_validate()     { bash scripts/governance/gov-validate.sh; }
+step_secrets()      { bash scripts/governance/gov-secrets-scan.sh; }
+step_custom_checks() {
+  if [ "$LANE" = "A" ]; then
+    GOV_CODE_CHECK_STAGED=1 bash scripts/governance/gov-custom-checks.sh
+    return $?
+  fi
+  run_with_cache "gov-custom-checks" \
+    "$(cache_key app/src/main domain/src/main application/src/main infrastructure/src/main \
+       scripts/governance/gov-code-check.py scripts/governance/gov-custom-checks.sh)" \
+    bash scripts/governance/gov-custom-checks.sh
+}
+step_schema_guard() {
+  run_with_cache "gov-schema-guard" \
+    "$(cache_key infrastructure/schemas infrastructure/src/main scripts/governance/gov-schema-guard.sh)" \
+    bash scripts/governance/gov-schema-guard.sh
+}
+step_test_guard() {
+  run_with_cache "gov-test-guard" \
+    "$(cache_key tests scripts/governance/gov-test-guard.sh)" \
+    bash scripts/governance/gov-test-guard.sh
+}
+step_a11y() {
+  run_with_cache "gov-a11y-check" \
+    "$(cache_key app/src/main scripts/governance/gov-a11y-check.py)" \
+    python3 scripts/governance/gov-a11y-check.py
+}
+step_reachability() {
+  run_with_cache "gov-reachability-check" \
+    "$(cache_key app/src/main scripts/governance/gov-reachability-check.py scripts/governance/gov-reach-baseline.txt)" \
+    python3 scripts/governance/gov-reachability-check.py
+}
+step_hook_doctor() {
+  run_with_cache "gov-hook-doctor" \
+    "$(cache_key scripts/hooks scripts/governance/gov-hook-doctor.sh scripts/governance/gov-mode.sh)" \
+    bash scripts/governance/gov-hook-doctor.sh
+}
+
+bg_step() {
+  local name="$1"
+  shift
+  local log="$CI_STEP_DIR/$name"
+  ( "$@" > "$log.log" 2>&1; echo $? > "$log.rc" ) &
+}
+
+collect_bg() {
+  local name="$1"
+  local rc=0
+  [ -f "$CI_STEP_DIR/$name.rc" ] && rc="$(cat "$CI_STEP_DIR/$name.rc")"
+  echo ""
+  echo "=== [$name]（并行）==="
+  cat "$CI_STEP_DIR/$name.log" 2>/dev/null
+  if [ "$rc" = "0" ]; then
+    echo "  PASS: $name"
+    PASS=$((PASS + 1))
+    STEPS+=("$name=0")
+  else
+    echo "  FAIL: $name (exit $rc)"
+    FAIL=$((FAIL + 1))
+    STEPS+=("$name=$rc")
+  fi
+}
+
+# pytest 策略：默认只跑受影响用例；脚本变更或 GOV_CI_FULL=1 时全量。
+# 全量 pytest 的并行度取决于是否装了 xdist（不强制依赖）。
+run_pytest_step() {
+  if [ "$LANE" = "A" ]; then
+    echo ""
+    echo "=== [pytest] 跳过（车道 A：变更不涉及代码）==="
+    return 0
+  fi
+  local xdist=""
+  if python3 -c "import xdist" 2>/dev/null; then xdist="-n auto"; fi
+  local scripts_changed=0
+  case $'\n'"$DETECTED_CHANGES" in
+    *$'\n'scripts/*) scripts_changed=1 ;;
+  esac
+  if [ "${GOV_CI_FULL:-0}" = "1" ] || [ "$scripts_changed" = "1" ]; then
+    echo ""
+    echo "=== [pytest] 全量（脚本变更或显式全量）==="
+    # 全量结果按"代码 + 测试 + 脚本 + 文档"内容哈希缓存：
+    # 输入没变就没有重跑的理由，输入一变 key 就变（不会误用旧结果）。
+    # shellcheck disable=SC2086
+    run_step "pytest tests/unit (full)" run_with_cache "pytest-full" \
+      "$(cache_key app domain application infrastructure tests scripts docs .ai/tasks.json)" \
+      python3 -m pytest tests/unit -q $xdist
+  else
+    run_step "pytest affected" bash scripts/governance/gov-affected.sh --run
+  fi
+}
+
 set +e
-if [ -n "$GRADLE_TASK" ]; then
-  run_step "gradlew $GRADLE_TASK" ./gradlew "$GRADLE_TASK" --stacktrace
+rm -rf "$CI_STEP_DIR"
+mkdir -p "$CI_STEP_DIR"
+
+if [ "${GOV_CI_PARALLEL:-1}" = "0" ]; then
+  # 串行回退（排查并行相关问题时用）
+  run_step "gov-validate" step_validate
+  run_step "gov-custom-checks" step_custom_checks
+  run_step "gov-secrets-scan" step_secrets
+  run_step "gov-schema-guard" step_schema_guard
+  run_step "gov-test-guard" step_test_guard
+  run_step "gov-a11y-check" step_a11y
+  if [ "$LANE" != "A" ]; then run_step "gov-reachability-check" step_reachability; fi
+  run_step "gov-hook-doctor" step_hook_doctor
+  if [ -n "$GRADLE_TASK" ]; then
+    run_step "gradlew $GRADLE_TASK" ./gradlew "$GRADLE_TASK" --stacktrace
+  else
+    echo ""
+    echo "=== [gradle] 跳过（车道 A：变更不参与 gradle 构建）==="
+  fi
+  run_pytest_step
 else
-  echo ""
-  echo "=== [gradle] 跳过（车道 A：变更不参与 gradle 构建）==="
+  # 静态检查先并行启动（多数可命中缓存），与 gradle/pytest 重叠
+  bg_step gov-validate step_validate
+  bg_step gov-custom-checks step_custom_checks
+  bg_step gov-secrets-scan step_secrets
+  bg_step gov-schema-guard step_schema_guard
+  bg_step gov-test-guard step_test_guard
+  bg_step gov-a11y-check step_a11y
+  if [ "$LANE" != "A" ]; then bg_step gov-reachability-check step_reachability; fi
+  bg_step gov-hook-doctor step_hook_doctor
+
+  if [ -n "$GRADLE_TASK" ]; then
+    run_step "gradlew $GRADLE_TASK" ./gradlew "$GRADLE_TASK" --stacktrace
+  else
+    echo ""
+    echo "=== [gradle] 跳过（车道 A：变更不参与 gradle 构建）==="
+  fi
+
+  run_pytest_step
+  wait
+
+  for s in gov-validate gov-custom-checks gov-secrets-scan gov-schema-guard \
+           gov-test-guard gov-a11y-check gov-hook-doctor; do
+    collect_bg "$s"
+  done
+  if [ "$LANE" != "A" ]; then collect_bg gov-reachability-check; fi
 fi
-# DEC-072: pytest 从 gov-validate 移出，作为独立步骤；车道 A（纯文档）不跑。
-# 这样 validate 本身是亚秒级静态校验，测试只在真正需要时执行一次。
-if [ "$LANE" = "A" ]; then
-  echo ""
-  echo "=== [pytest] 跳过（车道 A：变更不涉及代码）==="
-else
-  run_step "pytest tests/unit" python3 -m pytest tests/unit -q
-fi
-run_step "gov-validate" bash scripts/governance/gov-validate.sh
-# 车道 A（纯文档/设计）没有源码变更：code-check 走增量模式，避免 8s 全仓扫描
-if [ "$LANE" = "A" ]; then
-  run_step "gov-custom-checks" env GOV_CODE_CHECK_STAGED=1 bash scripts/governance/gov-custom-checks.sh
-else
-  run_step "gov-custom-checks" bash scripts/governance/gov-custom-checks.sh
-fi
-run_step "gov-secrets-scan" bash scripts/governance/gov-secrets-scan.sh
-run_step "gov-schema-guard" bash scripts/governance/gov-schema-guard.sh
-run_step "gov-test-guard" bash scripts/governance/gov-test-guard.sh
-run_step "gov-a11y-check" python3 scripts/governance/gov-a11y-check.py
-# 可达性建立在 Kotlin 源码上：车道 A 无可达面变化，跳过（6.4s 全是重复计算）
-if [ "$LANE" = "A" ]; then
-  echo ""
-  echo "=== [gov-reachability-check] 跳过（车道 A：无代码变更）==="
-else
-  run_step "gov-reachability-check" python3 scripts/governance/gov-reachability-check.py
-fi
-run_step "gov-hook-doctor" bash scripts/governance/gov-hook-doctor.sh
 set -e
 
 echo ""

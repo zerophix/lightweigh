@@ -213,7 +213,8 @@ cmd_run() {
 
   # 2) 候选上验证一次（这是唯一的重检查）
   say "  [验证] 候选上跑 local-ci（GOV_LANE=${LANES}）…"
-  if ! GOV_LANE="$LANES" bash scripts/governance/gov-local-ci.sh > /tmp/wf-queue-ci.log 2>&1; then
+  # 合入是唯一的全量点（DEC-072）：候选上强制跑全量测试，其余环节用增量
+  if ! GOV_LANE="$LANES" GOV_CI_FULL=1 bash scripts/governance/gov-local-ci.sh > /tmp/wf-queue-ci.log 2>&1; then
     say "  ❌ 候选验证失败："
     grep -E "FAIL|通过:|失败:|PASS gov-local-ci" /tmp/wf-queue-ci.log | tail -8 | sed 's/^/      /'
     say "  候选保留：${candidate}（解决后重跑；--keep 可强制保留）"
