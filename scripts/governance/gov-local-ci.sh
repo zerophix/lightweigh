@@ -546,11 +546,12 @@ if [ "$SECONDS" -gt "$CI_BUDGET" ]; then
 fi
 if [ "$FAIL" -ne 0 ]; then
   write_result fail
-  bash scripts/governance/gov-update-status.sh 2>/dev/null || true
+  # 后台验证不写共享状态（DEC-081）：验证不该弄脏工作区
+  [ "${GOV_CI_BACKGROUND:-0}" = "1" ] || bash scripts/governance/gov-update-status.sh 2>/dev/null || true
   echo "FAIL gov-local-ci"
   exit 1
 fi
 write_result pass
-bash scripts/governance/gov-update-status.sh 2>/dev/null || true
+[ "${GOV_CI_BACKGROUND:-0}" = "1" ] || bash scripts/governance/gov-update-status.sh 2>/dev/null || true
 echo "PASS gov-local-ci"
 exit 0
