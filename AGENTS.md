@@ -138,9 +138,11 @@ bash scripts/workflow/wf-queue.sh run                # 批次：N 分支 → 1 �
 bash scripts/governance/gov-task-done.sh T-xxx
 ```
 
-它逐条执行：`target_files` 存在性 → 原型 `--strict` → `acceptance.verify_commands`，通过后写 `.ai/evidence/<ID>.json`（含 SHA）。
+它逐条执行：`target_files` 存在性 → 原型 `--strict` → `acceptance.verify_commands`，并把结果（含每条 check 与 SHA）写进 `.ai/evidence/<ID>.json`。
 
-**已知缺口（必须知道）**：队列目前只**警告**缺证据，不拒绝合入。在补上消费方之前，"完成有证据"是设计意图，不是事实（§14）。
+- **通过与否都写**：失败证据的 `ok=false`，用于回答"卡在哪一步"。
+- **证据要随分支提交**：队列在候选树里读它，不提交就等于没做。
+- **队列会拒绝**：带 `Task: T-xxx` trailer 的分支缺证据或 `ok!=true` 时，合入被拒（`GOV_ALLOW_MISSING_EVIDENCE=1` 可放宽，会打印）。
 
 ## 8. 会话结束
 
@@ -181,7 +183,7 @@ bash scripts/session/ses-session-end.sh
 | 黄金向量 / Room schema | `gov-schema-guard`（local-ci + CI） | `gov-local-ci.sh` |
 | AC 完成定义 | `gov-task-done.sh` | 同上 |
 | 任务归属 | 提交 trailer `Task: T-XXX` | `git log -1 --format=%B` |
-| **完成证据** | `gov-task-done` 写 / 队列读（当前仅警告） | `ls .ai/evidence` |
+| **完成证据** | `gov-task-done` 写 / `gov-evidence-check` + 队列读，缺即拒绝 | `ls .ai/evidence` |
 | 无障碍 / 预览 / 屏可达 | `gov-a11y-check` / `gov-preview-check` / `gov-reachability-check` | 对应脚本 |
 | 钩子生效 | `gov-hook-doctor`（local-ci） | `bash scripts/governance/gov-hook-doctor.sh` |
 | **绕过审计** | `gov-audit-bypass.sh`（pre-push） | `GOV_BYPASS_POLICY=block git push` |
@@ -240,7 +242,7 @@ bash scripts/governance/gov-sync-agent-rules.sh --check
 | 缺口 | 证据 | 下一步 |
 |---|---|---|
 | 任务板与真实工作脱节 | 83 条中 23 条无 `target_files`，12 条 pending 仍 `draft` | `wf-board-audit.sh`，逐条补 AC 或标记 blocked |
-| 完成证据无消费方 | `.ai/evidence/` 为空；队列只警告 | 让队列缺证据即拒绝合入 |
+| 证据需手动提交 | `.ai/evidence/` 未纳入自动提交 | 由 `dev-loop`/`finish` 自动 `git add` 证据 |
 | 无远程权威 | Actions 不可用、无分支保护 | 自建 bare remote + pre-receive，或恢复 required checks |
 | `--no-verify` 只能发现不能阻止 | 审计默认 warn | `GOV_BYPASS_POLICY=block`，或服务端强制 |
 | 多 AI 评审停更 | `docs/ai/reviews/` 最新 10-22 | 用 `review` 角色在关键节点重跑一次 |
