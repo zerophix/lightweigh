@@ -261,6 +261,9 @@ fun DeviceDetailScreen(
 ) {
     // 本页临时态（弹层 / 乐观断连）由纯函数迁移；外部注入的 state 变了就整页重建
     var page by remember(state) { mutableStateOf(state) }
+    // 设备校准（T-062）：只做引导状态机，不伪造设备端写入
+    var showCalibration by remember { mutableStateOf(false) }
+    var calibStep by remember { mutableStateOf(CalibrationStep.Idle) }
 
     // 迁移 + 动作分发：确认解绑才上交 onUnbind
     val dispatch: (DeviceDetailIntent) -> Unit = { intent ->
@@ -324,6 +327,45 @@ fun DeviceDetailScreen(
                     },
                 )
             }
+        }
+
+        // 设备校准：引导用户检查放置与归零，不冒充"已写入校准值"
+        QkCard(modifier = Modifier.padding(top = QkSpacing.CardGap)) {
+            QkListRow(
+                title = "设备校准",
+                showDivider = false,
+                onClick = {
+                    calibStep = CalibrationStep.Idle
+                    showCalibration = true
+                },
+            )
+        }
+
+        if (showCalibration) {
+            val isDone = calibStep == CalibrationStep.Done
+            AlertDialog(
+                onDismissRequest = { showCalibration = false },
+                title = { Text("设备校准") },
+                text = { Text(calibrationHint(calibStep)) },
+                confirmButton = {
+                    TextButton(onClick = {
+                        val event = when (calibStep) {
+                            CalibrationStep.Idle -> CalibrationEvent.Start
+                            CalibrationStep.PlaceOnFloor -> CalibrationEvent.FloorConfirmed
+                            CalibrationStep.StepOn -> CalibrationEvent.SteppedOn
+                            CalibrationStep.StepOff -> CalibrationEvent.SteppedOff
+                            CalibrationStep.Done -> CalibrationEvent.Restart
+                        }
+                        calibStep = calibrationNext(calibStep, event)
+                        if (isDone) showCalibration = false
+                    }) {
+                        Text(if (isDone) "完成" else "下一步")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showCalibration = false }) { Text("关闭") }
+                },
+            )
         }
 
         // 断开连接（原型 .rows 第一组；本页只置乐观态，真实断连归接入层）
