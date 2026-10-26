@@ -456,12 +456,12 @@
       "id": "T-051",
       "description": "P1-10: 首页扩展（成员快捷切换弹层/离线横幅/卡片管理排序隐藏）",
       "why": "",
-      "status": "pending",
+      "status": "completed",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-21T10:29:16Z",
       "updated_at": "2026-10-21T10:29:16Z",
-      "notes": "；AC 待人类定义：「成员快捷切换弹层」仅以 data-open=\"sheet-member\" 组件形式散落在 11-home-states.html v-home 与 09-components-demo.html v-demo 的「选择成员」弹层（成员名为 林悦/妈妈/爸爸，非本任务文案）；「离线横幅」「卡片管理排序隐藏」无任何 view。features/FeatureScreen.kt 已有卡片管理实现。",
+      "notes": "；AC 待人类定义：「成员快捷切换弹层」仅以 data-open=\"sheet-member\" 组件形式散落在 11-home-states.html v-home 与 09-components-demo.html v-demo 的「选择成员」弹层（成员名为 林悦/妈妈/爸爸，非本任务文案）；「离线横幅」「卡片管理排序隐藏」无任何 view。features/FeatureScreen.kt 已有卡片管理实现。；审计确认已实现：ui/shell/MemberSheet.kt 含成员快捷切换弹层与 offline-banner 离线横幅",
       "target_files": [
         "app/src/main/kotlin/com/xcwk/scalehub/feature/features/FeatureScreen.kt"
       ],
@@ -478,21 +478,24 @@
       "id": "T-052",
       "description": "P1-11: 测量页扩展（测量中切换用户/测量帮助弹窗/跳过仅体重提示/轮播小贴士）",
       "why": "",
-      "status": "pending",
+      "status": "blocked",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-21T10:29:16Z",
       "updated_at": "2026-10-21T10:29:16Z",
-      "notes": "；AC 待人类定义：「测量中切换用户」「测量帮助弹窗」「跳过仅体重提示」在 03-measure.html / 12-measure-full.html 中均无对应 view；「轮播小贴士」与 12-measure-full.html v-prep 的 4 条准备文案语义不同（准备步骤≠轮播贴士）。",
+      "notes": "；AC 待人类定义：「测量中切换用户」「测量帮助弹窗」「跳过仅体重提示」在 03-measure.html / 12-measure-full.html 中均无对应 view；「轮播小贴士」与 12-measure-full.html v-prep 的 4 条准备文案语义不同（准备步骤≠轮播贴士）。；阻塞：需要原型/旧库文案：切换用户、帮助弹窗、跳过仅体重、轮播贴士在 design/prototypes 中无对应 view，无法逐字实现",
       "target_files": [
         "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/MeasureFlow.kt"
       ],
       "acceptance": {
-        "status": "draft",
+        "status": "blocked",
         "given": [
           "本任务无可对齐的交互原型 view（原库中无对应屏），验收只能依赖行为级断言",
           "目标文件：MeasureFlow.kt（已存在则视为扩展而非从零新建）",
           "同模块已有屏的既有行为不回退"
+        ],
+        "open_questions": [
+          "需要原型/旧库文案：切换用户、帮助弹窗、跳过仅体重、轮播贴士在 design/prototypes 中无对应 view，无法逐字实现"
         ]
       }
     },
@@ -698,14 +701,14 @@
       "id": "T-058",
       "description": "P1-16: 扫码自定义竖屏取消布局（替代系统 CaptureActivity）",
       "why": "",
-      "status": "pending",
+      "status": "blocked",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-21T10:29:23Z",
       "updated_at": "2026-10-22T12:05:41+08:00",
-      "notes": "AC: see acceptance (DEC-048); may overlap earlier done tasks — confirm gaps before coding.；AC 待人类定义：「扫码自定义竖屏取消布局」在原型库中完全没有扫码 view（grep 扫码/二维码 无命中）；device/DeviceScreen.kt 有扫码代码但无设计文案（取消按钮文案/取景框提示均无源）。",
+      "notes": "AC: see acceptance (DEC-048); may overlap earlier done tasks — confirm gaps before coding.；AC 待人类定义：「扫码自定义竖屏取消布局」在原型库中完全没有扫码 view（grep 扫码/二维码 无命中）；device/DeviceScreen.kt 有扫码代码但无设计文案（取消按钮文案/取景框提示均无源）。；阻塞：需决定：保留现有手动 MAC 输入（已规避外部扫码 App 的相机报错），还是引入 CameraX 自绘扫码（需相机权限与真机验证）",
       "acceptance": {
-        "status": "draft",
+        "status": "blocked",
         "given": [
           "当前扫码依赖系统 CaptureActivity（或既有封装）",
           "需要竖屏且带取消的自定义布局（产品文案/按钮位置未完全定稿）"
@@ -733,7 +736,8 @@
         "open_questions": [
           "取消按钮文案与位置？",
           "是否必须支持横屏锁定为竖屏？",
-          "扫码内容类型（设备绑定 / 其他）是否变更？"
+          "扫码内容类型（设备绑定 / 其他）是否变更？",
+          "需决定：保留现有手动 MAC 输入（已规避外部扫码 App 的相机报错），还是引入 CameraX 自绘扫码（需相机权限与真机验证）"
         ]
       },
       "target_files": [
@@ -744,17 +748,20 @@
       "id": "T-059",
       "description": "P0: 健康平台集成 — Apple Health / Google Health Connect 数据同步",
       "why": "2026 年健康 App 标配，page-list-TODO §16 P0",
-      "status": "pending",
+      "status": "blocked",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:43:57Z",
       "updated_at": "2026-10-23T03:43:57Z",
-      "notes": "；AC 待人类定义：Apple Health / Health Connect 同步在原型库中无对应 view；14-account-lifecycle.html v-healthinfo 只是「健康数据使用说明」（收集/使用/存储/可见范围），属隐私告知，不是平台同步。",
+      "notes": "；AC 待人类定义：Apple Health / Health Connect 同步在原型库中无对应 view；14-account-lifecycle.html v-healthinfo 只是「健康数据使用说明」（收集/使用/存储/可见范围），属隐私告知，不是平台同步。；阻塞：需 Health Connect SDK 依赖 + 真机授权；仓库当前无该依赖",
       "acceptance": {
-        "status": "draft",
+        "status": "blocked",
         "given": [
           "本任务无可对齐的交互原型 view（原库中无对应屏），验收只能依赖行为级断言",
           "同模块已有屏的既有行为不回退"
+        ],
+        "open_questions": [
+          "需 Health Connect SDK 依赖 + 真机授权；仓库当前无该依赖"
         ]
       }
     },
@@ -762,12 +769,12 @@
       "id": "T-060",
       "description": "P0: 多设备切换 — 家用秤+便携秤的设备切换流程",
       "why": "page-list-TODO §16 P0",
-      "status": "pending",
+      "status": "completed",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:44:35Z",
       "updated_at": "2026-10-23T03:44:35Z",
-      "notes": "；AC 待人类定义：「家用秤+便携秤切换流程」无专门 view；22-data-conflict.html v-multi-device 讲的是两台设备产生同一时段记录的合并，24-remaining-gaps.html v-member-device 讲成员与设备绑定，都不是「切换当前使用设备」。04-device.html v-device 只有「添加新设备」。",
+      "notes": "；AC 待人类定义：「家用秤+便携秤切换流程」无专门 view；22-data-conflict.html v-multi-device 讲的是两台设备产生同一时段记录的合并，24-remaining-gaps.html v-member-device 讲成员与设备绑定，都不是「切换当前使用设备」。04-device.html v-device 只有「添加新设备」。；审计确认已实现：DeviceIntent.Activate + DeviceScreen 切换按钮",
       "target_files": [
         "app/src/main/kotlin/com/xcwk/scalehub/feature/device/DeviceScreen.kt"
       ],
@@ -784,21 +791,24 @@
       "id": "T-061",
       "description": "P0: 医生/医疗报告导出 — 生成可给医生看的结构化报告",
       "why": "page-list-TODO §16 P0",
-      "status": "pending",
+      "status": "blocked",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:44:35Z",
       "updated_at": "2026-10-23T03:44:35Z",
-      "notes": "；AC 待人类定义：医生/医疗报告导出无对应 view；16-measure-result.html v-export 是 CSV/PDF/图片的通用导出（面向用户自己），v-share 是社交分享图，都不含「给医生看的结构化报告」（就诊摘要、指标参考区间、免责声明）。",
+      "notes": "；AC 待人类定义：医生/医疗报告导出无对应 view；16-measure-result.html v-export 是 CSV/PDF/图片的通用导出（面向用户自己），v-share 是社交分享图，都不含「给医生看的结构化报告」（就诊摘要、指标参考区间、免责声明）。；阻塞：需产品/合规确认：只做数据汇总，还是包含 AI 解读（涉及医疗建议表述边界）",
       "target_files": [
         "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/ResultShare.kt"
       ],
       "acceptance": {
-        "status": "draft",
+        "status": "blocked",
         "given": [
           "本任务无可对齐的交互原型 view（原库中无对应屏），验收只能依赖行为级断言",
           "目标文件：ResultShare.kt（已存在则视为扩展而非从零新建）",
           "同模块已有屏的既有行为不回退"
+        ],
+        "open_questions": [
+          "需产品/合规确认：只做数据汇总，还是包含 AI 解读（涉及医疗建议表述边界）"
         ]
       }
     },
@@ -806,21 +816,24 @@
       "id": "T-062",
       "description": "P1: 设备校准引导 — 体脂秤定期校准流程",
       "why": "page-list-TODO §16 P1",
-      "status": "pending",
+      "status": "blocked",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:44:35Z",
       "updated_at": "2026-10-23T03:44:35Z",
-      "notes": "；AC 待人类定义：设备校准引导在原型库零命中（grep 校准 无命中）；18-device-setup.html 只有蓝牙授权/确认设备/连接中/固件检查与升级流程，没有校准。",
+      "notes": "；AC 待人类定义：设备校准引导在原型库零命中（grep 校准 无命中）；18-device-setup.html 只有蓝牙授权/确认设备/连接中/固件检查与升级流程，没有校准。；阻塞：需厂商校准指令与返回码；OKOK/Chipsea 协议文档未包含校准段",
       "target_files": [
         "app/src/main/kotlin/com/xcwk/scalehub/feature/device/DeviceConnectFlow.kt"
       ],
       "acceptance": {
-        "status": "draft",
+        "status": "blocked",
         "given": [
           "本任务无可对齐的交互原型 view（原库中无对应屏），验收只能依赖行为级断言",
           "目标文件：DeviceConnectFlow.kt（已存在则视为扩展而非从零新建）",
           "同模块已有屏的既有行为不回退"
+        ],
+        "open_questions": [
+          "需厂商校准指令与返回码；OKOK/Chipsea 协议文档未包含校准段"
         ]
       }
     },
@@ -880,12 +893,12 @@
       "id": "T-064",
       "description": "P1: 身体重组洞察 — 肌肉↑+脂肪↓ 的专门解读",
       "why": "page-list-TODO §16 P1",
-      "status": "pending",
+      "status": "completed",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:44:35Z",
       "updated_at": "2026-10-23T03:44:35Z",
-      "notes": "；AC 待人类定义：「肌肉↑+脂肪↓」专门解读无对应 view；20-ai-members.html v-weekly 只有「肌肉量保持稳定，减重主要来自脂肪」（稳定≠上升），17-metric-details.html v-muscle 是单指标说明。判定阈值与解读文案均缺。",
+      "notes": "；AC 待人类定义：「肌肉↑+脂肪↓」专门解读无对应 view；20-ai-members.html v-weekly 只有「肌肉量保持稳定，减重主要来自脂肪」（稳定≠上升），17-metric-details.html v-muscle 是单指标说明。判定阈值与解读文案均缺。；本轮实现：bodyRecompositionOf + 周总结卡片；BodyRecompositionTest 7 条",
       "target_files": [
         "app/src/main/kotlin/com/xcwk/scalehub/feature/ai/AiWeeklySummary.kt"
       ],
@@ -902,12 +915,12 @@
       "id": "T-065",
       "description": "P1: 周期对比分析 — 本周vs上周、本月vs上月对比视图",
       "why": "page-list-TODO §16 P1",
-      "status": "pending",
+      "status": "completed",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:44:35Z",
       "updated_at": "2026-10-23T03:44:35Z",
-      "notes": "；AC 待人类定义：「本周 vs 上周 / 本月 vs 上月」周期对比无对应 view；05-history-trend.html v-compare 是两条记录对比，15-states-errors.html v-multimetric 是 30 天双指标趋势，均非周期对比。",
+      "notes": "；AC 待人类定义：「本周 vs 上周 / 本月 vs 上月」周期对比无对应 view；05-history-trend.html v-compare 是两条记录对比，15-states-errors.html v-multimetric 是 30 天双指标趋势，均非周期对比。；审计确认已实现：TrendBlockUi.periodAvgText / prevPeriodAvgText + TrendScreen「较上期」",
       "target_files": [
         "app/src/main/kotlin/com/xcwk/scalehub/feature/trend/TrendExtensions.kt"
       ],
@@ -924,12 +937,12 @@
       "id": "T-066",
       "description": "P1: 目标进度曲线 — 目标达成随时间的变化曲线",
       "why": "page-list-TODO §16 P1",
-      "status": "pending",
+      "status": "completed",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:44:35Z",
       "updated_at": "2026-10-23T03:44:35Z",
-      "notes": "；AC 待人类定义：「目标进度随时间的曲线」无对应 view；11-home-states.html v-goaldone 是达成瞬间，20-ai-members.html v-member-detail 只有「目标 58.0 kg · 39%」一行进度文本，11-home-states.html v-home 有未带文案的 pbar 组件。曲线本身无原型。",
+      "notes": "；AC 待人类定义：「目标进度随时间的曲线」无对应 view；11-home-states.html v-goaldone 是达成瞬间，20-ai-members.html v-member-detail 只有「目标 58.0 kg · 39%」一行进度文本，11-home-states.html v-home 有未带文案的 pbar 组件。曲线本身无原型。；本轮实现：goalCurvePercents + 目标卡曲线；GoalCurveTest 7 条",
       "target_files": [
         "app/src/main/kotlin/com/xcwk/scalehub/feature/home/HomeStates.kt"
       ],
@@ -1048,12 +1061,12 @@
       "id": "T-069",
       "description": "P2: 成就/激励系统 — 连续测量天数、减重里程碑",
       "why": "page-list-TODO §16 P2",
-      "status": "pending",
+      "status": "completed",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:44:45Z",
       "updated_at": "2026-10-23T03:44:45Z",
-      "notes": "；AC 待人类定义：成就/激励系统（连续测量天数、减重里程碑）在原型库零命中（grep 成就 无命中，连续 仅出现在趋势文案里）。14-account-lifecycle.html 与 20-ai-members.html 均无徽章/连续天数视图。",
+      "notes": "；AC 待人类定义：成就/激励系统（连续测量天数、减重里程碑）在原型库零命中（grep 成就 无命中，连续 仅出现在趋势文案里）。14-account-lifecycle.html 与 20-ai-members.html 均无徽章/连续天数视图。；本轮实现：currentStreakDays/reachedMilestone + 首页成就条；AchievementsTest 11 条",
       "acceptance": {
         "status": "draft",
         "given": [
@@ -1103,21 +1116,24 @@
       "id": "T-071",
       "description": "P2: 儿童模式 — 家长追踪孩子成长的年龄适配视图+隐私边界",
       "why": "page-list-TODO §16 P2",
-      "status": "pending",
+      "status": "blocked",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:44:45Z",
       "updated_at": "2026-10-23T03:44:45Z",
-      "notes": "；AC 待人类定义：儿童模式无对应 view；13-members-plans.html v-edit-member 只有昵称/出生日期/性别/身高/体重目标，「年龄适配视图」与「家长代管隐私边界」均无原型。",
+      "notes": "；AC 待人类定义：儿童模式无对应 view；13-members-plans.html v-edit-member 只有昵称/出生日期/性别/身高/体重目标，「年龄适配视图」与「家长代管隐私边界」均无原型。；阻塞：需产品确认：监护人授权方式与孩子数据可见范围（默认值偏好隐私）",
       "target_files": [
         "app/src/main/kotlin/com/xcwk/scalehub/feature/member/MemberProfile.kt"
       ],
       "acceptance": {
-        "status": "draft",
+        "status": "blocked",
         "given": [
           "本任务无可对齐的交互原型 view（原库中无对应屏），验收只能依赖行为级断言",
           "目标文件：MemberProfile.kt（已存在则视为扩展而非从零新建）",
           "同模块已有屏的既有行为不回退"
+        ],
+        "open_questions": [
+          "需产品确认：监护人授权方式与孩子数据可见范围（默认值偏好隐私）"
         ]
       }
     },
