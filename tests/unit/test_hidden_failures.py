@@ -58,7 +58,7 @@ def _hook_repo(tmp_path: Path) -> Path:
         )
         wrapper.chmod(0o755)
     _git(root, "init", "-q")
-    _git(root, "config", "core.hooksPath", "scripts/hooks")
+    _git(root, "config", "core.hooksPath", str(root / "scripts" / "hooks"))
     return root
 
 

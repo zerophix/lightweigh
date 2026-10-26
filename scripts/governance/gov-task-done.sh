@@ -258,13 +258,17 @@ def main(argv):
 
     # 通过即落证据：完成状态必须能追到「谁、在哪个提交、跑了什么、结果如何」。
     # 合并队列置 completed 时读这份证据，缺证据会显式标注 evidence=absent。
-    if exit_code == EXIT_OK and not dry:
+    # 通过与否都落证据（DEC-078）：
+    # 失败时不留痕，等于让"部分验证"消失在历史里——实践中正是靠失败证据
+    # 才能回答"这条任务的 gate 卡在哪一步"。队列只接受 ok=true 的证据。
+    if not dry:
         evidence_dir = root / ".ai" / "evidence"
         evidence_dir.mkdir(parents=True, exist_ok=True)
         sha = subprocess.run(["git", "rev-parse", "HEAD"], cwd=str(root),
                              capture_output=True, text=True).stdout.strip()
         payload = {
             "task": task_id,
+            "ok": exit_code == EXIT_OK,
             "git_sha": sha,
             "verified_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             "checks": [{"type": c.get("type"), "name": c.get("name"),
@@ -273,7 +277,8 @@ def main(argv):
         (evidence_dir / f"{task_id}.json").write_text(
             json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         if not json_mode:
-            print(f"[evidence] 已写入 .ai/evidence/{task_id}.json (sha={sha[:7]})")
+            state = "通过" if exit_code == EXIT_OK else "未通过"
+            print(f"[evidence] 已写入 .ai/evidence/{task_id}.json（{state}, sha={sha[:7]}）")
 
     if json_mode:
         payload = {
