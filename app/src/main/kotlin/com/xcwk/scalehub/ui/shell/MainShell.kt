@@ -1,6 +1,5 @@
 package com.xcwk.scalehub.ui.shell
 
-import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -129,9 +128,6 @@ fun MainShell() {
     }
 
     // 通知铃：产品未定义通知中心前，给诚实的空态反馈（无通知后端，不造假红点/假列表）。
-    val onBell: () -> Unit = {
-        Toast.makeText(appContext, "暂无新通知", Toast.LENGTH_SHORT).show()
-    }
 
     // 系统返回键：栈内有层则出栈；栈空时不拦截，交给系统结束 Activity
     BackHandler(enabled = nav.canPop) { nav = nav.reduce(NavEvent.Back) }
@@ -147,7 +143,7 @@ fun MainShell() {
             // 详情页自带返回头（← 标题），壳层品牌栏在其上会形成双标题；
             // 副标题也只描述四个页签，压栈后即失真。故栈内有层时让位。
             if (!nav.canPop) {
-                QkTopBar(subtitle = subtitleFor(nav.tab), onBell = onBell)
+                QkTopBar(subtitle = subtitleFor(nav.tab))
             }
         },
         bottomBar = {

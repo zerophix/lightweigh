@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -29,7 +28,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.xcwk.scalehub.ui.components.QkIcon
 import com.xcwk.scalehub.ui.components.QkIcons
 import com.xcwk.scalehub.ui.theme.QkColor
 import com.xcwk.scalehub.ui.theme.QkRadius
@@ -44,7 +42,7 @@ import com.xcwk.scalehub.ui.theme.QkSpacing
 
 /** 顶栏：品牌字标 + 随页副标题 + 右侧通知铃。 */
 @Composable
-fun QkTopBar(subtitle: String, modifier: Modifier = Modifier, onBell: () -> Unit = {}) {
+fun QkTopBar(subtitle: String, modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -68,15 +66,6 @@ fun QkTopBar(subtitle: String, modifier: Modifier = Modifier, onBell: () -> Unit
                 color = QkColor.Muted,
                 modifier = Modifier.padding(top = 3.dp),
             )
-        }
-        Box(
-            modifier = Modifier
-                .size(34.dp)
-                .clip(CircleShape)
-                .clickable(onClick = onBell),
-            contentAlignment = Alignment.Center,
-        ) {
-            QkIcon(QkIcons.Bell, size = 21.dp, contentDescription = "通知")
         }
     }
 }
