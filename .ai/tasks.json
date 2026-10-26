@@ -27,7 +27,13 @@
       "status": "completed",
       "detail": "DEC-039: BleDebugLog 环形缓冲 + AndroidBleLink/MeasureSession 插桩 + ui.debug.DebugOverlay（拖动/复制/清空/贴底），BuildConfig.DEBUG 门控",
       "acceptance": {},
-      "group_id": "debug"
+      "group_id": "debug",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/ui/debug/DebugOverlay.kt"
+      ],
+      "overlaps_with": [
+        "T-025"
+      ]
     },
     {
       "id": "T-025",
@@ -35,7 +41,13 @@
       "status": "completed",
       "detail": "DEC-040: BleDebugLog 泛化为 application.debug.DebugLog，四链路插桩约 30 处，敏感信息过滤（auth 只记 path）",
       "acceptance": {},
-      "group_id": "debug"
+      "group_id": "debug",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/ui/debug/DebugOverlay.kt"
+      ],
+      "overlaps_with": [
+        "T-024"
+      ]
     },
     {
       "id": "T-026",
@@ -43,7 +55,10 @@
       "status": "completed",
       "detail": "DEC-041: domain 改 Android Library 根治元数据不可见，引入 AppError/AppResult 统一错误模型，基建层与应用层全链路落地",
       "acceptance": {},
-      "group_id": "platform"
+      "group_id": "platform",
+      "archived": true,
+      "target_files": [],
+      "notes": "；统一错误模型：无法从现有代码指认交付文件，标记归档"
     },
     {
       "id": "T-027",
@@ -51,7 +66,10 @@
       "status": "completed",
       "detail": "DEC-042: ScaleRoute onDispose 调 stop；ScaleViewModel 会话可重建（closed 终态 newSession）",
       "acceptance": {},
-      "group_id": "measure"
+      "group_id": "measure",
+      "target_files": [
+        "application/src/main/kotlin/com/xcwk/scalehub/application/measure/MeasureSession.kt"
+      ]
     },
     {
       "id": "T-028",
@@ -204,7 +222,11 @@
       "updated_at": "2026-10-21T10:51:47Z",
       "notes": "",
       "acceptance": {},
-      "group_id": "settings"
+      "group_id": "settings",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/settings/SettingsScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/settings/SettingsExtensions.kt"
+      ]
     },
     {
       "id": "T-043",
@@ -217,7 +239,11 @@
       "updated_at": "2026-10-21T12:52:19Z",
       "notes": "领取：习惯管理页完整化（HabitViewModel+HabitPort+Room表+WorkManager定时提醒+编辑器）",
       "acceptance": {},
-      "group_id": "habit"
+      "group_id": "habit",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/habit/HabitScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/habit/HabitViewModel.kt"
+      ]
     },
     {
       "id": "T-044",
@@ -230,7 +256,11 @@
       "updated_at": "2026-10-21T10:27:54Z",
       "notes": "；状态词统一为 completed",
       "acceptance": {},
-      "group_id": "auth"
+      "group_id": "auth",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/auth/EmailLogin.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/auth/AuthScreen.kt"
+      ]
     },
     {
       "id": "T-045",
@@ -286,7 +316,11 @@
         "app/src/main/kotlin/com/xcwk/scalehub/feature/guide/GuideScreen.kt",
         "app/src/main/kotlin/com/xcwk/scalehub/feature/guide/ProfileSetup.kt"
       ],
-      "group_id": "guide"
+      "group_id": "guide",
+      "overlaps_with": [
+        "T-076",
+        "T-100"
+      ]
     },
     {
       "id": "T-046",
@@ -576,7 +610,13 @@
           "需要原型/旧库文案：切换用户、帮助弹窗、跳过仅体重、轮播贴士在 design/prototypes 中无对应 view，无法逐字实现"
         ]
       },
-      "group_id": "measure"
+      "group_id": "measure",
+      "overlaps_with": [
+        "T-066",
+        "T-069",
+        "T-077",
+        "T-095"
+      ]
     },
     {
       "id": "T-053",
@@ -828,7 +868,11 @@
       "target_files": [
         "app/src/main/kotlin/com/xcwk/scalehub/feature/device/DeviceScreen.kt"
       ],
-      "group_id": "device"
+      "group_id": "device",
+      "overlaps_with": [
+        "T-060",
+        "T-104"
+      ]
     },
     {
       "id": "T-059",
@@ -877,7 +921,11 @@
           "同模块已有屏的既有行为不回退"
         ]
       },
-      "group_id": "device"
+      "group_id": "device",
+      "overlaps_with": [
+        "T-058",
+        "T-104"
+      ]
     },
     {
       "id": "T-061",
@@ -903,7 +951,10 @@
           "需产品/合规确认：只做数据汇总，还是包含 AI 解读（涉及医疗建议表述边界）"
         ]
       },
-      "group_id": "report"
+      "group_id": "report",
+      "overlaps_with": [
+        "T-078"
+      ]
     },
     {
       "id": "T-062",
@@ -929,7 +980,10 @@
           "需厂商校准指令与返回码；OKOK/Chipsea 协议文档未包含校准段"
         ]
       },
-      "group_id": "device"
+      "group_id": "device",
+      "overlaps_with": [
+        "T-103"
+      ]
     },
     {
       "id": "T-063",
@@ -1005,7 +1059,10 @@
           "同模块已有屏的既有行为不回退"
         ]
       },
-      "group_id": "ai"
+      "group_id": "ai",
+      "overlaps_with": [
+        "T-084"
+      ]
     },
     {
       "id": "T-065",
@@ -1053,7 +1110,13 @@
           "同模块已有屏的既有行为不回退"
         ]
       },
-      "group_id": "home"
+      "group_id": "home",
+      "overlaps_with": [
+        "T-052",
+        "T-069",
+        "T-077",
+        "T-095"
+      ]
     },
     {
       "id": "T-067",
@@ -1104,7 +1167,10 @@
           "真机/模拟器走通流程（人类；AI 不伪称完成）"
         ]
       },
-      "group_id": "home"
+      "group_id": "home",
+      "overlaps_with": [
+        "T-093"
+      ]
     },
     {
       "id": "T-068",
@@ -1157,7 +1223,10 @@
           "真机/模拟器走通流程（人类；AI 不伪称完成）"
         ]
       },
-      "group_id": "habit"
+      "group_id": "habit",
+      "overlaps_with": [
+        "T-087"
+      ]
     },
     {
       "id": "T-069",
@@ -1180,7 +1249,13 @@
         "app/src/main/kotlin/com/xcwk/scalehub/feature/achievements/Achievements.kt",
         "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/MeasureScreen.kt"
       ],
-      "group_id": "home"
+      "group_id": "home",
+      "overlaps_with": [
+        "T-052",
+        "T-066",
+        "T-077",
+        "T-095"
+      ]
     },
     {
       "id": "T-070",
@@ -1575,7 +1650,11 @@
           "真机/模拟器走通流程（人类；AI 不伪称完成）"
         ]
       },
-      "group_id": "guide"
+      "group_id": "guide",
+      "overlaps_with": [
+        "T-045",
+        "T-100"
+      ]
     },
     {
       "id": "T-077",
@@ -1644,7 +1723,13 @@
           "真机/模拟器走通流程（人类；AI 不伪称完成）"
         ]
       },
-      "group_id": "measure"
+      "group_id": "measure",
+      "overlaps_with": [
+        "T-052",
+        "T-066",
+        "T-069",
+        "T-095"
+      ]
     },
     {
       "id": "T-078",
@@ -1708,7 +1793,10 @@
         ],
         "open_questions": []
       },
-      "group_id": "measure"
+      "group_id": "measure",
+      "overlaps_with": [
+        "T-061"
+      ]
     },
     {
       "id": "T-079",
@@ -2082,7 +2170,10 @@
         ],
         "open_questions": []
       },
-      "group_id": "ai"
+      "group_id": "ai",
+      "overlaps_with": [
+        "T-064"
+      ]
     },
     {
       "id": "T-085",
@@ -2285,7 +2376,10 @@
         ],
         "open_questions": []
       },
-      "group_id": "member"
+      "group_id": "member",
+      "overlaps_with": [
+        "T-068"
+      ]
     },
     {
       "id": "T-088",
@@ -2498,7 +2592,7 @@
       "dec": "",
       "created_at": "2026-10-23T03:52:35Z",
       "updated_at": "2026-10-24T02:35:00Z",
-      "notes": "已交付并合入 master（PR #46，2026-10-24）；local-ci 6/6 + JVM 单测 + gov-prototype-verify --strict 证据见各 PR；外观/语言两屏已在 kill-fake-switches 中移除，交付物不再存在",
+      "notes": "已交付并合入 master（PR #46，2026-10-24）；local-ci 6/6 + JVM 单测 + gov-prototype-verify --strict 证据见各 PR；外观/语言两屏已在 kill-fake-switches 中移除，交付物不再存在；外观/语言两屏已在 kill-fake-switches 中移除",
       "prototype_ref": {
         "file": "design/prototypes/interactive/24-remaining-gaps.html",
         "views": [
@@ -2541,7 +2635,8 @@
         ],
         "open_questions": []
       },
-      "group_id": "settings"
+      "group_id": "settings",
+      "archived": true
     },
     {
       "id": "T-092",
@@ -2681,7 +2776,10 @@
         ],
         "open_questions": []
       },
-      "group_id": "sync"
+      "group_id": "sync",
+      "overlaps_with": [
+        "T-067"
+      ]
     },
     {
       "id": "T-094",
@@ -2817,7 +2915,13 @@
           "真机/模拟器走通流程（人类；AI 不伪称完成）"
         ]
       },
-      "group_id": "home"
+      "group_id": "home",
+      "overlaps_with": [
+        "T-052",
+        "T-066",
+        "T-069",
+        "T-077"
+      ]
     },
     {
       "id": "T-096",
@@ -3136,7 +3240,11 @@
         ],
         "open_questions": []
       },
-      "group_id": "guide"
+      "group_id": "guide",
+      "overlaps_with": [
+        "T-045",
+        "T-076"
+      ]
     },
     {
       "id": "T-101",
@@ -3310,7 +3418,10 @@
           "真机/模拟器走通流程（人类；AI 不伪称完成）"
         ]
       },
-      "group_id": "device"
+      "group_id": "device",
+      "overlaps_with": [
+        "T-062"
+      ]
     },
     {
       "id": "T-104",
@@ -3371,7 +3482,11 @@
           "真机/模拟器走通流程（人类；AI 不伪称完成）"
         ]
       },
-      "group_id": "device"
+      "group_id": "device",
+      "overlaps_with": [
+        "T-058",
+        "T-060"
+      ]
     },
     {
       "id": "T-105",

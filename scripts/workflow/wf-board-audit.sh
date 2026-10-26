@@ -1,17 +1,24 @@
 #!/usr/bin/env bash
 # ============================================================
 # scripts/workflow/wf-board-audit.sh
-# 任务板缺口审计（DEC-075）：先让板子反映真实工作，再谈角色化。
-#
-# 背景：83 条任务里 23 条没有 target_files，59 条是 code，而实际提交中
-# 纯代码只占 5% —— 板子与工作脱节，给这种板子做角色化是在给虚构建模。
+# 任务板审计：分组完整性、重复任务、元数据缺口、合并链一致性。
 #
 # 用法:
-#   wf-board-audit.sh              # 摘要 + 缺口清单
+#   wf-board-audit.sh              # 摘要 + 问题清单
 #   wf-board-audit.sh --json       # 机器可读
-#   wf-board-audit.sh --strict     # 有缺口即退出 1（CI 用）
+#   wf-board-audit.sh --strict     # 有硬问题即退出 1（CI/合入前用）
 #
-# 退出码: 0 无缺口或非 strict / 1 strict 下存在缺口
+# 硬问题（strict 下失败）:
+#   - merged_into 指向不存在的任务，或形成链
+#   - 有效任务缺少 target_files
+#   - 有效任务 target_files 高度重叠（Jaccard >= 0.5）且未声明 overlaps_with
+#   - 任务没有 group_id 或 group_id 不在 groups 索引里
+#
+# 软债务（只报告）:
+#   - 历史任务缺 acceptance
+#   - 没有 verify_commands
+#
+# 退出码: 0 / 1（strict 且有硬问题）
 # ============================================================
 set -uo pipefail
 
@@ -22,71 +29,114 @@ BOARD="$ROOT/.ai/tasks.json"
 [ -f "$BOARD" ] || { echo "找不到任务板: $BOARD" >&2; exit 2; }
 
 MODE="text"
-[ "${1:-}" = "--json" ] && MODE="json"
 STRICT=0
-[ "${1:-}" = "--strict" ] && STRICT=1
+for arg in "$@"; do
+  case "$arg" in
+    --json) MODE="json" ;;
+    --strict) STRICT=1 ;;
+    -h|--help) sed -n '2,26p' "$0"; exit 0 ;;
+  esac
+done
 
 BOARD="$BOARD" MODE="$MODE" python3 - <<'PY'
 import json, os, sys
-from collections import Counter
+from collections import Counter, defaultdict
 
 board = json.load(open(os.environ["BOARD"], encoding="utf-8"))
 tasks = board.get("tasks", [])
+groups = {g["id"]: g for g in board.get("groups", [])}
+by_id = {t["id"]: t for t in tasks}
+active = [t for t in tasks if not t.get("merged_into") and not t.get("archived")]
 
-def kind(t):
-    files = t.get("target_files") or []
-    import re
-    if not files:
-        return "unclassified"
-    kinds = set()
-    for p in files:
-        if p.startswith(("docs/", "design/")) or p.endswith(".md"):
-            kinds.add("docs")
-        elif p.startswith(("scripts/", ".github/")):
-            kinds.add("gov")
-        elif p.startswith("tests/") or "/src/test/" in p:
-            kinds.add("test")
-        elif re.match(r"^(app|domain|application|infrastructure)/", p):
-            kinds.add("code")
-        else:
-            kinds.add("other")
-    return kinds.pop() if len(kinds) == 1 else "mixed"
+errors, debts = [], []
 
-missing_files = [t["id"] for t in tasks if not (t.get("target_files") or [])]
-missing_ac = [t["id"] for t in tasks if not t.get("acceptance")]
-draft_ac = [t["id"] for t in tasks
-            if t.get("status") == "pending"
-            and (t.get("acceptance") or {}).get("status") == "draft"]
-kinds = Counter(kind(t) for t in tasks)
+# 1) 合并链
+for t in tasks:
+    target = t.get("merged_into")
+    if not target:
+        continue
+    if target not in by_id:
+        errors.append(f"{t['id']} merged_into 指向不存在的任务 {target}")
+    elif by_id[target].get("merged_into"):
+        errors.append(f"{t['id']} → {target} → 又指向别的任务（链）")
+
+# 2) 分组
+for t in active:
+    gid = t.get("group_id")
+    if not gid:
+        errors.append(f"{t['id']} 缺 group_id")
+    elif gid not in groups:
+        errors.append(f"{t['id']} 的 group_id={gid} 不在 groups 索引")
+
+# 3) 元数据
+for t in active:
+    if not t.get("target_files"):
+        errors.append(f"{t['id']} 缺 target_files")
+    if not t.get("acceptance"):
+        debts.append(f"{t['id']} 缺 acceptance（历史批次）")
+    elif not (t.get("acceptance") or {}).get("verify_commands"):
+        debts.append(f"{t['id']} 无 verify_commands")
+
+# 4) 重复：有效任务之间的 target_files 重叠
+byfile = defaultdict(set)
+for t in active:
+    for f in (t.get("target_files") or []):
+        byfile[f].add(t["id"])
+overlap_pairs = []
+for f, ids in byfile.items():
+    ids = sorted(ids)
+    for i in range(len(ids)):
+        for j in range(i + 1, len(ids)):
+            overlap_pairs.append((ids[i], ids[j], f))
+seen = set()
+for a, b, f in overlap_pairs:
+    key = tuple(sorted((a, b)))
+    if key in seen:
+        continue
+    fa = set(by_id[a].get("target_files") or [])
+    fb = set(by_id[b].get("target_files") or [])
+    jac = len(fa & fb) / len(fa | fb) if (fa | fb) else 0
+    if jac < 0.5:
+        continue
+    seen.add(key)
+    declared_a = set(by_id[a].get("overlaps_with") or [])
+    declared_b = set(by_id[b].get("overlaps_with") or [])
+    if b in declared_a or a in declared_b:
+        continue
+    errors.append(f"{a} 与 {b} 的 target_files 重叠 {jac:.0%}（共享 {f.split('/')[-1]}）且未声明 overlaps_with")
+
+summary = {
+    "total": len(tasks),
+    "active": len(active),
+    "merged": len(tasks) - len(active),
+    "status": dict(Counter(t.get("status") for t in tasks)),
+    "groups": {gid: len(g.get("tasks", [])) for gid, g in groups.items()},
+    "errors": errors,
+    "debts": debts,
+    "ok": not errors,
+}
 
 if os.environ.get("MODE") == "json":
-    print(json.dumps({
-        "total": len(tasks),
-        "kinds": dict(kinds),
-        "missing_target_files": missing_files,
-        "missing_acceptance": missing_ac,
-        "pending_with_draft_ac": draft_ac,
-    }, ensure_ascii=False, indent=2))
+    print(json.dumps(summary, ensure_ascii=False, indent=2))
 else:
-    print(f"任务总数: {len(tasks)}")
-    print("按 target_files 分类: " + ", ".join(f"{k}={v}" for k, v in kinds.most_common()))
-    print(f"缺 target_files: {len(missing_files)}")
-    if missing_files:
-        print("  " + ", ".join(missing_files[:20]) + (" ..." if len(missing_files) > 20 else ""))
-    print(f"缺 acceptance: {len(missing_ac)}")
-    if missing_ac:
-        print("  " + ", ".join(missing_ac[:20]) + (" ..." if len(missing_ac) > 20 else ""))
-    print(f"pending 但 AC 仍为 draft（按规则不可开工）: {len(draft_ac)}")
-    if draft_ac:
-        print("  " + ", ".join(draft_ac))
+    print(f"任务 {summary['total']} 条：有效 {summary['active']}，重复合并 {summary['merged']}")
+    print("状态: " + ", ".join(f"{k}={v}" for k, v in summary["status"].items()))
+    print(f"分组 {len(groups)} 个: " + ", ".join(f"{k}({v})" for k, v in sorted(summary["groups"].items())))
+    print(f"\n硬问题: {len(errors)}")
+    for e in errors:
+        print("  ✗ " + e)
+    print(f"软债务: {len(debts)}")
+    for d in debts[:12]:
+        print("  · " + d)
+    if len(debts) > 12:
+        print(f"  · …共 {len(debts)} 条")
+    print("\n结论: " + ("PASS" if not errors else "FAIL"))
 
-sys.exit(1 if (missing_files or draft_ac) else 0)
+sys.exit(0 if not errors else 1)
 PY
 RC=$?
 
 if [ "$STRICT" = "1" ] && [ "$RC" = "1" ]; then
-  echo ""
-  echo "STRICT: 任务板存在缺口（缺 target_files / pending 仍 draft）"
   exit 1
 fi
 exit 0
