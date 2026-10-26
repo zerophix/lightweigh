@@ -253,6 +253,12 @@ if [ -n "$SH_CHANGED" ]; then
       echo "❌ shell 语法错误: $f"
       exit 1
     fi
+    # $VAR 紧跟中文会被 bash 当成变量名的一部分（set -u 下直接崩）
+    if grep -nE '\$[A-Za-z_][A-Za-z0-9_]*[^\x00-\x7F]' "$f" >/dev/null 2>&1; then
+      echo "❌ $f: 变量后紧跟中文，请写成 \${var}"
+      grep -nE '\$[A-Za-z_][A-Za-z0-9_]*[^\x00-\x7F]' "$f" | head -3
+      exit 1
+    fi
   done
   echo "  ✓ shell 语法通过（$(echo "$SH_CHANGED" | wc -l | tr -d ' ') 个文件）"
 fi

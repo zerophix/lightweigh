@@ -48,6 +48,7 @@ done
 now_ms() { python3 -c 'import time;print(int(time.time()*1000))'; }
 START=$(now_ms)
 elapsed() { echo $(( ($(now_ms) - START) / 1000 )); }
+mark() { echo "      [t+$(elapsed)s] $1"; }
 
 # 1) 暂存（只碰指定路径）
 if [ "$USE_STAGED" -eq 0 ]; then
@@ -65,6 +66,7 @@ if ! git commit -q -m "$MSG"; then
   echo "提交被拒绝（看上方钩子输出）"
   exit 1
 fi
+mark "commit 完成"
 
 BRANCH="$(git rev-parse --abbrev-ref HEAD)"
 
@@ -76,6 +78,7 @@ if [ "$PUSH" -eq 1 ]; then
   else
     git push -q || { echo "推送失败"; exit 1; }
   fi
+  mark "push 完成"
 
   # 4) PR：有则复用，无则创建
   echo "[3/4] pull request"
@@ -83,6 +86,7 @@ if [ "$PUSH" -eq 1 ]; then
     if ! gh pr view --json number >/dev/null 2>&1; then
       gh pr create --fill --base master >/dev/null 2>&1 || true
     fi
+    mark "PR 完成"
   fi
 fi
 
@@ -90,7 +94,7 @@ fi
 echo "[4/4] 后台全量验证"
 if [ -x scripts/workflow/wf-run.sh ]; then
   JOB="$(GOV_CI_BACKGROUND=1 bash scripts/workflow/wf-run.sh start "ship-$(date +%H%M%S)" -- bash scripts/governance/gov-local-ci.sh 2>/dev/null | tail -1)"
-  [ -n "$JOB" ] && echo "      job=$JOB（bash scripts/workflow/wf-run.sh wait $JOB）"
+  [ -n "$JOB" ] && echo "      job=${JOB}（wait: bash scripts/workflow/wf-run.sh wait ${JOB}）"
 fi
 
 echo "完成，用时 $(elapsed)s（预算 ${BUDGET}s）"
