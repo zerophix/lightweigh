@@ -209,7 +209,10 @@ bash scripts/workflow/wf-autopilot.sh status          # 一屏真相 + NEXT
 bash scripts/workflow/wf-claim.sh claim T-xxx         # 认领（原子锁）
 bash scripts/workflow/wf-role.sh claim dev|gov|docs|review
 bash scripts/workflow/wf-parallel.sh plan             # 可并行批次
-bash scripts/workflow/wf-board-audit.sh               # 任务板缺口审计
+bash scripts/workflow/wf-board-audit.sh               # 任务板审计（重复/分组/依赖环）
+bash scripts/workflow/wf-task-board.sh ready          # 可开工任务（依赖已满足）
+bash scripts/workflow/wf-task-board.sh blocked        # 被谁阻塞
+bash scripts/workflow/wf-task-board.sh checkpoint T-xxx "进度/决定/下一步"
 bash scripts/workflow/wf-run.sh start <name> -- <cmd> # 后台执行
 bash scripts/workflow/wf-queue.sh run                 # 批次合入（唯一全量点）
 

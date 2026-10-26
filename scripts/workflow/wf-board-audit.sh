@@ -77,6 +77,41 @@ for t in active:
     elif not (t.get("acceptance") or {}).get("verify_commands"):
         debts.append(f"{t['id']} 无 verify_commands")
 
+# 3b) 依赖图：未知依赖、父子一致、环
+for t in active:
+    for dep in (t.get("depends_on") or []):
+        if dep not in by_id:
+            errors.append(f"{t['id']} depends_on 不存在的任务 {dep}")
+    parent = t.get("parent")
+    if parent:
+        if parent not in by_id:
+            errors.append(f"{t['id']} parent 不存在 {parent}")
+        elif parent in (t.get("depends_on") or []):
+            errors.append(f"{t['id']} 同时依赖自己的父任务 {parent}")
+
+graph = {t["id"]: [d for d in (t.get("depends_on") or []) if d in by_id] for t in tasks}
+state = {}
+
+
+def _visit(node, stack):
+    state[node] = 1
+    stack.append(node)
+    for nxt in graph.get(node, []):
+        if state.get(nxt) == 1:
+            cycle = " → ".join(stack[stack.index(nxt):] + [nxt])
+            errors.append(f"依赖环: {cycle}")
+            return True
+        if state.get(nxt, 0) == 0 and _visit(nxt, stack):
+            return True
+    stack.pop()
+    state[node] = 2
+    return False
+
+
+for node in graph:
+    if state.get(node, 0) == 0:
+        _visit(node, [])
+
 # 4) 重复：有效任务之间的 target_files 重叠
 byfile = defaultdict(set)
 for t in active:

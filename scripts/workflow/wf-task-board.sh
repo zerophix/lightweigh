@@ -78,13 +78,16 @@ PYEOF
     ;;
 
   add)
-    DESC=""; WHY=""; GROUP=""; DISTINCT=""; SUPERSEDES=""
+    DESC=""; WHY=""; GROUP=""; DISTINCT=""; SUPERSEDES=""; DEPENDS=""; PARENT=""; PRIORITY="P2"
     shift || true
     while [ $# -gt 0 ]; do
       case "$1" in
         --group) GROUP="${2:-}"; shift 2 ;;
         --distinct) DISTINCT="${2:-}"; shift 2 ;;
         --supersedes) SUPERSEDES="${2:-}"; shift 2 ;;
+        --depends-on) DEPENDS="${2:-}"; shift 2 ;;
+        --parent) PARENT="${2:-}"; shift 2 ;;
+        --priority) PRIORITY="${2:-P2}"; shift 2 ;;
         -*) echo "未知参数: $1" >&2; exit 2 ;;
         *)
           if [ -z "$DESC" ]; then DESC="$1"
@@ -100,6 +103,7 @@ PYEOF
     fi
     TASKS_FILE="$TASKS_FILE" NOW="$NOW" ADD_DESC="$DESC" ADD_WHY="$WHY" \
     ADD_GROUP="$GROUP" ADD_DISTINCT="$DISTINCT" ADD_SUPERSEDES="$SUPERSEDES" \
+    ADD_DEPENDS="$DEPENDS" ADD_PARENT="$PARENT" ADD_PRIORITY="$PRIORITY" \
     python3 - <<'PYEOF'
 import json, os, re, sys
 
@@ -160,6 +164,19 @@ if supersedes:
     old["merged_into"] = nid
     old["notes"] = (old.get("notes") or "") + f"；被 {nid} 取代"
 
+depends = [x.strip() for x in os.environ.get("ADD_DEPENDS", "").split(",") if x.strip()]
+for dep in depends:
+    if dep not in {t["id"] for t in tasks}:
+        print(f"拒绝: --depends-on {dep} 不存在", file=sys.stderr)
+        sys.exit(1)
+parent = os.environ.get("ADD_PARENT", "").strip()
+if parent and parent not in {t["id"] for t in tasks}:
+    print(f"拒绝: --parent {parent} 不存在", file=sys.stderr)
+    sys.exit(1)
+if parent and parent in depends:
+    print("拒绝: 任务不能依赖自己的父任务", file=sys.stderr)
+    sys.exit(1)
+
 tasks.append({
     "id": nid,
     "description": desc,
@@ -171,6 +188,9 @@ tasks.append({
     "created_at": os.environ["NOW"],
     "updated_at": os.environ["NOW"],
     "notes": ("差异: " + distinct) if distinct else "",
+    "priority": os.environ.get("ADD_PRIORITY", "P2"),
+    "depends_on": depends,
+    **({"parent": parent} if parent else {}),
 })
 
 d["tasks"] = tasks
@@ -179,6 +199,110 @@ with open(path, "w", encoding="utf-8") as f:
     json.dump(d, f, indent=2, ensure_ascii=False)
 print(f"创建: {nid}（组 {group}）")
 PYEOF
+    ;;
+
+  ready)
+    TASKS_FILE="$TASKS_FILE" python3 - <<'PY'
+import json, os, sys
+d = json.load(open(os.environ["TASKS_FILE"], encoding="utf-8"))
+tasks = {t["id"]: t for t in d.get("tasks", [])}
+done_status = {"completed", "done"}
+def open_blockers(t):
+    return [x for x in (t.get("depends_on") or [])
+            if x in tasks and tasks[x].get("status") not in done_status]
+ready = [t for t in tasks.values()
+         if t.get("status") in ("pending", "in_progress")
+         and not t.get("merged_into") and not t.get("archived")
+         and not open_blockers(t)]
+if not ready:
+    print("没有可开工任务（全部在跑或被阻塞）")
+    sys.exit(0)
+order = {"P0": 0, "P1": 1, "P2": 2}
+for t in sorted(ready, key=lambda x: (order.get(x.get("priority", "P2"), 9), x["id"])):
+    print(f"{t['id']}  {(t.get('title') or t.get('description') or '')[:60]}")
+PY
+    ;;
+
+  blocked)
+    TASKS_FILE="$TASKS_FILE" python3 - <<'PY'
+import json, os
+d = json.load(open(os.environ["TASKS_FILE"], encoding="utf-8"))
+tasks = {t["id"]: t for t in d.get("tasks", [])}
+done_status = {"completed", "done"}
+for t in sorted(tasks.values(), key=lambda x: x["id"]):
+    if t.get("merged_into") or t.get("archived"):
+        continue
+    blockers = [x for x in (t.get("depends_on") or [])
+                if x in tasks and tasks[x].get("status") not in done_status]
+    if blockers and t.get("status") in ("pending", "in_progress"):
+        print(f"{t['id']}  等待 {', '.join(blockers)}")
+PY
+    ;;
+
+  dep)
+    ACTION="${2:-}"
+    case "$ACTION" in
+      add)
+        ID="${3:-}"; ON="${4:-}"
+        TASKS_FILE="$TASKS_FILE" DEP_ID="$ID" DEP_ON="$ON" python3 - <<'PY'
+import json, os, sys
+path = os.environ["TASKS_FILE"]
+d = json.load(open(path, encoding="utf-8"))
+tasks = {t["id"]: t for t in d.get("tasks", [])}
+tid, dep = os.environ["DEP_ID"], os.environ["DEP_ON"]
+if tid not in tasks or dep not in tasks:
+    print("拒绝: 任务不存在", file=sys.stderr); sys.exit(1)
+if tid == dep:
+    print("拒绝: 不能依赖自己", file=sys.stderr); sys.exit(1)
+tasks[tid].setdefault("depends_on", [])
+if dep not in tasks[tid]["depends_on"]:
+    tasks[tid]["depends_on"].append(dep)
+json.dump(d, open(path, "w", encoding="utf-8"), indent=2, ensure_ascii=False)
+print(f"{tid} 现在依赖 {dep}")
+PY
+        ;;
+      cycles)
+        TASKS_FILE="$TASKS_FILE" python3 - <<'PY'
+import json, os, sys
+d = json.load(open(os.environ["TASKS_FILE"], encoding="utf-8"))
+tasks = {t["id"]: (t.get("depends_on") or []) for t in d.get("tasks", [])}
+state, stack = {}, []
+def visit(n):
+    state[n] = 1; stack.append(n)
+    for m in tasks.get(n, []):
+        if state.get(m) == 1:
+            print("环: " + " → ".join(stack[stack.index(m):] + [m]))
+            return True
+        if state.get(m, 0) == 0 and visit(m):
+            return True
+    stack.pop(); state[n] = 2
+    return False
+bad = any(visit(n) for n in tasks if state.get(n, 0) == 0)
+sys.exit(1 if bad else 0)
+PY
+        ;;
+      *)
+        echo "用法: task-board.sh dep add <id> <depends-on> | dep cycles" >&2; exit 2 ;;
+    esac
+    ;;
+
+  checkpoint)
+    ID="${2:-}"; NOTE="${3:-}"
+    if [ -z "$ID" ] || [ -z "$NOTE" ]; then
+      echo "用法: task-board.sh checkpoint <id> \"进度/决定/下一步\"" >&2; exit 1
+    fi
+    TASKS_FILE="$TASKS_FILE" NOW="$NOW" CP_ID="$ID" CP_NOTE="$NOTE" python3 - <<'PY'
+import json, os, sys
+path = os.environ["TASKS_FILE"]
+d = json.load(open(path, encoding="utf-8"))
+tid = os.environ["CP_ID"]
+task = next((t for t in d.get("tasks", []) if t["id"] == tid), None)
+if task is None:
+    print(f"未找到: {tid}", file=sys.stderr); sys.exit(1)
+task.setdefault("progress", []).append({"at": os.environ["NOW"], "note": os.environ["CP_NOTE"]})
+json.dump(d, open(path, "w", encoding="utf-8"), indent=2, ensure_ascii=False)
+print(f"{tid} 检查点 #{len(task['progress'])}: {os.environ['CP_NOTE']}")
+PY
     ;;
 
   done)
