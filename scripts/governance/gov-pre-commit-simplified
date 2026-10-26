@@ -219,7 +219,18 @@ if [ -n "$ROLE" ]; then
     exit 1
   fi
 else
-  echo "  AI 角色: 未声明（建议 wf-role.sh claim dev|gov|docs|review）"
+  # 默认 fail-closed：改代码/治理脚本却没有角色，等同于"谁都能改"。
+  # 放宽方式显式为 GOV_ROLE_REQUIRED=0（会打印，可被评审看到）。
+  if [ "${GOV_ROLE_REQUIRED:-1}" = "1" ] && \
+     echo "$STAGED" | grep -qE '^(app/src/main|domain/src/main|application/src/main|infrastructure/src/main|scripts)/'; then
+    echo "❌ 未声明 AI 角色：本次改动触及代码或治理脚本"
+    echo "   先声明角色（一个会话一个角色）:"
+    echo "     bash scripts/workflow/wf-role.sh claim dev    # 改产品代码"
+    echo "     bash scripts/workflow/wf-role.sh claim gov    # 改治理脚本"
+    echo "   临时放宽（需在 PR 里说明理由）: GOV_ROLE_REQUIRED=0 git commit ..."
+    exit 1
+  fi
+  echo "  AI 角色: 未声明（改动不触及代码/脚本，按画像兜底）"
 fi
 
 # 画像为 docs 时不做任何源码类检查（文档由 pre-push 的 validate 兜底）

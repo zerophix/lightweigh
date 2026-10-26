@@ -1,52 +1,29 @@
-# Cline Rules — AI 协作协议（继承 AGENTS.md）
+# Cline 规则 — 生成物，勿手改
+# 生成: bash scripts/governance/gov-sync-agent-rules.sh
+# 真源: AGENTS.md（本文件只做指针；两者冲突以 AGENTS.md 为准）
 
-## 启动
+## 开工三条命令（顺序固定）
+bash scripts/session/ses-session-begin.sh
+bash scripts/workflow/wf-role.sh claim <dev|gov|docs|review>
+bash scripts/workflow/wf-autopilot.sh status
 
-```bash
-cat STATUS.md
-bash scripts/session/ses-context-load.sh
-python3 -c "import json;print(json.load(open('.ai/tasks.json'))['next_action'])"
-ls -t docs/ai/decisions/ | head -3
-```
+## 角色（DEC-075）
+- 一个会话只持有一个角色；review 只读，且不能由持任务锁的会话认领。
+- 越出角色 allow/deny 的改动，pre-commit 直接拒绝。
+- 改代码用 dev；改治理脚本用 gov；写文档用 docs；评审用 review。
 
-编码前确认任务 `acceptance` ready（`docs/guides/GC-task-acceptance.md`）。
+## 画像（DEC-074）
+- 门禁深度由任务画像决定：docs < test < code < gov < mixed。
+- 画像由认领声明 + 实际改动路径合并，只能升不能降。
 
-## 决策流转
+## 硬规则（每条都有机械执行者）
+1. 禁止直提 master —— pre-commit
+2. 禁止 --no-verify —— 评审 + 推送审计
+3. 未认领不开工 —— wf-claim + pre-commit
+4. 功能分支不写共享文件 —— pre-commit
+5. 提交格式 <type>(<scope>): <subject> —— commit-msg
 
-```
-NOTE → DEC → lifecycle → wf-promote.sh → golden → gov-validate.sh → commit
-```
-
-- `bash scripts/governance/gov-next-decision.sh --create`
-- 禁止直改 `docs/architecture/`；先 lifecycle 再 promote
-
-## 文档命名
-
-| 目录 | 格式 |
-|------|------|
-| `docs/guides/` | `GC-{slug}.md` |
-| `docs/notes/` | `NOTE-YYYYMMDD-NNN.md` |
-| `docs/ai/decisions/` | `DEC-XXX.md` |
-
-**严禁：** v1/v2/_bak/backup/copy 后缀。
-
-## 校验与合入
-
-```bash
-bash scripts/governance/gov-validate.sh
-bash scripts/governance/gov-local-ci.sh
-```
-
-- pre-commit = simplified（compile + custom-checks）
-- PR 使用仓库模板勾选 local-ci / AC（DEC-048）
-- 编码约定：`docs/guides/GC-coding-conventions.md`
-
-## 工程反思（自愿）
-
-强制反思已拆除。教训追加 `docs/guides/GC-engineering-reflections.md`。
-
-## 参考
-
-- `AGENTS.md` — 精炼协议
-- `docs/guides/GC-decision-flow.md` / `GC-multi-agent-collab.md` / `GC-task-acceptance.md`
-- `.ai/tasks.json`
+## 权威入口
+- 规则到执行者映射：AGENTS.md 第 10 节
+- 为什么这么做：docs/ai/decisions/DEC-*.md
+- 当前任务：.ai/tasks.json 与 wf-autopilot.sh status

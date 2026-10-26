@@ -160,7 +160,7 @@ allowed() {
       ;;
     gov)
       case "$path" in
-        scripts/*|tests/*|docs/*|.github/*|*.md|.opencode/*|.gitignore|.ai/roles.json) return 0 ;;
+        scripts/*|tests/*|docs/*|.github/*|*.md|.opencode/*|.gitignore|.ai/roles.json|.cursorrules|.clinerules) return 0 ;;
         *) return 1 ;;
       esac
       ;;

@@ -19,7 +19,9 @@
         "docs/ai/decisions/**",
         ".ai/tasks.json"
       ],
-      "must_produce": ["task evidence"]
+      "must_produce": [
+        "task evidence"
+      ]
     },
     "gov": {
       "profile": "gov",
@@ -31,7 +33,9 @@
         "*.md",
         ".opencode/**",
         ".gitignore",
-        ".ai/roles.json"
+        ".ai/roles.json",
+        ".cursorrules",
+        ".clinerules"
       ],
       "deny": [
         "app/src/main/**",
@@ -39,7 +43,9 @@
         "application/src/main/**",
         "infrastructure/src/main/**"
       ],
-      "must_produce": ["full pytest pass"]
+      "must_produce": [
+        "full pytest pass"
+      ]
     },
     "docs": {
       "profile": "docs",
@@ -57,14 +63,22 @@
         "scripts/**",
         "tests/**"
       ],
-      "must_produce": ["index entry + reachable links"]
+      "must_produce": [
+        "index entry + reachable links"
+      ]
     },
     "review": {
       "profile": "docs",
       "read_only": true,
-      "allow": ["docs/ai/reviews/**"],
-      "deny": ["**"],
-      "must_produce": ["review report"],
+      "allow": [
+        "docs/ai/reviews/**"
+      ],
+      "deny": [
+        "**"
+      ],
+      "must_produce": [
+        "review report"
+      ],
       "conflict": "must_not_hold_task_lock"
     }
   }
