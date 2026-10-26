@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 fun ResultShareRoute(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
+    doctorReportText: String? = null,
 ) {
     var state by remember { mutableStateOf(ResultShareUiState()) }
 
@@ -43,5 +44,6 @@ fun ResultShareRoute(
         onShare = { channel -> state = resultShareReduce(state, ResultShareIntent.SelectChannel(channel)) },
         onExport = { },
         onBackToReport = onBack,
+        doctorReportText = doctorReportText,
     )
 }

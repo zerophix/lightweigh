@@ -24,6 +24,10 @@ data class DoctorReportInput(
     val periodDays: Int = 30,
     /** 窗口内体重变化（末 - 首），无数据为 null。 */
     val weightChangeKg: Double? = null,
+    /** 最近一次体重；与 [measurements] 二选一即可。 */
+    val latestWeightKg: Double? = null,
+    /** 最近一次体脂率；无数据为 null。 */
+    val latestFatPercent: Double? = null,
     /** 最近若干次测量，按时间升序。 */
     val measurements: List<DoctorMeasurement> = emptyList(),
 )
@@ -43,8 +47,12 @@ fun buildDoctorReport(input: DoctorReportInput): String {
     sb.appendLine()
 
     sb.appendLine("二、最近测量")
+    if (input.latestWeightKg != null) {
+        val fat = input.latestFatPercent?.let { "，体脂 ${one(it)}%" } ?: ""
+        sb.appendLine("最近一次：体重 ${one(input.latestWeightKg)} kg$fat")
+    }
     if (input.measurements.isEmpty()) {
-        sb.appendLine("暂无测量记录")
+        if (input.latestWeightKg == null) sb.appendLine("暂无测量记录")
     } else {
         input.measurements.takeLast(10).forEach { m ->
             val fat = m.fatPercent?.let { "，体脂 ${one(it)}%" } ?: ""

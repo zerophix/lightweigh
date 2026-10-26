@@ -106,8 +106,27 @@ fun MeasureScreen(
     var showShare by rememberSaveable { mutableStateOf(false) }
     // 测量帮助（T-052）：汇总贴士与手动记录边界，随时可查
     var showHelp by rememberSaveable { mutableStateOf(false) }
+    val state by vm.state.collectAsStateWithLifecycle()
+    val unitPrefs by vm.unitPrefs.collectAsStateWithLifecycle()
+    val home = state.home
     if (showShare) {
-        ResultShareRoute(onBack = { showShare = false })
+        val reportHome = home
+        ResultShareRoute(
+            onBack = { showShare = false },
+            doctorReportText = if (reportHome.latestWeight != null) {
+                com.xcwk.scalehub.feature.report.buildDoctorReport(
+                    com.xcwk.scalehub.feature.report.DoctorReportInput(
+                        bmi = reportHome.bmi,
+                        periodDays = 7,
+                        weightChangeKg = reportHome.weekChange,
+                        latestWeightKg = reportHome.latestWeight,
+                        latestFatPercent = reportHome.latestFat.takeIf { reportHome.latestFatShown },
+                    ),
+                )
+            } else {
+                null
+            },
+        )
         return
     }
 
@@ -115,10 +134,6 @@ fun MeasureScreen(
     var layerName by rememberSaveable { mutableStateOf(MeasureHomeLayer.Home.name) }
     val closeLayer: () -> Unit = { layerName = MeasureHomeLayer.Home.name }
     val openLayer: (MeasureHomeLayer) -> Unit = { layerName = it.name }
-
-    val state by vm.state.collectAsStateWithLifecycle()
-    val unitPrefs by vm.unitPrefs.collectAsStateWithLifecycle()
-    val home = state.home
 
     when (layerName) {
         MeasureHomeLayer.SyncCenter.name -> {

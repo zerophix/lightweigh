@@ -18,11 +18,17 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -330,6 +336,7 @@ fun ResultShareFlow(
     onExport: (ExportRequest) -> Unit = {},
     onResend: () -> Unit = {},
     onBackToReport: () -> Unit = onBack,
+    doctorReportText: String? = null,
 ) {
     when (state.step) {
         ResultShareStep.Share -> ResultShareView(
@@ -338,6 +345,7 @@ fun ResultShareFlow(
             onBack = onBack,
             onShare = onShare,
             modifier = modifier,
+            doctorReportText = doctorReportText,
         )
 
         ResultShareStep.Export -> ResultExportView(
@@ -365,7 +373,9 @@ internal fun ResultShareView(
     onBack: () -> Unit,
     onShare: (ShareChannel) -> Unit,
     modifier: Modifier = Modifier,
+    doctorReportText: String? = null,
 ) {
+    var showDoctorReport by remember { mutableStateOf(false) }
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -379,6 +389,17 @@ internal fun ResultShareView(
         Spacer(Modifier.height(QkSpacing.CardGap))
 
         ShareCardPreview(state.shareCard)
+
+        // 医生报告（T-061）：纯数据汇总，不含诊断；有数据才给入口
+        if (doctorReportText != null) {
+            Spacer(Modifier.height(QkSpacing.CardGap))
+            QkButton(
+                text = "查看医生报告（纯数据）",
+                modifier = Modifier.fillMaxWidth(),
+                style = QkButtonStyle.Ghost,
+                onClick = { showDoctorReport = true },
+            )
+        }
 
         Spacer(Modifier.height(QkSpacing.Lg))
         Text(
@@ -410,6 +431,21 @@ internal fun ResultShareView(
             onClick = onBack,
         )
         Spacer(Modifier.height(QkSpacing.Xl))
+    }
+
+    if (showDoctorReport && doctorReportText != null) {
+        AlertDialog(
+            onDismissRequest = { showDoctorReport = false },
+            title = { Text("医生报告") },
+            text = {
+                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                    Text(doctorReportText, style = MaterialTheme.typography.bodySmall)
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showDoctorReport = false }) { Text("关闭") }
+            },
+        )
     }
 }
 

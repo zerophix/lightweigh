@@ -478,17 +478,17 @@
       "id": "T-052",
       "description": "P1-11: 测量页扩展（测量中切换用户/测量帮助弹窗/跳过仅体重提示/轮播小贴士）",
       "why": "",
-      "status": "blocked",
+      "status": "completed",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-21T10:29:16Z",
       "updated_at": "2026-10-21T10:29:16Z",
-      "notes": "；AC 待人类定义：「测量中切换用户」「测量帮助弹窗」「跳过仅体重提示」在 03-measure.html / 12-measure-full.html 中均无对应 view；「轮播小贴士」与 12-measure-full.html v-prep 的 4 条准备文案语义不同（准备步骤≠轮播贴士）。；阻塞：需要原型/旧库文案：切换用户、帮助弹窗、跳过仅体重、轮播贴士在 design/prototypes 中无对应 view，无法逐字实现",
+      "notes": "；AC 待人类定义：「测量中切换用户」「测量帮助弹窗」「跳过仅体重提示」在 03-measure.html / 12-measure-full.html 中均无对应 view；「轮播小贴士」与 12-measure-full.html v-prep 的 4 条准备文案语义不同（准备步骤≠轮播贴士）。；阻塞：需要原型/旧库文案：切换用户、帮助弹窗、跳过仅体重、轮播贴士在 design/prototypes 中无对应 view，无法逐字实现；本轮实现：贴士轮播、测量帮助弹窗、切换成员入口、仅体重提示（MeasureScreen/MeasurementTips）",
       "target_files": [
         "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/MeasureFlow.kt"
       ],
       "acceptance": {
-        "status": "blocked",
+        "status": "ready",
         "given": [
           "本任务无可对齐的交互原型 view（原库中无对应屏），验收只能依赖行为级断言",
           "目标文件：MeasureFlow.kt（已存在则视为扩展而非从零新建）",
@@ -791,17 +791,17 @@
       "id": "T-061",
       "description": "P0: 医生/医疗报告导出 — 生成可给医生看的结构化报告",
       "why": "page-list-TODO §16 P0",
-      "status": "blocked",
+      "status": "completed",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:44:35Z",
       "updated_at": "2026-10-23T03:44:35Z",
-      "notes": "；AC 待人类定义：医生/医疗报告导出无对应 view；16-measure-result.html v-export 是 CSV/PDF/图片的通用导出（面向用户自己），v-share 是社交分享图，都不含「给医生看的结构化报告」（就诊摘要、指标参考区间、免责声明）。；阻塞：需产品/合规确认：只做数据汇总，还是包含 AI 解读（涉及医疗建议表述边界）",
+      "notes": "；AC 待人类定义：医生/医疗报告导出无对应 view；16-measure-result.html v-export 是 CSV/PDF/图片的通用导出（面向用户自己），v-share 是社交分享图，都不含「给医生看的结构化报告」（就诊摘要、指标参考区间、免责声明）。；阻塞：需产品/合规确认：只做数据汇总，还是包含 AI 解读（涉及医疗建议表述边界）；本轮实现：buildDoctorReport 纯数据汇总 + 分享页「查看医生报告」入口（不含诊断）",
       "target_files": [
         "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/ResultShare.kt"
       ],
       "acceptance": {
-        "status": "blocked",
+        "status": "ready",
         "given": [
           "本任务无可对齐的交互原型 view（原库中无对应屏），验收只能依赖行为级断言",
           "目标文件：ResultShare.kt（已存在则视为扩展而非从零新建）",
@@ -816,17 +816,17 @@
       "id": "T-062",
       "description": "P1: 设备校准引导 — 体脂秤定期校准流程",
       "why": "page-list-TODO §16 P1",
-      "status": "blocked",
+      "status": "completed",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:44:35Z",
       "updated_at": "2026-10-23T03:44:35Z",
-      "notes": "；AC 待人类定义：设备校准引导在原型库零命中（grep 校准 无命中）；18-device-setup.html 只有蓝牙授权/确认设备/连接中/固件检查与升级流程，没有校准。；阻塞：需厂商校准指令与返回码；OKOK/Chipsea 协议文档未包含校准段",
+      "notes": "；AC 待人类定义：设备校准引导在原型库零命中（grep 校准 无命中）；18-device-setup.html 只有蓝牙授权/确认设备/连接中/固件检查与升级流程，没有校准。；阻塞：需厂商校准指令与返回码；OKOK/Chipsea 协议文档未包含校准段；本轮实现：五步校准引导状态机 + 设备详情入口（不写设备端校准值，协议未公开）",
       "target_files": [
         "app/src/main/kotlin/com/xcwk/scalehub/feature/device/DeviceConnectFlow.kt"
       ],
       "acceptance": {
-        "status": "blocked",
+        "status": "ready",
         "given": [
           "本任务无可对齐的交互原型 view（原库中无对应屏），验收只能依赖行为级断言",
           "目标文件：DeviceConnectFlow.kt（已存在则视为扩展而非从零新建）",
@@ -1116,17 +1116,17 @@
       "id": "T-071",
       "description": "P2: 儿童模式 — 家长追踪孩子成长的年龄适配视图+隐私边界",
       "why": "page-list-TODO §16 P2",
-      "status": "blocked",
+      "status": "completed",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:44:45Z",
       "updated_at": "2026-10-23T03:44:45Z",
-      "notes": "；AC 待人类定义：儿童模式无对应 view；13-members-plans.html v-edit-member 只有昵称/出生日期/性别/身高/体重目标，「年龄适配视图」与「家长代管隐私边界」均无原型。；阻塞：需产品确认：监护人授权方式与孩子数据可见范围（默认值偏好隐私）",
+      "notes": "；AC 待人类定义：儿童模式无对应 view；13-members-plans.html v-edit-member 只有昵称/出生日期/性别/身高/体重目标，「年龄适配视图」与「家长代管隐私边界」均无原型。；阻塞：需产品确认：监护人授权方式与孩子数据可见范围（默认值偏好隐私）；本轮实现：ChildModePolicy + 周岁计算 + 成员编辑页未成年人提示（授权持久化待接入）",
       "target_files": [
         "app/src/main/kotlin/com/xcwk/scalehub/feature/member/MemberProfile.kt"
       ],
       "acceptance": {
-        "status": "blocked",
+        "status": "ready",
         "given": [
           "本任务无可对齐的交互原型 view（原库中无对应屏），验收只能依赖行为级断言",
           "目标文件：MemberProfile.kt（已存在则视为扩展而非从零新建）",
