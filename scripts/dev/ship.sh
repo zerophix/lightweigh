@@ -82,11 +82,15 @@ if [ "$PUSH" -eq 1 ]; then
 
   # 4) PR：有则复用，无则创建
   echo "[3/4] pull request"
-  PR_CACHE=".cache/pr-$(printf '%s' "$BRANCH" | tr '/ ' '__')"
+  mkdir -p .cache/ship
+  PR_CACHE=".cache/ship/pr-$(printf '%s' "$BRANCH" | tr '/ ' '__')"
   if [ -f "$PR_CACHE" ]; then
     echo "      PR 已存在（$(cat "$PR_CACHE")，缓存命中）"
   elif command -v gh >/dev/null 2>&1; then
-    if PR_URL="$(gh pr create --fill --base master 2>/dev/null)"; then
+    if PR_URL="$(gh pr view --json url -q .url 2>/dev/null)"; then
+      printf '%s' "$PR_URL" > "$PR_CACHE"
+      echo "      $PR_URL"
+    elif PR_URL="$(gh pr create --fill --base master 2>/dev/null)"; then
       printf '%s' "$PR_URL" > "$PR_CACHE"
       echo "      $PR_URL"
     fi
