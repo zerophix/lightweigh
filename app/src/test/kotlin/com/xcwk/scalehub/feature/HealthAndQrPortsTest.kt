@@ -6,6 +6,7 @@ import com.xcwk.scalehub.feature.device.QrScanState
 import com.xcwk.scalehub.feature.device.qrScanMessage
 import com.xcwk.scalehub.feature.device.qrScanNext
 import com.xcwk.scalehub.feature.sync.HealthPlatformAvailability
+import com.xcwk.scalehub.feature.sync.mapSdkStatus
 import com.xcwk.scalehub.feature.sync.canWriteNow
 import com.xcwk.scalehub.feature.sync.shouldShowHealthSync
 import kotlinx.coroutines.runBlocking
@@ -72,5 +73,18 @@ class HealthAndQrPortsTest {
         assertThat(qrScanMessage(QrScanState.Failed("权限被拒绝，可改用手动输入")))
             .contains("手动输入")
         assertThat(qrScanMessage(QrScanState.Result("okok://AA"))).contains("okok://AA")
+    }
+
+    @Test
+    fun `sdk 状态映射只有可用态才算 Ready`() {
+        assertThat(mapSdkStatus(androidx.health.connect.client.HealthConnectClient.SDK_AVAILABLE))
+            .isEqualTo(HealthPlatformAvailability.Ready)
+        assertThat(mapSdkStatus(androidx.health.connect.client.HealthConnectClient.SDK_UNAVAILABLE))
+            .isEqualTo(HealthPlatformAvailability.Unavailable)
+        assertThat(
+            mapSdkStatus(
+                androidx.health.connect.client.HealthConnectClient.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED,
+            ),
+        ).isEqualTo(HealthPlatformAvailability.Unavailable)
     }
 }
