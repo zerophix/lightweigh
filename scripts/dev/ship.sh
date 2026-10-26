@@ -71,6 +71,10 @@ mark "commit 完成"
 BRANCH="$(git rev-parse --abbrev-ref HEAD)"
 
 # 3) 推送
+# SSH 连接复用：首次 push 建立 master，后续复用（实测 7.6s → 3.4s）
+if [ -z "${GIT_SSH_COMMAND:-}" ]; then
+  export GIT_SSH_COMMAND="ssh -o ControlMaster=auto -o ControlPath=/tmp/gh-%r@%h-%p -o ControlPersist=600"
+fi
 if [ "$PUSH" -eq 1 ]; then
   echo "[2/4] push ($BRANCH)"
   if ! git rev-parse --abbrev-ref --symbolic-full-name '@{u}' >/dev/null 2>&1; then
