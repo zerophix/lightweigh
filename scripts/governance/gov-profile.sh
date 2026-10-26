@@ -163,6 +163,10 @@ roles = json.load(open(os.environ["ROLES_FILE"], encoding="utf-8"))["roles"]
 prof = os.environ["PROF"]
 path = os.environ["TARGET_PATH"]
 
+# mixed 是兜底画像，没有对应"角色"：按最宽松处理（它本身已是最严的门禁深度）
+if prof == "mixed":
+    sys.exit(0)
+
 def permits(role):
     if not role.get("read_only"):
         if any(match(path, d) for d in role.get("deny", [])):
