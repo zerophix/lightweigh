@@ -8,10 +8,10 @@ plugins {
 
 android {
     namespace = "com.xcwk.scalehub"
-    compileSdk = 34
+    compileSdk = 36
     defaultConfig {
         applicationId = "com.xcwk.scalehub"
-        minSdk = 24
+        minSdk = 26   // T-059 Health Connect 要求 26；放弃 Android 7.x
         targetSdk = 34
         versionCode = 1
         versionName = "0.1.0"
@@ -57,6 +57,7 @@ dependencies {
     implementation(libs.core.ktx)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
     implementation(libs.zxing.embedded)   // 扫码绑定体脂秤（移植补齐）
+    implementation(libs.health.connect)   // T-059 健康平台写入
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.tooling.preview)

@@ -22,6 +22,7 @@
 #
 # 任一步失败即非 0 退出。
 set -euo pipefail
+SECONDS=0
 
 # ---- 治理总开关（scripts/governance/gov-mode.sh off 时直接放行）----
 _gov_root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
@@ -144,6 +145,25 @@ else
   LANE_REASONS=("变更基线不可用（无 merge-base / 无 HEAD~1）→ 保守按 C 处理")
 fi
 
+# ---- 任务画像（DEC-074）：决定这次该跑多深，而不是一律全量 ----
+# docs → 车道 A（不构建不测试）；gov/test → 全量测试；code/mixed 沿用路径车道
+PROFILE="$(bash scripts/governance/gov-profile.sh resolve 2>/dev/null || echo mixed)"
+echo "  任务画像: $PROFILE"
+if [ "$LANE_FORCED" != "true" ]; then
+  case "$PROFILE" in
+    docs)
+      if [ "$LANE" != "A" ]; then
+        LANE="A"
+        LANE_REASONS+=("画像 docs → 车道 A（文档任务不触发构建与测试）")
+      fi
+      ;;
+    gov|test)
+      export GOV_CI_FULL=1
+      LANE_REASONS+=("画像 ${PROFILE} → 全量测试")
+      ;;
+  esac
+fi
+
 # 车道 → gradle 步骤（空 = 跳过 gradle）
 
 # ---- 全局构建锁（DEC-069）：多 worktree 并发时串行化 gradle，避免 daemon 争抢 ----
@@ -237,11 +257,19 @@ if [ "${GOV_LOCAL_CI_PLAN:-0}" = "1" ]; then
   else
     echo "  1. gradle 跳过"
   fi
-  i=2
+  if [ "$LANE" = "A" ]; then
+    echo "  2. pytest 跳过（车道 A：变更不涉及代码）"
+  else
+    echo "  2. pytest tests/unit"
+  fi
+  i=3
   for s in "${DOC_STEPS[@]}"; do
     echo "  $i. $s"
     i=$((i + 1))
   done
+  if [ "$LANE" = "A" ]; then
+    echo "  （车道 A：custom-checks 走增量模式，reachability 跳过）"
+  fi
   echo ""
   echo "PLAN lane=$LANE gradle=${GRADLE_TASK:-skip}"
   exit 0
@@ -322,34 +350,208 @@ print(f"  wrote evidence: {path}")
 PY
 }
 
-set +e
-if [ -n "$GRADLE_TASK" ]; then
-  run_step "gradlew $GRADLE_TASK" ./gradlew "$GRADLE_TASK" --stacktrace
-else
+# ---------------- 结果缓存（DEC-072）----------------
+# 同一份输入（脚本内容 + 相关文件内容）跑第二次直接复用输出。
+# 只缓存纯读检查；会写共享状态的步骤不进缓存。
+CACHE_ROOT="$ROOT/.cache/gov"
+CI_STEP_DIR="$ROOT/.cache/ci-steps"
+mkdir -p "$CACHE_ROOT"
+
+cache_key() {
+  local p
+  {
+    for p in "$@"; do
+      if [ -d "$p" ]; then
+        find "$p" -type f \( -name '*.kt' -o -name '*.java' -o -name '*.py' \
+          -o -name '*.sh' -o -name '*.json' -o -name '*.yaml' -o -name '*.yml' \
+          -o -name '*.md' -o -name '*.xml' -o -name '*.kts' \) -exec shasum {} + 2>/dev/null
+      elif [ -f "$p" ]; then
+        shasum "$p" 2>/dev/null
+      fi
+    done
+  } | shasum | cut -d' ' -f1
+}
+
+run_with_cache() {
+  local name="$1" key="$2"
+  shift 2
+  local stamp="$CACHE_ROOT/$name.$key"
+  if [ -f "$stamp.out" ]; then
+    echo "[cache hit] $name"
+    cat "$stamp.out"
+    return "$(cat "$stamp.rc" 2>/dev/null || echo 0)"
+  fi
+  local out rc
+  out="$("$@" 2>&1)"
+  rc=$?
+  printf '%s\n' "$out"
+  # 原子落盘：并发跑两个 local-ci 时不留下半截缓存
+  printf '%s\n' "$out" > "$stamp.out.$$" && mv "$stamp.out.$$" "$stamp.out"
+  printf '%s\n' "$rc" > "$stamp.rc.$$" && mv "$stamp.rc.$$" "$stamp.rc"
+  # 每个步骤只保留最近 10 份缓存，避免无限增长
+  ls -t "$CACHE_ROOT/$name".*.out 2>/dev/null | tail -n +11 | while IFS= read -r old; do
+    rm -f "$old" "${old%.out}.rc"
+  done
+  return "$rc"
+}
+
+# 每步的 key 只包含它真正读的输入：改文档不应让源码检查失效，反之亦然
+step_validate()     { bash scripts/governance/gov-validate.sh; }
+step_secrets()      { bash scripts/governance/gov-secrets-scan.sh; }
+step_custom_checks() {
+  if [ "$LANE" = "A" ]; then
+    GOV_CODE_CHECK_STAGED=1 bash scripts/governance/gov-custom-checks.sh
+    return $?
+  fi
+  run_with_cache "gov-custom-checks" \
+    "$(cache_key app/src/main domain/src/main application/src/main infrastructure/src/main \
+       scripts/governance/gov-code-check.py scripts/governance/gov-custom-checks.sh)" \
+    bash scripts/governance/gov-custom-checks.sh
+}
+step_schema_guard() {
+  run_with_cache "gov-schema-guard" \
+    "$(cache_key infrastructure/schemas infrastructure/src/main scripts/governance/gov-schema-guard.sh)" \
+    bash scripts/governance/gov-schema-guard.sh
+}
+step_test_guard() {
+  run_with_cache "gov-test-guard" \
+    "$(cache_key tests scripts/governance/gov-test-guard.sh)" \
+    bash scripts/governance/gov-test-guard.sh
+}
+step_a11y() {
+  run_with_cache "gov-a11y-check" \
+    "$(cache_key app/src/main scripts/governance/gov-a11y-check.py)" \
+    python3 scripts/governance/gov-a11y-check.py
+}
+step_reachability() {
+  run_with_cache "gov-reachability-check" \
+    "$(cache_key app/src/main scripts/governance/gov-reachability-check.py scripts/governance/gov-reach-baseline.txt)" \
+    python3 scripts/governance/gov-reachability-check.py
+}
+step_hook_doctor() {
+  run_with_cache "gov-hook-doctor" \
+    "$(cache_key scripts/hooks scripts/governance/gov-hook-doctor.sh scripts/governance/gov-mode.sh)" \
+    bash scripts/governance/gov-hook-doctor.sh
+}
+
+bg_step() {
+  local name="$1"
+  shift
+  local log="$CI_STEP_DIR/$name"
+  ( "$@" > "$log.log" 2>&1; echo $? > "$log.rc" ) &
+}
+
+collect_bg() {
+  local name="$1"
+  local rc=0
+  [ -f "$CI_STEP_DIR/$name.rc" ] && rc="$(cat "$CI_STEP_DIR/$name.rc")"
   echo ""
-  echo "=== [gradle] 跳过（车道 A：变更不参与 gradle 构建）==="
+  echo "=== [$name]（并行）==="
+  cat "$CI_STEP_DIR/$name.log" 2>/dev/null
+  if [ "$rc" = "0" ]; then
+    echo "  PASS: $name"
+    PASS=$((PASS + 1))
+    STEPS+=("$name=0")
+  else
+    echo "  FAIL: $name (exit $rc)"
+    FAIL=$((FAIL + 1))
+    STEPS+=("$name=$rc")
+  fi
+}
+
+# pytest 策略：默认只跑受影响用例；脚本变更或 GOV_CI_FULL=1 时全量。
+# 全量 pytest 的并行度取决于是否装了 xdist（不强制依赖）。
+run_pytest_step() {
+  if [ "$LANE" = "A" ]; then
+    echo ""
+    echo "=== [pytest] 跳过（车道 A：变更不涉及代码）==="
+    return 0
+  fi
+  local scripts_changed=0
+  case $'\n'"$DETECTED_CHANGES" in
+    *$'\n'scripts/*) scripts_changed=1 ;;
+  esac
+  if [ "${GOV_CI_FULL:-0}" = "1" ] || [ "$scripts_changed" = "1" ]; then
+    echo ""
+    echo "=== [pytest] 全量（脚本变更或显式全量，分片并行 + 结果缓存）==="
+    run_step "pytest tests/unit (full)" bash scripts/testing/gov-pytest.sh --all
+  else
+    run_step "pytest affected" bash scripts/governance/gov-affected.sh --run
+  fi
+}
+
+set +e
+rm -rf "$CI_STEP_DIR"
+mkdir -p "$CI_STEP_DIR"
+
+if [ "${GOV_CI_PARALLEL:-1}" = "0" ]; then
+  # 串行回退（排查并行相关问题时用）
+  run_step "gov-validate" step_validate
+  run_step "gov-custom-checks" step_custom_checks
+  run_step "gov-secrets-scan" step_secrets
+  run_step "gov-schema-guard" step_schema_guard
+  run_step "gov-test-guard" step_test_guard
+  run_step "gov-a11y-check" step_a11y
+  if [ "$LANE" != "A" ]; then run_step "gov-reachability-check" step_reachability; fi
+  run_step "gov-hook-doctor" step_hook_doctor
+  if [ -n "$GRADLE_TASK" ]; then
+    run_step "gradlew $GRADLE_TASK" ./gradlew "$GRADLE_TASK" --stacktrace
+  else
+    echo ""
+    echo "=== [gradle] 跳过（车道 A：变更不参与 gradle 构建）==="
+  fi
+  run_pytest_step
+else
+  # 静态检查先并行启动（多数可命中缓存），与 gradle/pytest 重叠
+  bg_step gov-validate step_validate
+  bg_step gov-custom-checks step_custom_checks
+  bg_step gov-secrets-scan step_secrets
+  bg_step gov-schema-guard step_schema_guard
+  bg_step gov-test-guard step_test_guard
+  bg_step gov-a11y-check step_a11y
+  if [ "$LANE" != "A" ]; then bg_step gov-reachability-check step_reachability; fi
+  bg_step gov-hook-doctor step_hook_doctor
+
+  if [ -n "$GRADLE_TASK" ]; then
+    run_step "gradlew $GRADLE_TASK" ./gradlew "$GRADLE_TASK" --stacktrace
+  else
+    echo ""
+    echo "=== [gradle] 跳过（车道 A：变更不参与 gradle 构建）==="
+  fi
+
+  run_pytest_step
+  wait
+
+  for s in gov-validate gov-custom-checks gov-secrets-scan gov-schema-guard \
+           gov-test-guard gov-a11y-check gov-hook-doctor; do
+    collect_bg "$s"
+  done
+  if [ "$LANE" != "A" ]; then collect_bg gov-reachability-check; fi
 fi
-run_step "gov-validate" bash scripts/governance/gov-validate.sh
-run_step "gov-custom-checks" bash scripts/governance/gov-custom-checks.sh
-run_step "gov-secrets-scan" bash scripts/governance/gov-secrets-scan.sh
-run_step "gov-schema-guard" bash scripts/governance/gov-schema-guard.sh
-run_step "gov-test-guard" bash scripts/governance/gov-test-guard.sh
-run_step "gov-a11y-check" python3 scripts/governance/gov-a11y-check.py
-run_step "gov-reachability-check" python3 scripts/governance/gov-reachability-check.py
-run_step "gov-hook-doctor" bash scripts/governance/gov-hook-doctor.sh
 set -e
 
 echo ""
 echo "=== 汇总 ==="
 echo "  车道: $LANE"
 echo "  通过: $PASS  失败: $FAIL"
+# 成本可见化（DEC-080）：人类等待预算 5s；后台/队列才允许更长。
+CI_BUDGET="${GOV_CI_BUDGET:-}"
+if [ -z "$CI_BUDGET" ]; then
+  if [ "${GOV_CI_BACKGROUND:-0}" = "1" ]; then CI_BUDGET=600; else CI_BUDGET=5; fi
+fi
+CI_MODE="前台"; [ "${GOV_CI_BACKGROUND:-0}" = "1" ] && CI_MODE="后台"
+echo "  耗时: ${SECONDS}s（预算 ${CI_BUDGET}s，${CI_MODE}）"
+if [ "$SECONDS" -gt "$CI_BUDGET" ]; then
+  echo "  [超预算] ${SECONDS}s > ${CI_BUDGET}s：前台调用应改用 ship.sh 把全量放到后台"
+fi
 if [ "$FAIL" -ne 0 ]; then
   write_result fail
-  bash scripts/governance/gov-update-status.sh 2>/dev/null || true
+  # 后台验证不写共享状态（DEC-081）：验证不该弄脏工作区
+  [ "${GOV_CI_BACKGROUND:-0}" = "1" ] || bash scripts/governance/gov-update-status.sh 2>/dev/null || true
   echo "FAIL gov-local-ci"
   exit 1
 fi
 write_result pass
-bash scripts/governance/gov-update-status.sh 2>/dev/null || true
+[ "${GOV_CI_BACKGROUND:-0}" = "1" ] || bash scripts/governance/gov-update-status.sh 2>/dev/null || true
 echo "PASS gov-local-ci"
 exit 0

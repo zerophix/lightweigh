@@ -5,6 +5,10 @@ gov-code-check.py — 源码质量检测（死 import / 重复实现 / 相似度
 在 gov-custom-checks.sh 中被调用（项目自定义挂载点，不属模板上游拥有区）。
 退出码非 0 即阻止提交。
 
+两种模式（DEC-072）:
+  默认（全仓）      死 import + 重复实现 + 相似度 + 依赖方向 + 规则自证 —— 慢层用
+  --staged/--paths  只查改动文件的死 import + 依赖方向 —— 快层用，亚秒级
+
 规则清单:
   GOV-CODE-000 守卫负例 —— 规则自证有效，抓不到该抓的或误伤无辜即失败
   GOV-CODE-001 死 import —— import 的符号在正文未被引用（阻断）
@@ -28,6 +32,7 @@ gov-code-check.py — 源码质量检测（死 import / 重复实现 / 相似度
     应先评估存量噪音，否则规则一落地就红，等于逼人关掉它）。
 """
 import re
+import subprocess
 import sys
 from difflib import SequenceMatcher
 from pathlib import Path
@@ -61,9 +66,16 @@ SERVICE_SYNC_IMPORT_LINE = "import com.xcwk.scalehub.application.sync.SyncTrigge
 SERVICE_LEGIT_IMPORT_LINE = "import com.xcwk.scalehub.domain.model.MeasureRecord"
 
 
+# None = 全仓扫描（慢层）；set/list = 只扫给定文件（快层，--staged / --paths）
+_PATH_FILTER = None
+
+
 def _source_files():
     """扫描范围自检：命中 0 个文件说明路径配置错了，必须显式失败而非静默通过
-    （规则空转比没有规则更危险——它会让人以为已被守住）。"""
+    （规则空转比没有规则更危险——它会让人以为已被守住）。
+
+    增量模式（--staged / --paths）下允许为空：暂存区没有源码改动是常态，不是配置错误。
+    """
     files = []
     for d in SRC_DIRS:
         base = ROOT / d
@@ -72,10 +84,38 @@ def _source_files():
         for p in sorted(base.rglob("*")):
             if p.is_file() and p.suffix in (".kt", ".java") and "src/main" in str(p):
                 files.append(p)
+    if _PATH_FILTER is not None:
+        wanted = {Path(p).resolve() for p in _PATH_FILTER}
+        return [p for p in files if p.resolve() in wanted]
     if not files:
         print(f"  [FAIL] gov-code-check: 在 {ROOT} 下未命中任何源码文件，扫描范围配置有误")
         sys.exit(2)
     return files
+
+
+def _parse_scope(argv):
+    """解析检查范围。返回 True 表示增量模式（只查改动文件）。
+
+    快层（pre-commit）用 --staged：只查暂存区的源码，8s 全扫降到亚秒级。
+    慢层（local-ci / pytest）不传参数：保持全仓 + 全规则。
+    """
+    global _PATH_FILTER
+    if "--staged" in argv:
+        try:
+            proc = subprocess.run(
+                ["git", "diff", "--cached", "--name-only", "--diff-filter=ACM"],
+                cwd=str(ROOT), capture_output=True, text=True, check=False,
+            )
+            raw = proc.stdout
+        except OSError:
+            raw = ""
+        _PATH_FILTER = [ROOT / line.strip() for line in raw.splitlines() if line.strip()]
+        return True
+    if "--paths" in argv:
+        idx = argv.index("--paths")
+        _PATH_FILTER = [(ROOT / a).resolve() for a in argv[idx + 1:] if a.strip()]
+        return True
+    return False
 
 
 def _strip_comments(text: str) -> str:
@@ -489,6 +529,24 @@ def main() -> int:
     if "--fix" in sys.argv:
         fix_dead_imports()
         print("\n  --fix 仅处理死 import；重复实现需人工合并")
+        return 0
+
+    # 快层（DEC-072）：只查暂存区的死 import 与依赖方向。
+    # 重复实现/相似度是 O(n^2) 跨文件比对，且自证需要构造案例，
+    # 留在慢层（local-ci / pytest）跑一次即可，不应阻断每次提交。
+    if _parse_scope(sys.argv):
+        targets = _source_files()
+        if not targets:
+            print("  [SKIP] 增量模式：暂存区没有源码文件")
+            return 0
+        print(f"  [增量] 只检查 {len(targets)} 个改动文件")
+        issues = check_dead_imports()
+        issues += check_layer_coupling()
+        issues += check_service_layering()
+        if issues:
+            print(f"\n  gov-code-check 违规: {issues} 项（增量模式）")
+            return 1
+        print("\n  gov-code-check 全部通过（增量模式）")
         return 0
 
     selftest_failures = check_selftest()

@@ -1,9 +1,11 @@
 package com.xcwk.scalehub.feature.device
 
+import com.journeyapps.barcodescanner.ScanContract
+import com.journeyapps.barcodescanner.ScanOptions
+
 import android.bluetooth.BluetoothAdapter
 import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -75,6 +77,23 @@ fun DeviceScreen(
     var manageTarget by remember { mutableStateOf<WiringTarget?>(null) }
     var showQrEntry by remember { mutableStateOf(false) }
     var macInput by remember { mutableStateOf("") }
+
+    // T-058：应用内扫码（ZXing embedded，竖屏 + 自定义提示）。
+    // 取消/无结果 → 打开手动输入弹层；解析不出 MAC → 把原文带进手动输入让用户核对。
+    val scanLauncher = rememberLauncherForActivityResult(ScanContract()) { result ->
+        val raw = result.contents
+        if (raw.isNullOrBlank()) {
+            showQrEntry = true
+        } else {
+            val qr = com.xcwk.scalehub.domain.device.ScaleQr.parse(raw)
+            if (qr != null) {
+                vm.onIntent(DeviceIntent.QrBind(qr.name, qr.mac))
+            } else {
+                macInput = raw
+                showQrEntry = true
+            }
+        }
+    }
     manageTarget?.let { target ->
         DeviceManageRoute(target = target, onBack = { manageTarget = null })
         return
@@ -172,9 +191,17 @@ fun DeviceScreen(
             onEnableBluetooth = {
                 enableBtLauncher.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
             },
-            // 原实现直接拉起外部扫码 App：相机被拒时用户看到的是别的 App 的报错。
-            // 改为应用内输入 MAC（秤身/包装上都有），相机可用与否都能完成绑定。
-            onScanQr = { showQrEntry = true },
+            // 应用内扫码（T-058）：竖屏、自定义提示；取消或无相机时回退到手动输入
+            onScanQr = {
+                scanLauncher.launch(
+                    ScanOptions().apply {
+                        setOrientationLocked(false)
+                        setPrompt("对准秤身/包装上的二维码")
+                        setBeepEnabled(false)
+                        setBarcodeImageEnabled(false)
+                    },
+                )
+            },
             onHelp = { showHelp = true },
             onOpenManage = { manageTarget = it },
             onOpenDetail = { showDetail = true },
@@ -189,40 +216,24 @@ fun DeviceScreen(
         val manualMac = raw.matches(Regex("^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$"))
         val scanned = if (!manualMac) com.xcwk.scalehub.domain.device.ScaleQr.parse(raw) else null
         val macOk = manualMac || scanned != null
-        AlertDialog(
-            onDismissRequest = { showQrEntry = false },
-            title = { Text("输入体脂秤编号") },
-            text = {
-                Column {
-                    Text(
-                        "输入秤身/包装上的 MAC（形如 AA:BB:CC:DD:EE:FF），或粘贴二维码里的内容。",
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                    QkTextField(
-                        value = macInput,
-                        onValueChange = { macInput = it },
-                        label = "设备 MAC",
-                        placeholder = "AA:BB:CC:DD:EE:FF",
-                        modifier = Modifier.padding(top = QkSpacing.Sm),
-                    )
+        // 相机能力由端口决定：当前仓库无相机依赖 → 状态机如实落到 Unsupported
+        val scanState = qrScanNext(QrScanState.Idle, QrScanEvent.Start, cameraAvailable = false)
+        QrScanSheet(
+            state = scanState,
+            manualValue = macInput,
+            onManualChange = { macInput = it },
+            canBind = macOk,
+            onBind = {
+                val qr = scanned
+                if (qr != null) {
+                    vm.onIntent(DeviceIntent.QrBind(qr.name, qr.mac))
+                } else {
+                    vm.onIntent(DeviceIntent.QrBind("体脂秤", raw))
                 }
+                showQrEntry = false
+                macInput = ""
             },
-            confirmButton = {
-                TextButton(
-                    enabled = macOk,
-                    onClick = {
-                        val qr = scanned
-                        if (qr != null) {
-                            vm.onIntent(DeviceIntent.QrBind(qr.name, qr.mac))
-                        } else {
-                            vm.onIntent(DeviceIntent.QrBind("体脂秤", raw))
-                        }
-                        showQrEntry = false
-                        macInput = ""
-                    },
-                ) { Text("绑定") }
-            },
-            dismissButton = { TextButton(onClick = { showQrEntry = false }) { Text("取消") } },
+            onDismiss = { showQrEntry = false },
         )
     }
 

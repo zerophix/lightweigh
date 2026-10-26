@@ -15,18 +15,19 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.xcwk.scalehub.ui.components.QkBackButton
 import com.xcwk.scalehub.ui.components.QkButton
 import com.xcwk.scalehub.ui.components.QkButtonStyle
 import com.xcwk.scalehub.ui.components.QkCard
 import com.xcwk.scalehub.ui.components.QkGlyph
 import com.xcwk.scalehub.ui.components.QkIcons
-import com.xcwk.scalehub.ui.components.QkPageTitle
 import com.xcwk.scalehub.ui.components.QkSegmented
 import com.xcwk.scalehub.ui.components.QkTextField
 import com.xcwk.scalehub.ui.states.QkEmptyState
@@ -451,6 +452,14 @@ fun MemberEditScreen(
             )
             FieldError(state.errors.nickname)
         }
+
+        var guardianConsent by rememberSaveable { mutableStateOf(false) }
+        ChildModeNotice(
+            age = ageFromBirthDate(state.draft.birthDate),
+            guardianConsent = guardianConsent,
+            onConsentChange = { guardianConsent = it },
+            modifier = Modifier.padding(bottom = QkSpacing.CardGap),
+        )
 
         QkCard(modifier = Modifier.padding(bottom = QkSpacing.CardGap)) {
             QkTextField(

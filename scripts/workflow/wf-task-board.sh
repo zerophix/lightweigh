@@ -17,7 +17,7 @@
 
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+ROOT="${WF_BOARD_ROOT:-$(cd "$(dirname "$0")/../.." && pwd)}"
 TASKS_FILE="$ROOT/.ai/tasks.json"
 
 # 确保文件存在
@@ -78,37 +78,290 @@ PYEOF
     ;;
 
   add)
-    DESC="${2:-}"
-    WHY="${3:-}"
-    if [ -z "$DESC" ]; then echo "用法: task-board.sh add \"描述\" [\"理由\"]" >&2; exit 1; fi
-    python3 << PYEOF
-import json
-with open('$TASKS_FILE') as f:
+    DESC=""; WHY=""; GROUP=""; DISTINCT=""; SUPERSEDES=""; DEPENDS=""; PARENT=""; PRIORITY="P2"; SOURCE=""; SOURCE_REF=""; BATCH=""; FILES=""; ROLE=""
+    shift || true
+    while [ $# -gt 0 ]; do
+      case "$1" in
+        --group) GROUP="${2:-}"; shift 2 ;;
+        --distinct) DISTINCT="${2:-}"; shift 2 ;;
+        --supersedes) SUPERSEDES="${2:-}"; shift 2 ;;
+        --depends-on) DEPENDS="${2:-}"; shift 2 ;;
+        --parent) PARENT="${2:-}"; shift 2 ;;
+        --priority) PRIORITY="${2:-P2}"; shift 2 ;;
+        --source) SOURCE="${2:-}"; shift 2 ;;
+        --source-ref) SOURCE_REF="${2:-}"; shift 2 ;;
+        --batch) BATCH="${2:-}"; shift 2 ;;
+        --files) FILES="${2:-}"; shift 2 ;;
+        --role) ROLE="${2:-}"; shift 2 ;;
+        -*) echo "未知参数: $1" >&2; exit 2 ;;
+        *)
+          if [ -z "$DESC" ]; then DESC="$1"
+          elif [ -z "$WHY" ]; then WHY="$1"
+          else echo "多余参数: $1" >&2; exit 2; fi
+          shift ;;
+      esac
+    done
+    if [ -z "$DESC" ] || [ -z "$GROUP" ] || [ -z "$SOURCE" ] || [ -z "$BATCH" ]; then
+      echo '用法: task-board.sh add "描述" ["理由"] --group <id> --source <dec|prototype|incident|gap|review> --batch <B-xxx>' >&2
+      echo '       [--source-ref DEC-xxx] [--files a.kt,b.kt] [--role dev|test|docs|gov|review]' >&2
+      echo '       [--depends-on T-xxx] [--parent T-xxx] [--priority P0/P1/P2]' >&2
+      echo '       [--distinct "与既有任务的差异" | --supersedes T-xxx]' >&2
+      echo '组见 .ai/tasks.json 的 groups；重复建单会被拒绝。' >&2
+      exit 1
+    fi
+    TASKS_FILE="$TASKS_FILE" NOW="$NOW" ADD_DESC="$DESC" ADD_WHY="$WHY" \
+    ADD_GROUP="$GROUP" ADD_DISTINCT="$DISTINCT" ADD_SUPERSEDES="$SUPERSEDES" \
+    ADD_DEPENDS="$DEPENDS" ADD_PARENT="$PARENT" ADD_PRIORITY="$PRIORITY" \
+    ADD_SOURCE="$SOURCE" ADD_SOURCE_REF="$SOURCE_REF" ADD_BATCH="$BATCH" \
+    ADD_FILES="$FILES" ADD_ROLE="$ROLE" \
+    python3 - <<'PYEOF'
+import json, os, re, sys
+
+path = os.environ["TASKS_FILE"]
+with open(path, encoding="utf-8") as f:
     d = json.load(f)
-tasks = d.get('tasks', [])
+
+groups = {g["id"]: g for g in d.get("groups", [])}
+batches = {b["id"] for b in d.get("batches", [])}
+SOURCE_SET = {"dec", "prototype", "incident", "gap", "review"}
+ROLE_SET = {"dev", "test", "docs", "gov", "review"}
+source = os.environ.get("ADD_SOURCE", "")
+source_ref = os.environ.get("ADD_SOURCE_REF", "")
+batch = os.environ.get("ADD_BATCH", "")
+files = [x.strip() for x in os.environ.get("ADD_FILES", "").split(",") if x.strip()]
+explicit_role = os.environ.get("ADD_ROLE", "")
+
+if source not in SOURCE_SET:
+    print(f"拒绝: --source 必须是 {sorted(SOURCE_SET)}", file=sys.stderr)
+    sys.exit(1)
+if source in ("dec", "review") and not source_ref:
+    print(f"拒绝: source={source} 必须提供 --source-ref", file=sys.stderr)
+    sys.exit(1)
+if batch not in batches:
+    print(f"拒绝: 未知批次 {batch}（先 wf-batch.sh create {batch}）", file=sys.stderr)
+    sys.exit(1)
+if explicit_role and explicit_role not in ROLE_SET:
+    print(f"拒绝: --role 必须是 {sorted(ROLE_SET)}", file=sys.stderr)
+    sys.exit(1)
+
+def infer_role(paths):
+    if not paths:
+        return "dev"
+    kinds = set()
+    for f in paths:
+        if f.startswith("scripts/") or f.startswith(".github/"):
+            kinds.add("gov")
+        elif f.startswith("tests/") or "/src/test/" in f:
+            kinds.add("test")
+        elif f.startswith("docs/") or f.endswith(".md"):
+            kinds.add("docs")
+        else:
+            kinds.add("dev")
+    if kinds == {"gov"}:
+        return "gov"
+    if kinds == {"docs"}:
+        return "docs"
+    if kinds == {"test"}:
+        return "test"
+    return "dev"
+
+role = explicit_role or infer_role(files)
+group = os.environ["ADD_GROUP"]
+if group not in groups:
+    print(f"拒绝: 未知分组 {group}（可用: {', '.join(sorted(groups))}）", file=sys.stderr)
+    sys.exit(1)
+
+def grams(text):
+    s = "".join(re.findall(r"[\u4e00-\u9fffA-Za-z0-9]", text))
+    return {s[i:i + 2] for i in range(len(s) - 1)}
+
+desc = os.environ["ADD_DESC"]
+distinct = os.environ["ADD_DISTINCT"]
+supersedes = os.environ["ADD_SUPERSEDES"]
+g_new = grams(desc)
+
+best = (0.0, None)
+for t in d.get("tasks", []):
+    if t.get("merged_into") or t.get("archived"):
+        continue
+    g_old = grams((t.get("title") or "") + " " + (t.get("description") or ""))
+    if not g_old or not g_new:
+        continue
+    j = len(g_new & g_old) / len(g_new | g_old)
+    if j > best[0]:
+        best = (j, t)
+
+if best[1] is not None and best[0] >= 0.6 and not distinct and not supersedes:
+    print(f"拒绝: 与 {best[1]['id']} 相似度 {best[0]:.0%}", file=sys.stderr)
+    print(f"  既有: {(best[1].get('title') or best[1].get('description') or '')[:60]}", file=sys.stderr)
+    print("  如确是不同交付物: 加 --distinct \"差异是什么\"", file=sys.stderr)
+    print("  如替代旧任务: 加 --supersedes " + best[1]["id"], file=sys.stderr)
+    sys.exit(1)
+
+tasks = d.get("tasks", [])
 max_num = 0
 for t in tasks:
-    tid = t.get('id', 'T-000')
-    try: n = int(tid.split('-')[1]); max_num = max(max_num, n)
-    except: pass
-nid = 'T-{:03d}'.format(max_num + 1)
+    try:
+        max_num = max(max_num, int(t.get("id", "T-000").split("-")[1]))
+    except Exception:
+        pass
+nid = "T-{:03d}".format(max_num + 1)
+
+if supersedes:
+    old = next((t for t in tasks if t["id"] == supersedes), None)
+    if old is None:
+        print(f"拒绝: --supersedes {supersedes} 不存在", file=sys.stderr)
+        sys.exit(1)
+    if old.get("merged_into"):
+        print(f"拒绝: {supersedes} 已经是重复项", file=sys.stderr)
+        sys.exit(1)
+    old["merged_into"] = nid
+    old["notes"] = (old.get("notes") or "") + f"；被 {nid} 取代"
+
+depends = [x.strip() for x in os.environ.get("ADD_DEPENDS", "").split(",") if x.strip()]
+for dep in depends:
+    if dep not in {t["id"] for t in tasks}:
+        print(f"拒绝: --depends-on {dep} 不存在", file=sys.stderr)
+        sys.exit(1)
+parent = os.environ.get("ADD_PARENT", "").strip()
+if parent and parent not in {t["id"] for t in tasks}:
+    print(f"拒绝: --parent {parent} 不存在", file=sys.stderr)
+    sys.exit(1)
+if parent and parent in depends:
+    print("拒绝: 任务不能依赖自己的父任务", file=sys.stderr)
+    sys.exit(1)
+
 tasks.append({
-    'id': nid,
-    'description': '$DESC',
-    'why': '$WHY',
-    'status': 'pending',
-    'assigned_to': '',
-    'dec': '',
-    'created_at': '$NOW',
-    'updated_at': '$NOW',
-    'notes': ''
+    "id": nid,
+    "description": desc,
+    "why": os.environ["ADD_WHY"],
+    "status": "pending",
+    "group_id": group,
+    "assigned_to": "",
+    "dec": "",
+    "created_at": os.environ["NOW"],
+    "updated_at": os.environ["NOW"],
+    "notes": ("差异: " + distinct) if distinct else "",
+    "priority": os.environ.get("ADD_PRIORITY", "P2"),
+    "source": source,
+    **({"source_ref": source_ref} if source_ref else {}),
+    "batch": batch,
+    "role": role,
+    "target_files": files,
+    "depends_on": depends,
+    **({"parent": parent} if parent else {}),
 })
-d['tasks'] = tasks
-d['updated_at'] = '$NOW'
-with open('$TASKS_FILE', 'w') as f:
+
+d["tasks"] = tasks
+d["updated_at"] = os.environ["NOW"]
+with open(path, "w", encoding="utf-8") as f:
     json.dump(d, f, indent=2, ensure_ascii=False)
-print('创建: ' + nid)
+print(f"创建: {nid}（组 {group}）")
 PYEOF
+    ;;
+
+  ready)
+    TASKS_FILE="$TASKS_FILE" python3 - <<'PY'
+import json, os, sys
+d = json.load(open(os.environ["TASKS_FILE"], encoding="utf-8"))
+tasks = {t["id"]: t for t in d.get("tasks", [])}
+done_status = {"completed", "done"}
+def open_blockers(t):
+    return [x for x in (t.get("depends_on") or [])
+            if x in tasks and tasks[x].get("status") not in done_status]
+ready = [t for t in tasks.values()
+         if t.get("status") in ("pending", "in_progress")
+         and not t.get("merged_into") and not t.get("archived")
+         and not open_blockers(t)]
+if not ready:
+    print("没有可开工任务（全部在跑或被阻塞）")
+    sys.exit(0)
+order = {"P0": 0, "P1": 1, "P2": 2}
+for t in sorted(ready, key=lambda x: (order.get(x.get("priority", "P2"), 9), x["id"])):
+    print(f"{t['id']}  {(t.get('title') or t.get('description') or '')[:60]}")
+PY
+    ;;
+
+  blocked)
+    TASKS_FILE="$TASKS_FILE" python3 - <<'PY'
+import json, os
+d = json.load(open(os.environ["TASKS_FILE"], encoding="utf-8"))
+tasks = {t["id"]: t for t in d.get("tasks", [])}
+done_status = {"completed", "done"}
+for t in sorted(tasks.values(), key=lambda x: x["id"]):
+    if t.get("merged_into") or t.get("archived"):
+        continue
+    blockers = [x for x in (t.get("depends_on") or [])
+                if x in tasks and tasks[x].get("status") not in done_status]
+    if blockers and t.get("status") in ("pending", "in_progress"):
+        print(f"{t['id']}  等待 {', '.join(blockers)}")
+PY
+    ;;
+
+  dep)
+    ACTION="${2:-}"
+    case "$ACTION" in
+      add)
+        ID="${3:-}"; ON="${4:-}"
+        TASKS_FILE="$TASKS_FILE" DEP_ID="$ID" DEP_ON="$ON" python3 - <<'PY'
+import json, os, sys
+path = os.environ["TASKS_FILE"]
+d = json.load(open(path, encoding="utf-8"))
+tasks = {t["id"]: t for t in d.get("tasks", [])}
+tid, dep = os.environ["DEP_ID"], os.environ["DEP_ON"]
+if tid not in tasks or dep not in tasks:
+    print("拒绝: 任务不存在", file=sys.stderr); sys.exit(1)
+if tid == dep:
+    print("拒绝: 不能依赖自己", file=sys.stderr); sys.exit(1)
+tasks[tid].setdefault("depends_on", [])
+if dep not in tasks[tid]["depends_on"]:
+    tasks[tid]["depends_on"].append(dep)
+json.dump(d, open(path, "w", encoding="utf-8"), indent=2, ensure_ascii=False)
+print(f"{tid} 现在依赖 {dep}")
+PY
+        ;;
+      cycles)
+        TASKS_FILE="$TASKS_FILE" python3 - <<'PY'
+import json, os, sys
+d = json.load(open(os.environ["TASKS_FILE"], encoding="utf-8"))
+tasks = {t["id"]: (t.get("depends_on") or []) for t in d.get("tasks", [])}
+state, stack = {}, []
+def visit(n):
+    state[n] = 1; stack.append(n)
+    for m in tasks.get(n, []):
+        if state.get(m) == 1:
+            print("环: " + " → ".join(stack[stack.index(m):] + [m]))
+            return True
+        if state.get(m, 0) == 0 and visit(m):
+            return True
+    stack.pop(); state[n] = 2
+    return False
+bad = any(visit(n) for n in tasks if state.get(n, 0) == 0)
+sys.exit(1 if bad else 0)
+PY
+        ;;
+      *)
+        echo "用法: task-board.sh dep add <id> <depends-on> | dep cycles" >&2; exit 2 ;;
+    esac
+    ;;
+
+  checkpoint)
+    ID="${2:-}"; NOTE="${3:-}"
+    if [ -z "$ID" ] || [ -z "$NOTE" ]; then
+      echo "用法: task-board.sh checkpoint <id> \"进度/决定/下一步\"" >&2; exit 1
+    fi
+    TASKS_FILE="$TASKS_FILE" NOW="$NOW" CP_ID="$ID" CP_NOTE="$NOTE" python3 - <<'PY'
+import json, os, sys
+path = os.environ["TASKS_FILE"]
+d = json.load(open(path, encoding="utf-8"))
+tid = os.environ["CP_ID"]
+task = next((t for t in d.get("tasks", []) if t["id"] == tid), None)
+if task is None:
+    print(f"未找到: {tid}", file=sys.stderr); sys.exit(1)
+task.setdefault("progress", []).append({"at": os.environ["NOW"], "note": os.environ["CP_NOTE"]})
+json.dump(d, open(path, "w", encoding="utf-8"), indent=2, ensure_ascii=False)
+print(f"{tid} 检查点 #{len(task['progress'])}: {os.environ['CP_NOTE']}")
+PY
     ;;
 
   done)

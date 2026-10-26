@@ -46,9 +46,6 @@ enum class SettingsEntryGroup {
 
     /** 其他：仅维护态出现。 */
     Other,
-
-    /** 显示：外观与语言（设置主页「显示」分组）。 */
-    Display,
 }
 
 /** 入口指向的目标屏（与 [SettingsSdkRoute] / [HelpCenterRoute] 的装配点一一对应）。 */
@@ -57,8 +54,6 @@ enum class SettingsEntryTarget(val screen: String) {
     DataRecovery("DataRecoveryScreen"),
     Maintenance("MaintenanceScreen"),
     HelpCenter("HelpCenterRoute"),
-    Appearance("AppearanceSettingsScreen"),
-    Language("LanguageSettingsScreen"),
 }
 
 /**
@@ -136,22 +131,6 @@ object SettingsEntries {
         maintenanceOnly = true,
     )
 
-    val Appearance = SettingsEntry(
-        id = "settings.appearance",
-        group = SettingsEntryGroup.Display,
-        title = "外观",
-        hint = "主题模式：浅色 / 深色 / 跟随系统",
-        target = SettingsEntryTarget.Appearance,
-    )
-
-    val Language = SettingsEntry(
-        id = "settings.language",
-        group = SettingsEntryGroup.Display,
-        title = "语言",
-        hint = "界面语言：简体中文 / 繁體中文 / English",
-        target = SettingsEntryTarget.Language,
-    )
-
     /** 全部入口（顺序即设置页内的呈现顺序）。 */
     val All: List<SettingsEntry> = listOf(
         SdkList,
@@ -160,8 +139,6 @@ object SettingsEntries {
         Feedback,
         Diagnostics,
         Maintenance,
-        Appearance,
-        Language,
     )
 
     /** 某分组下的入口；维护类入口只有维护态才呈现。 */
@@ -267,8 +244,6 @@ fun SettingsEntriesRoute(
     var recoveryState by remember { mutableStateOf(RecoveryUiState()) }
     var maintenance by remember { mutableStateOf(maintenanceState) }
     // 显示设置（外观 / 语言）：选择态在本装配点持有，持久化仍归宿主（两屏本身不带 VM）
-    var appearanceState by remember { mutableStateOf(AppearanceSettingsUiState()) }
-    var languageState by remember { mutableStateOf(LanguageSettingsUiState()) }
     val maintenanceActive = maintenance.active
 
     val state by vm.state.collectAsStateWithLifecycle()
@@ -327,17 +302,6 @@ fun SettingsEntriesRoute(
             )
         }
 
-        SettingsEntryTarget.Appearance -> AppearanceSettingsScreen(
-            state = appearanceState,
-            onIntent = { appearanceState = appearanceState.reduce(it) },
-            onBack = backToSettings,
-        )
-
-        SettingsEntryTarget.Language -> LanguageSettingsScreen(
-            state = languageState,
-            onIntent = { languageState = languageState.reduce(it) },
-            onBack = backToSettings,
-        )
     }
 }
 
@@ -346,8 +310,6 @@ private fun entryIcon(entry: SettingsEntry): ImageVector = when {
     entry.id == SettingsEntries.SdkList.id -> QkIcons.Share
     entry.id == SettingsEntries.DataRecovery.id -> QkIcons.Restore
     entry.id == SettingsEntries.Maintenance.id -> QkIcons.Bell
-    entry.id == SettingsEntries.Appearance.id -> QkIcons.Setting
-    entry.id == SettingsEntries.Language.id -> QkIcons.More
     entry.helpStep == HelpCenterStep.Diagnostics -> QkIcons.Cache
     entry.helpStep == HelpCenterStep.Feedback -> QkIcons.Send
     else -> QkIcons.About

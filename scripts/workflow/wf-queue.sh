@@ -213,7 +213,8 @@ cmd_run() {
 
   # 2) 候选上验证一次（这是唯一的重检查）
   say "  [验证] 候选上跑 local-ci（GOV_LANE=${LANES}）…"
-  if ! GOV_LANE="$LANES" bash scripts/governance/gov-local-ci.sh > /tmp/wf-queue-ci.log 2>&1; then
+  # 合入是唯一的全量点（DEC-072）：候选上强制跑全量测试，其余环节用增量
+  if ! GOV_LANE="$LANES" GOV_CI_FULL=1 bash scripts/governance/gov-local-ci.sh > /tmp/wf-queue-ci.log 2>&1; then
     say "  ❌ 候选验证失败："
     grep -E "FAIL|通过:|失败:|PASS gov-local-ci" /tmp/wf-queue-ci.log | tail -8 | sed 's/^/      /'
     say "  候选保留：${candidate}（解决后重跑；--keep 可强制保留）"
@@ -221,6 +222,33 @@ cmd_run() {
     return 4
   fi
   say "  ✅ 候选验证通过（$(grep -c . /dev/null 2>/dev/null; tail -2 /tmp/wf-queue-ci.log | tr '\n' ' ')）"
+
+  # 2) 任务板严格审计（去重/分组/共享文件声明）——重复任务不得合入
+  say "  [任务板] 严格审计…"
+  if ! bash scripts/workflow/wf-board-audit.sh --strict > /tmp/wf-queue-board.log 2>&1; then
+    say "  ❌ 任务板审计未通过："
+    grep -E "✗|硬问题" /tmp/wf-queue-board.log | head -8 | sed 's/^/      /'
+    say "  处理: 修 .ai/tasks.json（合并重复/补 group_id/声明 overlaps_with）后重跑"
+    if [ "$KEEP" -eq 0 ]; then cd "$ROOT"; git worktree remove --force "$candidate" 2>/dev/null; rm -rf "$candidate"; fi
+    return 7
+  fi
+  say "  ✅ 任务板审计通过"
+
+  # 2a) 完成证据消费（DEC-078）：带 Task: trailer 的分支必须有 ok=true 的证据。
+  # 没有消费方的证据等于没有证据——这是本仓库"机制空转"的最典型一处。
+  say "  [证据] 校验任务完成证据…"
+  EVIDENCE_MODE="block"
+  [ "${GOV_ALLOW_MISSING_EVIDENCE:-0}" = "1" ] && EVIDENCE_MODE="warn"
+  EVIDENCE_OUT="$(GOV_EVIDENCE_MODE="$EVIDENCE_MODE" bash scripts/governance/gov-evidence-check.sh 2>&1)"
+  EVIDENCE_RC=$?
+  printf '%s\n' "$EVIDENCE_OUT" | sed 's/^/      /'
+  if [ "$EVIDENCE_RC" -ne 0 ]; then
+    say "  ❌ 完成证据不足，拒绝合入"
+    say "  处理: 在对应 worktree 跑 gov-task-done.sh <T-xxx>，把 .ai/evidence/<T-xxx>.json 提交进分支"
+    say "  临时放宽: GOV_ALLOW_MISSING_EVIDENCE=1（会打印，评审可见）"
+    if [ "$KEEP" -eq 0 ]; then cd "$ROOT"; git worktree remove --force "$candidate" 2>/dev/null; rm -rf "$candidate"; fi
+    return 6
+  fi
 
   # 2b) 回填任务板（在候选上完成，随候选一起推送；避免主树留脏改动）
   say "  [回填] 任务板（候选侧）…"

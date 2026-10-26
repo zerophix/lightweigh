@@ -1,0 +1,111 @@
+{
+  "version": 1,
+  "_comment": "AI 角色单一真源（DEC-075）。角色只约束可写范围与必须产物；门禁深度由 gov-profile.sh 决定。",
+  "roles": {
+    "dev": {
+      "profile": "code",
+      "allow": [
+        "app/**",
+        "domain/**",
+        "application/**",
+        "infrastructure/**",
+        "gradle.properties",
+        "gradle/**",
+        "*.gradle.kts",
+        ".ai/evidence/**"
+      ],
+      "deny": [
+        "scripts/**",
+        ".github/**",
+        "docs/ai/decisions/**",
+        ".ai/tasks.json"
+      ],
+      "must_produce": [
+        "task evidence"
+      ]
+    },
+    "gov": {
+      "profile": "gov",
+      "allow": [
+        "scripts/**",
+        "tests/**",
+        "docs/**",
+        ".github/**",
+        "*.md",
+        ".opencode/**",
+        ".gitignore",
+        ".ai/roles.json",
+        ".cursorrules",
+        ".clinerules",
+        ".ai/evidence/**",
+        ".cache/context.jsonl"
+      ],
+      "deny": [
+        "app/src/main/**",
+        "domain/src/main/**",
+        "application/src/main/**",
+        "infrastructure/src/main/**"
+      ],
+      "must_produce": [
+        "full pytest pass"
+      ]
+    },
+    "docs": {
+      "profile": "docs",
+      "allow": [
+        "docs/**",
+        "design/**",
+        "*.md",
+        ".opencode/**",
+        ".ai/evidence/**"
+      ],
+      "deny": [
+        "app/**",
+        "domain/**",
+        "application/**",
+        "infrastructure/**",
+        "scripts/**",
+        "tests/**"
+      ],
+      "must_produce": [
+        "index entry + reachable links"
+      ]
+    },
+    "review": {
+      "profile": "docs",
+      "read_only": true,
+      "allow": [
+        "docs/ai/reviews/**"
+      ],
+      "deny": [
+        "**"
+      ],
+      "must_produce": [
+        "review report"
+      ],
+      "conflict": "must_not_hold_task_lock"
+    },
+    "test": {
+      "profile": "test",
+      "allow": [
+        "tests/**",
+        "app/src/test/**",
+        "domain/src/test/**",
+        "application/src/test/**",
+        "infrastructure/src/test/**",
+        "docs/**",
+        "*.md",
+        ".ai/evidence/**"
+      ],
+      "deny": [
+        "app/src/main/**",
+        "domain/src/main/**",
+        "application/src/main/**",
+        "infrastructure/src/main/**"
+      ],
+      "must_produce": [
+        "failing test or coverage evidence"
+      ]
+    }
+  }
+}

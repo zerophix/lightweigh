@@ -26,7 +26,7 @@ import androidx.compose.ui.platform.LocalContext
  */
 
 /** 应用最低支持的 Android API 级（与 app/build.gradle.kts 的 minSdk 对齐，改动需同步）。 */
-const val MIN_SUPPORTED_SDK = 24
+const val MIN_SUPPORTED_SDK = 26   // 与 app minSdk 对齐（Health Connect 要求 26）
 
 /** 启动自检：系统低于最低支持版本时返回 [AccountBoundaryView.MinVersion]，否则放行。 */
 fun startupBoundaryOf(sdkInt: Int, minSdk: Int = MIN_SUPPORTED_SDK): AccountBoundaryView? =

@@ -29,7 +29,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
-import com.xcwk.scalehub.ui.components.QkBackButton
 import com.xcwk.scalehub.ui.components.QkButton
 import com.xcwk.scalehub.ui.components.QkButtonStyle
 import com.xcwk.scalehub.ui.components.QkCard
@@ -39,7 +38,6 @@ import com.xcwk.scalehub.ui.components.QkIcon
 import com.xcwk.scalehub.ui.components.QkIconBubble
 import com.xcwk.scalehub.ui.components.QkIcons
 import com.xcwk.scalehub.ui.components.QkListRow
-import com.xcwk.scalehub.ui.components.QkPageTitle
 import com.xcwk.scalehub.ui.components.QkPill
 import com.xcwk.scalehub.ui.components.QkPillTone
 import com.xcwk.scalehub.ui.components.QkProgress

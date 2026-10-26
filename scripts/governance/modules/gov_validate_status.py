@@ -144,6 +144,21 @@ def check_dot_configs() -> None:
                             fail(f".claude/settings.json: hooks.{event} 引用脚本不存在: scripts/{ref_path}")
                             issues += 1
 
+    # DEC-076: 三家 AI 工具的规则文件都是生成物，手改即漂移。
+    # 这一条防的正是"某份蒸馏规则里还写着早已退役的硬约束"（10-22 审计复发过一次）。
+    sync_script = ROOT / "scripts" / "governance" / "gov-sync-agent-rules.sh"
+    if sync_script.is_file():
+        import subprocess as _sp
+        _r = _sp.run(["bash", str(sync_script), "--check"], cwd=str(ROOT),
+                     capture_output=True, text=True)
+        if _r.returncode != 0:
+            for line in (_r.stdout or "").splitlines():
+                if "FAIL" in line:
+                    fail(line.strip().replace("[FAIL] ", "GOV-AGENT-001: "))
+            issues += 1
+        else:
+            print("  [PASS] AI 规则文件与真源一致")
+
     skills_dir = ROOT / ".opencode" / "skills"
     if skills_dir.is_dir():
         skill_count = 0
@@ -239,8 +254,8 @@ def check_hidden_dirs() -> None:
     print("\n--- R0f: 隐藏目录文件白名单校验 ---")
     ISSUES = 0
     HIDDEN_ALLOWED = {
-        ".cache": {"context.jsonl", "session-ledger.json", "session-marker.json", "session.lock", ".gitkeep", "local-ci-last.json", "worktrees.jsonl", "queue-runs.jsonl", "queue.lock", "jobs"},
-        ".ai": {"tasks.json", "current-session.json", "staged-claims.json", "lessons.json", "locks"},
+        ".cache": {"context.jsonl", "session-ledger.json", "session-marker.json", "session.lock", ".gitkeep", "local-ci-last.json", "worktrees.jsonl", "queue-runs.jsonl", "queue.lock", "jobs", "hook-trail.log"},
+        ".ai": {"tasks.json", "current-session.json", "staged-claims.json", "lessons.json", "locks", "roles.json", "tasks-archive.json"},
     }
     for dir_name, allowed_files in HIDDEN_ALLOWED.items():
         d = ROOT / dir_name

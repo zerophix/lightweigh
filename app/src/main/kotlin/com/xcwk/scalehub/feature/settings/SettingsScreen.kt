@@ -143,15 +143,10 @@ fun SettingsScreen(
             }
         }
 
-        // 通用：外观 / 语言 / 单位 / 隐私设置 / 同步 / 密码——日常设置就是这几项，
-        // 原先它们分散在「显示」「其他」两组并沉到设置页最底部。
+        // 通用：单位设置 / 隐私设置 / 同步 / 密码——日常设置就是这几项。
+        // 外观与语言两屏没有真实实现（无持久化、无路由），已随「假开关」一并移除。
         QkSectionHead(title = "通用", modifier = Modifier.padding(top = QkSpacing.Lg))
         QkCard(modifier = Modifier.padding(top = 2.dp)) {
-            SettingsEntryRows(
-                group = SettingsEntryGroup.Display,
-                onOpenEntry = onOpenEntry,
-                maintenanceActive = maintenanceActive,
-            )
             QkListRow(
                 title = "单位设置",
                 subtitle = "重量 kg/斤/磅、长度 cm/in",

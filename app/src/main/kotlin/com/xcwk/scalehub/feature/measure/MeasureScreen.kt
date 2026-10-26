@@ -40,6 +40,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.xcwk.scalehub.application.query.HomeGoalState
+import com.xcwk.scalehub.feature.achievements.AchievementStrip
+import com.xcwk.scalehub.feature.achievements.currentStreakDays
+import com.xcwk.scalehub.feature.achievements.todayEpochDay
 import com.xcwk.scalehub.feature.sync.SYNC_CENTER_ENTRY_TITLE
 import com.xcwk.scalehub.feature.sync.SyncCenterRoute
 import com.xcwk.scalehub.feature.trend.TrendPointUi
@@ -101,8 +104,29 @@ fun MeasureScreen(
 ) {
     // 接入波：测量结果的分享 / 导出（T-078）全屏覆盖首页，返回即回首页
     var showShare by rememberSaveable { mutableStateOf(false) }
+    // 测量帮助（T-052）：汇总贴士与手动记录边界，随时可查
+    var showHelp by rememberSaveable { mutableStateOf(false) }
+    val state by vm.state.collectAsStateWithLifecycle()
+    val unitPrefs by vm.unitPrefs.collectAsStateWithLifecycle()
+    val home = state.home
     if (showShare) {
-        ResultShareRoute(onBack = { showShare = false })
+        val reportHome = home
+        ResultShareRoute(
+            onBack = { showShare = false },
+            doctorReportText = if (reportHome.latestWeight != null) {
+                com.xcwk.scalehub.feature.report.buildDoctorReport(
+                    com.xcwk.scalehub.feature.report.DoctorReportInput(
+                        bmi = reportHome.bmi,
+                        periodDays = 7,
+                        weightChangeKg = reportHome.weekChange,
+                        latestWeightKg = reportHome.latestWeight,
+                        latestFatPercent = reportHome.latestFat.takeIf { reportHome.latestFatShown },
+                    ),
+                )
+            } else {
+                null
+            },
+        )
         return
     }
 
@@ -110,10 +134,6 @@ fun MeasureScreen(
     var layerName by rememberSaveable { mutableStateOf(MeasureHomeLayer.Home.name) }
     val closeLayer: () -> Unit = { layerName = MeasureHomeLayer.Home.name }
     val openLayer: (MeasureHomeLayer) -> Unit = { layerName = it.name }
-
-    val state by vm.state.collectAsStateWithLifecycle()
-    val unitPrefs by vm.unitPrefs.collectAsStateWithLifecycle()
-    val home = state.home
 
     when (layerName) {
         MeasureHomeLayer.SyncCenter.name -> {
@@ -155,7 +175,46 @@ fun MeasureScreen(
                 onChange = { vm.onIntent(MeasureIntent.WeightChanged(it)) },
                 onSave = { vm.onIntent(MeasureIntent.Save) },
                 onScale = onOpenScale,
+                onSwitchMember = onOpenMine,
                 unitPrefs = unitPrefs,
+            )
+        }
+
+        // 成就条（T-069）：只有真实存在过测量记录才出现；断档归零，不造数
+        if (state.recent.isNotEmpty()) {
+            AchievementStrip(
+                streakDays = remember(state.recent) {
+                    currentStreakDays(state.recent.map { it.time }, todayEpochDay())
+                },
+                // 里程碑需要「起始体重」，HomeGoalState 目前不提供；不猜，留空
+                milestone = null,
+                modifier = Modifier.padding(top = QkSpacing.CardGap),
+            )
+        }
+
+        // 测量小贴士（T-052）：横向可滑，内容与设备页同源
+        MeasurementTipsCarousel(
+            modifier = Modifier.padding(top = QkSpacing.CardGap),
+            onOpenHelp = { showHelp = true },
+        )
+
+        if (showHelp) {
+            AlertDialog(
+                onDismissRequest = { showHelp = false },
+                title = { Text("测量帮助") },
+                text = {
+                    Text(
+                        buildString {
+                            appendLine("一次完整测量：")
+                            MEASUREMENT_TIPS.forEachIndexed { i, tip -> appendLine("${i + 1}. $tip") }
+                            appendLine()
+                            append("只想记体重也可以：在本页手动输入后保存，体脂等数据可下次连秤时补齐。")
+                        },
+                    )
+                },
+                confirmButton = {
+                    TextButton(onClick = { showHelp = false }) { Text("知道了") }
+                },
             )
         }
 
@@ -612,6 +671,21 @@ private fun GoalCard(home: HomeGoalState, modifier: Modifier = Modifier, onSetTa
             style = MaterialTheme.typography.titleLarge,
             color = QkColor.Fg,
         )
+        // 目标进度曲线（T-066）：只有真实序列 + 有效目标才画，不画假线
+        val curve = goalCurvePercents(home.weekWeights, home.targetWeight)
+        if (curve.size >= 2) {
+            val delta = goalCurveDeltaPercents(curve)
+            Text(
+                text = "近 ${curve.size} 次目标进度" + (delta?.let { if (it >= 0) " +${it}%" else " ${it}%" } ?: ""),
+                modifier = Modifier.padding(top = QkSpacing.Sm),
+                style = MaterialTheme.typography.labelSmall,
+                color = QkColor.Muted,
+            )
+            GoalCurveBars(
+                percents = curve,
+                modifier = Modifier.padding(top = 6.dp),
+            )
+        }
         QkButton(
             text = "设置目标",
             modifier = Modifier.padding(top = 10.dp),
@@ -847,11 +921,19 @@ private fun ManualWeightCard(
     onChange: (String) -> Unit,
     onSave: () -> Unit,
     onScale: () -> Unit,
+    onSwitchMember: () -> Unit,
     unitPrefs: com.xcwk.scalehub.domain.model.UserUnitPreferences,
 ) {
     val typed = value.isNotBlank()
     QkCard(modifier = Modifier.padding(top = QkSpacing.CardGap), padding = QkSpacing.CardPad) {
-        Text("手动记录体重", style = MaterialTheme.typography.titleMedium, color = QkColor.Fg)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Text("手动记录体重", style = MaterialTheme.typography.titleMedium, color = QkColor.Fg)
+            QkButton(text = "切换成员", style = QkButtonStyle.Ghost, onClick = onSwitchMember)
+        }
         Row(
             modifier = Modifier.padding(top = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -871,6 +953,13 @@ private fun ManualWeightCard(
                 onClick = { if (typed) onSave() else onScale() },
             )
         }
+        // 只记体重是合法路径：不逼用户为了"完整"去编造体脂
+        Text(
+            text = "只记体重也可以，体脂等数据可下次连秤补齐",
+            modifier = Modifier.padding(top = 6.dp),
+            style = MaterialTheme.typography.labelSmall,
+            color = QkColor.Muted,
+        )
     }
 }
 

@@ -49,6 +49,10 @@ def _env(root: Path) -> Path:
     _write(repo / "scripts/governance/gov-board-reconcile.sh", "#!/usr/bin/env bash\nexit 0\n", 0o755)
     _write(repo / "scripts/governance/gov-board-sync.sh", "#!/usr/bin/env bash\nexit 0\n", 0o755)
     _write(repo / "scripts/governance/gov-validate.sh", "#!/usr/bin/env bash\nexit 0\n", 0o755)
+    # 证据消费（DEC-078）：队列会调用它；本 fixture 的提交无 Task trailer，应直接放行
+    _write(repo / "scripts/governance/gov-evidence-check.sh",
+           (ROOT_P / "scripts" / "governance" / "gov-evidence-check.sh").read_text(encoding="utf-8"),
+           0o755)
     _write(repo / "scripts/session/ses-worktree.sh", "#!/usr/bin/env bash\nexit 0\n", 0o755)
     _write(repo / "scripts/session/ses-claim-staged.sh", "#!/usr/bin/env bash\nexit 0\n", 0o755)
 

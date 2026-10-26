@@ -173,4 +173,22 @@ if [ -n "$MISSING" ]; then
     echo "  请重新安装: bash scripts/bootstrap/bs-install-hooks.sh"
 fi
 
+# ---------- 7. 合规卡（DEC-075/076）----------
+# 其他 AI 不一定读 AGENTS.md，但几乎都会跑 session-begin；把"现在该做什么"
+# 印在这里，比写在任何文档里都靠前（时机：开工之前）。
+echo ""
+echo "=== 合规卡 ==="
+ROLE="$(bash "$ROOT/scripts/workflow/wf-role.sh" current 2>/dev/null || true)"
+PROFILE="$(bash "$ROOT/scripts/governance/gov-profile.sh" resolve 2>/dev/null || true)"
+echo "  AI 角色: ${ROLE:-未声明}"
+echo "  任务画像: ${PROFILE:-mixed}"
+if [ -f "$ROOT/scripts/governance/gov-hook-doctor.sh" ]; then
+    HOOK_LINE="$(bash "$ROOT/scripts/governance/gov-hook-doctor.sh" 2>&1 | head -1 || true)"
+    echo "  钩子: ${HOOK_LINE}"
+fi
+if [ -z "$ROLE" ]; then
+    echo "  下一步: bash scripts/workflow/wf-role.sh claim dev|gov|docs|review"
+fi
+echo "  然后:   bash scripts/workflow/wf-autopilot.sh status"
+
 exit 0

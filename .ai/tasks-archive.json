@@ -1,0 +1,392 @@
+{
+  "version": 1,
+  "note": "已合并/归档任务。只做追溯，不参与 ready 队列与门禁。",
+  "tasks": [
+    {
+      "id": "T-026",
+      "title": "统一错误模型 + 元数据跨模块可见性修复",
+      "status": "completed",
+      "detail": "DEC-041: domain 改 Android Library 根治元数据不可见，引入 AppError/AppResult 统一错误模型，基建层与应用层全链路落地",
+      "acceptance": {},
+      "group_id": "platform",
+      "archived": true,
+      "target_files": [],
+      "notes": "；统一错误模型：无法从现有代码指认交付文件，标记归档"
+    },
+    {
+      "id": "T-028",
+      "title": "报告分析 tab",
+      "status": "completed",
+      "detail": "DEC-043-A: 成分/体型矩阵/目标达成/折线/插画",
+      "acceptance": {},
+      "group_id": "report",
+      "merged_into": "T-046",
+      "notes": "；重复建单，合并到 T-046；状态词统一为 completed"
+    },
+    {
+      "id": "T-029",
+      "title": "AI 结构化卡片",
+      "status": "completed",
+      "detail": "DEC-043-B: 饮食卡入库/运动卡/指标解读卡/拍照入口/欢迎示例",
+      "acceptance": {},
+      "group_id": "ai",
+      "merged_into": "T-047",
+      "notes": "；重复建单，合并到 T-047；状态词统一为 completed"
+    },
+    {
+      "id": "T-030",
+      "title": "单位设置",
+      "status": "completed",
+      "detail": "DEC-043-C: kg/斤/磅、cm/in 全局换算层",
+      "acceptance": {},
+      "group_id": "settings",
+      "merged_into": "T-042",
+      "notes": "；重复建单，合并到 T-042；状态词统一为 completed"
+    },
+    {
+      "id": "T-031",
+      "title": "习惯管理页",
+      "status": "completed",
+      "detail": "DEC-043-D: 定义/周期/次数/提醒/打卡列表",
+      "acceptance": {},
+      "group_id": "habit",
+      "merged_into": "T-043",
+      "notes": "；重复建单，合并到 T-043；状态词统一为 completed"
+    },
+    {
+      "id": "T-032",
+      "title": "趋势扩展指标",
+      "status": "completed",
+      "detail": "DEC-043-E: 骨骼肌/水分/基础代谢/肌肉/蛋白质 + 聚合模式 + 自定义范围",
+      "acceptance": {},
+      "group_id": "trend",
+      "merged_into": "T-048",
+      "notes": "；重复建单，合并到 T-048；状态词统一为 completed"
+    },
+    {
+      "id": "T-033",
+      "title": "新手引导三步",
+      "status": "completed",
+      "detail": "DEC-043-F: 资料→单位→绑秤",
+      "acceptance": {},
+      "group_id": "guide",
+      "merged_into": "T-045",
+      "notes": "；重复建单，合并到 T-045；状态词统一为 completed"
+    },
+    {
+      "id": "T-034",
+      "title": "密码登录+设置密码",
+      "status": "completed",
+      "detail": "DEC-043-G: 账号安全双通道",
+      "acceptance": {},
+      "group_id": "auth",
+      "merged_into": "T-044",
+      "notes": "；重复建单，合并到 T-044；状态词统一为 completed"
+    },
+    {
+      "id": "T-035",
+      "title": "历史双记录对比",
+      "status": "completed",
+      "detail": "DEC-043-H: 两条记录对比",
+      "acceptance": {},
+      "group_id": "history",
+      "merged_into": "T-049",
+      "notes": "；重复建单，合并到 T-049；状态词统一为 completed"
+    },
+    {
+      "id": "T-036",
+      "title": "设置扩展",
+      "status": "completed",
+      "detail": "DEC-043-I: 语音播报/隐私设置页/同步状态详情页",
+      "acceptance": {},
+      "group_id": "settings",
+      "merged_into": "T-050",
+      "notes": "；重复建单，合并到 T-050；状态词统一为 completed"
+    },
+    {
+      "id": "T-037",
+      "title": "首页体验",
+      "status": "completed",
+      "detail": "DEC-043-J: 成员快捷切换弹层+离线横幅+卡片管理",
+      "acceptance": {},
+      "group_id": "home",
+      "merged_into": "T-051",
+      "notes": "；重复建单，合并到 T-051；状态词统一为 completed"
+    },
+    {
+      "id": "T-038",
+      "title": "测量页扩展",
+      "status": "completed",
+      "detail": "DEC-043-K: 测量中切换用户/帮助弹窗/跳过提示/小贴士",
+      "acceptance": {},
+      "group_id": "measure",
+      "merged_into": "T-052",
+      "notes": "；重复建单，合并到 T-052；状态词统一为 completed"
+    },
+    {
+      "id": "T-039",
+      "title": "设备页扩展",
+      "status": "completed",
+      "detail": "DEC-043-L: 测量小贴士卡/最近测量时间/开始称重快捷按钮",
+      "acceptance": {},
+      "group_id": "device",
+      "merged_into": "T-053",
+      "notes": "；重复建单，合并到 T-053；状态词统一为 completed"
+    },
+    {
+      "id": "T-040",
+      "title": "我的资料扩展",
+      "status": "completed",
+      "detail": "DEC-043-M: 个人简介/所在地/展示标签",
+      "acceptance": {},
+      "group_id": "mine",
+      "merged_into": "T-054",
+      "notes": "；重复建单，合并到 T-054；状态词统一为 completed"
+    },
+    {
+      "id": "T-041",
+      "title": "我的档案页扩展",
+      "status": "completed",
+      "detail": "DEC-043-N: 围度/内脏脂肪/目标进度条",
+      "acceptance": {},
+      "group_id": "mine",
+      "merged_into": "T-055",
+      "notes": "；重复建单，合并到 T-055；状态词统一为 completed"
+    },
+    {
+      "id": "T-056",
+      "description": "P1-15: AI 页结构化卡片（饮食卡解析入库/运动卡/指标解读卡/拍照入口/欢迎示例）",
+      "why": "",
+      "status": "completed",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-21T10:29:23Z",
+      "updated_at": "2026-10-21T10:29:23Z",
+      "notes": "；AC 待人类定义：与 T-047 描述逐字相同（饮食卡/运动卡/指标解读卡/拍照入口/欢迎示例），原型库同样无对应 view，代码侧 ai/AiCards.kt 已实现。两条任务重复，必须由人类合并或关闭其一，否则会造成重复认领。；重复任务，已合并到 T-047（描述逐字相同，AiCards.kt 同一实现）；重复任务，合并到 T-047：描述与 T-047 几乎逐字相同（AI 结构化卡片），属重复建单；重复建单，合并到 T-047",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/ai/AiCards.kt"
+      ],
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "本任务无可对齐的交互原型 view（原库中无对应屏），验收只能依赖行为级断言",
+          "目标文件：AiCards.kt（已存在则视为扩展而非从零新建）",
+          "同模块已有屏的既有行为不回退"
+        ]
+      },
+      "merged_into": "T-047",
+      "group_id": "ai"
+    },
+    {
+      "id": "T-065",
+      "description": "P1: 周期对比分析 — 本周vs上周、本月vs上月对比视图",
+      "why": "page-list-TODO §16 P1",
+      "status": "completed",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-23T03:44:35Z",
+      "updated_at": "2026-10-23T03:44:35Z",
+      "notes": "；AC 待人类定义：「本周 vs 上周 / 本月 vs 上月」周期对比无对应 view；05-history-trend.html v-compare 是两条记录对比，15-states-errors.html v-multimetric 是 30 天双指标趋势，均非周期对比。；审计确认已实现：TrendBlockUi.periodAvgText / prevPeriodAvgText + TrendScreen「较上期」；重复任务，合并到 T-048：周期对比字段（periodAvgText/较上期）在 T-048 交付时已实现；重复建单，合并到 T-048",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/trend/TrendExtensions.kt"
+      ],
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "本任务无可对齐的交互原型 view（原库中无对应屏），验收只能依赖行为级断言",
+          "目标文件：TrendExtensions.kt（已存在则视为扩展而非从零新建）",
+          "同模块已有屏的既有行为不回退"
+        ]
+      },
+      "merged_into": "T-048",
+      "group_id": "trend"
+    },
+    {
+      "id": "T-082",
+      "description": "trend: 指标详情页（体重/BMI/肌肉/水分/内脏/代谢/评分/骨骼）",
+      "why": "原型17全部9屏 · 新增 trend/MetricDetailScreen.kt",
+      "status": "completed",
+      "assigned_to": "ai",
+      "dec": "",
+      "created_at": "2026-10-23T03:51:54Z",
+      "updated_at": "2026-10-23T14:35:00Z",
+      "notes": "代码与单测已随 PR #36 (feat/wave1-history-trend, merge 754c37a) 合入 master：HistoryDetail.kt/RecordEdit.kt/MetricDetailScreen.kt + Wave1HistoryTrendTest 存在；本提交同步任务板状态；重复任务，合并到 T-055：同一 MetricDetailScreen；T-055 已覆盖指标详情扩展；重复建单，合并到 T-055",
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/17-metric-details.html",
+        "views": [
+          "v-list",
+          "v-weight",
+          "v-bmi",
+          "v-muscle",
+          "v-water",
+          "v-visceral",
+          "v-metabolism",
+          "v-score",
+          "v-bone"
+        ]
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/trend/MetricDetailScreen.kt"
+      ],
+      "wave": 1,
+      "module": "trend",
+      "ac_refs": [
+        "AC-HT4 趋势中间缺一天时不出现跨空洞插值线",
+        "AC-HT5 仅 1 条测量时为 InsufficientData，不画假趋势"
+      ],
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a8131aad6f95b74dcf436",
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "历史中存在测量记录，含趋势中间缺失日期的场景",
+          "仅 1 条测量记录的场景"
+        ],
+        "when": "进入任一指标（体重/BMI/肌肉/水分/内脏/代谢/评分/骨骼）的趋势详情页",
+        "then": [
+          "趋势中间缺一天时不出现跨空洞的插值连线（AC-HT4 原文）",
+          "仅 1 条测量时判定为 InsufficientData，不画假趋势（AC-HT5 原文）",
+          "无数据时按空态呈现，不渲染伪造数值（AC-HT1 原文，复用 QkEmptyState）"
+        ],
+        "forbidden": [
+          "缺失日期跨空洞插值成连续曲线",
+          "数据不足时编造趋势走向或斜率"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-082 --strict",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "definition_of_done": [
+          "MetricDetailScreen.kt 存在且可编译",
+          "原型 9 个 view（v-list/v-weight/v-bmi/v-muscle/v-water/v-visceral/v_metabolism/v-score/v-bone）覆盖",
+          "无硬编码颜色与间距（--strict 通过）",
+          "缺日不插值与 InsufficientData 判定有 JVM 单测覆盖（这是 AC-HT4/HT5 的可判定部分）",
+          ":app:testDebugUnitTest 通过"
+        ],
+        "open_questions": []
+      },
+      "merged_into": "T-055",
+      "group_id": "mine"
+    },
+    {
+      "id": "T-091",
+      "description": "settings: 语言与外观设置",
+      "why": "原型24 v-language/v-appearance · 新增 settings/LanguageSettings.kt settings/AppearanceSettings.kt",
+      "status": "completed",
+      "assigned_to": "ai",
+      "dec": "",
+      "created_at": "2026-10-23T03:52:35Z",
+      "updated_at": "2026-10-24T02:35:00Z",
+      "notes": "已交付并合入 master（PR #46，2026-10-24）；local-ci 6/6 + JVM 单测 + gov-prototype-verify --strict 证据见各 PR；外观/语言两屏已在 kill-fake-switches 中移除，交付物不再存在；外观/语言两屏已在 kill-fake-switches 中移除",
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/24-remaining-gaps.html",
+        "views": [
+          "v-language",
+          "v-appearance"
+        ]
+      },
+      "target_files": [],
+      "wave": 1,
+      "module": "settings",
+      "ac_refs": [
+        "AC-S5 语言与外观设置"
+      ],
+      "prd_ref": "https://app.notion.com/p/40241bd50f8a81978bd4c99ada828be1",
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "用户已进入设置模块",
+          "原型24 定义 v-language 与 v-appearance 两个 view"
+        ],
+        "when": "打开语言设置或外观设置页并切换选项",
+        "then": [
+          "语言页列出简体中文/繁體中文/English 且当前项有选中标识；页底展示「切换语言后需重启应用生效」与「部分翻译可能不完整」两条提示（v-language 原文）",
+          "外观页提供主题模式三选：跟随系统/浅色/深色，当前项有选中标识（v-appearance 原文）",
+          "选择结果通过 ViewModel 意图上报，Screen 零业务逻辑"
+        ],
+        "forbidden": [
+          "硬编码颜色/间距（必须用 Qk token）",
+          "改 settings 模块既有文件（本任务只新建文件）",
+          "编造 AC 编号"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-091 --strict",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "definition_of_done": [
+          "LanguageSettings.kt 与 AppearanceSettings.kt 存在且可编译",
+          "原型 view 布局与文案一致",
+          "单测 + gov-prototype-verify --strict 通过"
+        ],
+        "open_questions": []
+      },
+      "group_id": "settings",
+      "archived": true
+    },
+    {
+      "id": "T-094",
+      "description": "sync: 数据冲突处理（离线切换/多设备/同步冲突）",
+      "why": "原型22全部7屏 · 新增 sync/DataConflict.kt",
+      "status": "completed",
+      "assigned_to": "",
+      "dec": "",
+      "created_at": "2026-10-23T03:52:35Z",
+      "updated_at": "2026-10-23T03:52:35Z",
+      "notes": "\n已由合并队列按分支名回填（DEC-071）；重复任务，合并到 T-057：同一 DataConflict.kt；T-057 已覆盖冲突处理；重复建单，合并到 T-057",
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/22-data-conflict.html",
+        "views": [
+          "v-offline-switch",
+          "v-offline-done",
+          "v-multi-device",
+          "v-multi-done",
+          "v-sync-conflict",
+          "v-sync-done"
+        ]
+      },
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/sync/DataConflict.kt"
+      ],
+      "wave": 1,
+      "module": "sync",
+      "ac_refs": [
+        "AC-N3 离线/多设备/同步冲突处理"
+      ],
+      "prd_ref": "https://app.notion.com/p/40141bd50f8a8134bec9f5290e1bd659",
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "原型 22-data-conflict.html 定义 v-offline-switch / v-offline-done / v-multi-device / v-multi-done / v-sync-conflict / v-sync-done 共 6 个 view",
+          "新增/扩展 DataConflict.kt；同模块已有屏的既有行为不回退"
+        ],
+        "when": [
+          "用户沿原型流程操作：进入 v-offline-switch；进入 v-offline-done；进入 v-multi-device；进入 v-multi-done；依次覆盖其余 2 个 view"
+        ],
+        "then": [
+          "v-offline-switch 展示：「离线测量 · 切换成员「」+「检测到「」+「2 条未同步「」+「的离线测量记录，「」+「当前要切换到「妈妈」。「」+「未同步记录（属于 林悦）「」+「10/21 07:30 · 62.4 kg「」+「待同步「」+「10/20 07:28 · 62.7 kg「」+「待同步」（原型 v-offline-switch 逐字文案）",
+          "v-offline-done 展示：「已切换「」+「当前查看：妈妈「」+「林悦的 2 条离线记录已保留原归属「」+「归属确认「」+「林悦的 2 条离线记录 → 仍归林悦，不混入妈妈「」+「妈妈的历史记录不受影响「」+「联网后林悦的记录将自动同步到云端「」+「每次切换都会检查未同步记录，确保归属正确。「」+「返回场景列表」（原型 v-offline-done 逐字文案）",
+          "v-multi-device 展示：「多设备新记录「」+「检测到另一台设备也产生了新测量记录，「」+「需要合并到你的账号。「」+「冲突记录（同一时间点，两端不同）「」+「10/21 07:30 · 62.4 kg「」+「本机 · 已同步「」+「本地「」+「10/21 07:32 · 62.5 kg「」+「iPhone 15 Pro · 未同步「」+「远端」（原型 v-multi-device 逐字文案）",
+          "v-multi-done 展示：「合并完成「」+「记录已合并「」+「根据你的选择更新了本地与云端「」+「合并结果「」+「本机记录已同步到云端「」+「远端记录已按你的选择处理「」+「趋势图已更新，无重复数据「」+「合并操作可撤销，7 天内可在「数据管理」恢复。「」+「返回场景列表」（原型 v-multi-done 逐字文案）",
+          "v-sync-conflict 展示：「同步冲突「」+「同一条记录在「」+「本地和云端「」+「都被修改过，「」+「请选择保留哪个版本。「」+「冲突详情 · 10/21 07:30 测量记录「」+「本地版本「」+「备注：晨起空腹 · 修改于 10:30「」+「本地「」+「云端版本」（原型 v-sync-conflict 逐字文案）",
+          "v-sync-done 展示：「冲突已解决「」+「冲突已解决「」+「保留的版本已覆盖另一端「」+「解决结果「」+「备注已统一为你选择的版本「」+「测量数值保持不变（62.4 kg）「」+「冲突解决记录已保存，可追溯「」+「下次遇到同类冲突会记住你的偏好，但每次仍会确认。「」+「返回场景列表「」+「轻衡 · 数据冲突处理交互原型 · 7 屏（补 page-list-TODO §13 缺口）」（原型 v-sync-done 逐字文案）"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-094 --strict",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "forbidden": [
+          "静默改 Room schema / 黄金向量",
+          "删除或放宽既有测试以凑绿",
+          "硬编码 Color(0x…) 与 NN.dp（走 Qk 组件与 token）"
+        ],
+        "definition_of_done": [
+          "全部 6 view 文案有单测逐字断言",
+          "gov-prototype-verify.py T-094 --strict 通过",
+          "local-ci PASS（车道按变更面自动选择）",
+          "真机/模拟器走通流程（人类；AI 不伪称完成）"
+        ]
+      },
+      "merged_into": "T-057",
+      "group_id": "sync"
+    }
+  ]
+}

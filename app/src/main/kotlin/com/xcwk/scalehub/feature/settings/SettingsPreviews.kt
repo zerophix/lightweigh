@@ -28,24 +28,6 @@ private fun SettingsRoutePreviewDefault() {
     }
 }
 
-/** 外观设置 · 默认态。 */
-@Preview(name = "外观设置 · 默认", showBackground = true, widthDp = 393, heightDp = 852)
-@Composable
-private fun AppearanceSettingsScreenPreviewDefault() {
-    QkTheme {
-        AppearanceSettingsScreen(state = AppearanceSettingsUiState(), onIntent = {})
-    }
-}
-
-/** 语言设置 · 默认态。 */
-@Preview(name = "语言设置 · 默认", showBackground = true, widthDp = 393, heightDp = 852)
-@Composable
-private fun LanguageSettingsScreenPreviewDefault() {
-    QkTheme {
-        LanguageSettingsScreen(state = LanguageSettingsUiState(), onIntent = {})
-    }
-}
-
 /** 数据恢复 · 默认态。 */
 @Preview(name = "数据恢复 · 默认", showBackground = true, widthDp = 393, heightDp = 852)
 @Composable
