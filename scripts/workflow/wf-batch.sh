@@ -48,6 +48,7 @@ for t in tasks:
     by_batch[t.get("batch") or "B-untracked"].append(t)
 
 cmd = sys.argv[1] if len(sys.argv) > 1 else "list"
+batches = {b["id"]: b for b in board.get("batches", [])}
 
 TEST_PLAN = {
     "dev": ["./gradlew :app:testDebugUnitTest", "bash scripts/governance/gov-affected.sh --run"],
@@ -62,6 +63,20 @@ def summarize(items):
     done = sum(1 for t in items if t.get("status") in ("completed", "done"))
     roles = Counter(t.get("role", "dev") for t in items)
     return total, done, roles
+
+if cmd == "create":
+    if len(sys.argv) < 3:
+        print("用法: wf-batch.sh create <batch-id> [标题]", file=sys.stderr)
+        sys.exit(2)
+    bid = sys.argv[2]
+    title = sys.argv[3] if len(sys.argv) > 3 else bid
+    if bid in batches:
+        print(f"已存在: {bid}", file=sys.stderr)
+        sys.exit(1)
+    board.setdefault("batches", []).append({"id": bid, "title": title, "tasks": []})
+    json.dump(board, open(os.environ["BOARD"], "w", encoding="utf-8"), indent=2, ensure_ascii=False)
+    print(f"创建批次 {bid}（{title}）")
+    sys.exit(0)
 
 if cmd == "list":
     for bid in sorted(by_batch):
@@ -115,12 +130,30 @@ if cmd == "finish":
     if pending:
         print(f"拒绝收工: {len(pending)} 条未完成 -> {', '.join(t['id'] for t in pending[:8])}", file=sys.stderr)
         sys.exit(1)
-    print(f"批次 {bid} 全部完成")
+    plan = []
+    for role in roles:
+        for step in TEST_PLAN.get(role, []):
+            if step not in plan:
+                plan.append(step)
+    print(f"批次 {bid} 全部完成，验证 {len(plan)} 步")
     if os.environ.get("WF_BATCH_DRY") == "1":
+        for step in plan:
+            print("  [dry] " + step)
         print("[dry] 将恢复 mode=full")
-    else:
-        os.system("bash scripts/dev/mode.sh full >/dev/null")
-        print("已恢复 mode=full")
+        sys.exit(0)
+    failed = 0
+    for step in plan:
+        print(f"  → {step}")
+        rc = os.system(step)
+        if rc != 0:
+            print(f"  ✗ 失败: {step}", file=sys.stderr)
+            failed = 1
+            break
+    if failed:
+        print("验证未通过，保持当前模式（不恢复 full）", file=sys.stderr)
+        sys.exit(1)
+    os.system("bash scripts/dev/mode.sh full >/dev/null")
+    print("验证通过，已恢复 mode=full")
     sys.exit(0)
 
 print(f"未知命令: {cmd}", file=sys.stderr)

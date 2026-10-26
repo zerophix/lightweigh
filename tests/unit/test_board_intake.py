@@ -33,7 +33,7 @@ def test_rejects_near_duplicate(tmp_path):
     run = _add(
         root,
         "AI 结构化卡片（饮食卡解析入库/运动卡/指标解读卡/拍照入口/欢迎示例）",
-        "--group", "ai",
+        "--group", "ai", "--source", "gap", "--batch", "B-w1-screens",
     )
     assert run.returncode == 1
     assert "相似度" in run.stderr
@@ -45,7 +45,7 @@ def test_accepts_with_declared_difference(tmp_path):
     run = _add(
         root,
         "AI 结构化卡片（饮食卡解析入库/运动卡/指标解读卡/拍照入口/欢迎示例）",
-        "--group", "ai",
+        "--group", "ai", "--source", "gap", "--batch", "B-w1-screens",
         "--distinct", "本次只做拍照入口的裁剪与压缩",
     )
     assert run.returncode == 0, run.stderr
@@ -57,6 +57,21 @@ def test_accepts_with_declared_difference(tmp_path):
 
 def test_unknown_group_is_rejected(tmp_path):
     root = _sandbox(tmp_path)
-    run = _add(root, "某个全新能力", "--group", "no-such-group")
+    run = _add(root, "某个全新能力", "--group", "no-such-group",
+               "--source", "gap", "--batch", "B-w1-screens")
     assert run.returncode == 1
     assert "未知分组" in run.stderr
+
+def test_missing_source_is_rejected(tmp_path):
+    root = _sandbox(tmp_path)
+    run = _add(root, "没有来源的任务", "--group", "ai", "--batch", "B-w1-screens")
+    assert run.returncode == 1
+    assert "--source" in run.stderr
+
+
+def test_dec_source_requires_ref(tmp_path):
+    root = _sandbox(tmp_path)
+    run = _add(root, "决策衍生但没写决策号", "--group", "ai",
+               "--source", "dec", "--batch", "B-w1-screens")
+    assert run.returncode == 1
+    assert "source-ref" in run.stderr

@@ -85,9 +85,12 @@ for t in active:
 # 3a) 批次 / 角色 / 来源
 ROLES = {"dev", "test", "docs", "gov", "review"}
 SOURCES = {"dec", "prototype", "incident", "gap", "review"}
+batch_ids = {b["id"] for b in board.get("batches", [])}
 for t in active:
     if not t.get("batch"):
         errors.append(f"{t['id']} 缺 batch")
+    elif t["batch"] not in batch_ids:
+        errors.append(f"{t['id']} 的 batch={t['batch']} 不在 batches 索引")
     if t.get("role") not in ROLES:
         errors.append(f"{t['id']} role={t.get('role')} 不在 {sorted(ROLES)}")
     if t.get("source") not in SOURCES:

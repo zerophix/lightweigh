@@ -20,6 +20,7 @@ def _sandbox(tmp_path):
     data = {
         "version": 1,
         "groups": [{"id": "demo", "title": "演示组", "tasks": []}],
+        "batches": [{"id": "B-demo", "title": "演示批次", "tasks": []}],
         "tasks": [
             {"id": "T-001", "status": "completed", "description": "底座", "group_id": "demo",
              "target_files": ["a.kt"], "acceptance": {"status": "ready", "verify_commands": ["true"]}},
@@ -77,7 +78,8 @@ def test_checkpoint_appends_progress(tmp_path):
 
 def test_add_with_dependency(tmp_path):
     root = _sandbox(tmp_path)
-    out = _run(root, "add", "第四步：联调", "--group", "demo", "--depends-on", "T-003")
+    out = _run(root, "add", "第四步：联调", "--group", "demo",
+               "--source", "gap", "--batch", "B-demo", "--depends-on", "T-003")
     assert out.returncode == 0, out.stderr
     board = json.loads((root / ".ai" / "tasks.json").read_text(encoding="utf-8"))
     created = [t for t in board["tasks"] if t["status"] == "pending" and "联调" in t["description"]][0]

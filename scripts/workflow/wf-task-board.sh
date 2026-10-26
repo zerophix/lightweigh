@@ -78,7 +78,7 @@ PYEOF
     ;;
 
   add)
-    DESC=""; WHY=""; GROUP=""; DISTINCT=""; SUPERSEDES=""; DEPENDS=""; PARENT=""; PRIORITY="P2"
+    DESC=""; WHY=""; GROUP=""; DISTINCT=""; SUPERSEDES=""; DEPENDS=""; PARENT=""; PRIORITY="P2"; SOURCE=""; SOURCE_REF=""; BATCH=""; FILES=""; ROLE=""
     shift || true
     while [ $# -gt 0 ]; do
       case "$1" in
@@ -88,6 +88,11 @@ PYEOF
         --depends-on) DEPENDS="${2:-}"; shift 2 ;;
         --parent) PARENT="${2:-}"; shift 2 ;;
         --priority) PRIORITY="${2:-P2}"; shift 2 ;;
+        --source) SOURCE="${2:-}"; shift 2 ;;
+        --source-ref) SOURCE_REF="${2:-}"; shift 2 ;;
+        --batch) BATCH="${2:-}"; shift 2 ;;
+        --files) FILES="${2:-}"; shift 2 ;;
+        --role) ROLE="${2:-}"; shift 2 ;;
         -*) echo "未知参数: $1" >&2; exit 2 ;;
         *)
           if [ -z "$DESC" ]; then DESC="$1"
@@ -96,14 +101,19 @@ PYEOF
           shift ;;
       esac
     done
-    if [ -z "$DESC" ] || [ -z "$GROUP" ]; then
-      echo '用法: task-board.sh add "描述" ["理由"] --group <id> [--distinct "与既有任务的差异" | --supersedes T-xxx]' >&2
+    if [ -z "$DESC" ] || [ -z "$GROUP" ] || [ -z "$SOURCE" ] || [ -z "$BATCH" ]; then
+      echo '用法: task-board.sh add "描述" ["理由"] --group <id> --source <dec|prototype|incident|gap|review> --batch <B-xxx>' >&2
+      echo '       [--source-ref DEC-xxx] [--files a.kt,b.kt] [--role dev|test|docs|gov|review]' >&2
+      echo '       [--depends-on T-xxx] [--parent T-xxx] [--priority P0/P1/P2]' >&2
+      echo '       [--distinct "与既有任务的差异" | --supersedes T-xxx]' >&2
       echo '组见 .ai/tasks.json 的 groups；重复建单会被拒绝。' >&2
       exit 1
     fi
     TASKS_FILE="$TASKS_FILE" NOW="$NOW" ADD_DESC="$DESC" ADD_WHY="$WHY" \
     ADD_GROUP="$GROUP" ADD_DISTINCT="$DISTINCT" ADD_SUPERSEDES="$SUPERSEDES" \
     ADD_DEPENDS="$DEPENDS" ADD_PARENT="$PARENT" ADD_PRIORITY="$PRIORITY" \
+    ADD_SOURCE="$SOURCE" ADD_SOURCE_REF="$SOURCE_REF" ADD_BATCH="$BATCH" \
+    ADD_FILES="$FILES" ADD_ROLE="$ROLE" \
     python3 - <<'PYEOF'
 import json, os, re, sys
 
@@ -112,6 +122,50 @@ with open(path, encoding="utf-8") as f:
     d = json.load(f)
 
 groups = {g["id"]: g for g in d.get("groups", [])}
+batches = {b["id"] for b in d.get("batches", [])}
+SOURCE_SET = {"dec", "prototype", "incident", "gap", "review"}
+ROLE_SET = {"dev", "test", "docs", "gov", "review"}
+source = os.environ.get("ADD_SOURCE", "")
+source_ref = os.environ.get("ADD_SOURCE_REF", "")
+batch = os.environ.get("ADD_BATCH", "")
+files = [x.strip() for x in os.environ.get("ADD_FILES", "").split(",") if x.strip()]
+explicit_role = os.environ.get("ADD_ROLE", "")
+
+if source not in SOURCE_SET:
+    print(f"拒绝: --source 必须是 {sorted(SOURCE_SET)}", file=sys.stderr)
+    sys.exit(1)
+if source in ("dec", "review") and not source_ref:
+    print(f"拒绝: source={source} 必须提供 --source-ref", file=sys.stderr)
+    sys.exit(1)
+if batch not in batches:
+    print(f"拒绝: 未知批次 {batch}（先 wf-batch.sh create {batch}）", file=sys.stderr)
+    sys.exit(1)
+if explicit_role and explicit_role not in ROLE_SET:
+    print(f"拒绝: --role 必须是 {sorted(ROLE_SET)}", file=sys.stderr)
+    sys.exit(1)
+
+def infer_role(paths):
+    if not paths:
+        return "dev"
+    kinds = set()
+    for f in paths:
+        if f.startswith("scripts/") or f.startswith(".github/"):
+            kinds.add("gov")
+        elif f.startswith("tests/") or "/src/test/" in f:
+            kinds.add("test")
+        elif f.startswith("docs/") or f.endswith(".md"):
+            kinds.add("docs")
+        else:
+            kinds.add("dev")
+    if kinds == {"gov"}:
+        return "gov"
+    if kinds == {"docs"}:
+        return "docs"
+    if kinds == {"test"}:
+        return "test"
+    return "dev"
+
+role = explicit_role or infer_role(files)
 group = os.environ["ADD_GROUP"]
 if group not in groups:
     print(f"拒绝: 未知分组 {group}（可用: {', '.join(sorted(groups))}）", file=sys.stderr)
@@ -189,6 +243,11 @@ tasks.append({
     "updated_at": os.environ["NOW"],
     "notes": ("差异: " + distinct) if distinct else "",
     "priority": os.environ.get("ADD_PRIORITY", "P2"),
+    "source": source,
+    **({"source_ref": source_ref} if source_ref else {}),
+    "batch": batch,
+    "role": role,
+    "target_files": files,
     "depends_on": depends,
     **({"parent": parent} if parent else {}),
 })
