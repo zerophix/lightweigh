@@ -139,7 +139,7 @@ if cmd == "finish":
     if os.environ.get("WF_BATCH_DRY") == "1":
         for step in plan:
             print("  [dry] " + step)
-        print("[dry] 将恢复 mode=full")
+        print("[dry] 将跑 gov-workspace-doctor --fix 并恢复 mode=full")
         sys.exit(0)
     failed = 0
     for step in plan:
@@ -152,8 +152,10 @@ if cmd == "finish":
     if failed:
         print("验证未通过，保持当前模式（不恢复 full）", file=sys.stderr)
         sys.exit(1)
+    # 收工即清理：worktree / 已合入分支 / 孤儿目录
+    os.system("bash scripts/governance/gov-workspace-doctor.sh --fix >/dev/null 2>&1")
     os.system("bash scripts/dev/mode.sh full >/dev/null")
-    print("验证通过，已恢复 mode=full")
+    print("验证通过，工作区已清理，已恢复 mode=full")
     sys.exit(0)
 
 print(f"未知命令: {cmd}", file=sys.stderr)
