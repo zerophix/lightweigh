@@ -40,6 +40,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.xcwk.scalehub.application.query.HomeGoalState
+import com.xcwk.scalehub.feature.achievements.AchievementStrip
+import com.xcwk.scalehub.feature.achievements.currentStreakDays
+import com.xcwk.scalehub.feature.achievements.todayEpochDay
 import com.xcwk.scalehub.feature.sync.SYNC_CENTER_ENTRY_TITLE
 import com.xcwk.scalehub.feature.sync.SyncCenterRoute
 import com.xcwk.scalehub.feature.trend.TrendPointUi
@@ -156,6 +159,18 @@ fun MeasureScreen(
                 onSave = { vm.onIntent(MeasureIntent.Save) },
                 onScale = onOpenScale,
                 unitPrefs = unitPrefs,
+            )
+        }
+
+        // 成就条（T-069）：只有真实存在过测量记录才出现；断档归零，不造数
+        if (state.recent.isNotEmpty()) {
+            AchievementStrip(
+                streakDays = remember(state.recent) {
+                    currentStreakDays(state.recent.map { it.time }, todayEpochDay())
+                },
+                // 里程碑需要「起始体重」，HomeGoalState 目前不提供；不猜，留空
+                milestone = null,
+                modifier = Modifier.padding(top = QkSpacing.CardGap),
             )
         }
 
