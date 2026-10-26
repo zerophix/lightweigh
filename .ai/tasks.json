@@ -654,7 +654,7 @@
       "dec": "",
       "created_at": "2026-10-21T10:29:23Z",
       "updated_at": "2026-10-21T10:29:23Z",
-      "notes": "；AC 待人类定义：与 T-047 描述逐字相同（饮食卡/运动卡/指标解读卡/拍照入口/欢迎示例），原型库同样无对应 view，代码侧 ai/AiCards.kt 已实现。两条任务重复，必须由人类合并或关闭其一，否则会造成重复认领。；重复任务，已合并到 T-047（描述逐字相同，AiCards.kt 同一实现）",
+      "notes": "；AC 待人类定义：与 T-047 描述逐字相同（饮食卡/运动卡/指标解读卡/拍照入口/欢迎示例），原型库同样无对应 view，代码侧 ai/AiCards.kt 已实现。两条任务重复，必须由人类合并或关闭其一，否则会造成重复认领。；重复任务，已合并到 T-047（描述逐字相同，AiCards.kt 同一实现）；重复任务，合并到 T-047：描述与 T-047 几乎逐字相同（AI 结构化卡片），属重复建单",
       "target_files": [
         "app/src/main/kotlin/com/xcwk/scalehub/feature/ai/AiCards.kt"
       ],
@@ -665,7 +665,8 @@
           "目标文件：AiCards.kt（已存在则视为扩展而非从零新建）",
           "同模块已有屏的既有行为不回退"
         ]
-      }
+      },
+      "merged_into": "T-047"
     },
     {
       "id": "T-057",
@@ -946,7 +947,7 @@
       "dec": "",
       "created_at": "2026-10-23T03:44:35Z",
       "updated_at": "2026-10-23T03:44:35Z",
-      "notes": "；AC 待人类定义：「本周 vs 上周 / 本月 vs 上月」周期对比无对应 view；05-history-trend.html v-compare 是两条记录对比，15-states-errors.html v-multimetric 是 30 天双指标趋势，均非周期对比。；审计确认已实现：TrendBlockUi.periodAvgText / prevPeriodAvgText + TrendScreen「较上期」",
+      "notes": "；AC 待人类定义：「本周 vs 上周 / 本月 vs 上月」周期对比无对应 view；05-history-trend.html v-compare 是两条记录对比，15-states-errors.html v-multimetric 是 30 天双指标趋势，均非周期对比。；审计确认已实现：TrendBlockUi.periodAvgText / prevPeriodAvgText + TrendScreen「较上期」；重复任务，合并到 T-048：周期对比字段（periodAvgText/较上期）在 T-048 交付时已实现",
       "target_files": [
         "app/src/main/kotlin/com/xcwk/scalehub/feature/trend/TrendExtensions.kt"
       ],
@@ -957,7 +958,8 @@
           "目标文件：TrendExtensions.kt（已存在则视为扩展而非从零新建）",
           "同模块已有屏的既有行为不回退"
         ]
-      }
+      },
+      "merged_into": "T-048"
     },
     {
       "id": "T-066",
@@ -1817,7 +1819,7 @@
       "dec": "",
       "created_at": "2026-10-23T03:51:54Z",
       "updated_at": "2026-10-23T14:35:00Z",
-      "notes": "代码与单测已随 PR #36 (feat/wave1-history-trend, merge 754c37a) 合入 master：HistoryDetail.kt/RecordEdit.kt/MetricDetailScreen.kt + Wave1HistoryTrendTest 存在；本提交同步任务板状态",
+      "notes": "代码与单测已随 PR #36 (feat/wave1-history-trend, merge 754c37a) 合入 master：HistoryDetail.kt/RecordEdit.kt/MetricDetailScreen.kt + Wave1HistoryTrendTest 存在；本提交同步任务板状态；重复任务，合并到 T-055：同一 MetricDetailScreen；T-055 已覆盖指标详情扩展",
       "prototype_ref": {
         "file": "design/prototypes/interactive/17-metric-details.html",
         "views": [
@@ -1870,7 +1872,8 @@
           ":app:testDebugUnitTest 通过"
         ],
         "open_questions": []
-      }
+      },
+      "merged_into": "T-055"
     },
     {
       "id": "T-083",
@@ -2591,7 +2594,7 @@
       "dec": "",
       "created_at": "2026-10-23T03:52:35Z",
       "updated_at": "2026-10-23T03:52:35Z",
-      "notes": "\n已由合并队列按分支名回填（DEC-071）",
+      "notes": "\n已由合并队列按分支名回填（DEC-071）；重复任务，合并到 T-057：同一 DataConflict.kt；T-057 已覆盖冲突处理",
       "prototype_ref": {
         "file": "design/prototypes/interactive/22-data-conflict.html",
         "views": [
@@ -2644,7 +2647,8 @@
           "local-ci PASS（车道按变更面自动选择）",
           "真机/模拟器走通流程（人类；AI 不伪称完成）"
         ]
-      }
+      },
+      "merged_into": "T-057"
     },
     {
       "id": "T-095",
