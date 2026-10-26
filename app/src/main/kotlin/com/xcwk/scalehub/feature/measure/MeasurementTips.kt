@@ -2,6 +2,8 @@ package com.xcwk.scalehub.feature.measure
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
@@ -9,9 +11,12 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.xcwk.scalehub.ui.components.QkButton
+import com.xcwk.scalehub.ui.components.QkButtonStyle
 import com.xcwk.scalehub.ui.components.QkCard
 import com.xcwk.scalehub.ui.theme.QkColor
 import com.xcwk.scalehub.ui.theme.QkSpacing
@@ -35,13 +40,25 @@ val MEASUREMENT_TIPS: List<String> = listOf(
  * 不自动轮播——自动切换会在用户阅读时跳走，属于反模式。
  */
 @Composable
-fun MeasurementTipsCarousel(modifier: Modifier = Modifier) {
+fun MeasurementTipsCarousel(
+    modifier: Modifier = Modifier,
+    onOpenHelp: (() -> Unit)? = null,
+) {
     Column(modifier = modifier) {
-        Text(
-            text = "正确测量小贴士",
-            style = MaterialTheme.typography.titleSmall,
-            color = QkColor.Fg,
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Text(
+                text = "正确测量小贴士",
+                style = MaterialTheme.typography.titleSmall,
+                color = QkColor.Fg,
+            )
+            onOpenHelp?.let {
+                QkButton(text = "测量帮助", style = QkButtonStyle.Ghost, onClick = it)
+            }
+        }
         LazyRow(
             modifier = Modifier.padding(top = QkSpacing.Sm),
             horizontalArrangement = Arrangement.spacedBy(QkSpacing.Sm),

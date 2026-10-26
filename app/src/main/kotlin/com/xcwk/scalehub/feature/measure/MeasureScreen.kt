@@ -104,6 +104,8 @@ fun MeasureScreen(
 ) {
     // 接入波：测量结果的分享 / 导出（T-078）全屏覆盖首页，返回即回首页
     var showShare by rememberSaveable { mutableStateOf(false) }
+    // 测量帮助（T-052）：汇总贴士与手动记录边界，随时可查
+    var showHelp by rememberSaveable { mutableStateOf(false) }
     if (showShare) {
         ResultShareRoute(onBack = { showShare = false })
         return
@@ -158,6 +160,7 @@ fun MeasureScreen(
                 onChange = { vm.onIntent(MeasureIntent.WeightChanged(it)) },
                 onSave = { vm.onIntent(MeasureIntent.Save) },
                 onScale = onOpenScale,
+                onSwitchMember = onOpenMine,
                 unitPrefs = unitPrefs,
             )
         }
@@ -177,7 +180,28 @@ fun MeasureScreen(
         // 测量小贴士（T-052）：横向可滑，内容与设备页同源
         MeasurementTipsCarousel(
             modifier = Modifier.padding(top = QkSpacing.CardGap),
+            onOpenHelp = { showHelp = true },
         )
+
+        if (showHelp) {
+            AlertDialog(
+                onDismissRequest = { showHelp = false },
+                title = { Text("测量帮助") },
+                text = {
+                    Text(
+                        buildString {
+                            appendLine("一次完整测量：")
+                            MEASUREMENT_TIPS.forEachIndexed { i, tip -> appendLine("${i + 1}. $tip") }
+                            appendLine()
+                            append("只想记体重也可以：在本页手动输入后保存，体脂等数据可下次连秤时补齐。")
+                        },
+                    )
+                },
+                confirmButton = {
+                    TextButton(onClick = { showHelp = false }) { Text("知道了") }
+                },
+            )
+        }
 
         // 手动记录紧挨体重卡：没接秤时这是最短的一条录入路径
         AiAskRow(onAskAi = onAskAi)
@@ -882,11 +906,19 @@ private fun ManualWeightCard(
     onChange: (String) -> Unit,
     onSave: () -> Unit,
     onScale: () -> Unit,
+    onSwitchMember: () -> Unit,
     unitPrefs: com.xcwk.scalehub.domain.model.UserUnitPreferences,
 ) {
     val typed = value.isNotBlank()
     QkCard(modifier = Modifier.padding(top = QkSpacing.CardGap), padding = QkSpacing.CardPad) {
-        Text("手动记录体重", style = MaterialTheme.typography.titleMedium, color = QkColor.Fg)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Text("手动记录体重", style = MaterialTheme.typography.titleMedium, color = QkColor.Fg)
+            QkButton(text = "切换成员", style = QkButtonStyle.Ghost, onClick = onSwitchMember)
+        }
         Row(
             modifier = Modifier.padding(top = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -906,6 +938,13 @@ private fun ManualWeightCard(
                 onClick = { if (typed) onSave() else onScale() },
             )
         }
+        // 只记体重是合法路径：不逼用户为了"完整"去编造体脂
+        Text(
+            text = "只记体重也可以，体脂等数据可下次连秤补齐",
+            modifier = Modifier.padding(top = 6.dp),
+            style = MaterialTheme.typography.labelSmall,
+            color = QkColor.Muted,
+        )
     }
 }
 
