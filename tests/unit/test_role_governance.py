@@ -45,7 +45,7 @@ def _run(root, *args, session=SESSION):
 def test_roles_definition_is_complete():
     data = json.loads((ROOT / ".ai" / "roles.json").read_text(encoding="utf-8"))
     roles = data["roles"]
-    assert set(roles) == {"dev", "gov", "docs", "review"}
+    assert set(roles) == {"dev", "test", "gov", "docs", "review"}
     for name, spec in roles.items():
         assert spec.get("profile") in {"docs", "test", "code", "gov", "mixed"}, name
         if spec.get("read_only"):

@@ -26,7 +26,9 @@
 # ============================================================
 set -uo pipefail
 
-DIR="$(cd "$(dirname "$0")" && pwd)"
+# 兼容 source（单元测试）：$0 在 source 时是 shell 名，取 BASH_SOURCE
+_SELF="${BASH_SOURCE[0]:-$0}"
+DIR="$(cd "$(dirname "$_SELF")" && pwd)"
 ROOT="$(cd "$DIR/../.." && pwd)"
 cd "$ROOT" || exit 2
 
@@ -143,35 +145,33 @@ resolve() {
   echo "$reason" >&2
 }
 
+# 路径白名单不再硬编码：从 .ai/roles.json 派生（单一真源，DEC-081）。
+# 规则：该画像下所有角色的 allow 取并集；非只读角色的 deny 优先。
 allowed() {
   local prof="$1" path="$2"
-  case "$prof" in
-    docs)
-      case "$path" in
-        docs/*|design/*|*.md|.ai/notes/*|.opencode/*|.ai/evidence/*) return 0 ;;
-        *) return 1 ;;
-      esac
-      ;;
-    test)
-      case "$path" in
-        tests/*|app/src/test/*|domain/src/test/*|application/src/test/*|infrastructure/src/test/*|docs/*|*.md) return 0 ;;
-        *) return 1 ;;
-      esac
-      ;;
-    gov)
-      case "$path" in
-        scripts/*|tests/*|docs/*|.github/*|*.md|.opencode/*|.gitignore|.ai/roles.json|.ai/evidence/*|.cursorrules|.clinerules) return 0 ;;
-        *) return 1 ;;
-      esac
-      ;;
-    code)
-      case "$path" in
-        .ai/locks/*|.cache/*) return 1 ;;
-        *) return 0 ;;
-      esac
-      ;;
-    *) return 0 ;;
-  esac
+  ROLES_FILE="$ROOT/.ai/roles.json" PROF="$prof" TARGET_PATH="$path" python3 - <<'PY'
+import fnmatch, json, os, sys
+
+def match(path, pattern):
+    if pattern.endswith("/**"):
+        return path == pattern[:-3] or path.startswith(pattern[:-3] + "/")
+    if "*" in pattern:
+        return fnmatch.fnmatch(path, pattern)
+    return path == pattern
+
+roles = json.load(open(os.environ["ROLES_FILE"], encoding="utf-8"))["roles"]
+prof = os.environ["PROF"]
+path = os.environ["TARGET_PATH"]
+
+def permits(role):
+    if not role.get("read_only"):
+        if any(match(path, d) for d in role.get("deny", [])):
+            return False
+    return any(match(path, a) for a in role.get("allow", []))
+
+ok = any(permits(r) for r in roles.values() if r.get("profile") == prof)
+sys.exit(0 if ok else 1)
+PY
 }
 
 check_scope() {

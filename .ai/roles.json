@@ -83,6 +83,28 @@
         "review report"
       ],
       "conflict": "must_not_hold_task_lock"
+    },
+    "test": {
+      "profile": "test",
+      "allow": [
+        "tests/**",
+        "app/src/test/**",
+        "domain/src/test/**",
+        "application/src/test/**",
+        "infrastructure/src/test/**",
+        "docs/**",
+        "*.md",
+        ".ai/evidence/**"
+      ],
+      "deny": [
+        "app/src/main/**",
+        "domain/src/main/**",
+        "application/src/main/**",
+        "infrastructure/src/main/**"
+      ],
+      "must_produce": [
+        "failing test or coverage evidence"
+      ]
     }
   }
 }

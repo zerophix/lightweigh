@@ -88,6 +88,7 @@ scripts/dev/merge-mine.sh        # rebase origin/master → 推送（撞车自�
 | 角色 | 可写 | 必须产出 |
 |---|---|---|
 | `dev` | `app/** domain/** application/** infrastructure/**` + 构建文件 | 任务证据 + 受影响测试通过 |
+| `test` | 仅 `tests/**` 与各模块 `src/test/**` | 失败复现或覆盖率证据 |
 | `gov` | `scripts/** tests/** docs/** .github/**` + 根规则文件 | 全量 pytest 通过 |
 | `docs` | `docs/** design/** *.md` | 索引收录 + 链接可达 |
 | `review` | **只读**，仅 `docs/ai/reviews/**` | 评审报告（署名会话，且 ≠ 认领者） |

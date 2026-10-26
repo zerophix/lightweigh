@@ -55,6 +55,25 @@ if [ "$USE_STAGED" -eq 0 ]; then
   [ "${#PATHS[@]}" -gt 0 ] || { echo "错误: 请指定路径或使用 --staged" >&2; exit 2; }
   git add -- "${PATHS[@]}" || exit 2
 fi
+# 完成证据自动入提交（只加 ok=true 的，避免把失败证据混进分支）
+if compgen -G ".ai/evidence/*.json" >/dev/null 2>&1; then
+  OK_EVIDENCE="$(python3 - <<'PY'
+import glob, json
+for f in sorted(glob.glob('.ai/evidence/*.json')):
+    try:
+        if json.load(open(f, encoding='utf-8')).get('ok') is True:
+            print(f)
+    except Exception:
+        pass
+PY
+)"
+  if [ -n "$OK_EVIDENCE" ]; then
+    # shellcheck disable=SC2086
+    git add $OK_EVIDENCE
+    echo "      + 证据 $(printf '%s\n' "$OK_EVIDENCE" | wc -l | tr -d ' ') 个"
+  fi
+fi
+
 if git diff --cached --quiet; then
   echo "没有可提交的改动"
   exit 0
