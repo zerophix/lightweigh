@@ -53,7 +53,16 @@ mark() { echo "      [t+$(elapsed)s] $1"; }
 # 1) 暂存（只碰指定路径）
 if [ "$USE_STAGED" -eq 0 ]; then
   [ "${#PATHS[@]}" -gt 0 ] || { echo "错误: 请指定路径或使用 --staged" >&2; exit 2; }
-  git add -- "${PATHS[@]}" || exit 2
+  # 逐个加入：已跟踪的用 -A（能记录删除）；已忽略且不再跟踪的跳过（删除已暂存）
+  for _p in "${PATHS[@]}"; do
+    if git ls-files --error-unmatch -- "$_p" >/dev/null 2>&1; then
+      git add -A -- "$_p" || exit 2
+    elif git check-ignore -q -- "$_p" 2>/dev/null; then
+      :
+    else
+      git add -- "$_p" || exit 2
+    fi
+  done
 fi
 # 完成证据自动入提交（只加 ok=true 的，避免把失败证据混进分支）
 if compgen -G ".ai/evidence/*.json" >/dev/null 2>&1; then

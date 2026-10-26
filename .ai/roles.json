@@ -37,7 +37,8 @@
         ".ai/roles.json",
         ".cursorrules",
         ".clinerules",
-        ".ai/evidence/**"
+        ".ai/evidence/**",
+        ".cache/context.jsonl"
       ],
       "deny": [
         "app/src/main/**",
