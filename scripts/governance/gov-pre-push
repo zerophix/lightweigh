@@ -56,33 +56,43 @@ echo "  [1/4] 分支命名: ✅ $BRANCH"
 
 # validate.sh 必须 PASS — 以退出码判定，不耦合具体输出文案（DEC-005）
 FAILED=0
-echo -n "  [2/4] 文档校验: "
+TMPD="$(mktemp -d)"
+trap 'rm -rf "$TMPD"' EXIT
+
+# 文档校验与密钥扫描互不依赖：并行跑，省掉约 1.3s 串行等待
 if [ -f "$VALIDATE_SCRIPT" ]; then
-  if OUTPUT=$(bash "$VALIDATE_SCRIPT" 2>&1); then
-    echo "✅"
-  else
-    echo "❌"
-    echo "$OUTPUT" | grep -E "FAIL|违规" || true
-    FAILED=1
-  fi
+  ( bash "$VALIDATE_SCRIPT" > "$TMPD/validate.log" 2>&1; echo $? > "$TMPD/validate.rc" ) &
+  VALIDATE_PID=$!
 else
-  echo "⚠️  validate.sh 不存在，跳过"
+  echo 0 > "$TMPD/validate.rc"; VALIDATE_PID=""
 fi
 
 # 密钥扫描（DEC-049）：二进制存在则硬失败；缺失则软警告
 SECRETS_SCRIPT="$ROOT/scripts/governance/gov-secrets-scan.sh"
-echo -n "  [3/4] 密钥扫描: "
 if [ -f "$SECRETS_SCRIPT" ]; then
-  if OUTPUT=$(bash "$SECRETS_SCRIPT" 2>&1); then
-    echo "✅"
-    echo "$OUTPUT" | grep -E '软警告|未找到 gitleaks|PASS' || true
-  else
-    echo "❌"
-    echo "$OUTPUT" | tail -40
-    FAILED=1
-  fi
+  ( bash "$SECRETS_SCRIPT" > "$TMPD/secrets.log" 2>&1; echo $? > "$TMPD/secrets.rc" ) &
+  SECRETS_PID=$!
 else
-  echo "⚠️  gov-secrets-scan.sh 不存在，跳过"
+  echo 0 > "$TMPD/secrets.rc"; SECRETS_PID=""
+fi
+
+[ -n "$VALIDATE_PID" ] && wait "$VALIDATE_PID" || true
+echo -n "  [2/4] 文档校验: "
+if [ "$(cat "$TMPD/validate.rc" 2>/dev/null || echo 1)" = "0" ]; then
+  echo "✅"
+else
+  echo "❌"; grep -E "FAIL|违规" "$TMPD/validate.log" | sed 's/^/      /' || true
+  FAILED=1
+fi
+
+[ -n "$SECRETS_PID" ] && wait "$SECRETS_PID" || true
+echo -n "  [3/4] 密钥扫描: "
+if [ "$(cat "$TMPD/secrets.rc" 2>/dev/null || echo 1)" = "0" ]; then
+  echo "✅"
+  grep -E '软警告|未找到 gitleaks|PASS' "$TMPD/secrets.log" | sed 's/^/      /' || true
+else
+  echo "❌"; tail -40 "$TMPD/secrets.log" | sed 's/^/      /'
+  FAILED=1
 fi
 
 # DEC-077: --no-verify 审计（默认 warn；GOV_BYPASS_POLICY=block 才阻断）

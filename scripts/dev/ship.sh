@@ -82,12 +82,16 @@ if [ "$PUSH" -eq 1 ]; then
 
   # 4) PR：有则复用，无则创建
   echo "[3/4] pull request"
-  if command -v gh >/dev/null 2>&1; then
-    if ! gh pr view --json number >/dev/null 2>&1; then
-      gh pr create --fill --base master >/dev/null 2>&1 || true
+  PR_CACHE=".cache/pr-$(printf '%s' "$BRANCH" | tr '/ ' '__')"
+  if [ -f "$PR_CACHE" ]; then
+    echo "      PR 已存在（$(cat "$PR_CACHE")，缓存命中）"
+  elif command -v gh >/dev/null 2>&1; then
+    if PR_URL="$(gh pr create --fill --base master 2>/dev/null)"; then
+      printf '%s' "$PR_URL" > "$PR_CACHE"
+      echo "      $PR_URL"
     fi
-    mark "PR 完成"
   fi
+  mark "PR 完成"
 fi
 
 # 5) 全量验证放后台，不占人等待

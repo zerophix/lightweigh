@@ -59,6 +59,7 @@ scripts/dev/merge-mine.sh        # rebase origin/master → 推送（撞车自�
 | 环 | 预算 | 命令 | 跑什么 | 不跑什么 |
 |---|---|---|---|---|
 | 内环 | ≤ 5s | `scripts/dev/dev-loop.sh [--watch]` | 增量编译 + 同名 Kotlin 测试 + 受影响 pytest | git、证据、全量扫描 |
+| 交付 | ≤ 5s | `scripts/dev/ship.sh -m "..." <path>` | 暂存 + 提交 + 推送 + PR；全量验证放后台 | 全量测试、证据生成 |
 | 提交环 | ≤ 3s | `git commit` | 分支/范围/角色/`bash -n`/暂存区 code-check/增量编译 | pytest、可达性、原型、全量 |
 | 批次环 | ≤ 10min | `bash scripts/governance/gov-local-ci.sh` | 全量测试（分片）+ 静态检查（内容哈希缓存）+ gradle | — |
 
