@@ -70,7 +70,11 @@ fi
 
 MISSING=()
 CHECKED=0
-for sha in "${COMMITS[@]}"; do
+    if [ ${#COMMITS[@]} -eq 0 ]; then
+      echo "  [audit] 无可审计提交"
+      exit 0
+    fi
+    for sha in "${COMMITS[@]}"; do
   [ -n "$sha" ] || continue
   git cat-file -e "${sha}^{commit}" 2>/dev/null || continue
 
