@@ -223,6 +223,17 @@ cmd_run() {
   fi
   say "  ✅ 候选验证通过（$(grep -c . /dev/null 2>/dev/null; tail -2 /tmp/wf-queue-ci.log | tr '\n' ' ')）"
 
+  # 2) 任务板严格审计（去重/分组/共享文件声明）——重复任务不得合入
+  say "  [任务板] 严格审计…"
+  if ! bash scripts/workflow/wf-board-audit.sh --strict > /tmp/wf-queue-board.log 2>&1; then
+    say "  ❌ 任务板审计未通过："
+    grep -E "✗|硬问题" /tmp/wf-queue-board.log | head -8 | sed 's/^/      /'
+    say "  处理: 修 .ai/tasks.json（合并重复/补 group_id/声明 overlaps_with）后重跑"
+    if [ "$KEEP" -eq 0 ]; then cd "$ROOT"; git worktree remove --force "$candidate" 2>/dev/null; rm -rf "$candidate"; fi
+    return 7
+  fi
+  say "  ✅ 任务板审计通过"
+
   # 2a) 完成证据消费（DEC-078）：带 Task: trailer 的分支必须有 ok=true 的证据。
   # 没有消费方的证据等于没有证据——这是本仓库"机制空转"的最典型一处。
   say "  [证据] 校验任务完成证据…"

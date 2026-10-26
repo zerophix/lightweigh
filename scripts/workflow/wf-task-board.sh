@@ -17,7 +17,7 @@
 
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+ROOT="${WF_BOARD_ROOT:-$(cd "$(dirname "$0")/../.." && pwd)}"
 TASKS_FILE="$ROOT/.ai/tasks.json"
 
 # 确保文件存在
@@ -78,36 +78,106 @@ PYEOF
     ;;
 
   add)
-    DESC="${2:-}"
-    WHY="${3:-}"
-    if [ -z "$DESC" ]; then echo "用法: task-board.sh add \"描述\" [\"理由\"]" >&2; exit 1; fi
-    python3 << PYEOF
-import json
-with open('$TASKS_FILE') as f:
+    DESC=""; WHY=""; GROUP=""; DISTINCT=""; SUPERSEDES=""
+    shift || true
+    while [ $# -gt 0 ]; do
+      case "$1" in
+        --group) GROUP="${2:-}"; shift 2 ;;
+        --distinct) DISTINCT="${2:-}"; shift 2 ;;
+        --supersedes) SUPERSEDES="${2:-}"; shift 2 ;;
+        -*) echo "未知参数: $1" >&2; exit 2 ;;
+        *)
+          if [ -z "$DESC" ]; then DESC="$1"
+          elif [ -z "$WHY" ]; then WHY="$1"
+          else echo "多余参数: $1" >&2; exit 2; fi
+          shift ;;
+      esac
+    done
+    if [ -z "$DESC" ] || [ -z "$GROUP" ]; then
+      echo '用法: task-board.sh add "描述" ["理由"] --group <id> [--distinct "与既有任务的差异" | --supersedes T-xxx]' >&2
+      echo '组见 .ai/tasks.json 的 groups；重复建单会被拒绝。' >&2
+      exit 1
+    fi
+    TASKS_FILE="$TASKS_FILE" NOW="$NOW" ADD_DESC="$DESC" ADD_WHY="$WHY" \
+    ADD_GROUP="$GROUP" ADD_DISTINCT="$DISTINCT" ADD_SUPERSEDES="$SUPERSEDES" \
+    python3 - <<'PYEOF'
+import json, os, re, sys
+
+path = os.environ["TASKS_FILE"]
+with open(path, encoding="utf-8") as f:
     d = json.load(f)
-tasks = d.get('tasks', [])
+
+groups = {g["id"]: g for g in d.get("groups", [])}
+group = os.environ["ADD_GROUP"]
+if group not in groups:
+    print(f"拒绝: 未知分组 {group}（可用: {', '.join(sorted(groups))}）", file=sys.stderr)
+    sys.exit(1)
+
+def grams(text):
+    s = "".join(re.findall(r"[\u4e00-\u9fffA-Za-z0-9]", text))
+    return {s[i:i + 2] for i in range(len(s) - 1)}
+
+desc = os.environ["ADD_DESC"]
+distinct = os.environ["ADD_DISTINCT"]
+supersedes = os.environ["ADD_SUPERSEDES"]
+g_new = grams(desc)
+
+best = (0.0, None)
+for t in d.get("tasks", []):
+    if t.get("merged_into") or t.get("archived"):
+        continue
+    g_old = grams((t.get("title") or "") + " " + (t.get("description") or ""))
+    if not g_old or not g_new:
+        continue
+    j = len(g_new & g_old) / len(g_new | g_old)
+    if j > best[0]:
+        best = (j, t)
+
+if best[1] is not None and best[0] >= 0.6 and not distinct and not supersedes:
+    print(f"拒绝: 与 {best[1]['id']} 相似度 {best[0]:.0%}", file=sys.stderr)
+    print(f"  既有: {(best[1].get('title') or best[1].get('description') or '')[:60]}", file=sys.stderr)
+    print("  如确是不同交付物: 加 --distinct \"差异是什么\"", file=sys.stderr)
+    print("  如替代旧任务: 加 --supersedes " + best[1]["id"], file=sys.stderr)
+    sys.exit(1)
+
+tasks = d.get("tasks", [])
 max_num = 0
 for t in tasks:
-    tid = t.get('id', 'T-000')
-    try: n = int(tid.split('-')[1]); max_num = max(max_num, n)
-    except: pass
-nid = 'T-{:03d}'.format(max_num + 1)
+    try:
+        max_num = max(max_num, int(t.get("id", "T-000").split("-")[1]))
+    except Exception:
+        pass
+nid = "T-{:03d}".format(max_num + 1)
+
+if supersedes:
+    old = next((t for t in tasks if t["id"] == supersedes), None)
+    if old is None:
+        print(f"拒绝: --supersedes {supersedes} 不存在", file=sys.stderr)
+        sys.exit(1)
+    if old.get("merged_into"):
+        print(f"拒绝: {supersedes} 已经是重复项", file=sys.stderr)
+        sys.exit(1)
+    old["merged_into"] = nid
+    old["notes"] = (old.get("notes") or "") + f"；被 {nid} 取代"
+
 tasks.append({
-    'id': nid,
-    'description': '$DESC',
-    'why': '$WHY',
-    'status': 'pending',
-    'assigned_to': '',
-    'dec': '',
-    'created_at': '$NOW',
-    'updated_at': '$NOW',
-    'notes': ''
+    "id": nid,
+    "description": desc,
+    "why": os.environ["ADD_WHY"],
+    "status": "pending",
+    "group_id": group,
+    "assigned_to": "",
+    "dec": "",
+    "created_at": os.environ["NOW"],
+    "updated_at": os.environ["NOW"],
+    "notes": ("差异: " + distinct) if distinct else "",
 })
-d['tasks'] = tasks
-d['updated_at'] = '$NOW'
-with open('$TASKS_FILE', 'w') as f:
+
+d["tasks"] = tasks
+d["updated_at"] = os.environ["NOW"]
+with open(path, "w", encoding="utf-8") as f:
     json.dump(d, f, indent=2, ensure_ascii=False)
-print('创建: ' + nid)
+print(f"创建: {nid}（组 {group}）")
 PYEOF
     ;;
 

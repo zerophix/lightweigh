@@ -26,7 +26,23 @@
       "title": "蓝牙调试悬浮球与 2 万行日志面板",
       "status": "completed",
       "detail": "DEC-039: BleDebugLog 环形缓冲 + AndroidBleLink/MeasureSession 插桩 + ui.debug.DebugOverlay（拖动/复制/清空/贴底），BuildConfig.DEBUG 门控",
-      "acceptance": {},
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "历史任务 T-024：交付物为 target_files 中列出的文件"
+        ],
+        "when": [
+          "执行 verify_commands"
+        ],
+        "then": [
+          "target_files 均存在",
+          "app 可构建且单元测试通过"
+        ],
+        "verify_commands": [
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "source": "legacy-backfill"
+      },
       "group_id": "debug",
       "target_files": [
         "app/src/main/kotlin/com/xcwk/scalehub/ui/debug/DebugOverlay.kt"
@@ -40,7 +56,23 @@
       "title": "全链路调试日志（sync/cloud/ai/auth 接入 DebugLog）",
       "status": "completed",
       "detail": "DEC-040: BleDebugLog 泛化为 application.debug.DebugLog，四链路插桩约 30 处，敏感信息过滤（auth 只记 path）",
-      "acceptance": {},
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "历史任务 T-025：交付物为 target_files 中列出的文件"
+        ],
+        "when": [
+          "执行 verify_commands"
+        ],
+        "then": [
+          "target_files 均存在",
+          "app 可构建且单元测试通过"
+        ],
+        "verify_commands": [
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "source": "legacy-backfill"
+      },
       "group_id": "debug",
       "target_files": [
         "app/src/main/kotlin/com/xcwk/scalehub/ui/debug/DebugOverlay.kt"
@@ -65,7 +97,23 @@
       "title": "测量会话生命周期修复（退出即停 + 重进重建）",
       "status": "completed",
       "detail": "DEC-042: ScaleRoute onDispose 调 stop；ScaleViewModel 会话可重建（closed 终态 newSession）",
-      "acceptance": {},
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "历史任务 T-027：交付物为 target_files 中列出的文件"
+        ],
+        "when": [
+          "执行 verify_commands"
+        ],
+        "then": [
+          "target_files 均存在",
+          "app 可构建且单元测试通过"
+        ],
+        "verify_commands": [
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "source": "legacy-backfill"
+      },
       "group_id": "measure",
       "target_files": [
         "application/src/main/kotlin/com/xcwk/scalehub/application/measure/MeasureSession.kt"
@@ -221,7 +269,23 @@
       "created_at": "2026-10-21T10:27:54Z",
       "updated_at": "2026-10-21T10:51:47Z",
       "notes": "",
-      "acceptance": {},
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "历史任务 T-042：交付物为 target_files 中列出的文件"
+        ],
+        "when": [
+          "执行 verify_commands"
+        ],
+        "then": [
+          "target_files 均存在",
+          "app 可构建且单元测试通过"
+        ],
+        "verify_commands": [
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "source": "legacy-backfill"
+      },
       "group_id": "settings",
       "target_files": [
         "app/src/main/kotlin/com/xcwk/scalehub/feature/settings/SettingsScreen.kt",
@@ -238,7 +302,23 @@
       "created_at": "2026-10-21T10:27:54Z",
       "updated_at": "2026-10-21T12:52:19Z",
       "notes": "领取：习惯管理页完整化（HabitViewModel+HabitPort+Room表+WorkManager定时提醒+编辑器）",
-      "acceptance": {},
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "历史任务 T-043：交付物为 target_files 中列出的文件"
+        ],
+        "when": [
+          "执行 verify_commands"
+        ],
+        "then": [
+          "target_files 均存在",
+          "app 可构建且单元测试通过"
+        ],
+        "verify_commands": [
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "source": "legacy-backfill"
+      },
       "group_id": "habit",
       "target_files": [
         "app/src/main/kotlin/com/xcwk/scalehub/feature/habit/HabitScreen.kt",
@@ -255,7 +335,23 @@
       "created_at": "2026-10-21T10:27:54Z",
       "updated_at": "2026-10-21T10:27:54Z",
       "notes": "；状态词统一为 completed",
-      "acceptance": {},
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "历史任务 T-044：交付物为 target_files 中列出的文件"
+        ],
+        "when": [
+          "执行 verify_commands"
+        ],
+        "then": [
+          "target_files 均存在",
+          "app 可构建且单元测试通过"
+        ],
+        "verify_commands": [
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "source": "legacy-backfill"
+      },
       "group_id": "auth",
       "target_files": [
         "app/src/main/kotlin/com/xcwk/scalehub/feature/auth/EmailLogin.kt",
@@ -581,7 +677,11 @@
           "本任务无可对齐的交互原型 view（原库中无对应屏），验收只能依赖行为级断言",
           "目标文件：FeatureScreen.kt（已存在则视为扩展而非从零新建）",
           "同模块已有屏的既有行为不回退"
-        ]
+        ],
+        "verify_commands": [
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "source": "legacy-backfill"
       },
       "group_id": "home"
     },
@@ -608,7 +708,11 @@
         ],
         "open_questions": [
           "需要原型/旧库文案：切换用户、帮助弹窗、跳过仅体重、轮播贴士在 design/prototypes 中无对应 view，无法逐字实现"
-        ]
+        ],
+        "verify_commands": [
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "source": "legacy-backfill"
       },
       "group_id": "measure",
       "overlaps_with": [
@@ -616,6 +720,11 @@
         "T-069",
         "T-077",
         "T-095"
+      ],
+      "target_symbols": [
+        "MeasurementTipsCarousel",
+        "ManualWeightCard",
+        "MEASUREMENT_TIPS"
       ]
     },
     {
@@ -872,6 +981,10 @@
       "overlaps_with": [
         "T-060",
         "T-104"
+      ],
+      "target_symbols": [
+        "QrScanSheet",
+        "qrScanNext"
       ]
     },
     {
@@ -892,7 +1005,11 @@
         ],
         "open_questions": [
           "需 Health Connect SDK 依赖 + 真机授权；仓库当前无该依赖"
-        ]
+        ],
+        "verify_commands": [
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "source": "legacy-backfill"
       },
       "target_files": [
         "app/src/main/kotlin/com/xcwk/scalehub/feature/sync/HealthPlatform.kt",
@@ -919,12 +1036,19 @@
           "本任务无可对齐的交互原型 view（原库中无对应屏），验收只能依赖行为级断言",
           "目标文件：DeviceScreen.kt（已存在则视为扩展而非从零新建）",
           "同模块已有屏的既有行为不回退"
-        ]
+        ],
+        "verify_commands": [
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "source": "legacy-backfill"
       },
       "group_id": "device",
       "overlaps_with": [
         "T-058",
         "T-104"
+      ],
+      "target_symbols": [
+        "DeviceIntent.Activate"
       ]
     },
     {
@@ -949,11 +1073,18 @@
         ],
         "open_questions": [
           "需产品/合规确认：只做数据汇总，还是包含 AI 解读（涉及医疗建议表述边界）"
-        ]
+        ],
+        "verify_commands": [
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "source": "legacy-backfill"
       },
       "group_id": "report",
       "overlaps_with": [
         "T-078"
+      ],
+      "target_symbols": [
+        "buildDoctorReport"
       ]
     },
     {
@@ -978,7 +1109,11 @@
         ],
         "open_questions": [
           "需厂商校准指令与返回码；OKOK/Chipsea 协议文档未包含校准段"
-        ]
+        ],
+        "verify_commands": [
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "source": "legacy-backfill"
       },
       "group_id": "device",
       "overlaps_with": [
@@ -1057,11 +1192,18 @@
           "本任务无可对齐的交互原型 view（原库中无对应屏），验收只能依赖行为级断言",
           "目标文件：AiWeeklySummary.kt（已存在则视为扩展而非从零新建）",
           "同模块已有屏的既有行为不回退"
-        ]
+        ],
+        "verify_commands": [
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "source": "legacy-backfill"
       },
       "group_id": "ai",
       "overlaps_with": [
         "T-084"
+      ],
+      "target_symbols": [
+        "bodyRecompositionOf"
       ]
     },
     {
@@ -1108,7 +1250,11 @@
           "本任务无可对齐的交互原型 view（原库中无对应屏），验收只能依赖行为级断言",
           "目标文件：HomeStates.kt（已存在则视为扩展而非从零新建）",
           "同模块已有屏的既有行为不回退"
-        ]
+        ],
+        "verify_commands": [
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "source": "legacy-backfill"
       },
       "group_id": "home",
       "overlaps_with": [
@@ -1116,6 +1262,11 @@
         "T-069",
         "T-077",
         "T-095"
+      ],
+      "target_symbols": [
+        "goalCurvePercents",
+        "goalCurveDeltaPercents",
+        "GoalCurveBars"
       ]
     },
     {
@@ -1243,7 +1394,11 @@
         "given": [
           "本任务无可对齐的交互原型 view（原库中无对应屏），验收只能依赖行为级断言",
           "同模块已有屏的既有行为不回退"
-        ]
+        ],
+        "verify_commands": [
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "source": "legacy-backfill"
       },
       "target_files": [
         "app/src/main/kotlin/com/xcwk/scalehub/feature/achievements/Achievements.kt",
@@ -1255,6 +1410,11 @@
         "T-066",
         "T-077",
         "T-095"
+      ],
+      "target_symbols": [
+        "currentStreakDays",
+        "reachedMilestone",
+        "AchievementStrip"
       ]
     },
     {
@@ -1317,7 +1477,11 @@
         ],
         "open_questions": [
           "需产品确认：监护人授权方式与孩子数据可见范围（默认值偏好隐私）"
-        ]
+        ],
+        "verify_commands": [
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "source": "legacy-backfill"
       },
       "group_id": "member"
     },
@@ -1729,6 +1893,9 @@
         "T-066",
         "T-069",
         "T-095"
+      ],
+      "target_symbols": [
+        "MeasureSession"
       ]
     },
     {
@@ -1796,6 +1963,10 @@
       "group_id": "measure",
       "overlaps_with": [
         "T-061"
+      ],
+      "target_symbols": [
+        "ResultShareFlow",
+        "resultShareReduce"
       ]
     },
     {
@@ -2173,6 +2344,9 @@
       "group_id": "ai",
       "overlaps_with": [
         "T-064"
+      ],
+      "target_symbols": [
+        "AiWeeklySummaryScreen"
       ]
     },
     {
@@ -2921,6 +3095,10 @@
         "T-066",
         "T-069",
         "T-077"
+      ],
+      "target_symbols": [
+        "HomeGoalState",
+        "homeStatesOf"
       ]
     },
     {
@@ -3486,6 +3664,10 @@
       "overlaps_with": [
         "T-058",
         "T-060"
+      ],
+      "target_symbols": [
+        "PairingState",
+        "pairingReduce"
       ]
     },
     {

@@ -103,6 +103,11 @@ for a, b, f in overlap_pairs:
     declared_b = set(by_id[b].get("overlaps_with") or [])
     if b in declared_a or a in declared_b:
         continue
+    # 符号级归属互不重叠 → 同一文件的不同部分，合法
+    sym_a = set(by_id[a].get("target_symbols") or [])
+    sym_b = set(by_id[b].get("target_symbols") or [])
+    if sym_a and sym_b and not (sym_a & sym_b):
+        continue
     errors.append(f"{a} 与 {b} 的 target_files 重叠 {jac:.0%}（共享 {f.split('/')[-1]}）且未声明 overlaps_with")
 
 summary = {
