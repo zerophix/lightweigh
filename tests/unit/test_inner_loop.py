@@ -95,6 +95,12 @@ def test_local_ci_runs_pytest_as_separate_step():
     assert "run_pytest_step" in script
     assert "gov-affected.sh --run" in script
     assert "GOV_CI_FULL" in script
+    assert "scripts/testing/gov-pytest.sh --all" in script
+
+
+def test_affected_uses_parallel_cached_runner():
+    script = (ROOT / "scripts" / "governance" / "gov-affected.sh").read_text(encoding="utf-8")
+    assert "scripts/testing/gov-pytest.sh" in script
 
 
 def test_affected_emits_machine_readable_summary():

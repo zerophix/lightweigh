@@ -156,8 +156,9 @@ if [ "$RUN" = "1" ]; then
     [ "$UNMAPPED_COUNT" -gt 0 ] && exit 1
     exit 0
   fi
-  echo "[affected] 运行 $COUNT 个测试文件"
-  python3 -m pytest -q $TESTS
+  echo "[affected] 运行 $COUNT 个测试文件（并行 + 结果缓存）"
+  # shellcheck disable=SC2086  # $TESTS 需要按空格拆成多个文件参数
+  bash scripts/testing/gov-pytest.sh --key "affected:$(printf '%s' "$CHANGED" | shasum | cut -d' ' -f1)" $TESTS
   exit $?
 fi
 

@@ -448,21 +448,14 @@ run_pytest_step() {
     echo "=== [pytest] 跳过（车道 A：变更不涉及代码）==="
     return 0
   fi
-  local xdist=""
-  if python3 -c "import xdist" 2>/dev/null; then xdist="-n auto"; fi
   local scripts_changed=0
   case $'\n'"$DETECTED_CHANGES" in
     *$'\n'scripts/*) scripts_changed=1 ;;
   esac
   if [ "${GOV_CI_FULL:-0}" = "1" ] || [ "$scripts_changed" = "1" ]; then
     echo ""
-    echo "=== [pytest] 全量（脚本变更或显式全量）==="
-    # 全量结果按"代码 + 测试 + 脚本 + 文档"内容哈希缓存：
-    # 输入没变就没有重跑的理由，输入一变 key 就变（不会误用旧结果）。
-    # shellcheck disable=SC2086
-    run_step "pytest tests/unit (full)" run_with_cache "pytest-full" \
-      "$(cache_key app domain application infrastructure tests scripts docs .ai/tasks.json)" \
-      python3 -m pytest tests/unit -q $xdist
+    echo "=== [pytest] 全量（脚本变更或显式全量，分片并行 + 结果缓存）==="
+    run_step "pytest tests/unit (full)" bash scripts/testing/gov-pytest.sh --all
   else
     run_step "pytest affected" bash scripts/governance/gov-affected.sh --run
   fi

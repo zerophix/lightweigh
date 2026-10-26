@@ -118,8 +118,8 @@ run_once() {
   fi
 
   if [ "$FULL" = "1" ]; then
-    echo "[2/2] 全量 pytest（--full 不受预算约束）"
-    python3 -m pytest tests/unit -q || return 3
+    echo "[2/2] 全量 pytest（--full 不受预算约束，分片并行）"
+    bash scripts/testing/gov-pytest.sh --all || return 3
   else
     echo "[2/3] 受影响 Kotlin 测试"
     run_kotlin_tests || return 3
