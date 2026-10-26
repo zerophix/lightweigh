@@ -77,7 +77,7 @@ fun qrScanMessage(state: QrScanState): String = when (state) {
     QrScanState.Scanning -> "对准秤身或包装上的二维码"
     is QrScanState.Result -> "已识别：${state.raw}"
     is QrScanState.Failed -> state.reason
-    QrScanState.Unsupported -> "当前版本未集成相机扫码，请输入秤身/包装上的 MAC"
+    QrScanState.Unsupported -> "当前版本未集成相机扫码，请手动输入秤身/包装上的 MAC"
 }
 
 /**
