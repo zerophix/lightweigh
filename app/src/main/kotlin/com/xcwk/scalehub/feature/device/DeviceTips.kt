@@ -24,12 +24,8 @@ fun DeviceTipsCard() {
     QkCard {
         Text("正确测量小贴士", style = MaterialTheme.typography.titleSmall, color = QkColor.Fg)
         Spacer(modifier = Modifier.height(8.dp))
-        listOf(
-            "光脚站上秤，双脚覆盖所有电极片",
-            "测量前避免剧烈运动或淋浴",
-            "保持身体静止，等待数值稳定",
-            "每次测量尽量在同一时间",
-        ).forEach { tip ->
+        // 文案单一真源：与首页轮播共用（T-052）
+        com.xcwk.scalehub.feature.measure.MEASUREMENT_TIPS.forEach { tip ->
             Text(
                 "· $tip",
                 modifier = Modifier.padding(vertical = 2.dp),

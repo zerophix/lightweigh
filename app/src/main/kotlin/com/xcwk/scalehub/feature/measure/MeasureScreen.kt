@@ -174,6 +174,11 @@ fun MeasureScreen(
             )
         }
 
+        // 测量小贴士（T-052）：横向可滑，内容与设备页同源
+        MeasurementTipsCarousel(
+            modifier = Modifier.padding(top = QkSpacing.CardGap),
+        )
+
         // 手动记录紧挨体重卡：没接秤时这是最短的一条录入路径
         AiAskRow(onAskAi = onAskAi)
         TodayDietCard(home = home, onOpenRecord = onOpenRecord, onOpenQuick = onOpenQuick)
