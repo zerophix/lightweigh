@@ -202,7 +202,7 @@ require_task_id() {
 cmd_claim() {
   local tid="${1:-}"
   shift || true
-  local note=""
+  local note="" profile=""
   while [ $# -gt 0 ]; do
     case "$1" in
       --note)
@@ -211,6 +211,14 @@ cmd_claim() {
         ;;
       --note=*)
         note="${1#*=}"
+        shift
+        ;;
+      --profile)
+        profile="${2:-}"
+        shift 2 || shift
+        ;;
+      --profile=*)
+        profile="${1#*=}"
         shift
         ;;
       *)
@@ -244,6 +252,13 @@ cmd_claim() {
     if [ -n "$note" ]; then
       printf '%s\n' "$note" > "$lock_dir/.note.tmp" && mv "$lock_dir/.note.tmp" "$lock_dir/note"
     fi
+    # DEC-074: 任务画像决定钩子/CI 跑哪些门禁（docs/test/gov/code/mixed）
+    case "$profile" in
+      ""|docs|test|gov|code|mixed) ;;
+      *) echo "警告: 未知 profile '$profile'，回落 mixed" >&2; profile="mixed" ;;
+    esac
+    [ -z "$profile" ] && profile="mixed"
+    printf '%s\n' "$profile" > "$lock_dir/.profile.tmp" && mv "$lock_dir/.profile.tmp" "$lock_dir/profile"
     echo "认领成功: $tid"
     echo "  持有者: $session"
     echo "  分支:   $branch"

@@ -145,6 +145,25 @@ else
   LANE_REASONS=("变更基线不可用（无 merge-base / 无 HEAD~1）→ 保守按 C 处理")
 fi
 
+# ---- 任务画像（DEC-074）：决定这次该跑多深，而不是一律全量 ----
+# docs → 车道 A（不构建不测试）；gov/test → 全量测试；code/mixed 沿用路径车道
+PROFILE="$(bash scripts/governance/gov-profile.sh resolve 2>/dev/null || echo mixed)"
+echo "  任务画像: $PROFILE"
+if [ "$LANE_FORCED" != "true" ]; then
+  case "$PROFILE" in
+    docs)
+      if [ "$LANE" != "A" ]; then
+        LANE="A"
+        LANE_REASONS+=("画像 docs → 车道 A（文档任务不触发构建与测试）")
+      fi
+      ;;
+    gov|test)
+      export GOV_CI_FULL=1
+      LANE_REASONS+=("画像 ${PROFILE} → 全量测试")
+      ;;
+  esac
+fi
+
 # 车道 → gradle 步骤（空 = 跳过 gradle）
 
 # ---- 全局构建锁（DEC-069）：多 worktree 并发时串行化 gradle，避免 daemon 争抢 ----

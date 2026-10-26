@@ -197,6 +197,43 @@ SRC_CHANGED=$(echo "$STAGED" | grep -E '^(domain|application|infrastructure|app)
 # 治理脚本自身变更也跑 custom-checks（避免改检查器时漏自检）；仍要求与源码相关时才编译
 GOV_CHANGED=$(echo "$STAGED" | grep -E '^scripts/governance/(gov-custom-checks\.sh|gov-code-check\.py|gov-pre-commit-simplified)$' || true)
 
+# =============================================================
+# 任务画像（DEC-074）：不同任务类型走不同门禁，而不是一律最重
+#   docs → 不编译不查源码；test → 只保证脚本语法；gov/code → 原逻辑
+# 越界即拒绝：docs 画像改了 src/，说明认领错了画像，必须先重认领。
+# 逃生口：GOV_PROFILE_FORCE=1 GOV_PROFILE=mixed（留痕在 profile explain）
+# =============================================================
+PROFILE="$(bash "$ROOT/scripts/governance/gov-profile.sh" resolve --staged 2>/dev/null || echo mixed)"
+echo "  任务画像: $PROFILE"
+if ! bash "$ROOT/scripts/governance/gov-profile.sh" check-scope --staged; then
+  echo "❌ 暂停提交：改动越出任务画像范围"
+  exit 1
+fi
+
+# 画像为 docs 时不做任何源码类检查（文档由 pre-push 的 validate 兜底）
+case "$PROFILE" in
+  docs)
+    SRC_CHANGED=""
+    GOV_CHANGED=""
+    ;;
+  test)
+    # 测试画像只查 shell 语法与暂存区范围；跑测试放在交付环
+    SRC_CHANGED=""
+    ;;
+esac
+
+# 改动的 shell 脚本先过语法（毫秒级，任何画像都值得做）
+SH_CHANGED=$(echo "$STAGED" | grep -E '^scripts/.*\.sh$' || true)
+if [ -n "$SH_CHANGED" ]; then
+  for f in $SH_CHANGED; do
+    if ! bash -n "$f" 2>/dev/null; then
+      echo "❌ shell 语法错误: $f"
+      exit 1
+    fi
+  done
+  echo "  ✓ shell 语法通过（$(echo "$SH_CHANGED" | wc -l | tr -d ' ') 个文件）"
+fi
+
 if [ -n "$SRC_CHANGED" ]; then
   echo "  检测到源码变更，运行编译检查..."
   if ! ./gradlew :domain:compileKotlin :application:compileKotlin :infrastructure:compileDebugKotlin :app:compileDebugKotlin -q; then

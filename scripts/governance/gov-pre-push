@@ -30,6 +30,9 @@ export GOV_VALIDATE_QUICK=1
 
 echo ""
 echo "=== pre-push 审计 ==="
+# DEC-074: 画像只用于说明本次推送的门禁口径；推送环本身保持秒级
+PROFILE="$(bash "$ROOT/scripts/governance/gov-profile.sh" resolve 2>/dev/null || echo mixed)"
+echo "  任务画像: $PROFILE（测试在交付环/合入环执行）"
 
 # 分支命名
 TRUNK_PATTERN='^(main|master|develop)$'
