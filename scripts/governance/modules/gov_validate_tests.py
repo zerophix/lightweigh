@@ -140,7 +140,14 @@ def check_pytest() -> None:
 
 def check_all() -> None:
     walk_test_files()
+    # DEC-072: 全量 pytest 不再内嵌在 validate 里。
+    # 原因：333 条用例耗时 66s，占一次 validate 的 99%；而改文档时它提供的信号为零。
+    # 现在默认只做静态校验（0.3s），全量测试由 gov-local-ci / dev-loop 显式执行。
     if os.environ.get("GOV_VALIDATE_QUICK"):
         print("\n  [SKIP] GOV_VALIDATE_QUICK=1: 跳过 pytest 执行检查")
+        return
+    if not os.environ.get("GOV_VALIDATE_WITH_TESTS"):
+        print("\n  [SKIP] GOV-TEST-005: 默认不跑 pytest（DEC-072），全量测试见 gov-local-ci")
+        print("         强制执行: GOV_VALIDATE_WITH_TESTS=1 bash scripts/governance/gov-validate.sh")
         return
     check_pytest()

@@ -237,7 +237,12 @@ if [ "${GOV_LOCAL_CI_PLAN:-0}" = "1" ]; then
   else
     echo "  1. gradle 跳过"
   fi
-  i=2
+  if [ "$LANE" = "A" ]; then
+    echo "  2. pytest 跳过（车道 A：变更不涉及代码）"
+  else
+    echo "  2. pytest tests/unit"
+  fi
+  i=3
   for s in "${DOC_STEPS[@]}"; do
     echo "  $i. $s"
     i=$((i + 1))
@@ -328,6 +333,14 @@ if [ -n "$GRADLE_TASK" ]; then
 else
   echo ""
   echo "=== [gradle] 跳过（车道 A：变更不参与 gradle 构建）==="
+fi
+# DEC-072: pytest 从 gov-validate 移出，作为独立步骤；车道 A（纯文档）不跑。
+# 这样 validate 本身是亚秒级静态校验，测试只在真正需要时执行一次。
+if [ "$LANE" = "A" ]; then
+  echo ""
+  echo "=== [pytest] 跳过（车道 A：变更不涉及代码）==="
+else
+  run_step "pytest tests/unit" python3 -m pytest tests/unit -q
 fi
 run_step "gov-validate" bash scripts/governance/gov-validate.sh
 run_step "gov-custom-checks" bash scripts/governance/gov-custom-checks.sh
