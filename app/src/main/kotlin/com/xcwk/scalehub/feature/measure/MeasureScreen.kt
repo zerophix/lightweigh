@@ -627,6 +627,21 @@ private fun GoalCard(home: HomeGoalState, modifier: Modifier = Modifier, onSetTa
             style = MaterialTheme.typography.titleLarge,
             color = QkColor.Fg,
         )
+        // 目标进度曲线（T-066）：只有真实序列 + 有效目标才画，不画假线
+        val curve = goalCurvePercents(home.weekWeights, home.targetWeight)
+        if (curve.size >= 2) {
+            val delta = goalCurveDeltaPercents(curve)
+            Text(
+                text = "近 ${curve.size} 次目标进度" + (delta?.let { if (it >= 0) " +${it}%" else " ${it}%" } ?: ""),
+                modifier = Modifier.padding(top = QkSpacing.Sm),
+                style = MaterialTheme.typography.labelSmall,
+                color = QkColor.Muted,
+            )
+            GoalCurveBars(
+                percents = curve,
+                modifier = Modifier.padding(top = 6.dp),
+            )
+        }
         QkButton(
             text = "设置目标",
             modifier = Modifier.padding(top = 10.dp),
