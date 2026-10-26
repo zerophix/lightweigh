@@ -11,7 +11,8 @@
         "infrastructure/**",
         "gradle.properties",
         "gradle/**",
-        "*.gradle.kts"
+        "*.gradle.kts",
+        ".ai/evidence/**"
       ],
       "deny": [
         "scripts/**",
@@ -35,7 +36,8 @@
         ".gitignore",
         ".ai/roles.json",
         ".cursorrules",
-        ".clinerules"
+        ".clinerules",
+        ".ai/evidence/**"
       ],
       "deny": [
         "app/src/main/**",
@@ -53,7 +55,8 @@
         "docs/**",
         "design/**",
         "*.md",
-        ".opencode/**"
+        ".opencode/**",
+        ".ai/evidence/**"
       ],
       "deny": [
         "app/**",
