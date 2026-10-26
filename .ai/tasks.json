@@ -56,142 +56,142 @@
     {
       "id": "T-028",
       "title": "报告分析 tab",
-      "status": "done",
+      "status": "completed",
       "detail": "DEC-043-A: 成分/体型矩阵/目标达成/折线/插画",
       "acceptance": {},
       "group_id": "report",
       "merged_into": "T-046",
-      "notes": "；重复建单，合并到 T-046"
+      "notes": "；重复建单，合并到 T-046；状态词统一为 completed"
     },
     {
       "id": "T-029",
       "title": "AI 结构化卡片",
-      "status": "done",
+      "status": "completed",
       "detail": "DEC-043-B: 饮食卡入库/运动卡/指标解读卡/拍照入口/欢迎示例",
       "acceptance": {},
       "group_id": "ai",
       "merged_into": "T-047",
-      "notes": "；重复建单，合并到 T-047"
+      "notes": "；重复建单，合并到 T-047；状态词统一为 completed"
     },
     {
       "id": "T-030",
       "title": "单位设置",
-      "status": "done",
+      "status": "completed",
       "detail": "DEC-043-C: kg/斤/磅、cm/in 全局换算层",
       "acceptance": {},
       "group_id": "settings",
       "merged_into": "T-042",
-      "notes": "；重复建单，合并到 T-042"
+      "notes": "；重复建单，合并到 T-042；状态词统一为 completed"
     },
     {
       "id": "T-031",
       "title": "习惯管理页",
-      "status": "done",
+      "status": "completed",
       "detail": "DEC-043-D: 定义/周期/次数/提醒/打卡列表",
       "acceptance": {},
       "group_id": "habit",
       "merged_into": "T-043",
-      "notes": "；重复建单，合并到 T-043"
+      "notes": "；重复建单，合并到 T-043；状态词统一为 completed"
     },
     {
       "id": "T-032",
       "title": "趋势扩展指标",
-      "status": "done",
+      "status": "completed",
       "detail": "DEC-043-E: 骨骼肌/水分/基础代谢/肌肉/蛋白质 + 聚合模式 + 自定义范围",
       "acceptance": {},
       "group_id": "trend",
       "merged_into": "T-048",
-      "notes": "；重复建单，合并到 T-048"
+      "notes": "；重复建单，合并到 T-048；状态词统一为 completed"
     },
     {
       "id": "T-033",
       "title": "新手引导三步",
-      "status": "done",
+      "status": "completed",
       "detail": "DEC-043-F: 资料→单位→绑秤",
       "acceptance": {},
       "group_id": "guide",
       "merged_into": "T-045",
-      "notes": "；重复建单，合并到 T-045"
+      "notes": "；重复建单，合并到 T-045；状态词统一为 completed"
     },
     {
       "id": "T-034",
       "title": "密码登录+设置密码",
-      "status": "done",
+      "status": "completed",
       "detail": "DEC-043-G: 账号安全双通道",
       "acceptance": {},
       "group_id": "auth",
       "merged_into": "T-044",
-      "notes": "；重复建单，合并到 T-044"
+      "notes": "；重复建单，合并到 T-044；状态词统一为 completed"
     },
     {
       "id": "T-035",
       "title": "历史双记录对比",
-      "status": "done",
+      "status": "completed",
       "detail": "DEC-043-H: 两条记录对比",
       "acceptance": {},
       "group_id": "history",
       "merged_into": "T-049",
-      "notes": "；重复建单，合并到 T-049"
+      "notes": "；重复建单，合并到 T-049；状态词统一为 completed"
     },
     {
       "id": "T-036",
       "title": "设置扩展",
-      "status": "done",
+      "status": "completed",
       "detail": "DEC-043-I: 语音播报/隐私设置页/同步状态详情页",
       "acceptance": {},
       "group_id": "settings",
       "merged_into": "T-050",
-      "notes": "；重复建单，合并到 T-050"
+      "notes": "；重复建单，合并到 T-050；状态词统一为 completed"
     },
     {
       "id": "T-037",
       "title": "首页体验",
-      "status": "done",
+      "status": "completed",
       "detail": "DEC-043-J: 成员快捷切换弹层+离线横幅+卡片管理",
       "acceptance": {},
       "group_id": "home",
       "merged_into": "T-051",
-      "notes": "；重复建单，合并到 T-051"
+      "notes": "；重复建单，合并到 T-051；状态词统一为 completed"
     },
     {
       "id": "T-038",
       "title": "测量页扩展",
-      "status": "done",
+      "status": "completed",
       "detail": "DEC-043-K: 测量中切换用户/帮助弹窗/跳过提示/小贴士",
       "acceptance": {},
       "group_id": "measure",
       "merged_into": "T-052",
-      "notes": "；重复建单，合并到 T-052"
+      "notes": "；重复建单，合并到 T-052；状态词统一为 completed"
     },
     {
       "id": "T-039",
       "title": "设备页扩展",
-      "status": "done",
+      "status": "completed",
       "detail": "DEC-043-L: 测量小贴士卡/最近测量时间/开始称重快捷按钮",
       "acceptance": {},
       "group_id": "device",
       "merged_into": "T-053",
-      "notes": "；重复建单，合并到 T-053"
+      "notes": "；重复建单，合并到 T-053；状态词统一为 completed"
     },
     {
       "id": "T-040",
       "title": "我的资料扩展",
-      "status": "done",
+      "status": "completed",
       "detail": "DEC-043-M: 个人简介/所在地/展示标签",
       "acceptance": {},
       "group_id": "mine",
       "merged_into": "T-054",
-      "notes": "；重复建单，合并到 T-054"
+      "notes": "；重复建单，合并到 T-054；状态词统一为 completed"
     },
     {
       "id": "T-041",
       "title": "我的档案页扩展",
-      "status": "done",
+      "status": "completed",
       "detail": "DEC-043-N: 围度/内脏脂肪/目标进度条",
       "acceptance": {},
       "group_id": "mine",
       "merged_into": "T-055",
-      "notes": "；重复建单，合并到 T-055"
+      "notes": "；重复建单，合并到 T-055；状态词统一为 completed"
     },
     {
       "id": "T-042",
@@ -223,12 +223,12 @@
       "id": "T-044",
       "description": "P0-3: 密码登录+设置密码（AuthPort扩展+AuthViewModel分支+设置页入口）",
       "why": "",
-      "status": "done",
+      "status": "completed",
       "assigned_to": "ai-session-b",
       "dec": "",
       "created_at": "2026-10-21T10:27:54Z",
       "updated_at": "2026-10-21T10:27:54Z",
-      "notes": "",
+      "notes": "；状态词统一为 completed",
       "acceptance": {},
       "group_id": "auth"
     },
