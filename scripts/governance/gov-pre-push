@@ -95,9 +95,10 @@ if [ -n "$PUSH_INPUT" ]; then
     [ -z "${lsha:-}" ] && continue
     case "$lsha" in *0000000000000000000000000000000000000000) continue ;; esac
     if [ -z "${rsha:-}" ] || [ "$rsha" = "0000000000000000000000000000000000000000" ]; then
-      COMMITS="${COMMITS} $(git rev-list "$lsha" 2>/dev/null | head -50)"
+      # 新分支：只取"远端还没有"的提交，别枚举全史（head + pipefail = SIGPIPE）
+      COMMITS="${COMMITS} $(git rev-list --max-count=50 "$lsha" --not --remotes 2>/dev/null)"
     else
-      COMMITS="${COMMITS} $(git rev-list "${rsha}..${lsha}" 2>/dev/null | head -50)"
+      COMMITS="${COMMITS} $(git rev-list --max-count=50 "${rsha}..${lsha}" 2>/dev/null)"
     fi
   done <<< "$PUSH_INPUT"
 fi

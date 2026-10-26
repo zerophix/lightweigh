@@ -61,10 +61,10 @@ case "$OLDEST" in ''|*[!0-9]*) OLDEST=0 ;; esac
 if [ "${#COMMITS[@]}" -eq 0 ]; then
   if [ -n "$RANGE" ]; then
     # shellcheck disable=SC2207
-    COMMITS=($(git rev-list "$RANGE" 2>/dev/null | head -100))
+    COMMITS=($(git rev-list --max-count=100 "$RANGE" 2>/dev/null))
   else
     # shellcheck disable=SC2207
-    COMMITS=($(git rev-list HEAD --not --remotes 2>/dev/null | head -100))
+    COMMITS=($(git rev-list --max-count=100 HEAD --not --remotes 2>/dev/null))
   fi
 fi
 
