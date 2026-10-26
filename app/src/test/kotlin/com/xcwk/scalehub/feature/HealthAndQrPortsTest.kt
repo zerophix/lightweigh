@@ -3,6 +3,7 @@ package com.xcwk.scalehub.feature
 import com.google.common.truth.Truth.assertThat
 import com.xcwk.scalehub.feature.device.QrScanEvent
 import com.xcwk.scalehub.feature.device.QrScanState
+import com.xcwk.scalehub.feature.device.qrScanMessage
 import com.xcwk.scalehub.feature.device.qrScanNext
 import com.xcwk.scalehub.feature.sync.HealthPlatformAvailability
 import com.xcwk.scalehub.feature.sync.canWriteNow
@@ -62,5 +63,14 @@ class HealthAndQrPortsTest {
     @Test
     fun `取消回到初始态`() {
         assertThat(qrScanNext(QrScanState.Scanning, QrScanEvent.Cancel)).isEqualTo(QrScanState.Idle)
+    }
+
+    @Test
+    fun `每个扫码状态都有可执行文案`() {
+        assertThat(qrScanMessage(QrScanState.Unsupported)).contains("手动输入")
+        assertThat(qrScanMessage(QrScanState.Scanning)).contains("二维码")
+        assertThat(qrScanMessage(QrScanState.Failed("权限被拒绝，可改用手动输入")))
+            .contains("手动输入")
+        assertThat(qrScanMessage(QrScanState.Result("okok://AA"))).contains("okok://AA")
     }
 }

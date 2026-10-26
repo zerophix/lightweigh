@@ -188,40 +188,24 @@ fun DeviceScreen(
         val manualMac = raw.matches(Regex("^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$"))
         val scanned = if (!manualMac) com.xcwk.scalehub.domain.device.ScaleQr.parse(raw) else null
         val macOk = manualMac || scanned != null
-        AlertDialog(
-            onDismissRequest = { showQrEntry = false },
-            title = { Text("输入体脂秤编号") },
-            text = {
-                Column {
-                    Text(
-                        "输入秤身/包装上的 MAC（形如 AA:BB:CC:DD:EE:FF），或粘贴二维码里的内容。",
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                    QkTextField(
-                        value = macInput,
-                        onValueChange = { macInput = it },
-                        label = "设备 MAC",
-                        placeholder = "AA:BB:CC:DD:EE:FF",
-                        modifier = Modifier.padding(top = QkSpacing.Sm),
-                    )
+        // 相机能力由端口决定：当前仓库无相机依赖 → 状态机如实落到 Unsupported
+        val scanState = qrScanNext(QrScanState.Idle, QrScanEvent.Start, cameraAvailable = false)
+        QrScanSheet(
+            state = scanState,
+            manualValue = macInput,
+            onManualChange = { macInput = it },
+            canBind = macOk,
+            onBind = {
+                val qr = scanned
+                if (qr != null) {
+                    vm.onIntent(DeviceIntent.QrBind(qr.name, qr.mac))
+                } else {
+                    vm.onIntent(DeviceIntent.QrBind("体脂秤", raw))
                 }
+                showQrEntry = false
+                macInput = ""
             },
-            confirmButton = {
-                TextButton(
-                    enabled = macOk,
-                    onClick = {
-                        val qr = scanned
-                        if (qr != null) {
-                            vm.onIntent(DeviceIntent.QrBind(qr.name, qr.mac))
-                        } else {
-                            vm.onIntent(DeviceIntent.QrBind("体脂秤", raw))
-                        }
-                        showQrEntry = false
-                        macInput = ""
-                    },
-                ) { Text("绑定") }
-            },
-            dismissButton = { TextButton(onClick = { showQrEntry = false }) { Text("取消") } },
+            onDismiss = { showQrEntry = false },
         )
     }
 
