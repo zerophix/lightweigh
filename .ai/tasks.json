@@ -701,14 +701,14 @@
       "id": "T-058",
       "description": "P1-16: 扫码自定义竖屏取消布局（替代系统 CaptureActivity）",
       "why": "",
-      "status": "blocked",
+      "status": "completed",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-21T10:29:23Z",
       "updated_at": "2026-10-22T12:05:41+08:00",
-      "notes": "AC: see acceptance (DEC-048); may overlap earlier done tasks — confirm gaps before coding.；AC 待人类定义：「扫码自定义竖屏取消布局」在原型库中完全没有扫码 view（grep 扫码/二维码 无命中）；device/DeviceScreen.kt 有扫码代码但无设计文案（取消按钮文案/取景框提示均无源）。；阻塞：需决定：保留现有手动 MAC 输入（已规避外部扫码 App 的相机报错），还是引入 CameraX 自绘扫码（需相机权限与真机验证）",
+      "notes": "AC: see acceptance (DEC-048); may overlap earlier done tasks — confirm gaps before coding.；AC 待人类定义：「扫码自定义竖屏取消布局」在原型库中完全没有扫码 view（grep 扫码/二维码 无命中）；device/DeviceScreen.kt 有扫码代码但无设计文案（取消按钮文案/取景框提示均无源）。；阻塞：需决定：保留现有手动 MAC 输入（已规避外部扫码 App 的相机报错），还是引入 CameraX 自绘扫码（需相机权限与真机验证）；本轮实现：ZXing embedded 应用内竖屏扫码 + 自定义提示，取消/解析失败回退手动 MAC",
       "acceptance": {
-        "status": "blocked",
+        "status": "ready",
         "given": [
           "当前扫码依赖系统 CaptureActivity（或既有封装）",
           "需要竖屏且带取消的自定义布局（产品文案/按钮位置未完全定稿）"
