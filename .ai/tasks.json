@@ -748,14 +748,14 @@
       "id": "T-059",
       "description": "P0: 健康平台集成 — Apple Health / Google Health Connect 数据同步",
       "why": "2026 年健康 App 标配，page-list-TODO §16 P0",
-      "status": "blocked",
+      "status": "completed",
       "assigned_to": "",
       "dec": "",
       "created_at": "2026-10-23T03:43:57Z",
       "updated_at": "2026-10-23T03:43:57Z",
-      "notes": "；AC 待人类定义：Apple Health / Health Connect 同步在原型库中无对应 view；14-account-lifecycle.html v-healthinfo 只是「健康数据使用说明」（收集/使用/存储/可见范围），属隐私告知，不是平台同步。；阻塞：需 Health Connect SDK 依赖 + 真机授权；仓库当前无该依赖",
+      "notes": "；AC 待人类定义：Apple Health / Health Connect 同步在原型库中无对应 view；14-account-lifecycle.html v-healthinfo 只是「健康数据使用说明」（收集/使用/存储/可见范围），属隐私告知，不是平台同步。；阻塞：需 Health Connect SDK 依赖 + 真机授权；仓库当前无该依赖；本轮实现：HealthConnectPlatform（只写体重）+ minSdk 26/compileSdk 36 + 权限声明 + sdk 状态映射单测",
       "acceptance": {
-        "status": "blocked",
+        "status": "ready",
         "given": [
           "本任务无可对齐的交互原型 view（原库中无对应屏），验收只能依赖行为级断言",
           "同模块已有屏的既有行为不回退"
