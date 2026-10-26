@@ -21,6 +21,12 @@ if [ -z "${ROOT:-}" ] || [ ! -f "$ROOT/scripts/governance/gov-validate.sh" ]; th
 fi
 cd "$ROOT"
 BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
+
+# DEC-077: 钩子 stdin 是一次性的，先收起来供绕过审计使用
+PUSH_INPUT=""
+if [ ! -t 0 ]; then
+  PUSH_INPUT="$(cat)"
+fi
 VALIDATE_SCRIPT="$ROOT/scripts/governance/gov-validate.sh"
 
 # DEC-064 开发/质量解耦:
@@ -46,11 +52,11 @@ if ! echo "$BRANCH" | grep -qE "$TRUNK_PATTERN" && \
   echo "   临时跳过: git push --no-verify"
   exit 1
 fi
-echo "  [1/3] 分支命名: ✅ $BRANCH"
+echo "  [1/4] 分支命名: ✅ $BRANCH"
 
 # validate.sh 必须 PASS — 以退出码判定，不耦合具体输出文案（DEC-005）
 FAILED=0
-echo -n "  [2/3] 文档校验: "
+echo -n "  [2/4] 文档校验: "
 if [ -f "$VALIDATE_SCRIPT" ]; then
   if OUTPUT=$(bash "$VALIDATE_SCRIPT" 2>&1); then
     echo "✅"
@@ -65,7 +71,7 @@ fi
 
 # 密钥扫描（DEC-049）：二进制存在则硬失败；缺失则软警告
 SECRETS_SCRIPT="$ROOT/scripts/governance/gov-secrets-scan.sh"
-echo -n "  [3/3] 密钥扫描: "
+echo -n "  [3/4] 密钥扫描: "
 if [ -f "$SECRETS_SCRIPT" ]; then
   if OUTPUT=$(bash "$SECRETS_SCRIPT" 2>&1); then
     echo "✅"
@@ -77,6 +83,33 @@ if [ -f "$SECRETS_SCRIPT" ]; then
   fi
 else
   echo "⚠️  gov-secrets-scan.sh 不存在，跳过"
+fi
+
+# DEC-077: --no-verify 审计（默认 warn；GOV_BYPASS_POLICY=block 才阻断）
+echo ""
+echo "  [4/4] 绕过审计:"
+BYPASS_MODE="${GOV_BYPASS_POLICY:-warn}"
+COMMITS=""
+if [ -n "$PUSH_INPUT" ]; then
+  while read -r _lref lsha _rref rsha; do
+    [ -z "${lsha:-}" ] && continue
+    case "$lsha" in *0000000000000000000000000000000000000000) continue ;; esac
+    if [ -z "${rsha:-}" ] || [ "$rsha" = "0000000000000000000000000000000000000000" ]; then
+      COMMITS="${COMMITS} $(git rev-list "$lsha" 2>/dev/null | head -50)"
+    else
+      COMMITS="${COMMITS} $(git rev-list "${rsha}..${lsha}" 2>/dev/null | head -50)"
+    fi
+  done <<< "$PUSH_INPUT"
+fi
+# shellcheck disable=SC2086
+if [ -n "$COMMITS" ]; then
+  bash "$ROOT/scripts/governance/gov-audit-bypass.sh" --commits $COMMITS "--${BYPASS_MODE}" || {
+    [ "$BYPASS_MODE" = "block" ] && FAILED=1
+  }
+else
+  bash "$ROOT/scripts/governance/gov-audit-bypass.sh" "--${BYPASS_MODE}" || {
+    [ "$BYPASS_MODE" = "block" ] && FAILED=1
+  }
 fi
 
 echo ""

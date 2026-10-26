@@ -280,5 +280,15 @@ if [ -n "$SRC_CHANGED" ] || [ -n "$GOV_CHANGED" ]; then
   echo "  ✓ custom-checks 通过"
 fi
 
+# DEC-077: 记录"这个提交走过钩子"的证据（按 tree 记）。
+# pre-push 用它反查 --no-verify；只覆盖本机提交，属于"可发现"而非"不可绕过"。
+TRAIL="$ROOT/.cache/hook-trail.log"
+TREE="$(git write-tree 2>/dev/null || true)"
+if [ -n "$TREE" ]; then
+  mkdir -p "$ROOT/.cache"
+  printf '%s %s\n' "$TREE" "$(date +%s)" >> "$TRAIL" 2>/dev/null || true
+  tail -n 500 "$TRAIL" > "$TRAIL.tmp" 2>/dev/null && mv "$TRAIL.tmp" "$TRAIL" 2>/dev/null || true
+fi
+
 echo "✓ pre-commit 检查通过"
 exit 0
