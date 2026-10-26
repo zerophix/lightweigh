@@ -483,9 +483,10 @@
       "dec": "",
       "created_at": "2026-10-21T10:29:16Z",
       "updated_at": "2026-10-21T10:29:16Z",
-      "notes": "；AC 待人类定义：「测量中切换用户」「测量帮助弹窗」「跳过仅体重提示」在 03-measure.html / 12-measure-full.html 中均无对应 view；「轮播小贴士」与 12-measure-full.html v-prep 的 4 条准备文案语义不同（准备步骤≠轮播贴士）。；阻塞：需要原型/旧库文案：切换用户、帮助弹窗、跳过仅体重、轮播贴士在 design/prototypes 中无对应 view，无法逐字实现；本轮实现：贴士轮播、测量帮助弹窗、切换成员入口、仅体重提示（MeasureScreen/MeasurementTips）",
+      "notes": "；AC 待人类定义：「测量中切换用户」「测量帮助弹窗」「跳过仅体重提示」在 03-measure.html / 12-measure-full.html 中均无对应 view；「轮播小贴士」与 12-measure-full.html v-prep 的 4 条准备文案语义不同（准备步骤≠轮播贴士）。；阻塞：需要原型/旧库文案：切换用户、帮助弹窗、跳过仅体重、轮播贴士在 design/prototypes 中无对应 view，无法逐字实现；本轮实现：贴士轮播、测量帮助弹窗、切换成员入口、仅体重提示（MeasureScreen/MeasurementTips）；目标文件路径已按实际实现纠正（原路径已不存在）",
       "target_files": [
-        "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/MeasureFlow.kt"
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/MeasurementTips.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/MeasureScreen.kt"
       ],
       "acceptance": {
         "status": "ready",
@@ -942,9 +943,10 @@
       "dec": "",
       "created_at": "2026-10-23T03:44:35Z",
       "updated_at": "2026-10-23T03:44:35Z",
-      "notes": "；AC 待人类定义：「目标进度随时间的曲线」无对应 view；11-home-states.html v-goaldone 是达成瞬间，20-ai-members.html v-member-detail 只有「目标 58.0 kg · 39%」一行进度文本，11-home-states.html v-home 有未带文案的 pbar 组件。曲线本身无原型。；本轮实现：goalCurvePercents + 目标卡曲线；GoalCurveTest 7 条",
+      "notes": "；AC 待人类定义：「目标进度随时间的曲线」无对应 view；11-home-states.html v-goaldone 是达成瞬间，20-ai-members.html v-member-detail 只有「目标 58.0 kg · 39%」一行进度文本，11-home-states.html v-home 有未带文案的 pbar 组件。曲线本身无原型。；本轮实现：goalCurvePercents + 目标卡曲线；GoalCurveTest 7 条；目标文件路径已按实际实现纠正（原路径已不存在）",
       "target_files": [
-        "app/src/main/kotlin/com/xcwk/scalehub/feature/home/HomeStates.kt"
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/GoalCurve.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/MeasureScreen.kt"
       ],
       "acceptance": {
         "status": "draft",
@@ -1472,7 +1474,7 @@
       "dec": "",
       "created_at": "2026-10-23T03:51:46Z",
       "updated_at": "2026-10-23T03:51:46Z",
-      "notes": "\n已由合并队列按分支名回填（DEC-071）",
+      "notes": "\n已由合并队列按分支名回填（DEC-071）；目标文件路径已按实际实现纠正（原路径已不存在）",
       "prototype_ref": {
         "file": "design/prototypes/interactive/12-measure-full.html",
         "views": [
@@ -1487,10 +1489,7 @@
         ]
       },
       "target_files": [
-        "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/MeasureScreen.kt",
-        "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/MeasureViewModel.kt",
-        "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/MeasureFlow.kt",
-        "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/MeasureFlowScreen.kt"
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/MeasureScreen.kt"
       ],
       "wave": 2,
       "module": "measure",
@@ -2372,7 +2371,7 @@
       "dec": "",
       "created_at": "2026-10-23T03:52:35Z",
       "updated_at": "2026-10-24T02:35:00Z",
-      "notes": "已交付并合入 master（PR #46，2026-10-24）；local-ci 6/6 + JVM 单测 + gov-prototype-verify --strict 证据见各 PR",
+      "notes": "已交付并合入 master（PR #46，2026-10-24）；local-ci 6/6 + JVM 单测 + gov-prototype-verify --strict 证据见各 PR；外观/语言两屏已在 kill-fake-switches 中移除，交付物不再存在",
       "prototype_ref": {
         "file": "design/prototypes/interactive/24-remaining-gaps.html",
         "views": [
@@ -2380,10 +2379,7 @@
           "v-appearance"
         ]
       },
-      "target_files": [
-        "app/src/main/kotlin/com/xcwk/scalehub/feature/settings/LanguageSettings.kt",
-        "app/src/main/kotlin/com/xcwk/scalehub/feature/settings/AppearanceSettings.kt"
-      ],
+      "target_files": [],
       "wave": 1,
       "module": "settings",
       "ac_refs": [
@@ -2630,7 +2626,7 @@
       "dec": "",
       "created_at": "2026-10-23T03:52:45Z",
       "updated_at": "2026-10-23T03:52:45Z",
-      "notes": "\n已由合并队列按分支名回填（DEC-071）",
+      "notes": "\n已由合并队列按分支名回填（DEC-071）；目标文件路径已按实际实现纠正（原路径已不存在）",
       "prototype_ref": {
         "file": "design/prototypes/interactive/11-home-states.html",
         "views": [
@@ -2645,8 +2641,7 @@
         ]
       },
       "target_files": [
-        "app/src/main/kotlin/com/xcwk/scalehub/feature/home/HomeStates.kt",
-        "app/src/main/kotlin/com/xcwk/scalehub/ui/shell/MainShell.kt"
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/MeasureScreen.kt"
       ],
       "wave": 2,
       "module": "home",
