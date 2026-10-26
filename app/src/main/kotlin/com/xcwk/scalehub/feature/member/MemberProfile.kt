@@ -20,13 +20,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.xcwk.scalehub.ui.components.QkBackButton
 import com.xcwk.scalehub.ui.components.QkButton
 import com.xcwk.scalehub.ui.components.QkButtonStyle
 import com.xcwk.scalehub.ui.components.QkCard
 import com.xcwk.scalehub.ui.components.QkGlyph
 import com.xcwk.scalehub.ui.components.QkIcons
-import com.xcwk.scalehub.ui.components.QkPageTitle
 import com.xcwk.scalehub.ui.components.QkSegmented
 import com.xcwk.scalehub.ui.components.QkTextField
 import com.xcwk.scalehub.ui.states.QkEmptyState

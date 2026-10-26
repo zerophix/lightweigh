@@ -30,14 +30,12 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
-import com.xcwk.scalehub.ui.components.QkBackButton
 import com.xcwk.scalehub.ui.components.QkButton
 import com.xcwk.scalehub.ui.components.QkButtonStyle
 import com.xcwk.scalehub.ui.components.QkCard
 import com.xcwk.scalehub.ui.components.QkIcon
 import com.xcwk.scalehub.ui.components.QkIcons
 import com.xcwk.scalehub.ui.components.QkListRow
-import com.xcwk.scalehub.ui.components.QkPageTitle
 import com.xcwk.scalehub.ui.components.QkSegmented
 import com.xcwk.scalehub.ui.theme.QkColor
 import com.xcwk.scalehub.ui.theme.QkRadius
