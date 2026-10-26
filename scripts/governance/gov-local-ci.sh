@@ -22,6 +22,7 @@
 #
 # 任一步失败即非 0 退出。
 set -euo pipefail
+SECONDS=0
 
 # ---- 治理总开关（scripts/governance/gov-mode.sh off 时直接放行）----
 _gov_root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
@@ -370,6 +371,11 @@ echo ""
 echo "=== 汇总 ==="
 echo "  车道: $LANE"
 echo "  通过: $PASS  失败: $FAIL"
+# 成本可见化（DEC-072）：批次环不进 5s 预算，但必须能回答"这次花了多久"
+echo "  耗时: ${SECONDS}s（预算 ${GOV_CI_BUDGET:-600}s）"
+if [ "$SECONDS" -gt "${GOV_CI_BUDGET:-600}" ]; then
+  echo "  [超预算] 超过 ${GOV_CI_BUDGET:-600}s：先查重复执行与全量扫描，再加新检查"
+fi
 if [ "$FAIL" -ne 0 ]; then
   write_result fail
   bash scripts/governance/gov-update-status.sh 2>/dev/null || true
