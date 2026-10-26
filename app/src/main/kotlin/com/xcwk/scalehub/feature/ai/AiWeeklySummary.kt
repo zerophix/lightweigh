@@ -73,6 +73,8 @@ data class AiWeeklySummaryUiState(
     val metrics: List<WeeklyMetric> = emptyList(),
     /** 关键变化下方的口径说明段。 */
     val detail: String = "",
+    /** 身体重组洞察（T-064）：仅在「肌肉↑且脂肪↓」同时成立时非空。 */
+    val recomposition: BodyRecomposition? = null,
     /** 本周亮点条目。 */
     val highlights: List<String> = emptyList(),
     /** 下周建议条目（渲染时逐行加「· 」前缀）。 */
@@ -87,6 +89,47 @@ data class AiWeeklySummaryUiState(
      */
     val hasData: Boolean
         get() = summary.isNotBlank() || metrics.isNotEmpty()
+}
+
+/**
+ * 身体重组洞察（T-064）：肌肉上升 + 脂肪下降的专门解读。
+ *
+ * 为什么用阈值而不是"只要有变化就说"：体脂秤日间波动实测可达 ±0.2kg，
+ * 低于 0.3kg 的差值无法与测量噪声区分，编出解读等于造假。
+ */
+data class BodyRecomposition(
+    val muscleDeltaKg: Double,
+    val fatDeltaKg: Double,
+    val title: String,
+    val detail: String,
+)
+
+/** 判定阈值（kg）：肌肉至少 +0.3，脂肪至少 -0.3，才认为发生了重组。 */
+const val RECOMPOSITION_THRESHOLD_KG = 0.3
+
+/**
+ * 由体重构成的变化推导洞察。任一数据缺失、或不满足「肌肉↑ 且 脂肪↓」→ 返回 null。
+ *
+ * @param muscleDeltaKg 肌肉量变化（正数为增加），null 表示本期无数据
+ * @param fatDeltaKg 体脂量变化（负数为下降），null 表示本期无数据
+ * @param windowLabel 时间窗文案，如「本周」「本月」
+ */
+fun bodyRecompositionOf(
+    muscleDeltaKg: Double?,
+    fatDeltaKg: Double?,
+    windowLabel: String = "本周",
+): BodyRecomposition? {
+    if (muscleDeltaKg == null || fatDeltaKg == null) return null
+    if (muscleDeltaKg < RECOMPOSITION_THRESHOLD_KG) return null
+    if (fatDeltaKg > -RECOMPOSITION_THRESHOLD_KG) return null
+    val muscle = String.format(java.util.Locale.CHINA, "%.1f", muscleDeltaKg)
+    val fat = String.format(java.util.Locale.CHINA, "%.1f", fatDeltaKg)
+    return BodyRecomposition(
+        muscleDeltaKg = muscleDeltaKg,
+        fatDeltaKg = fatDeltaKg,
+        title = "身体正在重组",
+        detail = "${windowLabel}肌肉 +${muscle} kg、脂肪 ${fat} kg：总量变化可能不大，但构成在改善，继续当前节奏。",
+    )
 }
 
 /**
@@ -198,6 +241,23 @@ private fun WeeklySummaryBody(
                         color = QkColor.Muted,
                     )
                 }
+            }
+        }
+
+        // 身体重组洞察（T-064）：只在数据支持时出现，不占位、不编解读
+        state.recomposition?.let { insight ->
+            QkCard(modifier = Modifier.padding(top = QkSpacing.CardGap)) {
+                Text(
+                    text = insight.title,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = QkColor.Fg,
+                )
+                Text(
+                    text = insight.detail,
+                    modifier = Modifier.padding(top = QkSpacing.Sm),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = QkColor.Muted,
+                )
             }
         }
 
