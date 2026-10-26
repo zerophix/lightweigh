@@ -210,6 +210,18 @@ if ! bash "$ROOT/scripts/governance/gov-profile.sh" check-scope --staged; then
   exit 1
 fi
 
+# 角色边界（DEC-075）：声明了角色就按角色白名单拦；未声明则只用画像兜底。
+ROLE="$(bash "$ROOT/scripts/workflow/wf-role.sh" current 2>/dev/null || true)"
+if [ -n "$ROLE" ]; then
+  echo "  AI 角色: $ROLE"
+  if ! bash "$ROOT/scripts/workflow/wf-role.sh" check-scope --staged; then
+    echo "❌ 暂停提交：改动越出角色范围"
+    exit 1
+  fi
+else
+  echo "  AI 角色: 未声明（建议 wf-role.sh claim dev|gov|docs|review）"
+fi
+
 # 画像为 docs 时不做任何源码类检查（文档由 pre-push 的 validate 兜底）
 case "$PROFILE" in
   docs)

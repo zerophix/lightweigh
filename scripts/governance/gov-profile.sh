@@ -92,6 +92,26 @@ profile_from_claim() {
   return 1
 }
 
+# 角色默认画像（DEC-075）：声明 dev/gov/docs/review 后自动带上对应强度
+profile_from_role() {
+  local dir="$ROOT/.ai/roles" f sid
+  [ -d "$dir" ] || return 1
+  if [ -n "${WF_CLAIM_SESSION:-}" ]; then
+    sid="$WF_CLAIM_SESSION"
+  else
+    sid="$(python3 -c "import json;print(json.load(open('$ROOT/.ai/current-session.json')).get('session_id',''))" 2>/dev/null || true)"
+  fi
+  [ -z "$sid" ] && return 1
+  f="$dir/$sid.json"
+  [ -f "$f" ] || return 1
+  ROLE_FILE="$f" ROLES_FILE="$ROOT/.ai/roles.json" python3 - <<'PY' 2>/dev/null
+import json, os
+role = json.load(open(os.environ["ROLE_FILE"], encoding="utf-8")).get("role", "")
+roles = json.load(open(os.environ["ROLES_FILE"], encoding="utf-8")).get("roles", {})
+print(roles.get(role, {}).get("profile", ""))
+PY
+}
+
 resolve() {
   local mode="worktree"
   [ "${1:-}" = "--staged" ] && mode="staged"
@@ -107,6 +127,11 @@ resolve() {
   if cand="$(profile_from_claim)"; then
     r="$(rank_of "$cand")"
     if [ "$r" -gt "$best_rank" ]; then best="$cand"; best_rank="$r"; reason="claim"; fi
+  fi
+
+  if cand="$(profile_from_role)"; then
+    r="$(rank_of "$cand")"
+    if [ "$r" -gt "$best_rank" ]; then best="$cand"; best_rank="$r"; reason="role"; fi
   fi
 
   cand="$(profile_from_paths "$mode")"
@@ -135,7 +160,7 @@ allowed() {
       ;;
     gov)
       case "$path" in
-        scripts/*|tests/*|docs/*|.github/*|*.md|.opencode/*) return 0 ;;
+        scripts/*|tests/*|docs/*|.github/*|*.md|.opencode/*|.gitignore|.ai/roles.json) return 0 ;;
         *) return 1 ;;
       esac
       ;;
