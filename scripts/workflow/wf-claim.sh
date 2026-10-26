@@ -513,7 +513,11 @@ cmd_check_staged() {
   session="$(current_session)"
 
   # 注意: 暂存清单经环境变量传入 —— heredoc 已占用 stdin，不能再 pipe
-  STAGED_FILES="$staged" SESSION_ID="$session" LOCK_ROOT="$LOCK_ROOT" TASKS_FILE="$TASKS_FILE" \
+  local staged_diff
+  staged_diff="$(git -C "$ROOT" diff --cached --unified=0 2>/dev/null || true)"
+
+  STAGED_FILES="$staged" STAGED_DIFF="$staged_diff" SESSION_ID="$session" \
+    LOCK_ROOT="$LOCK_ROOT" TASKS_FILE="$TASKS_FILE" \
     python3 - <<'PY'
 import json, os, sys
 
@@ -523,6 +527,21 @@ tasks_file = os.environ['TASKS_FILE']
 
 files = [ln.strip() for ln in os.environ.get('STAGED_FILES', '').splitlines() if ln.strip()]
 if not files:
+    sys.exit(0)
+
+# DEC-079: 纯 import 清理是机械变更，不需要认领任务。
+# 判定必须严格：所有增删的非空行都是 import 语句；任何一行代码/注释变化都不豁免。
+diff = os.environ.get('STAGED_DIFF', '')
+added, removed = [], []
+for line in diff.splitlines():
+    if line.startswith('+++') or line.startswith('---'):
+        continue
+    if line.startswith('+'):
+        added.append(line[1:].strip())
+    elif line.startswith('-'):
+        removed.append(line[1:].strip())
+if removed and all((not ln) or ln.startswith('import ') for ln in added + removed):
+    print('   [跳过] 纯 import 清理（机械变更，不需要任务认领）')
     sys.exit(0)
 
 try:
