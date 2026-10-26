@@ -1,5 +1,21 @@
 package com.xcwk.scalehub.feature.member
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import com.xcwk.scalehub.ui.components.QkCard
+import com.xcwk.scalehub.ui.theme.QkColor
+import com.xcwk.scalehub.ui.theme.QkSpacing
+import java.time.LocalDate
+import java.time.Period
+
 /**
  * 儿童模式（T-071）。
  *
@@ -33,4 +49,52 @@ object ChildModePolicy {
     /** 需要提示"已开启儿童模式"的场景：未成年人且未授权。 */
     fun needsGuardianPrompt(age: Int?, guardianConsent: Boolean): Boolean =
         isMinor(age) && !guardianConsent
+}
+
+
+/** 从出生日期文本算周岁；解析失败或日期在未来返回 null（不猜年龄）。 */
+fun ageFromBirthDate(raw: String, today: LocalDate = LocalDate.now()): Int? {
+    val (y, m, d) = parseBirthDate(raw) ?: return null
+    val birth = runCatching { LocalDate.of(y, m, d) }.getOrNull() ?: return null
+    if (birth.isAfter(today)) return null
+    return Period.between(birth, today).years
+}
+
+/**
+ * 未成年人提示卡：只在年龄可判定且小于 18 时出现。
+ * 授权开关由调用方持有（本组件不持久化），避免"组件自己记住同意过"。
+ */
+@Composable
+fun ChildModeNotice(
+    age: Int?,
+    guardianConsent: Boolean,
+    onConsentChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    if (!ChildModePolicy.isMinor(age)) return
+    QkCard(modifier = modifier) {
+        Text(
+            text = "未成年人模式",
+            style = MaterialTheme.typography.titleSmall,
+            color = QkColor.Fg,
+        )
+        Text(
+            text = "AI 解读与报告分享默认关闭；监护人同意后开放，跨成员数据始终不可见。",
+            modifier = Modifier.padding(top = QkSpacing.Xs),
+            style = MaterialTheme.typography.bodySmall,
+            color = QkColor.Muted,
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(top = QkSpacing.Sm),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Text(
+                text = "监护人已同意",
+                style = MaterialTheme.typography.bodyMedium,
+                color = QkColor.Fg,
+            )
+            Switch(checked = guardianConsent, onCheckedChange = onConsentChange)
+        }
+    }
 }

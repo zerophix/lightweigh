@@ -15,7 +15,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -449,6 +452,14 @@ fun MemberEditScreen(
             )
             FieldError(state.errors.nickname)
         }
+
+        var guardianConsent by rememberSaveable { mutableStateOf(false) }
+        ChildModeNotice(
+            age = ageFromBirthDate(state.draft.birthDate),
+            guardianConsent = guardianConsent,
+            onConsentChange = { guardianConsent = it },
+            modifier = Modifier.padding(bottom = QkSpacing.CardGap),
+        )
 
         QkCard(modifier = Modifier.padding(bottom = QkSpacing.CardGap)) {
             QkTextField(
