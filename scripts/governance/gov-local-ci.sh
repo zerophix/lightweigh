@@ -247,6 +247,9 @@ if [ "${GOV_LOCAL_CI_PLAN:-0}" = "1" ]; then
     echo "  $i. $s"
     i=$((i + 1))
   done
+  if [ "$LANE" = "A" ]; then
+    echo "  （车道 A：custom-checks 走增量模式，reachability 跳过）"
+  fi
   echo ""
   echo "PLAN lane=$LANE gradle=${GRADLE_TASK:-skip}"
   exit 0
@@ -343,12 +346,23 @@ else
   run_step "pytest tests/unit" python3 -m pytest tests/unit -q
 fi
 run_step "gov-validate" bash scripts/governance/gov-validate.sh
-run_step "gov-custom-checks" bash scripts/governance/gov-custom-checks.sh
+# 车道 A（纯文档/设计）没有源码变更：code-check 走增量模式，避免 8s 全仓扫描
+if [ "$LANE" = "A" ]; then
+  run_step "gov-custom-checks" env GOV_CODE_CHECK_STAGED=1 bash scripts/governance/gov-custom-checks.sh
+else
+  run_step "gov-custom-checks" bash scripts/governance/gov-custom-checks.sh
+fi
 run_step "gov-secrets-scan" bash scripts/governance/gov-secrets-scan.sh
 run_step "gov-schema-guard" bash scripts/governance/gov-schema-guard.sh
 run_step "gov-test-guard" bash scripts/governance/gov-test-guard.sh
 run_step "gov-a11y-check" python3 scripts/governance/gov-a11y-check.py
-run_step "gov-reachability-check" python3 scripts/governance/gov-reachability-check.py
+# 可达性建立在 Kotlin 源码上：车道 A 无可达面变化，跳过（6.4s 全是重复计算）
+if [ "$LANE" = "A" ]; then
+  echo ""
+  echo "=== [gov-reachability-check] 跳过（车道 A：无代码变更）==="
+else
+  run_step "gov-reachability-check" python3 scripts/governance/gov-reachability-check.py
+fi
 run_step "gov-hook-doctor" bash scripts/governance/gov-hook-doctor.sh
 set -e
 
