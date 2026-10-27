@@ -249,6 +249,23 @@ def test_docs003_with_marker_ok(tmp_path, monkeypatch):
     assert not _has(errors, "GOV-DOCS-003"), errors
 
 
+def test_docs003_extended_mirror_missing_truth_source(tmp_path, monkeypatch):
+    """GOV-DOCS-003: 扩展后的 MIRROR_DOCS（如 05_Test.md）缺真源声明也必须 FAIL。"""
+    _make_repo(tmp_path)
+    _write(tmp_path / "docs" / "ai" / "lifecycle" / "05_Test.md", "# 测试\n\n没有声明权威。\n")
+    errors, _ = _check(tmp_path, monkeypatch)
+    assert _has(errors, "GOV-DOCS-003"), errors
+
+
+def test_docs003_extended_mirror_with_marker_ok(tmp_path, monkeypatch):
+    """扩展后的 MIRROR_DOCS 带真源声明标记不应触发 003。"""
+    _make_repo(tmp_path)
+    _write(tmp_path / "docs" / "ai" / "lifecycle" / "05_Test.md",
+           "# 测试\n\n**真源声明**：Notion 为权威。\n")
+    errors, _ = _check(tmp_path, monkeypatch)
+    assert not _has(errors, "GOV-DOCS-003"), errors
+
+
 # ---------------------------------------------------------------- 005 过期
 
 def test_docs005_missing_updated_marker_is_warning(tmp_path, monkeypatch):

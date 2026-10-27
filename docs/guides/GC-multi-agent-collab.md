@@ -3,6 +3,8 @@
 > 适用：多名 AI（或 AI + 人类）同时推进本仓库。
 > 权威任务板：`.ai/tasks.json`。合入前门禁：`bash scripts/governance/gov-local-ci.sh`。
 > 决策：DEC-047、DEC-048、DEC-049、DEC-050、DEC-054。
+>
+> **真源声明**：本文件是 Notion「轻衡健康 / 04-研发 / DOC-并发开发约定」的工程侧镜像。并发约定以 Notion 为准，冲突时以 Notion 为准并回同步本文件。
 
 ---
 
