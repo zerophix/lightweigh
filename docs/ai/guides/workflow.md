@@ -1,43 +1,65 @@
 # AI 工作流程
 
-> AI 与人类协作的 10 步生命周期。每个 session 按此顺序执行。
+> AI 与人类协作的执行流程。每个 session 按此顺序执行。
+>
+> **真源声明**：本文件是 Notion「轻衡健康 / 00-规范 / DOC-开发流程总图」的工程侧镜像。
+> 工作流程以 Notion 为准，冲突时以 Notion 为准并回同步本文件。
 
 ---
 
-## 生命周期 10 步
+## 三步开工
+
+```bash
+bash scripts/session/ses-session-begin.sh        # 会话 ID + 上下文 + 合规卡
+bash scripts/workflow/wf-role.sh claim <role>    # dev | gov | docs | review
+bash scripts/workflow/wf-autopilot.sh status     # 一屏真相 + NEXT 命令
+```
+
+- 一个会话只持有一个角色，8 小时过期。
+- 未声明角色不得改代码或治理脚本。
+- 多 AI 并发时必须使用 worktree。
+
+## 四环模型（快慢分离）
+
+| 环 | 预算 | 命令 | 跑什么 |
+|----|------|------|--------|
+| 内环 | ≤ 5s | `scripts/dev/dev-loop.sh [--watch]` | 增量编译 + 同名测试 + 受影响 pytest |
+| 交付 | ≤ 5s | `scripts/dev/ship.sh -m "..." <path>` | 暂存 + 提交 + 推送 + PR |
+| 提交环 | ≤ 3s | `git commit` | 分支/范围/角色/`bash -n`/暂存区检查 |
+| 批次环 | ≤ 10min | `bash scripts/governance/gov-local-ci.sh` | 全量测试 + 静态检查 |
+
+## 任务执行链路
 
 ```
-D→R→E→T→A→V→M→L→D→P
+认领 ──► worktree ──► 写码 ──► 提交 ──► PR ──► 队列验证 ──► 合入
 ```
 
-| 步骤 | 名称 | AI 行为 |
-|------|------|---------|
-| **D** | 读取状态 | 读 STATUS.md → context-load.sh → 最近 notes + decisions |
-| **R** | 多 AI 评审 | 按维度审查，写报告到 reviews/{date}_{topic}/{agent}.md |
-| **E** | 决策引擎 | 生成方案，评分选择 |
-| **T** | 任务图 | 分解为可执行任务 |
-| **A** | 执行 | 写代码、改文档、创建 DEC |
-| **V** | 验证 | validate.sh → 测试 → 修复 |
-| **M** | 更新指标 | update-status.sh → update-metrics.sh |
-| **L** | 记录决策 | next-decision.sh --create → 编辑 DEC |
-| **D** | 更新文档 | 覆盖写入 lifecycle/ 6 个核心文档 |
-| **P** | 晋升 | promote.sh → sync-standards.sh |
+- `wf-claim.sh claim T-xxx` — 原子认领
+- `ses-worktree.sh add feat/<topic>` — 隔离工作区
+- `gov-task-done.sh T-xxx` — DoD 验证，生成证据
+- `wf-queue.sh run` — 批次验证 + 合并
 
 ## 核心原则
 
-1. **不进则退** — 不在未通过 validate.sh 的状态下提交
-2. **追加不覆盖** — 决策日志只追加写，不删除不修改
-3. **晋升不直接写** — 黄金标准必须通过 promote.sh，不直接编辑 docs/ 根目录文件
-4. **重大变更须有 DEC** — 协议/算法/schema/同步语义/治理门禁/架构事实须写 DEC；纯文案、注释、死 import 清理通常不需要（见 AGENTS.md / GC-multi-agent-collab / DEC-055）
+1. **不进则退** — 不在未通过 `gov-validate.sh` 的状态下提交
+2. **追加不覆盖** — 决策日志（DEC-*）只追加写，不删除不修改
+3. **晋升不直接写** — 黄金标准通过 `wf-promote.sh`，不可直接编辑 `docs/` 根目录文件
+4. **重大变更须有 DEC** — 协议/算法/schema/同步语义/治理门禁/架构事实须写 DEC；纯文案、注释、死 import 清理通常不需要
 
-## 文件管理
+## 共享文件归则
 
-- AI 只能写入 AGENTS.md 白名单内的文件
-- 禁止创建 old/legacy/vN 版本目录
-- 新指南写 GC-{slug}.md，新参考写 REF-{slug}.md
-- 散落旧文件用 migrate.sh --archive 归档到 docs/archive/
+- `.ai/tasks.json`、`STATUS.md`、`docs/ai/lifecycle/03_TaskGraph.md`、`docs/ai/lifecycle/06_Metrics.md`、`docs/index.md`、`AGENTS.md` — 只能由合并队列/收尾自动化写入
+- 功能分支只提交：**自己的代码 + 自己的测试 + 自己的文档**
+
+## 命令速查
+
+- **流程**：`wf-autopilot.sh` → `wf-claim.sh` → `wf-task-board.sh` → `wf-queue.sh`
+- **开发**：`dev-loop.sh` → `dev-verify.sh` → `ship.sh`
+- **门禁**：`gov-validate.sh` → `gov-local-ci.sh` → `gov-task-done.sh` → `gov-merge.sh`
 
 ## 参考
 
 - [决策流转规范](../../guides/GC-decision-flow.md) — NOTE→DEC→promote→golden 完整链路
 - [校验规则](../../guides/GC-decision-flow.md) — 见 GC-decision-flow.md 校验体系章节
+- [多 AI 并发协作](../../guides/GC-multi-agent-collab.md) — worktree / 合并队列 / 共享文件
+- [原型驱动开发](../../guides/GC-prototype-driven-dev.md) — Wave 0/1/2 执行顺序
