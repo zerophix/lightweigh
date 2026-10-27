@@ -1,0 +1,26 @@
+{
+  "task": "T-1018",
+  "ok": true,
+  "git_sha": "594c86117c180844fd769fbb7334b89b875b7bb3",
+  "verified_at": "2026-10-27T14:26:02Z",
+  "checks": [
+    {
+      "type": "file",
+      "name": "app/src/main/kotlin/com/xcwk/scalehub/infrastructure/config/RemoteConfig.kt",
+      "status": "PASS",
+      "detail": "存在"
+    },
+    {
+      "type": "ui_dod",
+      "name": "GOV_LANE=B bash scripts/governance/gov-local-ci.sh",
+      "status": "PASS",
+      "detail": "退出码 0"
+    },
+    {
+      "type": "command",
+      "name": "test -f app/src/main/kotlin/com/xcwk/scalehub/infrastructure/config/RemoteConfig.kt",
+      "status": "PASS",
+      "detail": "退出码 0"
+    }
+  ]
+}

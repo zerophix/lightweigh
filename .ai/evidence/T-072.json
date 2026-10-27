@@ -1,0 +1,38 @@
+{
+  "task": "T-072",
+  "ok": false,
+  "git_sha": "594c86117c180844fd769fbb7334b89b875b7bb3",
+  "verified_at": "2026-10-27T08:43:43Z",
+  "checks": [
+    {
+      "type": "file",
+      "name": "app/src/main/kotlin/com/xcwk/scalehub/feature/auth/EmailLogin.kt",
+      "status": "PASS",
+      "detail": "存在"
+    },
+    {
+      "type": "file",
+      "name": "app/src/main/kotlin/com/xcwk/scalehub/feature/auth/GuestMode.kt",
+      "status": "PASS",
+      "detail": "存在"
+    },
+    {
+      "type": "ui_dod",
+      "name": "GOV_LANE=B bash scripts/governance/gov-local-ci.sh",
+      "status": "FAIL",
+      "detail": "退出码 1\n[cache hit] gov-hook-doctor\n钩子配置正确（core.hooksPath=/Users/mingxilv/vibecoding/health/lightweigh/scripts/hooks，包装器齐全）\n  PASS: gov-hook-doctor\n=== [gov-reachability-check]（并行）===\n[cache hit] gov-reachability-check\n[reach] 入口 4 个，目标屏 128 个，可达 128 个\n[reach] 无新增不可达（存量 0 项，基线 0 项）\n  PASS: gov-reachability-check\n=== 汇总 ===\n  车道: B\n  通过: 7  失败: 3\n  耗时: 2s（预算 5s，前台）\n  wrote evidence: /Users/mingxilv/vibecoding/health/lightweigh/.cache/local-ci-last.json\n STATUS.md updated: 2026-10-27T08:43:41Z\nFAIL gov-local-ci"
+    },
+    {
+      "type": "prototype",
+      "name": "python3 scripts/governance/gov-prototype-verify.py T-072 --strict",
+      "status": "PASS",
+      "detail": "退出码 0"
+    },
+    {
+      "type": "command",
+      "name": "./gradlew :app:testDebugUnitTest",
+      "status": "PASS",
+      "detail": "退出码 0"
+    }
+  ]
+}
