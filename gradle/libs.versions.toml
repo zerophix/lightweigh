@@ -1,52 +1,17 @@
-# 版本单一事实源（对应 Java 版 platform-bom/parent）
-# 版本对齐 qk-health-android，便于迁移
 [versions]
 agp = "9.2.1"
 kotlin = "2.2.10"
-ksp = "2.3.9"
+ksp = "2.3.12"
 coroutines = "1.11.0"
 junit = "4.13.2"
 truth = "1.4.4"
-archunit = "1.3.0"
-room = "2.8.5"
-work = "2.9.1"
-composeBom = "2024.09.03"
-composeCompiler = "1.5.15"
-activityCompose = "1.9.2"
-lifecycle = "2.8.6"
-coreKtx = "1.13.1"
-desugarJdkLibs = "2.1.5"
 
 [libraries]
 coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
 junit = { module = "junit:junit", version.ref = "junit" }
 truth = { module = "com.google.truth:truth", version.ref = "truth" }
-archunit = { module = "com.tngtech.archunit:archunit", version.ref = "archunit" }
-androidx-test-core = { module = "androidx.test:core-ktx", version = "1.6.1" }
-androidx-test-runner = { module = "androidx.test:runner", version = "1.6.2" }
-androidx-test-ext-junit = { module = "androidx.test.ext:junit-ktx", version = "1.2.1" }
-room-testing = { module = "androidx.room:room-testing", version.ref = "room" }
-org-json = { module = "org.json:json", version = "20260814" }
-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
-work-runtime = { module = "androidx.work:work-runtime-ktx", version.ref = "work" }
-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
-zxing-embedded = { module = "com.journeyapps:zxing-android-embedded", version = "4.3.0" }
-health-connect = { module = "androidx.health.connect:connect-client", version = "1.1.0-alpha10" }
-compose-ui = { module = "androidx.compose.ui:ui" }
-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
-compose-material3 = { module = "androidx.compose.material3:material3" }
-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle" }
-core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
-desugar-jdk-libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugarJdkLibs" }
 
-[plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
