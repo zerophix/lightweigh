@@ -21,8 +21,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.xcwk.scalehub.ui.components.QkButton
+import com.xcwk.scalehub.ui.components.QkFieldError
 import com.xcwk.scalehub.ui.components.QkScreenHeader
 import com.xcwk.scalehub.ui.components.QkHeaderStyle
 import com.xcwk.scalehub.ui.components.QkTextField
@@ -238,12 +238,7 @@ fun VerifyCodeScreen(
 /** 字段级错误提示（红色小字）。 */
 @Composable
 private fun FieldError(text: String) {
-    Text(
-        text,
-        modifier = Modifier.padding(top = QkSpacing.Xs),
-        style = MaterialTheme.typography.labelSmall,
-        color = QkColor.Danger,
-    )
+    QkFieldError(text)
 }
 
 @Preview(showBackground = true, name = "VerifyCodeScreen")

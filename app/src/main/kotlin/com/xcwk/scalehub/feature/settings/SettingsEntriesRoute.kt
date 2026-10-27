@@ -14,6 +14,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.xcwk.scalehub.feature.sync.FeedbackDraft
 import com.xcwk.scalehub.feature.sync.HelpCenterRoute
 import com.xcwk.scalehub.feature.sync.HelpCenterStep
+import com.xcwk.scalehub.feature.sync.DiagScreen
+import com.xcwk.scalehub.feature.sync.DiagDeviceInfo
+import com.xcwk.scalehub.feature.sync.DiagBluetoothState
+import com.xcwk.scalehub.feature.sync.DiagNetworkState
+import com.xcwk.scalehub.feature.sync.DiagCloudState
 import com.xcwk.scalehub.ui.components.QkIcon
 import com.xcwk.scalehub.ui.components.QkIcons
 import com.xcwk.scalehub.ui.components.QkListRow
@@ -54,6 +59,7 @@ enum class SettingsEntryTarget(val screen: String) {
     DataRecovery("DataRecoveryScreen"),
     Maintenance("MaintenanceScreen"),
     HelpCenter("HelpCenterRoute"),
+    DiagScreen("DiagScreen"),
 }
 
 /**
@@ -122,6 +128,14 @@ object SettingsEntries {
         helpStep = HelpCenterStep.Diagnostics,
     )
 
+    val DiagScreen = SettingsEntry(
+        id = "settings.diagScreen",
+        group = SettingsEntryGroup.Help,
+        title = "客户端诊断",
+        hint = "查看设备信息、网络状态、云服务连接",
+        target = SettingsEntryTarget.DiagScreen,
+    )
+
     val Maintenance = SettingsEntry(
         id = "settings.maintenance",
         group = SettingsEntryGroup.Other,
@@ -138,6 +152,7 @@ object SettingsEntries {
         HelpCenter,
         Feedback,
         Diagnostics,
+        DiagScreen,
         Maintenance,
     )
 
@@ -235,6 +250,11 @@ fun SettingsEntriesRoute(
     onSubmitFeedback: (FeedbackDraft) -> Unit = {},
     onViewAnnouncement: () -> Unit = {},
     onOpenSdkPolicy: (String) -> Unit = {},
+    deviceInfo: DiagDeviceInfo = DiagDeviceInfo(),
+    bluetoothState: DiagBluetoothState = DiagBluetoothState(),
+    networkState: DiagNetworkState = DiagNetworkState(),
+    cloudState: DiagCloudState = DiagCloudState(),
+    recentLogs: List<String> = emptyList(),
     vm: SettingsViewModel = viewModel(factory = SettingsViewModel.Factory),
 ) {
     // 只存入口 id：进程重建后按登记表回查，不序列化整张表。
@@ -302,6 +322,20 @@ fun SettingsEntriesRoute(
             )
         }
 
+        SettingsEntryTarget.DiagScreen -> key(entry.id) {
+            DiagScreen(
+                deviceInfo = deviceInfo,
+                bluetoothState = bluetoothState,
+                networkState = networkState,
+                cloudState = cloudState,
+                recentLogs = recentLogs,
+                onCopyDiagnostics = { /* 复制到剪贴板 */ },
+                onToggleBluetooth = { /* 跳转蓝牙设置 */ },
+                onRefreshCloud = { /* 刷新云服务状态 */ },
+                onBack = backToSettings,
+            )
+        }
+
     }
 }
 
@@ -312,5 +346,6 @@ private fun entryIcon(entry: SettingsEntry): ImageVector = when {
     entry.id == SettingsEntries.Maintenance.id -> QkIcons.Bell
     entry.helpStep == HelpCenterStep.Diagnostics -> QkIcons.Cache
     entry.helpStep == HelpCenterStep.Feedback -> QkIcons.Send
+    entry.target == SettingsEntryTarget.DiagScreen -> QkIcons.Bell
     else -> QkIcons.About
 }

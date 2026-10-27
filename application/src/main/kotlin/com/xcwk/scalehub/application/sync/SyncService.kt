@@ -53,10 +53,15 @@ class SyncService(
     private val memberId: () -> String,
     /** 同步状态端口（M2b 水位线/对账/幂等）——可为 null 以兼容无水位线的旧路径 */
     private val syncState: SyncStatePort? = null,
+
+    /** 冲突解决服务（M3b）——可空以兼容无冲突解决的旧路径 */
+    private val conflictResolver: ConflictResolutionService? = null,
 ) {
     private val mutex = Mutex()
 
-    /** 日常推送（只上传本机）。false=未登录/网络失败（吞异常同旧库:54）。 */
+    /**
+     * 日常推送（只上传本机）。false=未登录/网络失败（吞异常同旧库:54）。
+     */
     suspend fun push(): Boolean = mutex.withLock {
         if (!session.isFormalAccount()) {
             DebugLog.add("sync", "push: skipped (guest)")
@@ -319,34 +324,80 @@ class SyncService(
     /**
      * 合并云端测量记录到本机。
      * @return 本次合并的最大时间戳（0 = 无有效合并）
+     *
+     * M3b 增强：当记录存在但可能有更新时，调用 ConflictResolutionService 解决冲突。
      */
     private suspend fun mergeMeasurements(rows: List<CloudRow>): Long {
-        val existing = measurementQuery.between(0L, Long.MAX_VALUE).map { it.time }.toSet()
+        val existing = measurementQuery.between(0L, Long.MAX_VALUE).map { it.time to it }.toMap()
         var maxTime = 0L
         for (row in rows) {
             val time = (row.fields["measured_at"] as? Number)?.toLong() ?: continue
-            if (time <= 0 || time in existing) continue    // 只补本机没有的（不删除云端多出）
-            runCatching {
-                measurements.save(
-                    MeasureRecord(
-                        time,
-                        (row.fields["weight"] as? Number)?.toDouble() ?: return@runCatching,
-                        (row.fields["impedance"] as? Number)?.toDouble() ?: 0.0,
-                        (row.fields["fat"] as? Number)?.toDouble() ?: -1.0,
-                        row.fields["mac"]?.toString() ?: "",
-                        row.fields["algorithm_id"]?.toString() ?: "",
-                        row.fields["male"] as? Boolean,
-                        (row.fields["age_years"] as? Number)?.toInt(),
-                        (row.fields["height_cm"] as? Number)?.toInt(),
-                    ),
-                    memberId(),
-                )
+            val local = existing[time]
+            if (time <= 0) continue
+            if (local == null) {
+                // 本机没有 → 直接插入
+                runCatching {
+                    measurements.save(
+                        MeasureRecord(
+                            time,
+                            (row.fields["weight"] as? Number)?.toDouble() ?: return@runCatching,
+                            (row.fields["impedance"] as? Number)?.toDouble() ?: 0.0,
+                            (row.fields["fat"] as? Number)?.toDouble() ?: -1.0,
+                            row.fields["mac"]?.toString() ?: "",
+                            row.fields["algorithm_id"]?.toString() ?: "",
+                            row.fields["male"] as? Boolean,
+                            (row.fields["age_years"] as? Number)?.toInt(),
+                            (row.fields["height_cm"] as? Number)?.toInt(),
+                        ),
+                        memberId(),
+                    )
+                }.onFailure {
+                    DebugLog.add("sync", "merge measurements: bad row skipped t=$time (${it.javaClass.simpleName})")
+                }   // 坏行跳过（守卫 fail-fast 即过滤器）
                 if (time > maxTime) maxTime = time
-            }.onFailure {
-                DebugLog.add("sync", "merge measurements: bad row skipped t=$time (${it.javaClass.simpleName})")
-            }   // 坏行跳过（守卫 fail-fast 即过滤器）
+                continue
+            }
+            // 冲突：本机已有该时间戳的记录 → 委派冲突解决
+            val cloudTs = (row.fields["updated_at"] as? Number)?.toLong() ?: time
+            conflictResolver?.let { resolver ->
+                val resolved = resolver.resolve(
+                    "measurements", local.time, cloudTs,
+                    localFields(local), row.fields,
+                )
+                if (resolved.strategy != ConflictResolutionStrategy.LOCAL_WINS) {
+                    runCatching {
+                        measurements.save(
+                            MeasureRecord(
+                                time,
+                                (resolved.mergedFields["weight"] as? Number)?.toDouble() ?: local.weight,
+                                (resolved.mergedFields["impedance"] as? Number)?.toDouble() ?: 0.0,
+                                (resolved.mergedFields["fat"] as? Number)?.toDouble() ?: -1.0,
+                                resolved.mergedFields["mac"]?.toString() ?: local.mac,
+                                resolved.mergedFields["algorithm"]?.toString() ?: local.algorithm,
+                                resolved.mergedFields["male"] as? Boolean,
+                                (resolved.mergedFields["age_years"] as? Number)?.toInt(),
+                                (resolved.mergedFields["height_cm"] as? Number)?.toInt(),
+                            ),
+                            memberId(),
+                        )
+                    }.onFailure {
+                        DebugLog.add("sync", "merge conflict: failed t=$time (${it.javaClass.simpleName})")
+                    }
+                    if (time > maxTime) maxTime = time
+                }
+            }
         }
         return maxTime
+    }
+
+    /** 提取本地记录的字段快照（用于冲突比较）。 */
+    private fun localFields(record: MeasureRecord): Map<String, Any?> {
+        return mapOf(
+            "time" to record.time,
+            "weight" to record.weight,
+            "fat" to record.fat,
+            "mac" to record.mac,
+        )
     }
 
     /**

@@ -35,6 +35,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import com.xcwk.scalehub.ui.components.QkButton
+import com.xcwk.scalehub.ui.components.QkFieldError
 import com.xcwk.scalehub.ui.components.QkButtonStyle
 import com.xcwk.scalehub.ui.components.QkCard
 import com.xcwk.scalehub.ui.components.QkIcon
@@ -240,12 +241,7 @@ private fun AuthHero(headline: String, subline: String, centered: Boolean = fals
 /** 字段级错误提示（红色小字）。 */
 @Composable
 private fun FieldError(text: String) {
-    Text(
-        text,
-        modifier = Modifier.padding(top = QkSpacing.Xs),
-        style = MaterialTheme.typography.labelSmall,
-        color = QkColor.Danger,
-    )
+    QkFieldError(text)
 }
 
 /**

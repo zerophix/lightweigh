@@ -1,0 +1,26 @@
+{
+  "task": "T-1016",
+  "ok": true,
+  "git_sha": "594c86117c180844fd769fbb7334b89b875b7bb3",
+  "verified_at": "2026-10-27T12:47:13Z",
+  "checks": [
+    {
+      "type": "file",
+      "name": "cloudbase/logging/cls-config.json",
+      "status": "PASS",
+      "detail": "存在"
+    },
+    {
+      "type": "doc_dod",
+      "name": "bash scripts/governance/gov-validate.sh --tags lane-a",
+      "status": "PASS",
+      "detail": "退出码 0"
+    },
+    {
+      "type": "command",
+      "name": "test -f cloudbase/logging/cls-config.json",
+      "status": "PASS",
+      "detail": "退出码 0"
+    }
+  ]
+}
