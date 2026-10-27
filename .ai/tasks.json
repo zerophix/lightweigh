@@ -4355,7 +4355,40 @@
         "T-069",
         "T-077",
         "T-095"
-      ]
+      ],
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "目标文件: app/src/main/kotlin/com/xcwk/scalehub/feature/measure/MeasureScreen.kt",
+          "原型视图: v-measuring/v-result/v-ai-report (测量中/结果/AI报告)",
+          "Wave 0/1 基础组件已落地（QkSkeleton、QkLongPressMenu、ErrorStates 等）"
+        ],
+        "when": [
+          "执行 verify_commands"
+        ],
+        "then": [
+          "target_files 均存在且编译通过",
+          "视图 v-measuring/v-result/v-ai-report (测量中/结果/AI报告) 正确渲染，文案与原型一致",
+          ":app:testDebugUnitTest 通过",
+          "无硬编码颜色/间距（gov-prototype-verify --strict 通过）"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-118 --strict",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "forbidden": [
+          "硬编码 Color(0x…) 与 NN.dp（走 Qk 组件与 token）",
+          "静默改黄金向量",
+          "删除或放宽既有测试"
+        ],
+        "definition_of_done": [
+          "target_files 存在且可编译",
+          "视图实现与原型匹配",
+          ":app:testDebugUnitTest 通过",
+          "gov-prototype-verify --strict 通过"
+        ],
+        "source": "wf-task-board"
+      }
     },
     {
       "id": "T-119",
@@ -4375,7 +4408,40 @@
       "target_files": [
         "app/src/main/kotlin/com/xcwk/scalehub/feature/device/DevicePairingViews.kt"
       ],
-      "depends_on": []
+      "depends_on": [],
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "目标文件: app/src/main/kotlin/com/xcwk/scalehub/feature/device/DevicePairingViews.kt",
+          "原型视图: v-search (搜索设备)",
+          "Wave 0/1 基础组件已落地（QkSkeleton、QkLongPressMenu、ErrorStates 等）"
+        ],
+        "when": [
+          "执行 verify_commands"
+        ],
+        "then": [
+          "target_files 均存在且编译通过",
+          "视图 v-search (搜索设备) 正确渲染，文案与原型一致",
+          ":app:testDebugUnitTest 通过",
+          "无硬编码颜色/间距（gov-prototype-verify --strict 通过）"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-119 --strict",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "forbidden": [
+          "硬编码 Color(0x…) 与 NN.dp（走 Qk 组件与 token）",
+          "静默改黄金向量",
+          "删除或放宽既有测试"
+        ],
+        "definition_of_done": [
+          "target_files 存在且可编译",
+          "视图实现与原型匹配",
+          ":app:testDebugUnitTest 通过",
+          "gov-prototype-verify --strict 通过"
+        ],
+        "source": "wf-task-board"
+      }
     },
     {
       "id": "T-120",
@@ -4400,7 +4466,40 @@
       "overlaps_with": [
         "T-055",
         "T-124"
-      ]
+      ],
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "目标文件: app/src/main/kotlin/com/xcwk/scalehub/feature/history/HistoryScreen.kt, app/src/main/kotlin/com/xcwk/scalehub/feature/trend/MetricDetailScreen.kt",
+          "原型视图: v-history/v-metric-detail (历史列表/指标详情)",
+          "Wave 0/1 基础组件已落地（QkSkeleton、QkLongPressMenu、ErrorStates 等）"
+        ],
+        "when": [
+          "执行 verify_commands"
+        ],
+        "then": [
+          "target_files 均存在且编译通过",
+          "视图 v-history/v-metric-detail (历史列表/指标详情) 正确渲染，文案与原型一致",
+          ":app:testDebugUnitTest 通过",
+          "无硬编码颜色/间距（gov-prototype-verify --strict 通过）"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-120 --strict",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "forbidden": [
+          "硬编码 Color(0x…) 与 NN.dp（走 Qk 组件与 token）",
+          "静默改黄金向量",
+          "删除或放宽既有测试"
+        ],
+        "definition_of_done": [
+          "target_files 存在且可编译",
+          "视图实现与原型匹配",
+          ":app:testDebugUnitTest 通过",
+          "gov-prototype-verify --strict 通过"
+        ],
+        "source": "wf-task-board"
+      }
     },
     {
       "id": "T-121",
@@ -4420,7 +4519,40 @@
       "target_files": [
         "app/src/main/kotlin/com/xcwk/scalehub/feature/ai/AiScreen.kt"
       ],
-      "depends_on": []
+      "depends_on": [],
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "目标文件: app/src/main/kotlin/com/xcwk/scalehub/feature/ai/AiScreen.kt",
+          "原型视图: v-chat/v-report (AI对话/AI报告)",
+          "Wave 0/1 基础组件已落地（QkSkeleton、QkLongPressMenu、ErrorStates 等）"
+        ],
+        "when": [
+          "执行 verify_commands"
+        ],
+        "then": [
+          "target_files 均存在且编译通过",
+          "视图 v-chat/v-report (AI对话/AI报告) 正确渲染，文案与原型一致",
+          ":app:testDebugUnitTest 通过",
+          "无硬编码颜色/间距（gov-prototype-verify --strict 通过）"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-121 --strict",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "forbidden": [
+          "硬编码 Color(0x…) 与 NN.dp（走 Qk 组件与 token）",
+          "静默改黄金向量",
+          "删除或放宽既有测试"
+        ],
+        "definition_of_done": [
+          "target_files 存在且可编译",
+          "视图实现与原型匹配",
+          ":app:testDebugUnitTest 通过",
+          "gov-prototype-verify --strict 通过"
+        ],
+        "source": "wf-task-board"
+      }
     },
     {
       "id": "T-122",
@@ -4444,7 +4576,40 @@
       "depends_on": [],
       "overlaps_with": [
         "T-071"
-      ]
+      ],
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "目标文件: app/src/main/kotlin/com/xcwk/scalehub/feature/mine/MineScreen.kt, app/src/main/kotlin/com/xcwk/scalehub/feature/member/MemberProfile.kt",
+          "原型视图: v-mine/v-profile/v-members (我的主页/个人资料/成员管理)",
+          "Wave 0/1 基础组件已落地（QkSkeleton、QkLongPressMenu、ErrorStates 等）"
+        ],
+        "when": [
+          "执行 verify_commands"
+        ],
+        "then": [
+          "target_files 均存在且编译通过",
+          "视图 v-mine/v-profile/v-members (我的主页/个人资料/成员管理) 正确渲染，文案与原型一致",
+          ":app:testDebugUnitTest 通过",
+          "无硬编码颜色/间距（gov-prototype-verify --strict 通过）"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-122 --strict",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "forbidden": [
+          "硬编码 Color(0x…) 与 NN.dp（走 Qk 组件与 token）",
+          "静默改黄金向量",
+          "删除或放宽既有测试"
+        ],
+        "definition_of_done": [
+          "target_files 存在且可编译",
+          "视图实现与原型匹配",
+          ":app:testDebugUnitTest 通过",
+          "gov-prototype-verify --strict 通过"
+        ],
+        "source": "wf-task-board"
+      }
     },
     {
       "id": "T-123",
@@ -4464,7 +4629,40 @@
       "target_files": [
         "app/src/main/kotlin/com/xcwk/scalehub/feature/sync/SyncCenterRoute.kt"
       ],
-      "depends_on": []
+      "depends_on": [],
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "目标文件: app/src/main/kotlin/com/xcwk/scalehub/feature/sync/SyncCenterRoute.kt",
+          "原型视图: v-sync (同步主页)",
+          "Wave 0/1 基础组件已落地（QkSkeleton、QkLongPressMenu、ErrorStates 等）"
+        ],
+        "when": [
+          "执行 verify_commands"
+        ],
+        "then": [
+          "target_files 均存在且编译通过",
+          "视图 v-sync (同步主页) 正确渲染，文案与原型一致",
+          ":app:testDebugUnitTest 通过",
+          "无硬编码颜色/间距（gov-prototype-verify --strict 通过）"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-123 --strict",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "forbidden": [
+          "硬编码 Color(0x…) 与 NN.dp（走 Qk 组件与 token）",
+          "静默改黄金向量",
+          "删除或放宽既有测试"
+        ],
+        "definition_of_done": [
+          "target_files 存在且可编译",
+          "视图实现与原型匹配",
+          ":app:testDebugUnitTest 通过",
+          "gov-prototype-verify --strict 通过"
+        ],
+        "source": "wf-task-board"
+      }
     },
     {
       "id": "T-124",
@@ -4488,7 +4686,40 @@
       "overlaps_with": [
         "T-055",
         "T-120"
-      ]
+      ],
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "目标文件: app/src/main/kotlin/com/xcwk/scalehub/feature/trend/MetricDetailScreen.kt",
+          "原型视图: v-weight/v-bmi/v-muscle/v-water/v-metabolism/v-bone",
+          "Wave 0/1 基础组件已落地（QkSkeleton、QkLongPressMenu、ErrorStates 等）"
+        ],
+        "when": [
+          "执行 verify_commands"
+        ],
+        "then": [
+          "target_files 均存在且编译通过",
+          "视图 v-weight/v-bmi/v-muscle/v-water/v-metabolism/v-bone 正确渲染，文案与原型一致",
+          ":app:testDebugUnitTest 通过",
+          "无硬编码颜色/间距（gov-prototype-verify --strict 通过）"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-124 --strict",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "forbidden": [
+          "硬编码 Color(0x…) 与 NN.dp（走 Qk 组件与 token）",
+          "静默改黄金向量",
+          "删除或放宽既有测试"
+        ],
+        "definition_of_done": [
+          "target_files 存在且可编译",
+          "视图实现与原型匹配",
+          ":app:testDebugUnitTest 通过",
+          "gov-prototype-verify --strict 通过"
+        ],
+        "source": "wf-task-board"
+      }
     },
     {
       "id": "T-125",
@@ -4511,7 +4742,40 @@
       "depends_on": [],
       "overlaps_with": [
         "T-073"
-      ]
+      ],
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "目标文件: app/src/main/kotlin/com/xcwk/scalehub/feature/auth/AccountRecovery.kt",
+          "原型视图: v-choose/v-phone-verify/v-email-verify/v-set-password",
+          "Wave 0/1 基础组件已落地（QkSkeleton、QkLongPressMenu、ErrorStates 等）"
+        ],
+        "when": [
+          "执行 verify_commands"
+        ],
+        "then": [
+          "target_files 均存在且编译通过",
+          "视图 v-choose/v-phone-verify/v-email-verify/v-set-password 正确渲染，文案与原型一致",
+          ":app:testDebugUnitTest 通过",
+          "无硬编码颜色/间距（gov-prototype-verify --strict 通过）"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-125 --strict",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "forbidden": [
+          "硬编码 Color(0x…) 与 NN.dp（走 Qk 组件与 token）",
+          "静默改黄金向量",
+          "删除或放宽既有测试"
+        ],
+        "definition_of_done": [
+          "target_files 存在且可编译",
+          "视图实现与原型匹配",
+          ":app:testDebugUnitTest 通过",
+          "gov-prototype-verify --strict 通过"
+        ],
+        "source": "wf-task-board"
+      }
     },
     {
       "id": "T-126",
@@ -4534,7 +4798,40 @@
       "depends_on": [],
       "overlaps_with": [
         "T-057"
-      ]
+      ],
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "目标文件: app/src/main/kotlin/com/xcwk/scalehub/feature/sync/DataConflict.kt",
+          "原型视图: v-offline-switch/v-offline-done/v-multi-device/v-multi-done",
+          "Wave 0/1 基础组件已落地（QkSkeleton、QkLongPressMenu、ErrorStates 等）"
+        ],
+        "when": [
+          "执行 verify_commands"
+        ],
+        "then": [
+          "target_files 均存在且编译通过",
+          "视图 v-offline-switch/v-offline-done/v-multi-device/v-multi-done 正确渲染，文案与原型一致",
+          ":app:testDebugUnitTest 通过",
+          "无硬编码颜色/间距（gov-prototype-verify --strict 通过）"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-126 --strict",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "forbidden": [
+          "硬编码 Color(0x…) 与 NN.dp（走 Qk 组件与 token）",
+          "静默改黄金向量",
+          "删除或放宽既有测试"
+        ],
+        "definition_of_done": [
+          "target_files 存在且可编译",
+          "视图实现与原型匹配",
+          ":app:testDebugUnitTest 通过",
+          "gov-prototype-verify --strict 通过"
+        ],
+        "source": "wf-task-board"
+      }
     },
     {
       "id": "T-127",
@@ -4554,7 +4851,40 @@
       "target_files": [
         "app/src/main/kotlin/com/xcwk/scalehub/feature/mine/MineMoreHost.kt"
       ],
-      "depends_on": []
+      "depends_on": [],
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "目标文件: app/src/main/kotlin/com/xcwk/scalehub/feature/mine/MineMoreHost.kt",
+          "原型视图: v-hub (多原型共用枢纽页)",
+          "Wave 0/1 基础组件已落地（QkSkeleton、QkLongPressMenu、ErrorStates 等）"
+        ],
+        "when": [
+          "执行 verify_commands"
+        ],
+        "then": [
+          "target_files 均存在且编译通过",
+          "视图 v-hub (多原型共用枢纽页) 正确渲染，文案与原型一致",
+          ":app:testDebugUnitTest 通过",
+          "无硬编码颜色/间距（gov-prototype-verify --strict 通过）"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-127 --strict",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "forbidden": [
+          "硬编码 Color(0x…) 与 NN.dp（走 Qk 组件与 token）",
+          "静默改黄金向量",
+          "删除或放宽既有测试"
+        ],
+        "definition_of_done": [
+          "target_files 存在且可编译",
+          "视图实现与原型匹配",
+          ":app:testDebugUnitTest 通过",
+          "gov-prototype-verify --strict 通过"
+        ],
+        "source": "wf-task-board"
+      }
     },
     {
       "id": "T-128",
@@ -4574,7 +4904,40 @@
       "target_files": [
         "app/src/main/kotlin/com/xcwk/scalehub/ui/components/QkComponents.kt"
       ],
-      "depends_on": []
+      "depends_on": [],
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "目标文件: app/src/main/kotlin/com/xcwk/scalehub/ui/components/QkComponents.kt",
+          "原型视图: v-demo (组件Demo)",
+          "Wave 0/1 基础组件已落地（QkSkeleton、QkLongPressMenu、ErrorStates 等）"
+        ],
+        "when": [
+          "执行 verify_commands"
+        ],
+        "then": [
+          "target_files 均存在且编译通过",
+          "视图 v-demo (组件Demo) 正确渲染，文案与原型一致",
+          ":app:testDebugUnitTest 通过",
+          "无硬编码颜色/间距（gov-prototype-verify --strict 通过）"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-128 --strict",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "forbidden": [
+          "硬编码 Color(0x…) 与 NN.dp（走 Qk 组件与 token）",
+          "静默改黄金向量",
+          "删除或放宽既有测试"
+        ],
+        "definition_of_done": [
+          "target_files 存在且可编译",
+          "视图实现与原型匹配",
+          ":app:testDebugUnitTest 通过",
+          "gov-prototype-verify --strict 通过"
+        ],
+        "source": "wf-task-board"
+      }
     },
     {
       "id": "T-129",
@@ -4594,7 +4957,40 @@
       "target_files": [
         "app/src/main/kotlin/com/xcwk/scalehub/feature/member/MembersScreen.kt"
       ],
-      "depends_on": []
+      "depends_on": [],
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "目标文件: app/src/main/kotlin/com/xcwk/scalehub/feature/member/MembersScreen.kt",
+          "原型视图: v-members (成员计划页)",
+          "Wave 0/1 基础组件已落地（QkSkeleton、QkLongPressMenu、ErrorStates 等）"
+        ],
+        "when": [
+          "执行 verify_commands"
+        ],
+        "then": [
+          "target_files 均存在且编译通过",
+          "视图 v-members (成员计划页) 正确渲染，文案与原型一致",
+          ":app:testDebugUnitTest 通过",
+          "无硬编码颜色/间距（gov-prototype-verify --strict 通过）"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-129 --strict",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "forbidden": [
+          "硬编码 Color(0x…) 与 NN.dp（走 Qk 组件与 token）",
+          "静默改黄金向量",
+          "删除或放宽既有测试"
+        ],
+        "definition_of_done": [
+          "target_files 存在且可编译",
+          "视图实现与原型匹配",
+          ":app:testDebugUnitTest 通过",
+          "gov-prototype-verify --strict 通过"
+        ],
+        "source": "wf-task-board"
+      }
     },
     {
       "id": "T-130",
@@ -4615,7 +5011,40 @@
         "app/src/main/kotlin/com/xcwk/scalehub/feature/settings/MaintenanceScreen.kt",
         "app/src/main/kotlin/com/xcwk/scalehub/feature/settings/SettingsScreen.kt"
       ],
-      "depends_on": []
+      "depends_on": [],
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "目标文件: app/src/main/kotlin/com/xcwk/scalehub/feature/settings/MaintenanceScreen.kt, app/src/main/kotlin/com/xcwk/scalehub/feature/settings/SettingsScreen.kt",
+          "原型视图: v-maintenance/v-language/v-appearance",
+          "Wave 0/1 基础组件已落地（QkSkeleton、QkLongPressMenu、ErrorStates 等）"
+        ],
+        "when": [
+          "执行 verify_commands"
+        ],
+        "then": [
+          "target_files 均存在且编译通过",
+          "视图 v-maintenance/v-language/v-appearance 正确渲染，文案与原型一致",
+          ":app:testDebugUnitTest 通过",
+          "无硬编码颜色/间距（gov-prototype-verify --strict 通过）"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-130 --strict",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "forbidden": [
+          "硬编码 Color(0x…) 与 NN.dp（走 Qk 组件与 token）",
+          "静默改黄金向量",
+          "删除或放宽既有测试"
+        ],
+        "definition_of_done": [
+          "target_files 存在且可编译",
+          "视图实现与原型匹配",
+          ":app:testDebugUnitTest 通过",
+          "gov-prototype-verify --strict 通过"
+        ],
+        "source": "wf-task-board"
+      }
     },
     {
       "id": "T-131",
@@ -4641,7 +5070,40 @@
       "depends_on": [],
       "overlaps_with": [
         "T-098"
-      ]
+      ],
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "目标文件: app/src/main/kotlin/com/xcwk/scalehub/ui/components/QkPullRefresh.kt, app/src/main/kotlin/com/xcwk/scalehub/ui/components/QkSwipeDelete.kt, app/src/main/kotlin/com/xcwk/scalehub/ui/components/QkInfiniteScroll.kt, app/src/main/kotlin/com/xcwk/scalehub/feature/settings/SdkListScreen.kt",
+          "原型视图: v-demo/v-sdk-list/v-pull-refresh/v-swipe-delete/v-infinite-scroll/v-search-filte",
+          "Wave 0/1 基础组件已落地（QkSkeleton、QkLongPressMenu、ErrorStates 等）"
+        ],
+        "when": [
+          "执行 verify_commands"
+        ],
+        "then": [
+          "target_files 均存在且编译通过",
+          "视图 v-demo/v-sdk-list/v-pull-refresh/v-swipe-delete/v-infinite-scroll/v-search-filte 正确渲染，文案与原型一致",
+          ":app:testDebugUnitTest 通过",
+          "无硬编码颜色/间距（gov-prototype-verify --strict 通过）"
+        ],
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-131 --strict",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "forbidden": [
+          "硬编码 Color(0x…) 与 NN.dp（走 Qk 组件与 token）",
+          "静默改黄金向量",
+          "删除或放宽既有测试"
+        ],
+        "definition_of_done": [
+          "target_files 存在且可编译",
+          "视图实现与原型匹配",
+          ":app:testDebugUnitTest 通过",
+          "gov-prototype-verify --strict 通过"
+        ],
+        "source": "wf-task-board"
+      }
     },
     {
       "id": "T-132",
@@ -4670,7 +5132,30 @@
       "wave": 3,
       "ac_refs": [],
       "prd_ref": "docs/notes/NOTE-20261027-001.md",
-      "source_ref": "DEC-081"
+      "source_ref": "DEC-081",
+      "acceptance": {
+        "status": "blocked",
+        "given": [
+          "目标文件: app/src/main/kotlin/com/xcwk/scalehub/feature/settings/DataRecovery.kt, app/src/main/kotlin/com/xcwk/scalehub/feature/guide/ProfileSetup.kt, app/src/main/kotlin/com/xcwk/scalehub/feature/guide/PermissionFlow.kt, app/src/main/kotlin/com/xcwk/scalehub/feature/guide/GuideScreen.kt, app/src/main/kotlin/com/xcwk/scalehub/feature/ai/AiBoundaries.kt",
+          "任务描述: 接入波-Batch1: 纯接线(DataRecovery/ProfileSetup/PermissionFlow/GuideScreen/AiBoundarie",
+          "Wave 1 基础页面已完成"
+        ],
+        "when": [
+          "收到产品确认（DEC-081）"
+        ],
+        "then": [
+          "target_files 存在且编译通过",
+          ":app:testDebugUnitTest 通过"
+        ],
+        "verify_commands": [
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "open_questions": [
+          "具体验收标准由产品/DEC-081 补充",
+          "是否需要真机验证？"
+        ],
+        "source": "wf-task-board"
+      }
     },
     {
       "id": "T-133",
@@ -4700,7 +5185,30 @@
       "wave": 3,
       "ac_refs": [],
       "prd_ref": "docs/notes/NOTE-20261027-001.md",
-      "source_ref": "DEC-081"
+      "source_ref": "DEC-081",
+      "acceptance": {
+        "status": "blocked",
+        "given": [
+          "目标文件: app/src/main/kotlin/com/xcwk/scalehub/feature/device/DeviceRename.kt, app/src/main/kotlin/com/xcwk/scalehub/feature/device/MemberDeviceLink.kt, app/src/main/kotlin/com/xcwk/scalehub/feature/device/FirmwareManager.kt, app/src/main/kotlin/com/xcwk/scalehub/feature/sync/FeedbackFlow.kt, app/src/main/kotlin/com/xcwk/scalehub/feature/sync/HelpCenterFlow.kt, app/src/main/kotlin/com/xcwk/scalehub/feature/privacy/PrivacyAuthFlow.kt",
+          "任务描述: 接入波-Batch2: 补DDD能力后接线(DeviceRename/MemberDeviceLink/FirmwareManager/FeedbackFlow",
+          "Wave 1 基础页面已完成"
+        ],
+        "when": [
+          "收到产品确认（DEC-081）"
+        ],
+        "then": [
+          "target_files 存在且编译通过",
+          ":app:testDebugUnitTest 通过"
+        ],
+        "verify_commands": [
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "open_questions": [
+          "具体验收标准由产品/DEC-081 补充",
+          "是否需要真机验证？"
+        ],
+        "source": "wf-task-board"
+      }
     },
     {
       "id": "T-134",
@@ -4729,7 +5237,30 @@
       "wave": 3,
       "ac_refs": [],
       "prd_ref": "docs/notes/NOTE-20261027-001.md",
-      "source_ref": "DEC-081"
+      "source_ref": "DEC-081",
+      "acceptance": {
+        "status": "blocked",
+        "given": [
+          "目标文件: app/src/main/kotlin/com/xcwk/scalehub/feature/member/ActionPlans.kt, app/src/main/kotlin/com/xcwk/scalehub/feature/measure/ResultShare.kt, app/src/main/kotlin/com/xcwk/scalehub/feature/sync/DataConflict.kt, app/src/main/kotlin/com/xcwk/scalehub/feature/settings/MaintenanceScreen.kt, app/src/main/kotlin/com/xcwk/scalehub/feature/settings/SdkListScreen.kt",
+          "任务描述: 接入波-Batch3: 复用复杂能力(ActionPlans/ResultShare/DataConflict/MaintenanceScreen+SdkLis",
+          "Wave 1 基础页面已完成"
+        ],
+        "when": [
+          "收到产品确认（DEC-081）"
+        ],
+        "then": [
+          "target_files 存在且编译通过",
+          ":app:testDebugUnitTest 通过"
+        ],
+        "verify_commands": [
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "open_questions": [
+          "具体验收标准由产品/DEC-081 补充",
+          "是否需要真机验证？"
+        ],
+        "source": "wf-task-board"
+      }
     },
     {
       "id": "T-135",
@@ -4757,7 +5288,30 @@
       "wave": 3,
       "ac_refs": [],
       "prd_ref": "docs/notes/NOTE-20261027-001.md",
-      "source_ref": "DEC-081"
+      "source_ref": "DEC-081",
+      "acceptance": {
+        "status": "blocked",
+        "given": [
+          "目标文件: app/src/main/kotlin/com/xcwk/scalehub/feature/ai/AiCards.kt, app/src/main/kotlin/com/xcwk/scalehub/feature/measure/scale/MeasureHelp.kt, app/src/main/kotlin/com/xcwk/scalehub/feature/auth/AccountLifecycle.kt, app/src/main/kotlin/com/xcwk/scalehub/feature/sync/HealthConnectPlatform.kt",
+          "任务描述: 接入波-Batch4: 死代码裁决(AiCards/MeasureHelp/AccountLifecycle/HealthConnectPlatform 四文件",
+          "Wave 1 基础页面已完成"
+        ],
+        "when": [
+          "收到产品确认（DEC-081）"
+        ],
+        "then": [
+          "target_files 存在且编译通过",
+          ":app:testDebugUnitTest 通过"
+        ],
+        "verify_commands": [
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "open_questions": [
+          "具体验收标准由产品/DEC-081 补充",
+          "是否需要真机验证？"
+        ],
+        "source": "wf-task-board"
+      }
     },
     {
       "id": "T-136",
@@ -4777,7 +5331,27 @@
       "target_files": [
         "application/src/main/kotlin/com/xcwk/scalehub/application/query/BodyAnalysisQuery.kt"
       ],
-      "depends_on": []
+      "depends_on": [],
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "目标文件: application/src/main/kotlin/com/xcwk/scalehub/application/query/BodyAnalysisQuery.kt",
+          "任务描述: DDD-fix: BodyAnalysisQuery 内联 BMI/标准体重/肥胖度/Score/fatControl/muscleControl 计算改为委托",
+          "现有实现编译通过"
+        ],
+        "when": [
+          "执行 verify_commands"
+        ],
+        "then": [
+          "target_files 存在且编译通过",
+          "无行为回归（现有测试全部通过）"
+        ],
+        "verify_commands": [
+          "./gradlew :app:testDebugUnitTest",
+          "python3 -m pytest tests/unit -q"
+        ],
+        "source": "wf-task-board"
+      }
     },
     {
       "id": "T-137",
@@ -4797,7 +5371,26 @@
       "target_files": [
         "tests/unit/test_functional_acceptance.py"
       ],
-      "depends_on": []
+      "depends_on": [],
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "目标文件: tests/unit/test_functional_acceptance.py",
+          "相关生产代码已落地"
+        ],
+        "when": [
+          "创建测试文件并执行"
+        ],
+        "then": [
+          "target_files 均存在",
+          "pytest 收集到测试用例",
+          "测试全部通过"
+        ],
+        "verify_commands": [
+          "python3 -m pytest tests/unit/test_functional_acceptance.py -v"
+        ],
+        "source": "wf-task-board"
+      }
     },
     {
       "id": "T-138",
@@ -4817,14 +5410,33 @@
       "target_files": [
         "tests/unit/test_dddfix_evidence.py"
       ],
-      "depends_on": []
+      "depends_on": [],
+      "acceptance": {
+        "status": "ready",
+        "given": [
+          "目标文件: tests/unit/test_dddfix_evidence.py",
+          "相关生产代码已落地"
+        ],
+        "when": [
+          "创建测试文件并执行"
+        ],
+        "then": [
+          "target_files 均存在",
+          "pytest 收集到测试用例",
+          "测试全部通过"
+        ],
+        "verify_commands": [
+          "python3 -m pytest tests/unit/test_dddfix_evidence.py -v"
+        ],
+        "source": "wf-task-board"
+      }
     }
   ],
   "acceptance_schema": "GC-task-acceptance@1",
-  "updated_at": "2026-10-27T04:55:04Z",
-  "next_action": "无待办任务；新需求用 wf-task-board.sh add \"描述\" --group <id> 建单",
-  "next_action_why": "83 条任务已全部关闭（63 有效 / 18 合并 / 2 归档）",
-  "next_action_confirmed": true,
+  "updated_at": "2026-10-27T07:28:25.603157Z",
+  "next_action": "Wave 0 基础组件完成；17 个原型视图任务 ready，4 个接入任务 blocked",
+  "next_action_why": "T-118~T-131 为 B-prototype-views 任务（Wave 0 基础组件已落地），T-132~T-135 为 B-integration 任务（DEC-081 下一步）",
+  "next_action_confirmed": false,
   "groups": [
     {
       "id": "ai",
