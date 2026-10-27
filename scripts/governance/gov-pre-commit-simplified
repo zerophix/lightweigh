@@ -54,7 +54,9 @@ try:
         if e.get('type')!='session-start': continue
         try: t=datetime.datetime.fromisoformat(e.get('ts','').replace('Z','+00:00')).timestamp()
         except: continue
-        if now-t<=7200: ids.add(e.get('id') or e.get('ts'))
+        # 按 session_id 去重：同一会话多次跑 session-begin 只是"启动了几次"，
+        # 不是"几个会话在并发"。旧格式记录没有该字段，回退按 id（保守）。
+        if now-t<=7200: ids.add(e.get('session_id') or e.get('id') or e.get('ts'))
     print(len(ids))
 except Exception: print(0)
 PY
@@ -254,9 +256,12 @@ if [ -n "$SH_CHANGED" ]; then
       exit 1
     fi
     # $VAR 紧跟中文会被 bash 当成变量名的一部分（set -u 下直接崩）
-    if grep -nE '\$[A-Za-z_][A-Za-z0-9_]*[^\x00-\x7F]' "$f" >/dev/null 2>&1; then
+    # 注意：BSD grep（macOS 默认）不支持 \xHH 转义，旧写法 [^\x00-\x7F] 会被解释成
+    # 普通字符集，从而匹配一切、对任何含 $VAR 的行误报（2026-10-27 实测）。
+    # 改用 POSIX 的"非可打印 ASCII"范围 [^ -~]，语义等价且跨平台。
+    if grep -nE '\$[A-Za-z_][A-Za-z0-9_]*[^ -~]' "$f" >/dev/null 2>&1; then
       echo "❌ $f: 变量后紧跟中文，请写成 \${var}"
-      grep -nE '\$[A-Za-z_][A-Za-z0-9_]*[^\x00-\x7F]' "$f" | head -3
+      grep -nE '\$[A-Za-z_][A-Za-z0-9_]*[^ -~]' "$f" | head -3
       exit 1
     fi
   done

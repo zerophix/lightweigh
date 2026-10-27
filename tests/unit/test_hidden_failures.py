@@ -113,6 +113,28 @@ def test_hook_doctor_json(tmp_path):
     assert any("core.hooksPath" in i for i in data["issues"]), data
 
 
+def test_hook_doctor_expected_points_to_main_tree_from_worktree(tmp_path):
+    """worktree 内执行时，EXPECTED 必须指向主树，不能指向当前 worktree。
+
+    2026-10-27 事故：在 worktree 内执行 --fix，EXPECTED 被推导成该 worktree 路径并写入
+    共享 .git/config；worktree 随后被 gov-merge / ses-session-end 删除，core.hooksPath
+    变成悬空指针，git 静默跳过全部钩子——整套门禁归零且没有任何报错。
+    """
+    root = _hook_repo(tmp_path)
+    _git(root, "add", "-A")
+    _git(root, "commit", "-qm", "init")
+    wt = tmp_path / "wt"
+    _git(root, "worktree", "add", "--detach", str(wt), "HEAD")
+
+    env = {**os.environ, "WF_AUTOPILOT_ROOT": str(wt)}
+    res = subprocess.run(["bash", str(HOOK_DOCTOR), "--json"],
+                         cwd=wt, capture_output=True, text=True, env=env)
+
+    data = json.loads(res.stdout)
+    assert data["expected"] == str(root / "scripts" / "hooks"), data
+    assert data["ok"] is True, data
+
+
 # ---------------------------------------------------------------- 任务板回填
 
 def _board_repo(tmp_path: Path, tasks: list) -> Path:
