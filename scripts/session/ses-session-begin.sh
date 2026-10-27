@@ -152,6 +152,7 @@ print(d.get('next_action', ''))
     fi
     bash "$CACHE_SCRIPT" save session-start \
         dec="startup" \
+        session_id="$SESSION_ID" \
         next_task="${NEXT_TASK:-读取 STATUS.md}" \
         2>/dev/null || true
 fi
