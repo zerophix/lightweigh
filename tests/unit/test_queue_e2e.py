@@ -49,6 +49,9 @@ def _env(root: Path) -> Path:
     _write(repo / "scripts/governance/gov-board-reconcile.sh", "#!/usr/bin/env bash\nexit 0\n", 0o755)
     _write(repo / "scripts/governance/gov-board-sync.sh", "#!/usr/bin/env bash\nexit 0\n", 0o755)
     _write(repo / "scripts/governance/gov-validate.sh", "#!/usr/bin/env bash\nexit 0\n", 0o755)
+    # 桩：任务板严格审计（真实实现在本 fixture 里没有 .ai/tasks.json，且已由
+    # test_board_invariants.py 单独覆盖，队列链路只关心「审计通过后继续」）
+    _write(repo / "scripts/workflow/wf-board-audit.sh", "#!/usr/bin/env bash\nexit 0\n", 0o755)
     # 证据消费（DEC-078）：队列会调用它；本 fixture 的提交无 Task trailer，应直接放行
     _write(repo / "scripts/governance/gov-evidence-check.sh",
            (ROOT_P / "scripts" / "governance" / "gov-evidence-check.sh").read_text(encoding="utf-8"),

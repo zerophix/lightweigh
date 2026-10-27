@@ -1,0 +1,26 @@
+{
+  "task": "T-109",
+  "ok": true,
+  "git_sha": "5e3d992b1bc83c136882399b322b957fb15687d1",
+  "verified_at": "2026-10-27T03:15:58Z",
+  "checks": [
+    {
+      "type": "file",
+      "name": "tests/unit/test_board_invariants.py",
+      "status": "PASS",
+      "detail": "存在"
+    },
+    {
+      "type": "file",
+      "name": "tests/unit/test_board_intake.py",
+      "status": "PASS",
+      "detail": "存在"
+    },
+    {
+      "type": "command",
+      "name": "bash -c 'for seed in 0 1 2 3 4; do python3 -m pytest tests/unit/test_board_invariants.py tests/unit/test_board_intake.py -q --random-order --random-order-seed=$seed; done'",
+      "status": "PASS",
+      "detail": "退出码 0"
+    }
+  ]
+}

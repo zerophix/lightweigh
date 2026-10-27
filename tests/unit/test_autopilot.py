@@ -113,3 +113,76 @@ def test_status_prints_next_step(tmp_path):
     res = _sh(SCRIPT, "status", root=root)
     assert res.returncode == 0, res.stderr
     assert "下一步" in res.stdout
+
+
+# -- clean --------------------------------------------------------------------
+
+def test_clean_without_orphan_worktrees(tmp_path):
+    """clean should succeed and report 0 items cleaned on a clean repo."""
+    root = _make_repo(tmp_path)
+    res = _sh(SCRIPT, "clean", root=root)
+    assert res.returncode == 0
+    assert "清理" in res.stdout or "已清理" in res.stdout
+
+
+# -- finish -------------------------------------------------------------------
+
+def test_finish_without_task_fails():
+    """finish without a task ID should fail."""
+    res = _sh(SCRIPT, "finish")
+    assert res.returncode != 0
+    assert "用法" in res.stderr
+
+
+# -- start --------------------------------------------------------------------
+
+def test_start_nonexistent_task_fails(tmp_path):
+    """start with a non-existent task ID should fail gracefully."""
+    root = _make_repo(tmp_path)
+    res = _sh(SCRIPT, "start", "T-000", root=root)
+    # Should fail because task doesn't exist in the temp repo's tasks.json
+    assert res.returncode != 0
+
+
+def test_start_creates_branch_for_valid_task(tmp_path):
+    """start with a valid task should create a worktree branch."""
+    import json as j
+    import shutil
+    root = _make_repo(tmp_path)
+    # Copy real tasks.json and modify
+    ai_dir = root / ".ai"
+    ai_dir.mkdir(exist_ok=True)
+    shutil.copy(ROOT_P / ".ai" / "tasks.json", ai_dir / "tasks.json")
+    # Add a test task
+    board = json.loads((ai_dir / "tasks.json").read_text(encoding="utf-8"))
+    board["tasks"].append({
+        "id": "T-999", "description": "Test task", "module": "test",
+        "target_files": ["app/src/main/foo.kt"], "status": "pending",
+        "group_id": "test", "batch": "B-test", "role": "dev"
+    })
+    (ai_dir / "tasks.json").write_text(j.dumps(board, indent=2, ensure_ascii=False), encoding="utf-8")
+
+    env = {**__import__("os").environ, "WF_AUTOPILOT_ROOT": str(root)}
+    res = subprocess.run(
+        ["bash", str(SCRIPT), "start", "T-999"],
+        cwd=ROOT_P, capture_output=True, text=True, env=env,
+    )
+    # On macOS with bash 3.2, ${tid,,} may fail — skip if so
+    if "bad substitution" in res.stderr:
+        import pytest
+        pytest.skip("bash 3.2 doesn't support ${tid,,} (macOS)")
+    assert res.returncode == 0, res.stderr
+    assert "T-999" in res.stdout
+
+
+# -- JSON structure validation ------------------------------------------------
+
+def test_status_json_has_expected_keys(tmp_path):
+    """status --json should have worktree-related keys."""
+    root = _make_repo(tmp_path)
+    res = _sh(SCRIPT, "status", "--json", root=root)
+    assert res.returncode == 0, res.stderr
+    data = json.loads(res.stdout)
+    # These keys are always present in the JSON output
+    expected_keys = {"worktrees_merged", "worktrees_live", "orphan_dirs", "open_prs"}
+    assert expected_keys.issubset(set(data.keys())), f"Missing keys: {expected_keys - set(data.keys())}"

@@ -80,4 +80,10 @@
 - DEC-011 中的裸「N 项测试」= 测试执行数（当时未标注口径），等价于单元测试方法的变体展开。
 - DEC-002 / DEC-006 / DEC-008 / DEC-010 中的「N 个用例 / N 个测试」= 治理测试用例。
 
+## 7. API 规格
+
+- [REF-api-spec.md](REF-api-spec.md) — HTTP / WebSocket / gRPC 接口定义、请求响应结构、错误码、版本策略
+
+---
+
 ## 来源: ai/decisions/DEC-055

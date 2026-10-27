@@ -12,9 +12,11 @@ import org.junit.Test
 class AuthFlowRouteTest {
 
     @Test
-    fun `登录方式入口的四条分支各自进入对应屏幕`() {
+    fun `登录方式入口的六条分支各自进入对应屏幕`() {
         val cases = mapOf(
             AuthFlowEvent.OpenEmailLogin to AuthFlowStep.EmailLogin,
+            AuthFlowEvent.OpenPhoneLogin to AuthFlowStep.PhoneLogin,
+            AuthFlowEvent.OpenPasswordLogin to AuthFlowStep.PasswordLogin,
             AuthFlowEvent.OpenGuest to AuthFlowStep.Guest,
             AuthFlowEvent.OpenPasswordReset to AuthFlowStep.PasswordReset,
             AuthFlowEvent.OpenRecovery to AuthFlowStep.Recovery,
@@ -25,9 +27,27 @@ class AuthFlowRouteTest {
     }
 
     @Test
-    fun `四条支线的成功事件统一推进到权限说明再进资料完善`() {
+    fun `手机号登录发码后进入验证码步`() {
+        assertThat(authFlowStepReduce(AuthFlowStep.PhoneLogin, AuthFlowEvent.CodeSent))
+            .isEqualTo(AuthFlowStep.PhoneLoginVerify)
+    }
+
+    @Test
+    fun `发码事件只在手机号登录页有效`() {
+        AuthFlowStep.values()
+            .filter { it != AuthFlowStep.PhoneLogin }
+            .forEach { step ->
+                assertThat(authFlowStepReduce(step, AuthFlowEvent.CodeSent)).isEqualTo(step)
+            }
+    }
+
+    @Test
+    fun `六条支线的成功事件统一推进到权限说明再进资料完善`() {
         val credentialSteps = listOf(
             AuthFlowStep.EmailLogin,
+            AuthFlowStep.PhoneLogin,
+            AuthFlowStep.PhoneLoginVerify,
+            AuthFlowStep.PasswordLogin,
             AuthFlowStep.Guest,
             AuthFlowStep.PasswordReset,
             AuthFlowStep.Recovery,

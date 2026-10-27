@@ -23,6 +23,10 @@ VERSION_PATTERNS = [
     (r'(?i)v\d+$', '版本号后缀'),
     (r'(?i)(_v|\.v|_bak|\.bak|backup|_copy|\.copy)$', '备份/副本标记'),
 ]
+# 边界说明（2026-10-27）：上面这条只作用于 stem，且候选集来自 _walk_test_files
+# （仅 .kt/.java）。所以它只能抓到 `FooTest.bak.kt` 这类「备份标记在主干里」的写法，
+# 抓不到编辑器实际产出的 `FooTest.kt.bak`（stem 是 `FooTest.kt`，且扩展名不是 .kt）。
+# `.bak` 等备份残留统一由 GOV-HYG-001（gov_validate_hygiene.py，全仓生效）负责。
 
 # PascalCase 且以 Test 或 Fixture 结尾。
 # Fixture 后缀放行: RuleViolationFixture.kt 是架构守卫引用的夹具, 与 pytest 侧
