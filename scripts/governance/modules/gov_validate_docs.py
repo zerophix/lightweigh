@@ -41,6 +41,15 @@ MAX_AGE_DAYS = 14
 MIRROR_DOCS = (
     "docs/index.md",
     "docs/ai/lifecycle/01_PRD.md",
+    "docs/ai/lifecycle/05_Test.md",
+    "docs/guides/GC-decision-flow.md",
+    "docs/ai/guides/workflow.md",
+    "docs/guides/GC-coding-conventions.md",
+    "docs/guides/GC-task-acceptance.md",
+    "docs/guides/GC-multi-agent-collab.md",
+    "docs/ai/guides/docstandard.md",
+    "docs/notes/NOTE-20261016-001.md",
+    "docs/notes/NOTE-20261021-001.md",
 )
 
 LINK_RE = re.compile(r"\]\(([^)\s]+)\)")
