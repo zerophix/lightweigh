@@ -10,6 +10,11 @@
 #   1. target_files 每一项真实存在（缺失即 FAIL）
 #   2. 任务带 prototype_ref 时执行 gov-prototype-verify.py <T-XXX> --strict
 #   3. acceptance.verify_commands 逐条执行（单条超时 900 秒，工作目录=仓库根）
+#   4. 分层 DoD：根据 target_files 所在层自动添加强制校验
+#      - CORE (domain/infrastructure): gov-local-ci.sh --strict (全量+schema+算法+BLE)
+#      - APP (application): gov-local-ci.sh GOV_LANE=CORE (应用层全量)
+#      - UI (app/src): gov-local-ci.sh GOV_LANE=B + 原型一致性
+#      - DOCS (docs/design): gov-validate --tags lane-a
 #
 # 退出码: 0 全部通过 / 1 存在失败 / 2 任务不存在或参数错误
 # 约束:   只校验，不修改任务板状态（置 completed 由合并队列/收尾负责）
@@ -33,7 +38,7 @@ GOV_DEFAULT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 export GOV_DEFAULT_ROOT
 
 python3 - "$@" <<'PYEOF'
-"""任务 DoD 校验主逻辑：文件存在性 + 原型闭环 + verify_commands。"""
+"""任务 DoD 校验主逻辑：文件存在性 + 原型闭环 + verify_commands + 分层 DoD。"""
 import json
 import os
 import subprocess
@@ -123,7 +128,7 @@ def run_command(command, cwd, timeout=CMD_TIMEOUT):
     except subprocess.TimeoutExpired:
         code = 124
         output = "超时（%d 秒）：%s" % (timeout, command)
-    except Exception as exc:  # noqa: BLE001 - 校验脚本需报告任何执行失败
+    except Exception as exc:
         code = 125
         output = "执行异常：%s" % exc
     elapsed_ms = int((time.time() - started) * 1000)
@@ -134,6 +139,26 @@ def tail(text, lines=TAIL_LINES):
     """截取输出末尾若干行，避免刷屏。"""
     rows = [row for row in text.strip().splitlines() if row.strip()]
     return "\n".join(rows[-lines:])
+
+
+def layer_of_file(rel):
+    """判断文件属于哪一层：CORE / APP / UI / DOCS / OTHER"""
+    if rel.startswith(("domain/", "infrastructure/")):
+        return "CORE"
+    if rel.startswith("application/"):
+        return "APP"
+    if rel.startswith("app/src/"):
+        return "UI"
+    if rel.startswith(("docs/", "design/")) or rel.endswith(".md"):
+        return "DOCS"
+    return "OTHER"
+
+
+def layer_of_task(target_files):
+    """按文件层级判定任务层级：CORE > APP > UI > DOCS > OTHER"""
+    layers = [layer_of_file(f) for f in target_files]
+    priority = {"CORE": 4, "APP": 3, "UI": 2, "DOCS": 1, "OTHER": 0}
+    return max(layers, key=lambda l: priority.get(l, 0))
 
 
 def collect_checks(task, root, dry):
@@ -163,6 +188,73 @@ def collect_checks(task, root, dry):
             }
         )
 
+    # 分层 DoD：根据 target_files 所在层自动添加强制校验
+    task_layer = layer_of_task(target_files)
+    root_path = str(root)
+    skip_dod = os.environ.get("GOV_DOD_SKIP") == "1"
+
+    if task_layer == "CORE":
+        # 必须跑：算法回归 + BLE 兼容矩阵 + Schema 迁移 + 全量测试
+        checks.append(
+            build_command_check(
+                "bash scripts/governance/gov-local-ci.sh --strict",
+                root,
+                dry,
+                kind="core_dod",
+                guard=Path(root_path) / "scripts" / "governance" / "gov-local-ci.sh",
+                skip=skip_dod,
+            )
+        )
+    elif task_layer == "APP":
+        # 必须跑：应用层用例 + 契约测试 + 受影响单测
+        checks.append(
+            build_command_check(
+                "GOV_LANE=CORE bash scripts/governance/gov-local-ci.sh",
+                root,
+                dry,
+                kind="app_dod",
+                guard=Path(root_path) / "scripts" / "governance" / "gov-local-ci.sh",
+                skip=skip_dod,
+            )
+        )
+    elif task_layer == "UI":
+        # 必须跑：Preview 覆盖 + 受影响单测（原型一致性由 prototype_ref 统一处理）
+        checks.append(
+            build_command_check(
+                "GOV_LANE=B bash scripts/governance/gov-local-ci.sh",
+                root,
+                dry,
+                kind="ui_dod",
+                guard=Path(root_path) / "scripts" / "governance" / "gov-local-ci.sh",
+                skip=skip_dod,
+            )
+        )
+    elif task_layer == "DOCS":
+        # 仅文档：索引收录 + 链接可达 + 语言一致
+        checks.append(
+            build_command_check(
+                "bash scripts/governance/gov-validate.sh --tags lane-a",
+                root,
+                dry,
+                kind="doc_dod",
+                guard=Path(root_path) / "scripts" / "governance" / "entrypoints" / "gov-validate",
+                skip=skip_dod,
+            )
+        )
+    else:
+        # 其他：默认跑 lane-a
+        checks.append(
+            build_command_check(
+                "bash scripts/governance/gov-validate.sh --tags lane-a",
+                root,
+                dry,
+                kind="doc_dod",
+                guard=Path(root_path) / "scripts" / "governance" / "entrypoints" / "gov-validate",
+                skip=skip_dod,
+            )
+        )
+
+    # 原型校验（任务显式声明 prototype_ref 时额外执行）
     if task.get("prototype_ref"):
         script = root / "scripts" / "governance" / "gov-prototype-verify.py"
         command = "python3 scripts/governance/gov-prototype-verify.py %s --strict" % task["id"]
@@ -170,6 +262,7 @@ def collect_checks(task, root, dry):
             build_command_check(command, root, dry, kind="prototype", guard=script)
         )
 
+    # 任务自定义验收命令
     commands = (task.get("acceptance") or {}).get("verify_commands") or []
     for command in commands:
         checks.append(build_command_check(command, root, dry, kind="command"))
@@ -177,8 +270,16 @@ def collect_checks(task, root, dry):
     return checks
 
 
-def build_command_check(command, root, dry, kind, guard=None):
+def build_command_check(command, root, dry, kind, guard=None, skip=False):
     """构造单个命令校验项；dry 只登记不执行。"""
+    if skip:
+        return {
+            "type": kind,
+            "name": command,
+            "status": "SKIP",
+            "detail": "GOV_DOD_SKIP=1，跳过分层 DoD 校验",
+            "duration_ms": 0,
+        }
     if guard is not None and not guard.exists():
         return {
             "type": kind,

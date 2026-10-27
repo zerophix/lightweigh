@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# GOV-STRUCT 入口点 —— 文档结构校验
+# 该文件是 gov-task-done.sh 的 guard 标记。
+# 实际校验逻辑位于 ../gov-validate.sh
+exec "$(dirname "$0")/../gov-validate.sh" "$@"

@@ -233,7 +233,7 @@ def check_dependency_dirs() -> None:
 
 def check_root_files() -> None:
     print("\n--- R0e: 根目录文件治理 ---")
-    ALLOWED_ROOT_FILES = {"AGENTS.md", ".clinerules", ".cursorrules", "README.md", "CONTRIBUTING.md", "LICENSE", "CHANGELOG.md", ".editorconfig", ".gitattributes", ".gitignore", ".mcp.json", "mcp.json", "opencode.json", ".governance.json", ".gitleaks.toml", "package.json", "package-lock.json", "pytest.ini", "requirements.txt", "environment.yml", "mkdocs.yml", "ruff.toml", ".python-version", ".language", ".env", "STATUS.md", "setup.sh", "VERSION",
+    ALLOWED_ROOT_FILES = {"AGENTS.md", ".clinerules", ".cursorrules", "README.md", "CONTRIBUTING.md", "LICENSE", "CHANGELOG.md", ".editorconfig", ".gitattributes", ".gitignore", ".mcp.json", "mcp.json", "opencode.json", ".governance.json", ".gitleaks.toml", "package.json", "package-lock.json", "pytest.ini", "requirements.txt", "environment.yml", "mkdocs.yml", "ruff.toml", ".python-version", ".language", ".env", ".env.example", "STATUS.md", "setup.sh", "VERSION",
     "gradlew", "build.gradle.kts", "settings.gradle.kts", "gradle.properties",
     # Android Studio 自动生成（gitignore 内）
     "local.properties"}
@@ -254,8 +254,8 @@ def check_hidden_dirs() -> None:
     print("\n--- R0f: 隐藏目录文件白名单校验 ---")
     ISSUES = 0
     HIDDEN_ALLOWED = {
-        ".cache": {"context.jsonl", "session-ledger.json", "session-marker.json", "session.lock", ".gitkeep", "local-ci-last.json", "worktrees.jsonl", "queue-runs.jsonl", "queue.lock", "jobs", "hook-trail.log", "dev-mode"},
-        ".ai": {"tasks.json", "current-session.json", "staged-claims.json", "lessons.json", "locks", "roles.json", "tasks-archive.json"},
+        ".cache": {"context.jsonl", "session-ledger.json", "session-marker.json", "session.lock", ".gitkeep", "local-ci-last.json", "worktrees.jsonl", "queue-runs.jsonl", "queue.lock", "jobs", "hook-trail.log", "dev-mode", "batch-worktrees.jsonl"},
+        ".ai": {"tasks.json", "current-session.json", "staged-claims.json", "lessons.json", "locks", "roles.json", "tasks-archive.json", "tasks.layer1.json", "restructure_report.json"},
     }
     for dir_name, allowed_files in HIDDEN_ALLOWED.items():
         d = ROOT / dir_name

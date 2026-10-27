@@ -4,16 +4,19 @@
 #
 # 用法:
 #   bash scripts/session/ses-worktree.sh add <type>/<topic> [--base <branch>] [--in-repo]
+#   bash scripts/session/ses-worktree.sh batch-add <B-xxx> [--base <branch>] [--in-repo]  # 批次 worktree
 #   bash scripts/session/ses-worktree.sh list
+#   bash scripts/session/ses-worktree.sh batch-list                                       # 列出批次 worktree
 #   bash scripts/session/ses-worktree.sh remove <path|branch> [--force]
 #   bash scripts/session/ses-worktree.sh clean [--dry-run]   # 清理已合入主干的分支 worktree
 #   bash scripts/session/ses-worktree.sh doctor   # 检查当前树 hooks ROOT 是否指向本工作树
 #
 # 默认路径: 与主仓同级 ../<repo>-<topic>
 # --in-repo: 使用 <repo>/.worktrees/<topic>（已 gitignore）
+# 批次分支命名: batch/<B-xxx>（如 batch/B-w1-screens）
 set -euo pipefail
 
-ROOT="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+ROOT="${WF_AUTOPILOT_ROOT:-$(git rev-parse --show-toplevel 2>/dev/null || true)}"
 if [ -z "${ROOT:-}" ]; then
   ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 fi
@@ -32,7 +35,7 @@ TRUNK="${TRUNK:-master}"
 BRANCH_RE='^(feat|fix|docs|refactor|chore|test|ci)/[a-zA-Z0-9][a-zA-Z0-9._-]+$'
 
 usage() {
-  sed -n '2,13p' "$0" | sed 's/^# \{0,1\}//'
+  sed -n '2,16p' "$0" | sed 's/^# \{0,1\}//'
   exit "${1:-0}"
 }
 
@@ -56,7 +59,7 @@ print_next_steps() {
   local wt="$1" branch="$2"
   cat <<HINT
 
-下一步（在 worktree 内执行）:
+下一步 (在 worktree 内执行):
   cd "$wt"
   bash scripts/session/ses-session-begin.sh
   # 改代码后:
@@ -69,7 +72,7 @@ print_next_steps() {
   bash scripts/session/ses-session-end.sh
   # 清理: bash scripts/session/ses-worktree.sh remove "$wt"
 
-提示: hooks 已优先用 git rev-parse --show-toplevel，应指向本 worktree（见 doctor）。
+提示: hooks 已优先用 git rev-parse --show-toplevel，应指向本 worktree (见 doctor)。
 HINT
 }
 
@@ -133,8 +136,16 @@ cmd_add() {
     exit 1
   fi
   if git show-ref --verify --quiet "refs/heads/$branch"; then
-    echo "本地分支已存在: ${branch}（改用: git worktree add \"$wt\" \"$branch\"）" >&2
-    exit 1
+    # 本地分支存在但 worktree 不在：可能是孤儿分支，提示用户清理或用 --force
+    if [ "$force" -eq 1 ]; then
+      echo "  强制模式: 删除孤儿分支 $branch"
+      git branch -D "$branch" 2>/dev/null || true
+    else
+      echo "本地分支已存在: $branch (但 worktree 不存在)" >&2
+      echo "  处理: git branch -D $branch  # 删除孤儿分支后重试" >&2
+      echo "  或加 --force 自动删除孤儿分支" >&2
+      exit 1
+    fi
   fi
 
   if [ "$in_repo" = "1" ]; then
@@ -145,7 +156,7 @@ cmd_add() {
   local current
   current="$(count_task_worktrees)"
   if [ "$force" -ne 1 ] && [ "$current" -ge "$WT_LIMIT" ]; then
-    echo "❌ 当前有 ${current} 个任务 worktree（上限 ${WT_LIMIT}；不含队列候选/收尾分支），拒绝继续创建。" >&2
+    echo "❌ 当前有 \${current} 个任务 worktree (上限 \${WT_LIMIT}; 不含队列候选/收尾分支)，拒绝继续创建。" >&2
     echo "   先清理: bash scripts/session/ses-worktree.sh clean" >&2
     echo "   或查审计: bash scripts/governance/gov-workspace-doctor.sh" >&2
     echo "   确需临时突破: 加 --force（不推荐）" >&2
@@ -167,7 +178,7 @@ cmd_add() {
   # 缺它则新树 gradle 报 "SDK location not found"（2026-10-24 三次实测踩坑）。
   if [ -f "$ROOT/local.properties" ] && [ ! -f "$wt/local.properties" ]; then
     cp "$ROOT/local.properties" "$wt/local.properties"
-    echo "  已复制 local.properties（gitignore，不入库）"
+    echo "  已复制 local.properties (gitignore，不入库)"
   fi
 
   # 登记：谁、什么时候、为哪个分支创建（供 status/doctor 审计年龄）
@@ -182,16 +193,16 @@ cmd_add() {
   # 只校验"主树具备、新树就该具备"的东西，避免在未引导的仓库里误报
   local selfcheck_ok=1
   if [ -f "$ROOT/local.properties" ] && [ ! -f "$wt/local.properties" ]; then
-    echo "  ❌ 缺 local.properties（gradle 会报 SDK location not found）" >&2
+    echo "  ❌ 缺 local.properties (gradle 会报 SDK location not found)" >&2
     selfcheck_ok=0
   fi
   if [ "$(git -C "$ROOT" config --get core.hooksPath 2>/dev/null)" = "scripts/hooks" ] \
      && [ ! -x "$wt/scripts/hooks/pre-commit" ]; then
-    echo "  ❌ 新树缺可执行的 scripts/hooks/pre-commit（钩子不会生效）" >&2
+    echo "  ❌ 新树缺可执行的 scripts/hooks/pre-commit (钩子不会生效)" >&2
     selfcheck_ok=0
   fi
   if [ "$selfcheck_ok" -eq 0 ]; then
-    echo "❌ worktree 自检未通过：${wt}（修好后删除重建）" >&2
+    echo "❌ worktree 自检未通过：${wt}(修好后删除重建)" >&2
     exit 1
   fi
   echo "  自检: local.properties ✅  core.hooksPath=scripts/hooks ✅"
@@ -201,6 +212,184 @@ cmd_add() {
   echo "  分支: $branch"
   echo "  基线: $base"
   print_next_steps "$wt" "$branch"
+}
+
+# ================= 批次 worktree（DEC-082：同批次任务共享分支） =================
+
+batch_branch_name() {
+  # B-w1-screens -> batch/B-w1-screens
+  local batch_id="$1"
+  echo "batch/$batch_id"
+}
+
+batch_slug() {
+  # batch/B-w1-screens -> B-w1-screens
+  local branch="$1"
+  echo "${branch#batch/}"
+}
+
+batch_default_path() {
+  local branch="$1" in_repo="$2" slug
+  slug="$(batch_slug "$branch")"
+  if [ "$in_repo" = "1" ]; then
+    echo "$ROOT/.worktrees/$slug"
+  else
+    echo "$(dirname "$ROOT")/${REPO_NAME}-batch-${slug}"
+  fi
+}
+
+print_batch_next_steps() {
+  local wt="$1" branch="$2"
+  cat <<HINT
+
+下一步（在批次 worktree 内执行）:
+  cd "$wt"
+  bash scripts/session/ses-session-begin.sh
+  # 认领批次内任务（每任务独立锁，防重复实现）:
+  bash scripts/workflow/wf-claim.sh claim T-xxx --batch "$(batch_slug "$branch")"
+  # 改代码后:
+  git add <files>
+  bash scripts/session/ses-claim-staged.sh
+  git commit -m "type(scope): summary"
+  bash scripts/governance/gov-local-ci.sh
+  # 批次完成后统一推送、开 PR:
+  git push -u origin "$branch"
+  gh pr create --head "$branch" --base master --title "batch: deliver B-xxx"
+  # 清理: bash scripts/session/ses-worktree.sh remove "$wt"
+
+提示: 同批次任务文件不重叠，可安全并行提交到同一分支。
+HINT
+}
+
+cmd_batch_add() {
+  local batch_id="" base="$TRUNK" in_repo=0 force=0
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --base) base="$2"; shift 2 ;;
+      --in-repo) in_repo=1; shift ;;
+      --force) force=1; shift ;;
+      -h|--help) usage 0 ;;
+      -*)
+        echo "未知选项: $1" >&2
+        usage 1
+        ;;
+      *)
+        if [ -z "$batch_id" ]; then batch_id="$1"; shift; else echo "多余参数: $1" >&2; usage 1; fi
+        ;;
+    esac
+  done
+  if [ -z "$batch_id" ]; then
+    echo "用法: ses-worktree.sh batch-add <B-xxx> [--base master] [--in-repo]" >&2
+    exit 1
+  fi
+  if ! echo "$batch_id" | grep -qE '^B-[a-zA-Z0-9_-]+$'; then
+    echo "批次 ID 格式错误: $batch_id(期望 B-xxx 形式，如 B-w1-screens)" >&2
+    exit 1
+  fi
+
+  local branch
+  branch="$(batch_branch_name "$batch_id")"
+  local wt
+  wt="$(batch_default_path "$branch" "$in_repo")"
+  if [ -e "$wt" ]; then
+    echo "路径已存在: $wt" >&2
+    exit 1
+  fi
+  if git show-ref --verify --quiet "refs/heads/$branch"; then
+    # 本地分支存在但 worktree 不在：可能是孤儿分支，提示用户清理或用 --force
+    if [ "$force" -eq 1 ]; then
+      echo "  强制模式: 删除孤儿分支 $branch"
+      git branch -D "$branch" 2>/dev/null || true
+    else
+      echo "本地分支已存在: $branch (但 worktree 不存在)" >&2
+      echo "  处理: git branch -D $branch  # 删除孤儿分支后重试" >&2
+      echo "  或加 --force 自动删除孤儿分支" >&2
+      exit 1
+    fi
+  fi
+
+  if [ "$in_repo" = "1" ]; then
+    mkdir -p "$ROOT/.worktrees"
+  fi
+
+  # 上限守卫：同理限制批次 worktree 数量
+  local current
+  current="$(count_task_worktrees)"
+  if [ "$force" -ne 1 ] && [ "$current" -ge "$WT_LIMIT" ]; then
+    echo "❌ 当前有 ${current} 个任务/批次 worktree（上限 ${WT_LIMIT}），拒绝继续创建。" >&2
+    echo "   先清理: bash scripts/session/ses-worktree.sh clean" >&2
+    echo "   确需临时突破: 加 --force（不推荐）" >&2
+    exit 1
+  fi
+
+  # 从最新 trunk 起分支
+  if git show-ref --verify --quiet "refs/remotes/origin/$base"; then
+    git fetch origin "$base" --quiet 2>/dev/null || true
+    git worktree add -b "$branch" "$wt" "origin/$base"
+  elif git show-ref --verify --quiet "refs/heads/$base"; then
+    git worktree add -b "$branch" "$wt" "$base"
+  else
+    echo "找不到基线分支: $base" >&2
+    exit 1
+  fi
+
+  # local.properties 复制（gitignore，sdk.dir 是本机路径）
+  if [ -f "$ROOT/local.properties" ] && [ ! -f "$wt/local.properties" ]; then
+    cp "$ROOT/local.properties" "$wt/local.properties"
+    echo "  已复制 local.properties (gitignore，不入库)"
+  fi
+
+  # 登记批次 worktree
+  if [ -d "$ROOT/.cache" ]; then
+    printf '{"batch":"%s","branch":"%s","created_at":"%s","session":"%s"}\n' \
+      "$batch_id" "$branch" "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" \
+      "$(python3 -c "import json;print(json.load(open('$ROOT/.ai/current-session.json')).get('session_id',''))" 2>/dev/null || echo '')" \
+      >> "$ROOT/.cache/batch-worktrees.jsonl" 2>/dev/null || true
+  fi
+
+  # 自检
+  local selfcheck_ok=1
+  if [ -f "$ROOT/local.properties" ] && [ ! -f "$wt/local.properties" ]; then
+    echo "  ❌ 缺 local.properties (gradle 会报 SDK location not found)" >&2
+    selfcheck_ok=0
+  fi
+  if [ "$(git -C "$ROOT" config --get core.hooksPath 2>/dev/null)" = "scripts/hooks" ] \
+     && [ ! -x "$wt/scripts/hooks/pre-commit" ]; then
+    echo "  ❌ 新树缺可执行的 scripts/hooks/pre-commit (钩子不会生效)" >&2
+    selfcheck_ok=0
+  fi
+  if [ "$selfcheck_ok" -eq 0 ]; then
+    echo "❌ batch worktree 自检未通过：${wt}(修好后删除重建)" >&2
+    exit 1
+  fi
+  echo "  自检: local.properties ✅  core.hooksPath=scripts/hooks ✅"
+
+  echo "已创建批次 worktree"
+  echo "  路径: $wt"
+  echo "  分支: $branch"
+  echo "  基线: $base"
+  print_batch_next_steps "$wt" "$branch"
+}
+
+cmd_batch_list() {
+  echo "=== 批次 Worktree 列表 ==="
+  git worktree list --porcelain | awk -v prefix="refs/heads/batch/" '
+    /^worktree / { wt=$2 }
+    /^branch / {
+      b=$2
+      if (b ~ "^" prefix) {
+        sub(prefix, "", b)
+        print "  batch/" b " -> " wt
+      }
+    }
+  '
+  echo ""
+  if [ -f "$ROOT/.cache/batch-worktrees.jsonl" ]; then
+    echo "创建记录:"
+    while IFS= read -r line; do
+      echo "  $line"
+    done < "$ROOT/.cache/batch-worktrees.jsonl"
+  fi
 }
 
 cmd_list() {
@@ -255,7 +444,7 @@ cmd_remove() {
   args+=("$wt")
   git "${args[@]}"
   echo "已移除 worktree: $wt"
-  echo "提示: 本地分支如不再需要，可: git branch -d <branch>（未合入用 -D）"
+  echo "提示: 本地分支如不再需要，可: git branch -d <branch>(未合入用 -D)"
 }
 
 cmd_clean() {
@@ -284,7 +473,7 @@ cmd_clean() {
     base="$TRUNK"
     base_kind="本地"
   else
-    echo "找不到基线分支: ${TRUNK}（无法判断哪些分支已合入）" >&2
+    echo "找不到基线分支: ${TRUNK}(无法判断哪些分支已合入)" >&2
     exit 1
   fi
 
@@ -305,17 +494,23 @@ cmd_clean() {
       continue
     fi
     if [ -z "$b" ]; then
-      echo "保留（detached HEAD）: $p"
+      echo "保留(detached HEAD): $p"
       skipped=$((skipped + 1))
       continue
     fi
     if ! git show-ref --verify --quiet "refs/heads/$b"; then
-      echo "保留（分支不存在）: ${p}（${b}）"
+      echo "保留(分支不存在): ${p}（${b}）"
+      skipped=$((skipped + 1))
+      continue
+    fi
+    # 批次分支排除自动清理：batch/* 仅在批次完成合并 PR 后手动清理
+    if [[ "$b" == batch/* ]]; then
+      echo "保留(批次分支待手动清理): ${p}（${b}）"
       skipped=$((skipped + 1))
       continue
     fi
     if ! git merge-base --is-ancestor "refs/heads/$b" "$base" 2>/dev/null; then
-      echo "保留（未合入 ${base}）: ${p}（${b}）"
+      echo "保留(未合入 ${base}): ${p}（${b}）"
       skipped=$((skipped + 1))
       continue
     fi
@@ -373,12 +568,12 @@ cmd_doctor() {
   if [ "$tl" != "$ROOT" ] && [ "$(cd "$ROOT" && pwd)" != "$tl" ]; then
     echo "WARN: 脚本启动 ROOT 与 show-toplevel 不一致"
   else
-    echo "ROOT OK（本工作树）"
+    echo "ROOT OK(本工作树)"
   fi
   # simulate hook ROOT preference
   local hook_guess
   hook_guess="$(cd "$(dirname "$hooks")/.." 2>/dev/null && pwd || true)"
-  echo "若 hook 用 dirname/\$0 回推，可能落到: ${hook_guess}（worktree 下常为错误主树）"
+  echo "若 hook 用 dirname/\$0 回推，可能落到: ${hook_guess}(worktree 下常为错误主树)"
   echo "DEC-050 后 pre-commit/pre-push 优先 --show-toplevel → 应为: $tl"
   if [ -f "$hooks/pre-commit" ]; then
     if grep -q 'show-toplevel' "$hooks/pre-commit" 2>/dev/null; then
@@ -394,6 +589,8 @@ main() {
   shift || true
   case "$cmd" in
     add) cmd_add "$@" ;;
+    batch-add) cmd_batch_add "$@" ;;
+    batch-list) cmd_batch_list "$@" ;;
     list|ls) cmd_list "$@" ;;
     remove|rm) cmd_remove "$@" ;;
     clean) cmd_clean "$@" ;;

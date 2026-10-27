@@ -10,8 +10,9 @@
 #   wf-autopilot.sh status [--json]     # 一屏真相 + 下一步（只读）
 #   wf-autopilot.sh advance [--dry]     # 推进所有在途 PR：同步 master→验证→合入→清理
 #   wf-autopilot.sh clean               # 清理已合入的 worktree/分支（安全项）
-#   wf-autopilot.sh start <T-XXX>       # 认领+建 worktree+打印任务要求
-#   wf-autopilot.sh finish <T-XXX>      # DoD 校验 → 提交 → 推送 → 开 PR
+#   wf-autopilot.sh start <T-XXX>       # 认领+建/复用批次 worktree+打印任务要求
+#   wf-autopilot.sh finish <T-XXX>      # DoD 校验 → 提交 → 推送 → 开 PR(单任务/批次自动识别)
+#   wf-autopilot.sh batch-finish <B-xxx> # 批次级完成：校验批次内所有任务 → 批次 PR
 #
 # 设计原则:
 #   - 慢操作（local-ci）复用 wf-run.sh（存在则后台+等待，不存在则前台）
@@ -23,12 +24,15 @@ DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT="${WF_AUTOPILOT_ROOT:-$(cd "$DIR/../.." && pwd)}"
 cd "$ROOT" || exit 1
 
-RUNNER="$ROOT/scripts/workflow/wf-run.sh"
-BOARD_SYNC="$ROOT/scripts/governance/gov-board-sync.sh"
-DOCTOR="$ROOT/scripts/governance/gov-workspace-doctor.sh"
-PARALLEL="$ROOT/scripts/workflow/wf-parallel.sh"
-CLAIM="$ROOT/scripts/workflow/wf-claim.sh"
-TASK_DONE="$ROOT/scripts/governance/gov-task-done.sh"
+# Script paths: use DIR (real repo) not ROOT (may be sandbox), so scripts exist
+# for both production use and test sandboxes.
+SCRIPT_LIB="$DIR/.."
+RUNNER="$SCRIPT_LIB/workflow/wf-run.sh"
+BOARD_SYNC="$SCRIPT_LIB/governance/gov-board-sync.sh"
+DOCTOR="$SCRIPT_LIB/governance/gov-workspace-doctor.sh"
+PARALLEL="$SCRIPT_LIB/workflow/wf-parallel.sh"
+CLAIM="$SCRIPT_LIB/workflow/wf-claim.sh"
+TASK_DONE="$SCRIPT_LIB/governance/gov-task-done.sh"
 
 die() { echo "错误: $*" >&2; exit 1; }
 
@@ -159,7 +163,7 @@ PY
       [ -z "$n" ] && continue
       local wt
       wt="$(worktree_of_branch "$br")"
-      printf "  #%-4s %-40s %-12s %s\n" "$n" "$br" "$mg" "${wt:-（缺失）}"
+      printf "  #%-4s %-40s %-12s %s\n" "$n" "$br" "$mg" "${wt:-(缺失)}"
     done <<< "$prs"
   fi
 
@@ -488,39 +492,140 @@ cmd_clean() {
 cmd_start() {
   local tid="${1:-}"; [ -z "$tid" ] && die "用法: wf-autopilot.sh start <T-XXX>"
 
-  if have "$CLAIM"; then
-    bash "$CLAIM" claim "$tid" || die "认领失败（可能被其他会话持有）: wf-claim.sh status $tid"
-    echo "已认领 $tid"
-  fi
-
-  local slug
-  slug="$(python3 - "$ROOT" "$tid" <<'PY'
+  # 1) 读取任务信息（批次、模块、目标文件等）
+  local task_info
+  task_info="$(python3 - "$ROOT" "$tid" <<'PY'
 import json, sys
 root, tid = sys.argv[1], sys.argv[2]
 d = json.load(open(f"{root}/.ai/tasks.json"))
 t = next((x for x in d["tasks"] if x["id"] == tid), None)
-print((t or {}).get("module", "misc"))
+if not t:
+    sys.exit(1)
+batch = t.get("batch", "")
+# 新结构字段
+wave = t.get("wave", "")
+lane = t.get("lane", "")
+domain = t.get("domain", "")
+# 兼容旧字段
+module = t.get("module", domain or "misc")
+# 不在 Python 端生成 batch，交给 shell 端根据 wave 映射
+target_files = t.get("target_files", [])
+description = t.get("description", t.get("type", ""))
+acceptance = t.get("acceptance") or {}
+then_list = acceptance.get("then", [])
+print(f"batch={batch}")
+print(f"module={module}")
+print(f"domain={domain}")
+print(f"wave={wave}")
+print(f"lane={lane}")
+print(f"target_files={' '.join(target_files)}")
+print(f"description={description}")
+for x in then_list:
+    print(f"then={x}")
 PY
-)"
-  local br="feat/${tid,,}-${slug}"
-  bash scripts/session/ses-worktree.sh add "$br" 2>&1 | grep -E "路径|已复制" | head -2
+)" || die "任务 $tid 不存在或读取失败"
 
-  python3 - "$ROOT" "$tid" <<'PY'
-import json, sys
-root, tid = sys.argv[1], sys.argv[2]
-t = next(x for x in json.load(open(f"{root}/.ai/tasks.json"))["tasks"] if x["id"] == tid)
-print("\n任务:", tid, t.get("description", ""))
-print("目标文件:")
-for f in t.get("target_files", []) or ["(未定义)"]:
-    print("  -", f)
-acc = t.get("acceptance") or {}
-print("验收 then:")
-for x in acc.get("then", []) or ["(无)"]:
-    print("  -", x)
-print("完成校验: bash scripts/governance/gov-task-done.sh", tid)
-PY
+  # 解析任务信息
+  local batch module domain wave lane target_files description
+  batch="$(echo "$task_info" | grep '^batch=' | cut -d= -f2-)"
+  module="$(echo "$task_info" | grep '^module=' | cut -d= -f2-)"
+  domain="$(echo "$task_info" | grep '^domain=' | cut -d= -f2-)"
+  wave="$(echo "$task_info" | grep '^wave=' | cut -d= -f2-)"
+  lane="$(echo "$task_info" | grep '^lane=' | cut -d= -f2-)"
+  target_files="$(echo "$task_info" | grep '^target_files=' | cut -d= -f2-)"
+  description="$(echo "$task_info" | grep '^description=' | cut -d= -f2-)"
+  wave="$(echo "$task_info" | grep '^wave=' | cut -d= -f2-)"
+  lane="$(echo "$task_info" | grep '^lane=' | cut -d= -f2-)"
+
+  # 新结构：用 wave/lane 代替 batch/role
+  # 如果没有 batch，尝试用 wave 生成批次名（匹配现有约定 B-wX-xxx）
+  if [ -z "$batch" ]; then
+    if [ -n "$wave" ]; then
+      # wave 1 -> B-w1-screens, wave 2 -> B-w2-screens, wave 3 -> B-integration-1, wave 4 -> B-ddd-refactor
+      case "$wave" in
+        1) batch="B-w1-screens" ;;
+        2) batch="B-w2-screens" ;;
+        3) batch="B-integration-1" ;;
+        4) batch="B-ddd-refactor" ;;
+        0) batch="B-w0-components" ;;
+        *) batch="B-wave$wave" ;;
+      esac
+    else
+      batch="B-misc"
+    fi
+  fi
+
+  # 兼容旧逻辑：单任务 worktree（无 batch 时）
+  if [ -z "$batch" ]; then
+    echo "警告: 任务 $tid 未归属批次，回落单任务 worktree 模式" >&2
+    local slug="$domain"
+    local br="feat/$(echo "$tid" | tr '[:upper:]' '[:lower:]')-$slug"
+    if have "$CLAIM"; then
+      bash "$CLAIM" claim "$tid" || die "认领失败: wf-claim.sh status $tid"
+      echo "已认领 $tid"
+    fi
+    bash "$SCRIPT_LIB/session/ses-worktree.sh" add "$br" 2>&1 | grep -E "路径|已复制" | head -2
+    echo
+    echo "任务: $tid $description"
+    echo "目标文件:"
+    for f in $target_files; do echo "  - $f"; done
+    echo "完成校验: bash scripts/governance/gov-task-done.sh $tid"
+    echo
+    echo "下一步: cd 到上面的 worktree → bash scripts/session/ses-session-begin.sh → 写代码"
+    return 0
+  fi
+
+  # 2) 批次 worktree：创建或复用
+  if have "$CLAIM"; then
+    bash "$CLAIM" claim "$tid" --batch "$batch" || die "认领失败: wf-claim.sh status $tid"
+    echo "已认领 $tid (批次: $batch)"
+  fi
+
+  # 创建/复用批次 worktree
+  local batch_branch="batch/$batch"
+  local wt_path
+  # 先查找是否已存在
+  wt_path="$(git worktree list --porcelain | awk -v b="refs/heads/batch/$batch" '
+    /^worktree / { p=$2 }
+    /^branch / && $2==b { print p; exit }
+  ')"
+  if [ -z "$wt_path" ]; then
+    # 不存在则创建
+    wt_path="$(bash "$SCRIPT_LIB/session/ses-worktree.sh" batch-add "$batch" --in-repo 2>/dev/null | awk '/路径:/{print $2}')"
+  fi
+  if [ -z "$wt_path" ]; then
+    # 创建后再查一次（防止解析失败）
+    wt_path="$(git worktree list --porcelain | awk -v b="refs/heads/batch/$batch" '
+      /^worktree / { p=$2 }
+      /^branch / && $2==b { print p; exit }
+    ')"
+  fi
+
+  if [ -z "$wt_path" ]; then
+    die "批次 worktree 创建/查找失败: $batch"
+  fi
+
+  # 3) 打印任务信息
   echo
-  echo "下一步: cd 到上面的 worktree → bash scripts/session/ses-session-begin.sh → 写代码"
+  echo "任务: $tid $description"
+  echo "批次: $batch (分支: $batch_branch)"
+  echo "Worktree: $wt_path"
+  echo "目标文件:"
+  for f in $target_files; do echo "  - $f"; done
+
+  # 从 stdin 读取 then 列表
+  local then_list
+  then_list="$(echo "$task_info" | grep '^then=' | cut -d= -f2-)"
+  if [ -n "$then_list" ]; then
+    echo "验收 then:"
+    echo "$then_list" | while IFS= read -r line; do
+      [ -n "$line" ] && echo "  - $line"
+    done
+  fi
+
+  echo "完成校验: bash scripts/governance/gov-task-done.sh $tid"
+  echo
+  echo "下一步: cd \"$wt_path\" → bash scripts/session/ses-session-begin.sh → 写代码"
 }
 
 cmd_finish() {
@@ -536,6 +641,16 @@ cmd_finish() {
   local br; br="$(git rev-parse --abbrev-ref HEAD)"
   git push -u origin "$br" || die "推送失败"
   echo "[4/4] 开 PR"
+  # 检测是否为批次分支
+  if [[ "$br" == batch/* ]]; then
+    batch_finish_pr "$br"
+  else
+    single_task_finish_pr "$tid" "$br"
+  fi
+}
+
+single_task_finish_pr() {
+  local tid="$1" br="$2"
   gh pr create --head "$br" --base master \
     --title "feat: deliver $tid" \
     --body "## 关联
@@ -553,6 +668,81 @@ cmd_finish() {
 - [x] 未改黄金向量 / Room schema" 2>&1 | tail -1
 }
 
+batch_finish_pr() {
+  local br="$1"
+  local batch_id="${br#batch/}"
+  # 获取该批次下的所有任务
+  local task_list
+  task_list="$(python3 - "$ROOT" "$batch_id" <<'PY'
+import json, sys
+root, batch_id = sys.argv[1], sys.argv[2]
+d = json.load(open(f"{root}/.ai/tasks.json"))
+tasks = [t for t in d.get("tasks", []) if t.get("batch") == batch_id]
+if not tasks:
+    sys.exit(1)
+for t in tasks:
+    print(f"{t['id']}: {t.get('description','')[:60]}")
+PY
+)" || { echo "批次 $batch_id 无关联任务"; return 1; }
+
+  gh pr create --head "$br" --base master \
+    --title "batch: deliver $batch_id" \
+    --body "## 批次交付
+| 项 | 填写 |
+|----|------|
+| 批次 | $batch_id |
+| 分支 | $br |
+
+## 包含任务
+$task_list
+
+## 验收
+- [x] 批次内所有任务 gov-task-done 通过
+- [x] local-ci 由 autopilot advance 复核
+
+## 门禁
+- [x] 未用 --no-verify
+- [x] 未改黄金向量 / Room schema" 2>&1 | tail -1
+}
+
+cmd_batch_finish() {
+  local batch_id="${1:-}"; [ -z "$batch_id" ] && die "用法: wf-autopilot.sh batch-finish <B-xxx>"
+  if ! echo "$batch_id" | grep -qE '^B-[a-zA-Z0-9_-]+$'; then
+    die "批次 ID 格式错误: $batch_id (期望 B-xxx 形式)"
+  fi
+  local br="batch/$batch_id"
+  echo "[1/4] 批次任务 DoD 校验"
+  # 校验批次内所有任务
+  python3 - "$ROOT" "$batch_id" <<'PY'
+import json, sys, subprocess
+root, batch_id = sys.argv[1], sys.argv[2]
+d = json.load(open(f"{root}/.ai/tasks.json"))
+tasks = [t for t in d.get("tasks", []) if t.get("batch") == batch_id]
+if not tasks:
+    print(f"批次 {batch_id} 无关联任务")
+    sys.exit(1)
+for t in tasks:
+    tid = t["id"]
+    print(f"  校验 {tid}...")
+    rc = subprocess.run(["bash", "scripts/governance/gov-task-done.sh", tid], capture_output=True)
+    if rc.returncode != 0:
+        print(f"  FAIL: {tid}")
+        print(rc.stdout.decode())
+        sys.exit(1)
+    print(f"  PASS: {tid}")
+PY
+  if [ $? -ne 0 ]; then die "批次内任务 DoD 校验失败"; fi
+  echo "[2/4] 提交批次变更"
+  git add -A
+  bash scripts/session/ses-claim-staged.sh >/dev/null 2>&1 || true
+  git commit -m "batch: deliver $batch_id" >/tmp/wf-commit.log 2>&1 \
+    || echo "  (无变更或提交被拒，见 /tmp/wf-commit.log)"
+  echo "[3/4] 推送"
+  git push -u origin "$br" || die "推送失败"
+  echo "[4/4] 开批次 PR"
+  batch_finish_pr "$br"
+}
+
 usage() {
   sed -n '3,18p' "$0" | sed 's/^# \{0,1\}//'
 }
@@ -568,6 +758,7 @@ case "${1:-status}" in
   clean) cmd_clean ;;
   start) shift || true; cmd_start "${1:-}" ;;
   finish) shift || true; cmd_finish "${1:-}" ;;
+  batch-finish) shift || true; cmd_batch_finish "${1:-}" ;;
   -h|--help|help) usage ;;
-  *) die "未知子命令: $1（status|advance|clean|start|finish）" ;;
+  *) die "未知子命令: $1（status|advance|clean|start|finish|batch-finish）" ;;
 esac

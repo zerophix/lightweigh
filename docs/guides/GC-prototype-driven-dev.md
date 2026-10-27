@@ -228,13 +228,20 @@ ViewModel 模式：`object Factory : ViewModelProvider.Factory`，通过 `App.co
 # 1. 认领任务
 bash scripts/workflow/wf-task-board.sh take T-XXX
 
-# 2. 多会话：开 worktree
+# 2. 多会话：开 worktree（单任务 / 批次两种模式）
+# 单任务：
 bash scripts/session/ses-worktree.sh add feat/<topic>
 cd <worktree>
 bash scripts/session/ses-session-begin.sh
 
+# 批次（DEC-082：同批次任务共享 worktree，如 B-w1-screens）：
+bash scripts/workflow/wf-autopilot.sh start T-XXX  # 自动创建/复用批次 worktree
+# 同批次后续任务：
+bash scripts/workflow/wf-autopilot.sh start T-YYY  # 复用同一批次 worktree
+
 # 3. 编码 + 测试
 ./gradlew :app:testDebugUnitTest
+```
 
 # 4. 提交（先声明归属）
 git add <files>

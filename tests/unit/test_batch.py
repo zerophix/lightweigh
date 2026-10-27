@@ -56,7 +56,7 @@ def test_list(tmp_path):
     run = _sh("list", root=root)
     assert run.returncode == 0
     # Should mention known batches
-    assert "B-infra" in run.stdout or "B-p" in run.stdout or "B-w" in run.stdout
+    assert "B10-ops" in run.stdout or "B2-frontend-w0" in run.stdout
 
 
 def test_status_unknown_batch_fails(tmp_path):
@@ -70,18 +70,17 @@ def test_status_unknown_batch_fails(tmp_path):
 def test_status_known_batch(tmp_path):
     """status should show task count for known batch."""
     root = _sandbox(tmp_path)
-    run = _sh("status", "B-infra", root=root)
+    run = _sh("status", "B10-ops", root=root)
     assert run.returncode == 0
-    assert "B-infra" in run.stdout
+    assert "B10-ops" in run.stdout
 
 
 def test_start_dry_run(tmp_path):
     """start with dry-run should print mode and test plan without switching."""
     root = _sandbox(tmp_path)
-    run = _sh("start", "B-infra", root=root)
     env = {"WF_BATCH_DRY": "1"}
     run = subprocess.run(
-        ["bash", str(SCRIPT), "start", "B-infra"],
+        ["bash", str(SCRIPT), "start", "B10-ops"],
         cwd=root, capture_output=True, text=True,
         env={**os.environ, "WF_BATCH_ROOT": str(root), **env},
     )
@@ -104,7 +103,7 @@ def test_create_new_batch(tmp_path):
 def test_create_duplicate_batch_fails(tmp_path):
     """create should fail for existing batch."""
     root = _sandbox(tmp_path)
-    run = _sh("create", "B-infra", "Duplicate", root=root)
+    run = _sh("create", "B10-ops", "Duplicate", root=root)
     assert run.returncode != 0
     assert "已存在" in run.stderr
 

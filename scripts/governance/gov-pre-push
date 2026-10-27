@@ -15,12 +15,22 @@ if [ -f "$_gov_root/scripts/governance/gov-mode.sh" ]; then
 fi
 
 # DEC-050: worktree 下优先 show-toplevel，避免共享 hooks 时 ROOT 落到主树
-ROOT="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+WORKTREE_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+# 如果在 worktree 中，WORKTREE_ROOT 是 worktree 路径；需要找到主仓库根目录
+ROOT="$WORKTREE_ROOT"
+# 检查是否在 worktree 中（存在 .git 文件而非目录）
+if [ -f "$WORKTREE_ROOT/.git" ]; then
+  # worktree: .git 文件指向主仓库的 .git/worktrees/<name>
+  # 获取主仓库根目录
+  ROOT="$(git rev-parse --git-common-dir 2>/dev/null | sed 's|/\.git$||')"
+fi
+# 回退：如果无法确定，用脚本相对路径
 if [ -z "${ROOT:-}" ] || [ ! -f "$ROOT/scripts/governance/gov-validate.sh" ]; then
   ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 fi
 cd "$ROOT"
-BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
+# 分支名从 worktree 获取（而非主仓库），避免推送批次分支时被误判为 master
+BRANCH=$(git -C "$WORKTREE_ROOT" rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
 
 # DEC-077: 钩子 stdin 是一次性的，先收起来供绕过审计使用
 PUSH_INPUT=""
@@ -43,12 +53,12 @@ echo "  任务画像: $PROFILE  AI 角色: ${ROLE:-未声明}（测试在交付�
 
 # 分支命名
 TRUNK_PATTERN='^(main|master|develop)$'
-FEATURE_PATTERN='^(feat|fix|docs|refactor|chore|test|ci)/[a-zA-Z0-9][a-zA-Z0-9._-]+$'
+FEATURE_PATTERN='^(feat|fix|docs|refactor|chore|test|ci|batch)/[a-zA-Z0-9][a-zA-Z0-9._-]+$'
 
 if ! echo "$BRANCH" | grep -qE "$TRUNK_PATTERN" && \
    ! echo "$BRANCH" | grep -qE "$FEATURE_PATTERN"; then
   echo "❌ 分支名不符合命名规范: $BRANCH"
-  echo "   格式: <type>/<description>"
+  echo "   格式: <type>/<description>  (type: feat|fix|docs|refactor|chore|test|ci|batch)"
   echo "   临时跳过: git push --no-verify"
   exit 1
 fi

@@ -47,7 +47,9 @@ def test_trail_hit_passes(tmp_path):
     repo, sha, tree = _make_repo(tmp_path)
     cache = repo / ".cache"
     cache.mkdir()
-    (cache / "hook-trail.log").write_text(f"{tree} {int(time.time())}\n", encoding="utf-8")
+    # Use the commit's own timestamp to avoid boundary timing issues in CI
+    ct = _git(repo, "log", "-1", "--format=%ct", sha)
+    (cache / "hook-trail.log").write_text(f"{tree} {ct}\n", encoding="utf-8")
     run = _audit(repo, "--commits", sha, "--block")
     assert run.returncode == 0, run.stdout
     assert "均有钩子轨迹" in run.stdout

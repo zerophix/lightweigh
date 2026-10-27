@@ -24,6 +24,7 @@
 | [编码约定](GC-coding-conventions.md) | 写代码的 AI/人 | 模块地图、Gradle 矩阵、四件套、Room/黄金禁区（DEC-048） |
 | [原型驱动开发](GC-prototype-driven-dev.md) | 认领 T-072~T-105 的 AI | 4 波执行顺序、原型→Compose 映射、闭环验证 `gov-prototype-verify.py`；skill `prototype-dev` 自动加载 |
 | [工程反思（自愿）](GC-engineering-reflections.md) | 有真实教训时 | 自愿追加；强制反思门禁已退役 |
+| [值班轮转与响应流程](GC-oncall-process.md) | 运维/On-Call | 告警分级、值班周期、紧急响应预案（DEC-085） |
 
 ---
 

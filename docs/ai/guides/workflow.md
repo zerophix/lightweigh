@@ -35,7 +35,11 @@ bash scripts/workflow/wf-autopilot.sh status     # 一屏真相 + NEXT 命令
 ```
 
 - `wf-claim.sh claim T-xxx` — 原子认领
-- `ses-worktree.sh add feat/<topic>` — 隔离工作区
+- `ses-worktree.sh add feat/<topic>` — 单任务隔离工作区
+- `ses-worktree.sh batch-add B-xxx` — 批次 worktree（DEC-082，同批次任务共享）
+- `wf-claim.sh claim T-xxx --batch B-xxx` — 认领批次内任务
+- `wf-autopilot.sh start T-xxx` — 自动识别批次，复用 worktree
+- `wf-autopilot.sh batch-finish B-xxx` — 批次完成：批量 DoD → 批次 PR
 - `gov-task-done.sh T-xxx` — DoD 验证，生成证据
 - `wf-queue.sh run` — 批次验证 + 合并
 

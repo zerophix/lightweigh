@@ -63,6 +63,7 @@ ALLOWED_REGEX = re.compile(
     r"|^ai/reviews/\d{8}_[^/]+/[^/]+\.md$"
     r"|^archive/ARCH-[a-z0-9-]+\.md$"
     r"|^ai/inbox/\d{8}-\d{6}\.md$"
+    r"|^ops/[a-z0-9-]+\.md$"
 )
 
 NAMING_RULES: list[tuple[str, str, str]] = [
@@ -72,6 +73,7 @@ NAMING_RULES: list[tuple[str, str, str]] = [
     ("guides/", r"^GC-[a-z0-9-]+\.md$", "指南文件命名错误"),
     ("reference/", r"^REF-[a-z0-9-]+\.md$", "参考文件命名错误"),
     ("archive/", r"^ARCH-[a-z0-9-]+\.md$", "归档文件命名错误"),
+    ("ops/", r"^[a-z0-9-]+\.md$", "ops文件命名错误"),
 ]
 
 
