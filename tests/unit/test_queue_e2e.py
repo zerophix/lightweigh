@@ -56,6 +56,32 @@ def _env(root: Path) -> Path:
     _write(repo / "scripts/session/ses-worktree.sh", "#!/usr/bin/env bash\nexit 0\n", 0o755)
     _write(repo / "scripts/session/ses-claim-staged.sh", "#!/usr/bin/env bash\nexit 0\n", 0o755)
 
+    # 任务板（通过严格审计需要：batches、groups、tasks 均含必填字段）
+    _write(repo / ".ai/tasks.json", json.dumps({
+        "version": 1,
+        "batches": [{"id": "B-demo", "title": "演示批次", "tasks": ["T-001", "T-002", "T-003"]}],
+        "groups": [{"id": "demo", "title": "演示组", "tasks": ["T-001", "T-002", "T-003"]}],
+        "tasks": [
+            {"id": "T-001", "status": "completed", "description": "底座", "group_id": "demo",
+             "target_files": ["a.kt"], "acceptance": {"status": "ready", "verify_commands": ["true"]},
+             "role": "dev", "batch": "B-demo", "source": "gap", "source_ref": "", "priority": "P0"},
+            {"id": "T-002", "status": "pending", "description": "依赖底座", "group_id": "demo",
+             "depends_on": ["T-001"], "target_files": ["b.kt"],
+             "acceptance": {"status": "ready", "verify_commands": ["true"]},
+             "role": "dev", "batch": "B-demo", "source": "gap", "source_ref": "", "priority": "P0"},
+            {"id": "T-003", "status": "pending", "description": "依赖第二步", "group_id": "demo",
+             "depends_on": ["T-001"], "target_files": ["c.kt"],
+             "acceptance": {"status": "ready", "verify_commands": ["true"]},
+             "role": "dev", "batch": "B-demo", "source": "gap", "source_ref": "", "priority": "P0"},
+        ],
+    }, ensure_ascii=False), 0o644)
+    # 审计脚本
+    _write(repo / "scripts/workflow/wf-board-audit.sh",
+           (ROOT_P / "scripts" / "workflow" / "wf-board-audit.sh").read_text(encoding="utf-8"), 0o755)
+    # validate 依赖的模块
+    _write(repo / "scripts/governance/modules/gov_validate_status.py",
+           (ROOT_P / "scripts" / "governance" / "modules" / "gov_validate_status.py").read_text(encoding="utf-8"), 0o644)
+
     _git(repo, "add", "-A")
     _git(repo, "commit", "-qm", "init")
     _git(repo, "push", "-q", "-u", "origin", "master")
@@ -90,7 +116,7 @@ def test_queue_end_to_end(tmp_path):
         _git(repo, "worktree", "add", "-q", str(wt), name)
 
     env = {**os.environ, "PATH": f"{tmp_path / 'bin'}:{os.environ['PATH']}",
-           "WF_QUEUE_ROOT": str(repo)}
+           "WF_QUEUE_ROOT": str(repo), "WF_BOARD_ROOT": str(repo)}
     res = subprocess.run(["bash", str(repo / "scripts/workflow/wf-queue.sh"),
                           "run", "--lanes", "A", "feat/a", "feat/b"],
                          cwd=repo, capture_output=True, text=True, env=env, timeout=300)

@@ -24,6 +24,12 @@
 | [编码约定](GC-coding-conventions.md) | 写代码的 AI/人 | 模块地图、Gradle 矩阵、四件套、Room/黄金禁区（DEC-048） |
 | [原型驱动开发](GC-prototype-driven-dev.md) | 认领 T-072~T-105 的 AI | 4 波执行顺序、原型→Compose 映射、闭环验证 `gov-prototype-verify.py`；skill `prototype-dev` 自动加载 |
 | [工程反思（自愿）](GC-engineering-reflections.md) | 有真实教训时 | 自愿追加；强制反思门禁已退役 |
+| [批次与队列执行模型](GC-batch-queue-model.md) | 所有 AI/人 | source→role→batch 三件套、N分支→1候选→1验证合并队列、证据闭环 |
+| [任务看板与并发开发](GC-task-board-concurrency.md) | 所有 AI/人 | 结构化任务字段、依赖图、互斥锁、Autopilot 自动驾驶 |
+| [治理门禁与模式开关](GC-governance-gates.md) | 所有 AI/人 | 三层开关（物理/逻辑/角色）、三环执行模型、车道分级 CI |
+| [角色系统与写入边界](GC-role-system.md) | 所有 AI/人 | 5角色定义、越界拦截、review独立性、must_produce契约 |
+| [完成定义与证据闭环](GC-dod-evidence.md) | 所有 AI/人 | 三重DoD校验、证据随分支提交、队列强制消费 |
+| [Notion同步计划](GC-notion-sync-plan.md) | 文档维护者 | 代码库治理v2→Notion文档映射、同步清单、验收标准 |
 
 ---
 
