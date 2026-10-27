@@ -1,0 +1,179 @@
+#!/usr/bin/env bash
+# ============================================================
+# .github/hooks/pre-receive
+# 服务端 Git pre-receive 钩子 —— 无法绕过的最后一道防线 (DEC-070, DEC-077, DEC-081)
+#
+# 功能:
+#   1. 检测 --no-verify 提交（没有 pre-commit 轨迹的提交） → 拒绝
+#   2. 阻止功能分支修改共享文件（DEC-073） → 拒绝
+#   3. 强制提交格式 <type>(<scope>): <subject> → 拒绝
+#   4. 允许合并队列/主干的派生数据写入（唯一写者）
+#
+# 部署:
+#   git server (bare): ln -sf ../../.github/hooks/pre-receive <repo.git>/hooks/pre-receive
+#   local test:        bash scripts/testing/test_pre_receive.sh
+#
+# 输入（stdin）: <old-sha> <new-sha> <ref-name>
+# 输出: 错误到 stderr，退出码 0 允许 / 1 拒绝
+# ============================================================
+set -uo pipefail
+
+# --- Compute ROOT (works in bare and non-bare repos) ---
+GIT_TOPLEVEL="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+if [ -n "$GIT_TOPLEVEL" ]; then
+    ROOT="$GIT_TOPLEVEL"
+else
+    DIR="$(cd "$(dirname "$0")" && pwd)"
+    ROOT="$(cd "$DIR/../.." && pwd)"
+fi
+# Don't cd if we're in a bare repo (can't cd to bare repo as working tree)
+if git rev-parse --is-bare-repository 2>/dev/null | grep -q true; then
+    ROOT="$(git rev-parse --git-dir 2>/dev/null || echo "$ROOT")"
+fi
+
+# Warn-only mode (GOV_BYPASS_POLICY=warn)
+if [ "${GOV_BYPASS_POLICY:-}" = "warn" ]; then
+    WARN_ONLY=1
+else
+    WARN_ONLY=0
+fi
+
+REJECTED=0
+
+# --- Shared files (DEC-073) ---
+SHARED_FILES=(
+  ".ai/tasks.json"
+  "docs/ai/lifecycle/03_TaskGraph.md"
+  "STATUS.md"
+  "tests/android-test-registry.yaml"
+  "docs/ai/lifecycle/06_Metrics.md"
+  "docs/index.md"
+  "AGANTS.md"
+)
+
+all_zeros() {
+    local sha="$1"
+    case "$sha" in
+        0000000000000000000000000000000000000000) return 0 ;;
+        *) return 1 ;;
+    esac
+}
+
+is_merge_queue_ref() {
+    local ref="$1"
+    case "$ref" in
+      refs/heads/master|refs/heads/main|\
+      refs/heads/chore/integration-*|\
+      refs/heads/chore/board-*|\
+      refs/heads/chore/lifecycle-*|\
+      refs/heads/chore/evidence-*)
+        return 0 ;;
+      *)
+        return 1 ;;
+    esac
+}
+
+check_commit() {
+    local sha="$1" subject="$2" ref="$3"
+    local violations=0
+
+    # Skip merge commits (parents > 2)
+    local parents
+    parents="$(git rev-list --parents -n 1 "$sha" 2>/dev/null | wc -w | tr -d ' ')"
+    if [ "$parents" -gt 2 ]; then
+        return 0
+    fi
+
+    # Skip known auto-commit types
+    case "$subject" in
+      "chore(merge):"*|"chore(board):"*|"chore(lifecycle):"*|"chore(evidence):"*|"Merge "*)
+        return 0 ;;
+    esac
+
+    # 1. Commit message format: <type>(<scope>): <subject>
+    if ! echo "$subject" | grep -qE '^(feat|fix|docs|style|build|refactor|revert|test|perf|ci|chore)(\([^)]+\))?: .{1,72}$'; then
+        echo "  [reject] 提交格式不合规: $sha" >&2
+        echo "    提交信息: $subject" >&2
+        echo "    要求: <type>(<scope>): <subject>（≤72 字符）" >&2
+        violations=1
+    fi
+
+    # 2. Shared file modification (non merge-queue refs only)
+    if ! is_merge_queue_ref "$ref"; then
+        local files
+        files="$(git diff-tree --no-commit-id --name-only -r "$sha" 2>/dev/null)"
+        for sf in "${SHARED_FILES[@]}"; do
+            if echo "$files" | grep -qxF "$sf"; then
+                echo "  [reject] 提交修改共享文件: $sha" >&2
+                echo "    文件: $sf" >&2
+                echo "    共享文件只能由合并队列写入（DEC-073）" >&2
+                violations=1
+            fi
+        done
+    fi
+
+    # 3. --no-verify detection (if hook-trail.log exists on server)
+    TRAIL="$ROOT/.cache/hook-trail.log"
+    if [ -f "$TRAIL" ]; then
+        local tree
+        tree="$(git rev-parse "${sha}^{tree}" 2>/dev/null || true)"
+        if [ -n "$tree" ] && ! grep -q "^${tree} " "$TRAIL" 2>/dev/null; then
+            echo "  [reject] 提交缺少 pre-commit 轨迹（可能使用了 --no-verify）: $sha" >&2
+            echo "    提交信息: $subject" >&2
+            echo "    解决: 重新提交使 pre-commit 钩子执行" >&2
+            echo "    或在 PR 中声明 GOV_BYPASS_POLICY=warn 并说明理由" >&2
+            violations=1
+        fi
+    fi
+
+    return $violations
+}
+
+# --- Main: process each ref from stdin ---
+while read -r old_sha new_sha ref_name; do
+    [ -n "$new_sha" ] || continue
+
+    # Branch deletion — always allow
+    if all_zeros "$new_sha"; then
+        echo "  [allow] 分支删除: $ref_name" >&2
+        continue
+    fi
+
+    # Get new commits
+    # In pre-receive, objects may be in quarantine — use direct new_sha if rev-list fails
+    commits=()
+    if all_zeros "$old_sha"; then
+        # New branch: check the new_sha directly, plus all ancestors
+        commits=($(git rev-list --max-count=100 "$new_sha" 2>/dev/null || true))
+        if [ "${#commits[@]}" -eq 0 ]; then
+            # rev-list failed (quarantine issue) — check new_sha directly
+            commits=("$new_sha")
+        fi
+    else
+        commits=($(git rev-list --max-count=100 "${old_sha}..${new_sha}" 2>/dev/null || true))
+    fi
+
+    # Safely iterate (handle empty array with set -u)
+    if [ "${#commits[@]}" -gt 0 ]; then
+        for sha in "${commits[@]}"; do
+            subject="$(git log -1 --format=%s "$sha" 2>/dev/null || true)"
+            [ -n "$subject" ] || continue
+            check_commit "$sha" "$subject" "$ref_name" || REJECTED=1
+        done
+    fi
+done
+
+if [ "$REJECTED" -eq 1 ]; then
+    if [ "$WARN_ONLY" -eq 1 ]; then
+        echo "  [warn] 检测到违规提交（GOV_BYPASS_POLICY=warn，仅警告）" >&2
+        exit 0
+    fi
+    echo "" >&2
+    echo "❌ pre-receive 拒绝推送" >&2
+    echo "   检测到上述违规。详情见 AGANS.md §9 硬规则与 DEC-077/081。" >&2
+    echo "   如需临时放行: 设置 GOV_BYPASS_POLICY=warn" >&2
+    exit 1
+fi
+
+echo "  [pre-receive] 全部检查通过 ✅" >&2
+exit 0
