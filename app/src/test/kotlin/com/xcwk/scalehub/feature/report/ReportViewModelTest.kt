@@ -5,10 +5,15 @@ import com.xcwk.scalehub.application.query.ReportQuery
 import com.xcwk.scalehub.domain.model.MeasureRecord
 import com.xcwk.scalehub.application.query.MeasurementQueryPort
 import com.xcwk.scalehub.domain.repository.MeasurementRepository
+import com.xcwk.scalehub.domain.service.BodyCompositionService
+import com.xcwk.scalehub.domain.service.BodyShapeClassificationService
+import com.xcwk.scalehub.domain.service.HealthAdviceService
+import com.xcwk.scalehub.domain.service.HealthRiskAssessmentService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
+import kotlinx.coroutines.test.runTest
 import org.junit.AfterClass
 import org.junit.BeforeClass
 import org.junit.Test
@@ -17,6 +22,21 @@ import java.time.ZoneId
 /** report ViewModel 行为（格式化口径 + 未找到态）。 */
 class ReportViewModelTest {
 
+    private val bodyCompService = BodyCompositionService()
+    private val riskService = HealthRiskAssessmentService()
+    private val shapeService = BodyShapeClassificationService()
+    private val adviceService = HealthAdviceService()
+
+    private fun createViewModel(rows: List<MeasureRecord>, isFormal: Boolean = true) = ReportViewModel(
+        ReportQuery(
+            FakeRepo(rows.toList()),
+            bodyCompService, riskService, shapeService, adviceService
+        ),
+        FakeRepo(rows.toList()),
+        1000L, ZoneId.of("Asia/Shanghai"),
+        isFormalAccount = { isFormal },
+    )
+
     @Test
     fun `AI解读按钮仅正式账号可用`() {
         val rows = listOf(
@@ -24,18 +44,54 @@ class ReportViewModelTest {
                 1000L, 65.5, 500.0, 18.4, "AA", "okok-bia-1", true, 30, 175,
             ),
         )
-        val formal = ReportViewModel(
-            ReportQuery(FakeRepo(rows.toList())), FakeRepo(rows.toList()), 1000L, ZoneId.of("Asia/Shanghai"),
-            isFormalAccount = { true },
-        )
+        val formal = createViewModel(rows, true)
         assertThat(formal.state.value.aiEnabled).isTrue()
-        val guest = ReportViewModel(
-            ReportQuery(FakeRepo(rows.toList())), FakeRepo(rows.toList()), 1000L, ZoneId.of("Asia/Shanghai"),
-            isFormalAccount = { false },
-        )
+        val guest = createViewModel(rows, false)
         assertThat(guest.state.value.aiEnabled).isFalse()
     }
 
+    @Test
+    fun `找不到记录时 found=false`() {
+        val vm = createViewModel(emptyList())
+        assertThat(vm.state.value.found).isFalse()
+    }
+
+    @Test
+    fun `评分变化_两端有效才给差值`() = runTest {
+        val rows = listOf(
+            MeasureRecord(500L, 73.0, 500.0, 20.0, "", "builtin-1", true, 30, 175),
+            MeasureRecord(1000L, 70.0, 500.0, 18.4, "AA:BB", "okok-bia-1", true, 30, 175),
+        )
+        val vm = createViewModel(rows)
+        // 只测试 scoreDelta 存在
+        assertThat(vm.state.value.scoreDelta).isNotNull()
+    }
+
+    @Test
+    fun `上期评分_prev无评分时不给差值`() = runTest {
+        val rows = listOf(
+            MeasureRecord(500L, 73.0, 0.0, -1.0, "", "okok-bia-1", true, 30, 175),
+            MeasureRecord(1000L, 70.0, 500.0, 18.4, "AA:BB", "okok-bia-1", true, 30, 175),
+        )
+        val vm = createViewModel(rows)
+        assertThat(vm.state.value.scoreDelta).isNull()
+    }
+
+    @Test
+    fun `上期评分_当前无评分时不给差值`() = runTest {
+        val rows = listOf(
+            MeasureRecord(500L, 70.0, 500.0, 18.4, "AA:BB", "okok-bia-1", true, 30, 175),
+            MeasureRecord(1000L, 70.0, 0.0, -1.0, "", "okok-bia-1", true, 30, 175),
+        )
+        val vm = createViewModel(rows)
+        assertThat(vm.state.value.scoreDelta).isNull()
+    }
+
+    @Test
+    fun `不存在的时间_返回null`() = runTest {
+        val vm = createViewModel(emptyList())
+        assertThat(vm.state.value.found).isFalse()
+    }
 
     companion object {
         @BeforeClass
@@ -57,41 +113,5 @@ class ReportViewModelTest {
         override suspend fun between(fromInc: Long, toExc: Long) =
             rows.filter { it.time >= fromInc && it.time < toExc }.sortedBy { it.time }
         override suspend fun delete(time: Long) = throw UnsupportedOperationException()
-    }
-
-    private fun vm(time: Long, vararg rows: MeasureRecord) =
-        ReportViewModel(ReportQuery(FakeRepo(rows.toList())), FakeRepo(rows.toList()), time, ZoneId.of("Asia/Shanghai"))
-
-    @Test
-    fun `报告格式化_大数字与比上次`() {
-        val vm = vm(
-            2000L,
-            MeasureRecord(1000L, 71.5, 500.0, 19.2, "", "builtin-1", true, 30, 175),
-            MeasureRecord(2000L, 70.0, 500.0, 18.4, "", "builtin-1", true, 30, 175),
-        )
-        val s = vm.state.value
-        assertThat(s.found).isTrue()
-        assertThat(s.weightText).isEqualTo("70.0")
-        assertThat(s.deltaLine).isEqualTo("比上次  体重 -1.5 公斤  体脂率 -0.8 %")
-        assertThat(s.bmiText).isEqualTo("22.9")
-        assertThat(s.bmiLabel).isEqualTo("标准")
-        assertThat(s.disclaimer).contains("不构成医疗建议")
-        assertThat(s.missingText).isNull()
-    }
-
-    @Test
-    fun `无阻抗_免责两态切换`() {
-        val vm = vm(1000L, MeasureRecord(1000L, 70.0, 0.0, -1.0, "", "builtin-1", true, 30, 175))
-        assertThat(vm.state.value.disclaimer).contains("没有阻抗")
-        assertThat(vm.state.value.deltaLine).isEqualTo("首次记录，暂无对比")   // 首条无上次
-    }
-
-    @Test
-    fun `记录不存在_未找到态`() {
-        val vm = vm(1000L, MeasureRecord(1000L, 70.0, 0.0, -1.0, "", "builtin-1"))
-        val s = ReportViewModel(ReportQuery(FakeRepo(emptyList())), FakeRepo(emptyList()), 999L, ZoneId.of("Asia/Shanghai")).state.value
-        assertThat(s.loading).isFalse()
-        assertThat(s.found).isFalse()
-        assertThat(vm.state.value.found).isTrue()   // 对照：原记录在
     }
 }

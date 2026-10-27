@@ -180,7 +180,12 @@ fi
 # 失效，整套门禁归零。它不能只靠 local-ci 慢层发现——钩子坏了，人就更不会去跑 local-ci。
 # 会话入口是唯一必然被执行的时机，因此在这里自动修复（幂等，只改 core.hooksPath）。
 if [ -f "$ROOT/scripts/governance/gov-hook-doctor.sh" ]; then
-    if ! bash "$ROOT/scripts/governance/gov-hook-doctor.sh" >/dev/null 2>&1; then
+    # 治理已永久停用时不修——否则每次开会话都会把钩子装回去（gov-mode.sh disable）
+    _gov_common="$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null || true)"
+    _gov_sentinel="${_gov_common:-$ROOT/.git}/gov-disabled"
+    if [ -f "$_gov_sentinel" ]; then
+        echo "  · 治理已永久停用（哨兵 ${_gov_sentinel}），跳过钩子自愈"
+    elif ! bash "$ROOT/scripts/governance/gov-hook-doctor.sh" >/dev/null 2>&1; then
         echo ""
         echo "  ⚠ 钩子配置异常，正在自动修复（门禁曾因此静默失效）..."
         bash "$ROOT/scripts/governance/gov-hook-doctor.sh" --fix 2>&1 | sed 's/^/    /'

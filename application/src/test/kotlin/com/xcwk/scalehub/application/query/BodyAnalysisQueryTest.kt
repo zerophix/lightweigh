@@ -1,13 +1,24 @@
 package com.xcwk.scalehub.application.query
 
 import com.google.common.truth.Truth.assertThat
+import com.xcwk.scalehub.domain.model.MeasureRecord
+import com.xcwk.scalehub.domain.service.BodyCompositionService
+import com.xcwk.scalehub.domain.service.BodyShapeClassificationService
+import com.xcwk.scalehub.domain.service.HealthAdviceService
+import com.xcwk.scalehub.domain.service.HealthRiskAssessmentService
 import org.junit.Test
 
 /**
- * BodyMetrics 全套规则移植的 spot 检查（行号随 BodyAnalysis 注释）。
- * 每条断言排除一类移植事故：系数错/分支反/阈值漂/顺序错。
+ * BodyAnalysisQuery 单元测试 —— 使用真实 Domain 服务（纯函数，无副作用）。
  */
-class BodyAnalysisTest {
+class BodyAnalysisQueryTest {
+
+    private val bodyCompService = BodyCompositionService()
+    private val riskService = HealthRiskAssessmentService()
+    private val shapeService = BodyShapeClassificationService()
+    private val adviceService = HealthAdviceService()
+
+    private val query = BodyAnalysisQuery(bodyCompService, riskService, shapeService, adviceService)
 
     private fun build(
         male: Boolean = true,
@@ -19,13 +30,21 @@ class BodyAnalysisTest {
         prevFat: Double? = null,
         impedance: Double = 500.0,
         algorithm: String = "builtin-1",
-    ) = buildBodyAnalysis(male, age, height, weight, fat, prevWeight, prevFat, impedance, algorithm)
+    ): BodyAnalysisResult {
+        val record = MeasureRecord(
+            1000L, weight, impedance, fat ?: MeasureRecord.FAT_NOT_CALCULATED,
+            "AA:BB", algorithm, if (male) true else false, age, height
+        )
+        return query.build(record, null, null)
+    }
 
     @Test
     fun `标准体重公式_男女两式`() {
-        // 男 (175-80)*0.7=66.5；女 (175-70)*0.6=63.0（BodyMetrics:71）
-        assertThat(build().standardWeight).isWithin(1e-9).of(66.5)
-        assertThat(build(male = false).standardWeight).isWithin(1e-9).of(63.0)
+        // 男 (175-80)*0.7=66.5；女 (175-70)*0.6=63.0
+        val maleResult = build().standardWeight
+        assertThat(maleResult).isWithin(1e-9).of(66.5)
+        val femaleResult = build(male = false).standardWeight
+        assertThat(femaleResult).isWithin(1e-9).of(63.0)
         assertThat(build(height = null).standardWeight).isNull()
     }
 
@@ -44,7 +63,7 @@ class BodyAnalysisTest {
 
     @Test
     fun `体型矩阵_九宫格边界`() {
-        // fatBand x bmiBand → SHAPES[fatBand][bmiBand]（BodyMetrics:285-308）
+        // fatBand x bmiBand → SHAPES[fatBand][bmiBand]
         val thin = build(weight = 50.0, fat = 8.0)      // fat低 bmi低 → 消瘦型
         assertThat(thin.bodyShape).isEqualTo("消瘦型")
         val athlete = build(weight = 78.0, fat = 9.0)   // fat低 bmi正常偏上(25.3) → 运动员型
@@ -57,7 +76,7 @@ class BodyAnalysisTest {
     fun `风险表_无阻抗缺两项_骨量阈值`() {
         val noZ = build(impedance = 0.0, fat = null)
         val names = noZ.risks.map { it.name }
-        assertThat(names).containsExactly("肥胖症", "高血压", "糖尿病", "痛风").inOrder()   // 无阻抗无脂肪肝/高血脂
+        assertThat(names).containsExactly("肥胖症", "高血压", "糖尿病", "痛风").inOrder()
         // 有阻抗补齐两项
         val withZ = build(fat = 15.0)
         assertThat(withZ.risks.map { it.name }).containsExactly(
@@ -69,7 +88,7 @@ class BodyAnalysisTest {
 
     @Test
     fun `脂肪_无阻抗被清空但评分后口径`() {
-        // 手动体脂 21 + 无阻抗：评分 null、指标无体脂项（BodyMetrics:164-166 在评分后清空）
+        // 手动体脂 21 + 无阻抗：评分 null、指标无体脂项
         val r = build(fat = 21.0, impedance = 0.0)
         assertThat(r.metrics.map { it.name }).doesNotContain("体脂率")
         assertThat(r.score).isNull()
@@ -80,17 +99,37 @@ class BodyAnalysisTest {
         // fat18.4% → 内脏=18.4*0.35=6.44→"6"（decimals0 非okok）; 去脂=70-12.88=57.1
         val r = build(algorithm = "builtin-1", fat = 18.4)
         val visceral = r.metrics.first { it.name == "内脏脂肪" }
+        println("DEBUG: 内脏脂肪 valueText = '${visceral.valueText}', unit = '${visceral.unit}', decimals = 0")
         assertThat(visceral.valueText).isEqualTo("6")
         val lean = r.metrics.first { it.name == "去脂体重" }
+        println("DEBUG: 去脂体重 valueText = '${lean.valueText}'")
         assertThat(lean.valueText).isEqualTo("57.1")
     }
 
     @Test
     fun `建议文_BMI各档命中`() {
-        assertThat(adviceOfBmi(0, null, BandRange(10.0, 20.0))).contains("偏轻")
-        assertThat(adviceOfBmi(2, null, BandRange(10.0, 20.0))).contains("略微超标")
-        assertThat(adviceOfBmi(3, null, BandRange(10.0, 20.0))).contains("较多")
-        assertThat(adviceOfBmi(null, null, BandRange(10.0, 20.0))).contains("完善身高档案")
+        val bodyCompService = BodyCompositionService()
+        val fatStd = bodyCompService.fatStandard(true)
+        
+        // BMI 0 (偏瘦) - 体重 49kg, 身高 175cm, 无阻抗
+        val record1 = MeasureRecord(1000L, 49.0, 0.0, MeasureRecord.FAT_NOT_CALCULATED, "", "builtin-1", true, 30, 175)
+        val r1 = BodyAnalysisQuery(BodyCompositionService(), HealthRiskAssessmentService(), BodyShapeClassificationService(), HealthAdviceService()).build(record1, null, null)
+        assertThat(r1.advice).contains("偏轻")
+        
+        // BMI 2 (偏胖) - 体重 76kg, 有阻抗
+        val record2 = MeasureRecord(1000L, 76.0, 500.0, 18.4, "AA:BB", "builtin-1", true, 30, 175)
+        val r2 = BodyAnalysisQuery(BodyCompositionService(), HealthRiskAssessmentService(), BodyShapeClassificationService(), HealthAdviceService()).build(record2, null, null)
+        assertThat(r2.advice).contains("略微超标")
+        
+        // BMI 3 (肥胖) - 体重 100kg
+        val record3 = MeasureRecord(1000L, 100.0, 500.0, 30.0, "AA:BB", "builtin-1", true, 30, 175)
+        val r3 = BodyAnalysisQuery(BodyCompositionService(), HealthRiskAssessmentService(), BodyShapeClassificationService(), HealthAdviceService()).build(record3, null, null)
+        assertThat(r3.advice).contains("较多")
+        
+        // 无 BMI - 身高为 null
+        val record4 = MeasureRecord(1000L, 70.0, 500.0, 18.4, "AA:BB", "builtin-1", true, 30, null)
+        val r4 = BodyAnalysisQuery(BodyCompositionService(), HealthRiskAssessmentService(), BodyShapeClassificationService(), HealthAdviceService()).build(record4, null, null)
+        assertThat(r4.advice).contains("完善身高档案")
     }
 
     @Test

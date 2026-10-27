@@ -198,39 +198,47 @@ cmd_list() {
   printf '%-40s %-8s %-6s %-10s %s\n' "ID" "STATUS" "EXIT" "DURATION" "LOG"
   local found=0
   local exitf id log meta start end dur rc status
-  # 用 glob 收集，兼容带空格以外的所有合法 id
-  for exitf in "$JOBS_DIR"/*.exit; do
-    [ -e "$exitf" ] || continue
-    found=1
-    id="$(basename "$exitf" .exit)"
-    log="$JOBS_DIR/$id.log"
-    meta="$JOBS_DIR/$id.meta"
-    start="$(sed -n 's/^start=//p' "$meta" 2>/dev/null | head -n 1)"
-    [ -n "$start" ] || start="$(mtime "$log")"
-    end="$(mtime "$exitf")"
-    dur=$(( end - start ))
-    [ "$dur" -ge 0 ] 2>/dev/null || dur=0
-    rc="$(cat "$exitf" 2>/dev/null)"
-    case "$rc" in
-      ''|*[!0-9]*) rc="?" ;;
-    esac
-    printf '%-40s %-8s %-6s %-10s %s\n' \
-      "$id" "done" "$rc" "$(fmt_duration "$dur")" "$log"
+  # 先取一份 id 快照再分类。
+  # 不能分两趟（先扫 *.exit 再扫 *.log）：某个 job 若恰好在这两趟之间结束，
+  # 第一趟还看不到它的 .exit，第二趟又会因 .exit 已存在而被 continue 跳过，
+  # 于是整个 job 从列表里消失（2026-10-27 并发用例稳定复现）。
+  local -a ids=()
+  local seen=" "
+  local f base
+  for f in "$JOBS_DIR"/*.exit "$JOBS_DIR"/*.log; do
+    [ -e "$f" ] || continue
+    base="$(basename "$f")"
+    base="${base%.exit}"
+    base="${base%.log}"
+    case "$seen" in *" $base "*) continue ;; esac
+    seen="$seen$base "
+    ids+=("$base")
   done
 
-  # 运行中的 job（没有 .exit）
-  for log in "$JOBS_DIR"/*.log; do
-    [ -e "$log" ] || continue
-    id="$(basename "$log" .log)"
-    [ -f "$JOBS_DIR/$id.exit" ] && continue
+  for id in "${ids[@]}"; do
     found=1
+    log="$JOBS_DIR/$id.log"
+    exitf="$JOBS_DIR/$id.exit"
     meta="$JOBS_DIR/$id.meta"
     start="$(sed -n 's/^start=//p' "$meta" 2>/dev/null | head -n 1)"
-    [ -n "$start" ] || start="$(mtime "$log")"
-    dur=$(( $(now) - start ))
-    [ "$dur" -ge 0 ] 2>/dev/null || dur=0
-    printf '%-40s %-8s %-6s %-10s %s\n' \
-      "$id" "running" "-" "$(fmt_duration "$dur")" "$log"
+    if [ -f "$exitf" ]; then
+      [ -n "$start" ] || start="$(mtime "$log")"
+      end="$(mtime "$exitf")"
+      dur=$(( end - start ))
+      [ "$dur" -ge 0 ] 2>/dev/null || dur=0
+      rc="$(cat "$exitf" 2>/dev/null)"
+      case "$rc" in
+        ''|*[!0-9]*) rc="?" ;;
+      esac
+      printf '%-40s %-8s %-6s %-10s %s\n' \
+        "$id" "done" "$rc" "$(fmt_duration "$dur")" "$log"
+    else
+      [ -n "$start" ] || start="$(mtime "$log")"
+      dur=$(( $(now) - start ))
+      [ "$dur" -ge 0 ] 2>/dev/null || dur=0
+      printf '%-40s %-8s %-6s %-10s %s\n' \
+        "$id" "running" "-" "$(fmt_duration "$dur")" "$log"
+    fi
   done
 
   if [ "$found" -eq 0 ]; then

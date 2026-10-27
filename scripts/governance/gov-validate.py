@@ -20,6 +20,7 @@ from scripts.governance.modules.gov_validate_android_tests import check_all as c
 from scripts.governance.modules.gov_validate_prototype import check_all as check_prototype
 from scripts.governance.modules.gov_validate_previews import check_all as check_previews
 from scripts.governance.modules.gov_validate_docs import check_all as check_docs
+from scripts.governance.modules.gov_validate_hygiene import check_all as check_hygiene
 
 from scripts.governance.modules.gov_validate_core import errors
 
@@ -74,6 +75,7 @@ def main() -> int:
     check_prototype()
     check_previews()
     check_docs()
+    check_hygiene()
 
     # 摘要行恒定输出（两空格缩进匹配 gov-update-metrics.sh 的 `^  违规:` 锚点），
     # 成功时附加「全部通过」——DEC-005：输出契约对全部消费者稳定可用

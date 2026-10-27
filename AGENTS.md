@@ -165,6 +165,7 @@ bash scripts/session/ses-session-end.sh
 6. 禁止用 `git push --force` 覆盖他人分支。
 7. 提交格式 `<type>(<scope>): <subject>`（英文，≤72）。
 8. 禁止未声明角色就改代码或治理脚本（`GOV_ROLE_REQUIRED`）。
+9. 禁止保留备份/快照残留文件（`.bak`/`.orig`/`.rej`/`~`/`副本`）—— 备份不是「留着以防万一」，而是让测试静默失效的元凶（`GOV-HYG-001`）。
 
 ## 10. 规则 → 执行者映射
 
@@ -190,6 +191,7 @@ bash scripts/session/ses-session-end.sh
 | 钩子生效 | `gov-hook-doctor`（local-ci） | `bash scripts/governance/gov-hook-doctor.sh` |
 | **绕过审计** | `gov-audit-bypass.sh`（pre-push） | `GOV_BYPASS_POLICY=block git push` |
 | 工作区卫生 | `gov-workspace-doctor`（会话结束） | `gov-workspace-doctor.sh` |
+| **禁止备份/快照残留** | `gov-validate` 的 `GOV-HYG-001`（全仓扫描 `.bak`/`.orig`/`~`/`副本`） | `gov-validate.sh` |
 | 派生数据不手写 | 合并队列（单一写者） | `gov-board-sync.sh --dry` |
 | 用户路径可走通 | **手动/预发**：`e2e_all.sh`（需设备） | `bash scripts/testing/e2e_all.sh` |
 | **内环预算** | `dev-loop.sh --budget`（约定 + 脚本） | 输出自带耗时 |

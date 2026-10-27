@@ -137,6 +137,10 @@ object QkComponentSize {
 
     // 长按菜单（原型黑色菜单条 radius 10）
     val MenuRadius = 10.dp
+
+    // 密码可见性切换图标按钮（原型 v-password 眼睛图标区域）
+    val PasswordToggleButton = 48.dp
+    val PasswordToggleIcon = 20.dp
 }
 
 /** 字号阶梯（原型 px 值直接映射为 sp）。 */

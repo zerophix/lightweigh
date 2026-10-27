@@ -15,6 +15,10 @@ import com.xcwk.scalehub.application.query.MeasurementQueryPort
 import com.xcwk.scalehub.application.query.ProfileQuery
 import com.xcwk.scalehub.application.query.ReportQuery
 import com.xcwk.scalehub.application.query.TrendQuery
+import com.xcwk.scalehub.domain.service.BodyCompositionService
+import com.xcwk.scalehub.domain.service.BodyShapeClassificationService
+import com.xcwk.scalehub.domain.service.HealthAdviceService
+import com.xcwk.scalehub.domain.service.HealthRiskAssessmentService
 import com.xcwk.scalehub.application.service.RecordHealthLogService
 import com.xcwk.scalehub.application.service.UpdateProfileService
 import com.xcwk.scalehub.application.sync.CloudSessionPort
@@ -161,7 +165,13 @@ class AppContainer(context: Context) {
             measurementQueryPort, healthLogQueryPort, goalStore, profileStoreImpl,
         )
     }
-    val reportQuery: ReportQuery by lazy { ReportQuery(measurementQueryPort) }
+    val bodyCompService = BodyCompositionService()
+    val riskService = HealthRiskAssessmentService()
+    val shapeService = BodyShapeClassificationService()
+    val adviceService = HealthAdviceService()
+    val reportQuery: ReportQuery by lazy {
+        ReportQuery(measurementQueryPort, bodyCompService, riskService, shapeService, adviceService)
+    }
     val updateProfileService: UpdateProfileService by lazy {
         UpdateProfileService(profileStoreImpl, dataRefreshBus)
     }

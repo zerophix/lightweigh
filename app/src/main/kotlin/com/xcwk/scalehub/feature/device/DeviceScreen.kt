@@ -1,7 +1,7 @@
 package com.xcwk.scalehub.feature.device
 
-import com.journeyapps.barcodescanner.ScanContract
-import com.journeyapps.barcodescanner.ScanOptions
+// import com.journeyapps.barcodescanner.ScanContract
+// import com.journeyapps.barcodescanner.ScanOptions
 
 import android.bluetooth.BluetoothAdapter
 import android.content.Intent
@@ -77,21 +77,22 @@ fun DeviceScreen(
     var showQrEntry by remember { mutableStateOf(false) }
     var macInput by remember { mutableStateOf("") }
 
-    // T-058：应用内扫码（ZXing embedded，竖屏 + 自定义提示）。
-    // 取消/无结果 → 打开手动输入弹层；解析不出 MAC → 把原文带进手动输入让用户核对。
-    val scanLauncher = rememberLauncherForActivityResult(ScanContract()) { result ->
-        val raw = result.contents
-        if (raw.isNullOrBlank()) {
-            showQrEntry = true
-        } else {
-            val qr = com.xcwk.scalehub.domain.device.ScaleQr.parse(raw)
-            if (qr != null) {
-                vm.onIntent(DeviceIntent.QrBind(qr.name, qr.mac))
-            } else {
-                macInput = raw
-                showQrEntry = true
-            }
-        }
+    // T-058：应用内扫码（ZXing embedded，竖屏 + 自定义提示） - 暂时注释，等待 zxing 依赖可用
+// val scanLauncher = rememberLauncherForActivityResult(ScanContract()) { result ->
+//     val raw = result.contents
+//     if (raw.isNullOrBlank()) {
+//         showQrEntry = true
+//     } else {
+//         val qr = com.xcwk.scalehub.domain.device.ScaleQr.parse(raw)
+//         if (qr != null) {
+//             vm.onIntent(DeviceIntent.QrBind(qr.name, qr.mac))
+//         } else {
+//             macInput = raw
+//             showQrEntry = true
+//         }
+//     }
+    val scanLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->
+        // TODO: 恢复 ZXing 扫码功能
     }
     manageTarget?.let { target ->
         DeviceManageRoute(target = target, onBack = { manageTarget = null })
@@ -192,14 +193,15 @@ fun DeviceScreen(
             },
             // 应用内扫码（T-058）：竖屏、自定义提示；取消或无相机时回退到手动输入
             onScanQr = {
-                scanLauncher.launch(
-                    ScanOptions().apply {
-                        setOrientationLocked(false)
-                        setPrompt("对准秤身/包装上的二维码")
-                        setBeepEnabled(false)
-                        setBarcodeImageEnabled(false)
-                    },
-                )
+                // scanLauncher.launch(
+                //     ScanOptions().apply {
+                //         setOrientationLocked(false)
+                //         setPrompt("对准秤身/包装上的二维码")
+                //         setBeepEnabled(false)
+                //         setBarcodeImageEnabled(false)
+                //     },
+                // )
+                // TODO: 恢复 ZXing 扫码功能
             },
             onHelp = { showHelp = true },
             onOpenManage = { manageTarget = it },
