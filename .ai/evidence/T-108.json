@@ -1,0 +1,20 @@
+{
+  "task": "T-108",
+  "ok": true,
+  "git_sha": "40140589dd65184e097f16e7622772fbe9473e11",
+  "verified_at": "2026-10-27T02:47:47Z",
+  "checks": [
+    {
+      "type": "file",
+      "name": "scripts/dev/ship.sh",
+      "status": "PASS",
+      "detail": "存在"
+    },
+    {
+      "type": "command",
+      "name": "python3 -m pytest tests/unit/test_ship_evidence.py -v",
+      "status": "PASS",
+      "detail": "退出码 0"
+    }
+  ]
+}
