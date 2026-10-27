@@ -1,0 +1,32 @@
+{
+  "task": "T-301",
+  "ok": true,
+  "git_sha": "594c86117c180844fd769fbb7334b89b875b7bb3",
+  "verified_at": "2026-10-27T11:39:58Z",
+  "checks": [
+    {
+      "type": "file",
+      "name": "app/src/main/kotlin/com/xcwk/scalehub/ui/components/QkSkeleton.kt",
+      "status": "PASS",
+      "detail": "存在"
+    },
+    {
+      "type": "prototype",
+      "name": "python3 scripts/governance/gov-prototype-verify.py T-301 --strict",
+      "status": "PASS",
+      "detail": "退出码 0"
+    },
+    {
+      "type": "command",
+      "name": "python3 scripts/governance/gov-prototype-verify.py T-301 --strict",
+      "status": "PASS",
+      "detail": "退出码 0"
+    },
+    {
+      "type": "command",
+      "name": "./gradlew :app:testDebugUnitTest",
+      "status": "PASS",
+      "detail": "退出码 0"
+    }
+  ]
+}
