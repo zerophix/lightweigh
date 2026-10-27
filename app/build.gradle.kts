@@ -56,9 +56,13 @@ dependencies {
 
     implementation(libs.core.ktx)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
-    implementation(libs.zxing.embedded)   // 扫码绑定体脂秤（移植补齐）
-    implementation(libs.health.connect)   // T-059 健康平台写入
+    // 扫码绑定体脂秤（移植补齐）：状态机已在 QrScan.kt，zxing 渲染层尚未接入，故暂不引依赖
+    // implementation(libs.zxing.embedded)
+    // T-059 健康平台写入：坐标 androidx.health.connect:connect-client
+    implementation(libs.health.connect)
     implementation(platform(libs.compose.bom))
+    // 必须在 BOM 之后声明：版本由 BOM 裁决，硬编码版本会绕过 BOM 并抬高 compileSdk 下限
+    implementation(libs.androidx.foundation.layout)
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.tooling.preview)
     implementation(libs.compose.material3)

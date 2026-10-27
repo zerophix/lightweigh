@@ -40,6 +40,21 @@ if [ -n "$common_dir" ] && [ -d "$common_dir" ]; then
 fi
 EXPECTED="$MAIN_ROOT/scripts/hooks"
 
+# 治理整体停用哨兵（gov-mode.sh disable 创建）：此时「钩子没装」是预期状态，
+# 不是配置异常，更不能去 --fix 装回来。
+GOV_SENTINEL="$MAIN_ROOT/.git/gov-disabled"
+if [ -n "$common_dir" ] && [ -d "$common_dir" ]; then
+  GOV_SENTINEL="$common_dir/gov-disabled"
+fi
+if [ -f "$GOV_SENTINEL" ]; then
+  if [ "$JSON" -eq 1 ]; then
+    printf '{"ok":true,"disabled":true,"sentinel":"%s"}\n' "$GOV_SENTINEL"
+  else
+    echo "治理已永久停用（哨兵 ${GOV_SENTINEL}）—— 钩子未安装属预期，跳过体检"
+  fi
+  exit 0
+fi
+
 # name:source
 pairs=(
   "pre-commit:scripts/governance/gov-pre-commit-simplified"

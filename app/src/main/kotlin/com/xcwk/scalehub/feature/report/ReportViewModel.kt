@@ -9,6 +9,10 @@ import com.xcwk.scalehub.App
 import com.xcwk.scalehub.application.query.BMI_LABELS
 import com.xcwk.scalehub.application.query.MeasurementQueryPort
 import com.xcwk.scalehub.application.query.ReportQuery
+import com.xcwk.scalehub.domain.service.BodyCompositionService
+import com.xcwk.scalehub.domain.service.BodyShapeClassificationService
+import com.xcwk.scalehub.domain.service.HealthAdviceService
+import com.xcwk.scalehub.domain.service.HealthRiskAssessmentService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -143,8 +147,15 @@ class ReportViewModel(
         fun Factory(time: Long, zone: ZoneId = ZoneId.systemDefault()) = viewModelFactory {
             initializer {
                 val app = this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as App
+                val bodyCompService = BodyCompositionService()
+                val riskService = HealthRiskAssessmentService()
+                val shapeService = BodyShapeClassificationService()
+                val adviceService = HealthAdviceService()
                 ReportViewModel(
-                    ReportQuery(app.container.measurementQueryPort),
+                    ReportQuery(
+                        app.container.measurementQueryPort,
+                        bodyCompService, riskService, shapeService, adviceService
+                    ),
                     app.container.measurementQueryPort,
                     time, zone,
                     isFormalAccount = app.container.isFormalAccount,

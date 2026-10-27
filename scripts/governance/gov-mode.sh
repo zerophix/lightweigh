@@ -7,6 +7,8 @@
 #   bash scripts/governance/gov-mode.sh status
 #   bash scripts/governance/gov-mode.sh off [时长]      # 默认 2h；支持 30m / 90s / 2h；上限 8h
 #   bash scripts/governance/gov-mode.sh on
+#   bash scripts/governance/gov-mode.sh disable         # 永久停用（无到期）+ 摘掉 core.hooksPath
+#   bash scripts/governance/gov-mode.sh enable          # 恢复（装回 core.hooksPath）
 #
 # 作用域（多 AI 并发时按这个顺序判定）:
 #   1. 环境变量 GOV_MODE=off        → 只对当前命令生效，不影响任何人
@@ -82,11 +84,22 @@ gov_mode_epoch_field() {
   sed -n 's/.*"until_epoch"[[:space:]]*:[[:space:]]*\([0-9]*\).*/\1/p' "$f" | head -1
 }
 
+# 永久停用哨兵：无到期时间，存在即「治理整体关闭」。
+# 放在 git 公共目录（所有 worktree 共享同一份），不进版本库、不脏工作区。
+gov_mode_sentinel() {
+  local common
+  common="$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null || true)"
+  [ -n "$common" ] && [ -d "$common" ] || common="$(gov_mode_root)/.git"
+  echo "$common/gov-disabled"
+}
+
 # off 时返回 0（放行），on 时返回 1（继续门禁）
 gov_mode_is_off() {
   if [ "${GOV_MODE:-}" = "off" ]; then
     return 0
   fi
+  # 永久停用优先于一切（无到期时间，只能显式 enable 解除）
+  [ -f "$(gov_mode_sentinel)" ] && return 0
   local f; f="$(gov_mode_file)"
   [ -f "$f" ] || return 1
   local mode until_epoch now
@@ -105,6 +118,10 @@ gov_mode_is_off() {
 gov_mode_describe() {
   if [ "${GOV_MODE:-}" = "off" ]; then
     echo "env GOV_MODE=off（仅本次命令）"
+    return
+  fi
+  if [ -f "$(gov_mode_sentinel)" ]; then
+    echo "已永久停用（gov-mode.sh enable 恢复）"
     return
   fi
   local f; f="$(gov_mode_file)"
@@ -193,8 +210,28 @@ gov_mode_cli() {
     status)
       gov_mode_status
       ;;
+    disable)
+      # 永久关闭：哨兵 + 摘掉钩子（钩子不跑，连一次都不用等）
+      local s; s="$(gov_mode_sentinel)"
+      mkdir -p "$(dirname "$s")"
+      printf '%s\n' "disabled $(date -Iseconds) by ${SESSION_ID:-local}" > "$s"
+      git config --unset core.hooksPath 2>/dev/null || true
+      echo "governance: 已永久停用（哨兵 ${s}）"
+      echo "  core.hooksPath 已摘除 → git 不再执行 pre-commit / commit-msg / pre-push"
+      echo "  恢复: bash scripts/governance/gov-mode.sh enable"
+      ;;
+    enable)
+      local s; s="$(gov_mode_sentinel)"
+      rm -f "$s" "$(gov_mode_file)"
+      if [ -d "$(gov_mode_root)/scripts/hooks" ]; then
+        git config core.hooksPath "$(gov_mode_root)/scripts/hooks"
+        echo "governance: on（已恢复 core.hooksPath）"
+      else
+        echo "governance: on（未找到 scripts/hooks，钩子路径未设置）"
+      fi
+      ;;
     *)
-      echo "用法: gov-mode.sh on|off [时长]|status" >&2
+      echo "用法: gov-mode.sh on|off [时长]|disable|enable|status" >&2
       exit 2
       ;;
   esac
