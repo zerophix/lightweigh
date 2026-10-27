@@ -1,0 +1,74 @@
+{
+  "task": "T-107",
+  "ok": true,
+  "git_sha": "d1d0b25b31a7538936ca0fe0206bcbc9558a2109",
+  "verified_at": "2026-10-27T02:42:17Z",
+  "checks": [
+    {
+      "type": "file",
+      "name": "docs/ai/decisions/DEC-072.md",
+      "status": "PASS",
+      "detail": "存在"
+    },
+    {
+      "type": "file",
+      "name": "docs/ai/decisions/DEC-073.md",
+      "status": "PASS",
+      "detail": "存在"
+    },
+    {
+      "type": "file",
+      "name": "docs/ai/decisions/DEC-074.md",
+      "status": "PASS",
+      "detail": "存在"
+    },
+    {
+      "type": "file",
+      "name": "docs/ai/decisions/DEC-075.md",
+      "status": "PASS",
+      "detail": "存在"
+    },
+    {
+      "type": "file",
+      "name": "docs/ai/decisions/DEC-076.md",
+      "status": "PASS",
+      "detail": "存在"
+    },
+    {
+      "type": "file",
+      "name": "docs/ai/decisions/DEC-077.md",
+      "status": "PASS",
+      "detail": "存在"
+    },
+    {
+      "type": "file",
+      "name": "docs/ai/decisions/DEC-078.md",
+      "status": "PASS",
+      "detail": "存在"
+    },
+    {
+      "type": "file",
+      "name": "docs/ai/decisions/DEC-079.md",
+      "status": "PASS",
+      "detail": "存在"
+    },
+    {
+      "type": "file",
+      "name": "docs/ai/decisions/DEC-080.md",
+      "status": "PASS",
+      "detail": "存在"
+    },
+    {
+      "type": "command",
+      "name": "python3 -c \"import json,glob; decs=[int(f.split('DEC-')[1][:3]) for f in glob.glob('docs/ai/decisions/DEC-*.md')]; assert all(d in decs for d in range(72,81)), 'DEC gap'\"; echo 'DEC-072~080 全部存在'",
+      "status": "PASS",
+      "detail": "退出码 0"
+    },
+    {
+      "type": "command",
+      "name": "bash scripts/governance/gov-validate.sh 2>&1 | grep 'GOV-CONTENT-004'",
+      "status": "PASS",
+      "detail": "退出码 0"
+    }
+  ]
+}
