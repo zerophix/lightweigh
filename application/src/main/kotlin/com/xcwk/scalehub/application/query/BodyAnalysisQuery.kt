@@ -57,15 +57,6 @@ data class BodyAnalysisResult(
 /** BMI 五级标签。 */
 val BMI_LABELS = listOf("偏瘦", "标准", "偏胖", "肥胖", "重度肥胖")
 
-/** BMI 分级。 */
-internal fun bmiLevelOf(bmi: Double): Int = when {
-    bmi < 18.5 -> 0
-    bmi < 24 -> 1
-    bmi < 28 -> 2
-    bmi < 32 -> 3
-    else -> 4
-}
-
 internal data class BandRange(val min: Double, val max: Double)
 
 /**
@@ -102,16 +93,12 @@ class BodyAnalysisQuery(
         if (heightCm <= 0) missing.add("身高")
         if (age == null) missing.add("出生年")
 
-        val bmi = if (heightCm > 0) weight / Math.pow(heightCm / 100.0, 2.0) else null
-        val level = bmi?.let(::bmiLevelOf)
+        val bmi = bodyCompService.bmi(weight, heightCm)
+        val level = bmi?.let { bodyCompService.bmiLevel(it) }
         val fatStd = bodyCompService.fatStandard(male)
 
-        val stdWeight = if (heightCm > 0) {
-            if (male) (heightCm - 80) * 0.7 else (heightCm - 70) * 0.6
-        } else null
-        val obesity = if (stdWeight != null && stdWeight != 0.0) {
-            ((weight - stdWeight) / stdWeight) * 100.0
-        } else null
+        val stdWeight = bodyCompService.standardWeight(male, heightCm)
+        val obesity = bodyCompService.obesityPercent(weight, stdWeight)
 
         // 委托给 Domain 服务计算体成分
         val analysis = if (hasImpedance && fatRate != null && record.hasCalculationInput()) {
@@ -141,18 +128,14 @@ class BodyAnalysisQuery(
             bodyCompService.calculateSkeletalMuscle(male, leanWeight, weight)
         } else null
 
-        // 评分计算
-        val score = if (hasImpedance && bmi != null && (fatPercent != null || analysis != null)) {
-            var s = 100.0
-            if (bmi < 18.5) s -= minOf(40.0, (18.5 - bmi) * 4)
-            if (bmi > 24) s -= minOf(40.0, (bmi - 24) * 5)
-            if (fatPercent != null) {
-                if (fatPercent < fatStd.min) s -= minOf(30.0, (fatStd.min - fatPercent) * 3)
-                if (fatPercent > fatStd.max) s -= minOf(30.0, (fatPercent - fatStd.max) * 2)
-            }
-            if (visceralFat != null && visceralFat > 9) s -= minOf(20.0, (visceralFat - 9) * 2)
-            maxOf(20, Math.round(s).toInt())
-        } else null
+        // 评分计算 - 委托给 Domain 服务
+        val score = bodyCompService.calculateScore(
+            hasImpedance = hasImpedance,
+            bmi = bmi,
+            fatPercent = fatPercent,
+            visceralFat = visceralFat,
+            male = male
+        )
 
         // 上期数据
         val prevBmi = if (prevWeight != null && heightCm > 0)
@@ -276,18 +259,16 @@ class BodyAnalysisQuery(
             }
         }
 
-        // 体型分类
-        val shape = record.classifyBodyShape(shapeService, bodyCompService)?.shapeName
+        // 体型分类 - 委托给 Domain 服务
+        val shape = bodyCompService.classifyBodyShape(fatPercent, bmi, male)
 
-        // 脂肪/肌肉控制量
-        val fatControl = if (stdWeight != null && weight > 0) {
-            val fatWeight = fatPercent?.let { weight * it / 100.0 }
-            if (fatWeight != null) stdWeight * (fatWeight / weight) - fatWeight else null
-        } else null
-        val muscleControl = if (stdWeight != null && weight > 0) {
-            val controlMuscle = if (analysis != null) skeletal?.skeletalWeight else muscleWeight
-            if (controlMuscle != null) stdWeight * (controlMuscle / weight) - controlMuscle else null
-        } else null
+        // 脂肪/肌肉控制量 - 委托给 Domain 服务
+        val fatWeight = fatPercent?.let { weight * it / 100.0 }
+        val fatControl = bodyCompService.fatControl(stdWeight, weight, fatWeight)
+        
+        val useSkeletal = analysis != null
+        val controlMuscle = if (useSkeletal) skeletal?.skeletalWeight else muscleWeight
+        val muscleControl = bodyCompService.muscleControl(stdWeight, weight, controlMuscle, useSkeletal)
 
         // 健康风险
         val risks = riskService.assessAll(
