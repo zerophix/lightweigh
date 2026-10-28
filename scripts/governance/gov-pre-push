@@ -96,9 +96,23 @@ else
 fi
 
 # DEC-077: --no-verify 审计（默认 warn；GOV_BYPASS_POLICY=block 才阻断）
-echo ""
-echo "  [4/4] 绕过审计:"
-BYPASS_MODE="${GOV_BYPASS_POLICY:-warn}"
+# explore/docs 模式允许合法 --no-verify（记录审计不阻断）
+# 如果 GOV_MODE 环境变量未设置, 从 .ai/current-mode.json 读取 (DEC-077 模式感知)
+if [ -z "${GOV_MODE:-}" ] && [ -f "$ROOT/scripts/governance/gov-mode-lib.sh" ]; then
+  # shellcheck source=/dev/null
+  . "$ROOT/scripts/governance/gov-mode-lib.sh"
+  GOV_MODE=$(gov_mode_get 2>/dev/null || true)
+fi
+GOV_MODE="${GOV_MODE:-dev}"
+if [ "$GOV_MODE" = "explore" ] || [ "$GOV_MODE" = "docs" ]; then
+  echo ""
+  echo "  [4/4] 绕过审计 (explore/docs 模式允许合法 --no-verify):"
+  BYPASS_MODE="--audit-only"  # 仅记录审计，不阻断
+else
+  echo ""
+  echo "  [4/4] 绕过审计:"
+  BYPASS_MODE="${GOV_BYPASS_POLICY:-warn}"
+fi
 COMMITS=""
 if [ -n "$PUSH_INPUT" ]; then
   while read -r _lref lsha _rref rsha; do
@@ -114,11 +128,22 @@ if [ -n "$PUSH_INPUT" ]; then
 fi
 # shellcheck disable=SC2086
 if [ -n "$COMMITS" ]; then
-  bash "$ROOT/scripts/governance/gov-audit-bypass.sh" --commits $COMMITS "--${BYPASS_MODE}" || {
+  # BYPASS_MODE 可能已带前缀 (--audit-only) 或不带
+  if [ "${BYPASS_MODE#--}" != "$BYPASS_MODE" ]; then
+    BYPASS_FLAG="$BYPASS_MODE"
+  else
+    BYPASS_FLAG="--$BYPASS_MODE"
+  fi
+  bash "$ROOT/scripts/governance/gov-audit-bypass.sh" --commits $COMMITS "$BYPASS_FLAG" || {
     [ "$BYPASS_MODE" = "block" ] && FAILED=1
   }
 else
-  bash "$ROOT/scripts/governance/gov-audit-bypass.sh" "--${BYPASS_MODE}" || {
+  if [ "${BYPASS_MODE#--}" != "$BYPASS_MODE" ]; then
+    BYPASS_FLAG="$BYPASS_MODE"
+  else
+    BYPASS_FLAG="--$BYPASS_MODE"
+  fi
+  bash "$ROOT/scripts/governance/gov-audit-bypass.sh" "$BYPASS_FLAG" || {
     [ "$BYPASS_MODE" = "block" ] && FAILED=1
   }
 fi

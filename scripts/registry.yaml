@@ -207,3 +207,23 @@ commands:
   path: governance/gov-next-note.sh
   status: stable
   type: sh
+- description: AI 工作模式切换器 (explore/docs/test/code/gov) —— 合法弱模式入口，解决"被迫 --no-verify"问题
+  name: wf-mode
+  path: workflow/wf-mode.sh
+  status: stable
+  type: sh
+- description: 统一锁管理（任务锁 + 共享文件锁 + 模式锁）—— 支持 explore/docs 模式强制获取共享文件锁并记录审计
+  name: wf-lock
+  path: workflow/wf-lock.sh
+  status: stable
+  type: sh
+- description: AI 工作模式管理 (explore/docs/test/code/gov/dev) — 写入 .ai/current-mode.json, 供 pre-commit/pre-push/local-ci 钩子读取, 实现模式感知治理
+  name: wf-mode
+  path: workflow/wf-mode.sh
+  status: stable
+  type: sh
+- description: 模式文件库 — 读取/验证/创建 .ai/current-mode.json (HMAC + 过期检查)
+  name: gov-mode-lib
+  path: governance/gov-mode-lib.sh
+  status: stable
+  type: sh
