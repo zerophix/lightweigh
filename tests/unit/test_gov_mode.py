@@ -215,3 +215,128 @@ def _compute_hmac(payload):
     )
     # Output format: "HMAC-SHA256(stdin)= <hash>"
     return result.stdout.decode().strip().split("=")[-1].strip()
+
+
+def _run_bash(code, env=None):
+    """Run an inline bash snippet, return (rc, stdout, stderr)."""
+    full_env = dict(os.environ)
+    if env:
+        full_env.update(env)
+    result = subprocess.run(
+        ["bash", "-c", code],
+        capture_output=True, text=True, cwd=str(ROOT), env=full_env, timeout=30,
+    )
+    return result.returncode, result.stdout.strip(), result.stderr.strip()
+
+
+class TestModeEnvSanitize:
+    """DEC-083: GOV_MODE 只表示工作模式，宽松值不能由环境变量声明。"""
+
+    SRC = '. scripts/governance/gov-mode-lib.sh; gov_mode_sanitize_env; ' \
+          'printf "%s" "${GOV_MODE:-<unset>}"'
+
+    @pytest.mark.parametrize("mode", ["explore", "docs", "test"])
+    def test_unsigned_relaxed_mode_is_dropped(self, mode):
+        rc, out, err = _run_bash(self.SRC, {"GOV_MODE": mode})
+        assert rc == 0
+        assert out == "<unset>", f"宽松模式 {mode} 必须被清洗"
+        assert "未签名" in err
+
+    @pytest.mark.parametrize("mode", ["dev", "code", "gov"])
+    def test_strict_modes_survive(self, mode):
+        rc, out, err = _run_bash(self.SRC, {"GOV_MODE": mode})
+        assert rc == 0
+        assert out == mode
+        assert err == ""
+
+    def test_legacy_off_is_deprecated_not_a_mode(self):
+        rc, out, err = _run_bash(self.SRC, {"GOV_MODE": "off"})
+        assert out == "<unset>"
+        assert "已废弃" in err
+
+    def test_sanitize_lets_signed_mode_through(self):
+        """清洗后从签名文件读到 explore，证明确有合法通道。"""
+        rc, _, _ = _run(("workflow/wf-mode.sh"), "switch", "explore", "--duration", "5m")
+        assert rc == 0
+        code = '. scripts/governance/gov-mode-lib.sh; gov_mode_sanitize_env; ' \
+               '[ -z "${GOV_MODE:-}" ] && GOV_MODE=$(gov_mode_get); printf "%s" "$GOV_MODE"'
+        rc, out, _ = _run_bash(code, {"GOV_MODE": "explore"})
+        assert rc == 0
+        assert out == "explore"
+
+
+class TestGovernanceSuspend:
+    """DEC-083: 治理暂停用 GOV_SUSPEND，与工作模式解耦。"""
+
+    SUSPEND_FILE = ROOT / ".ai" / "gov-mode.json"
+
+    def setup_method(self):
+        if self.SUSPEND_FILE.exists():
+            self.SUSPEND_FILE.unlink()
+
+    def teardown_method(self):
+        if self.SUSPEND_FILE.exists():
+            self.SUSPEND_FILE.unlink()
+
+    def test_gov_suspend_env_means_off(self):
+        rc, _, _ = _run_bash(
+            '. scripts/governance/gov-mode.sh && gov_mode_is_off && echo OFF',
+            {"GOV_SUSPEND": "1", "GOV_MODE": ""},
+        )
+        assert rc == 0
+
+    def test_legacy_gov_mode_off_still_suspends(self):
+        rc, out, err = _run_bash(
+            '. scripts/governance/gov-mode.sh && gov_mode_is_off && echo OFF',
+            {"GOV_MODE": "off"},
+        )
+        assert rc == 0
+        assert "已废弃" in err
+
+    def test_wf_mode_suspend_and_resume_roundtrip(self):
+        rc, out, _ = _run("workflow/wf-mode.sh", "suspend", "30s")
+        assert rc == 0
+        assert self.SUSPEND_FILE.exists(), "suspend 应写入暂停文件"
+
+        rc, out, _ = _run_bash(
+            '. scripts/governance/gov-mode.sh && gov_mode_is_off && echo OFF')
+        assert out.endswith("OFF")
+
+        rc, _, _ = _run("workflow/wf-mode.sh", "resume")
+        assert rc == 0
+        assert not self.SUSPEND_FILE.exists(), "resume 应清除暂停文件"
+
+    def test_suspend_does_not_touch_work_mode(self):
+        """暂停不得写 .ai/current-mode.json —— 两个概念必须分开。"""
+        _run("workflow/wf-mode.sh", "suspend", "30s")
+        assert not MODE_FILE.exists()
+
+
+class TestModeWarningNoise:
+    """DEC-083: 没有模式文件是正常态，不该报 HMAC 篡改。"""
+
+    def test_missing_mode_file_is_silent(self):
+        assert not MODE_FILE.exists()
+        rc, out, err = _run_bash('. scripts/governance/gov-mode-lib.sh; gov_mode_warn')
+        assert err == "", f"无模式文件不应告警，实际: {err}"
+
+    def test_tampered_mode_file_warns(self):
+        _run("workflow/wf-mode.sh", "switch", "explore", "--duration", "5m")
+        data = json.loads(MODE_FILE.read_text())
+        data["hmac"] = "deadbeef" * 8
+        MODE_FILE.write_text(json.dumps(data))
+        rc, out, err = _run_bash('. scripts/governance/gov-mode-lib.sh; gov_mode_warn')
+        assert "HMAC mismatch" in err
+
+
+class TestHooksCallSanitize:
+    """三个入口必须调用清洗，否则绕过通道仍在。"""
+
+    @pytest.mark.parametrize("script", [
+        "scripts/governance/gov-pre-commit-simplified",
+        "scripts/governance/gov-pre-push",
+        "scripts/governance/gov-local-ci.sh",
+    ])
+    def test_hook_sanitizes_env(self, script):
+        text = (ROOT / script).read_text()
+        assert "gov_mode_sanitize_env" in text
