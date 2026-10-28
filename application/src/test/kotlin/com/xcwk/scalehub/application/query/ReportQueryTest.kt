@@ -40,14 +40,14 @@ class ReportQueryTest {
 
     @Test
     fun `BMI与分级_阈值边界逐位`() = runTest {
-        assertThat(bmiLevelOf(18.4)).isEqualTo(0)
-        assertThat(bmiLevelOf(18.5)).isEqualTo(1)
-        assertThat(bmiLevelOf(23.9)).isEqualTo(1)
-        assertThat(bmiLevelOf(24.0)).isEqualTo(2)
-        assertThat(bmiLevelOf(27.9)).isEqualTo(2)
-        assertThat(bmiLevelOf(28.0)).isEqualTo(3)
-        assertThat(bmiLevelOf(31.9)).isEqualTo(3)
-        assertThat(bmiLevelOf(32.0)).isEqualTo(4)
+        assertThat(bodyCompService.bmiLevel(18.4)).isEqualTo(0)
+        assertThat(bodyCompService.bmiLevel(18.5)).isEqualTo(1)
+        assertThat(bodyCompService.bmiLevel(23.9)).isEqualTo(1)
+        assertThat(bodyCompService.bmiLevel(24.0)).isEqualTo(2)
+        assertThat(bodyCompService.bmiLevel(27.9)).isEqualTo(2)
+        assertThat(bodyCompService.bmiLevel(28.0)).isEqualTo(3)
+        assertThat(bodyCompService.bmiLevel(31.9)).isEqualTo(3)
+        assertThat(bodyCompService.bmiLevel(32.0)).isEqualTo(4)
         val report = reportQuery(FakeRepo(listOf(fullRecord()))).report(1000L)!!
         assertThat(report.analysis.bmi).isWithin(0.05).of(22.9)
         assertThat(report.analysis.bmiLevel).isEqualTo(1)
