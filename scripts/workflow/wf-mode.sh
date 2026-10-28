@@ -4,6 +4,8 @@
 #   bash scripts/workflow/wf-mode.sh status
 #   bash scripts/workflow/wf-mode.sh switch <explore|docs|test|code|gov|dev> [--duration 2h]
 #   bash scripts/workflow/wf-mode.sh expire
+#   bash scripts/workflow/wf-mode.sh suspend [2h]   # 暂停门禁（原 gov-mode.sh off 的收编入口）
+#   bash scripts/workflow/wf-mode.sh resume         # 恢复门禁
 #   bash scripts/workflow/wf-mode.sh post-hook <mode>
 #
 # 写入 .ai/current-mode.json (HMAC + 过期检查)
@@ -218,6 +220,18 @@ cmd_expire() {
     echo "GOV_MODE=dev"
 }
 
+# 暂停/恢复门禁：收编 gov-mode.sh off/on，对外只留 wf-mode.sh 一个入口（DEC-083）
+cmd_suspend() {
+    local dur="${1:-2h}"
+    bash "$ROOT/scripts/governance/gov-mode.sh" off "$dur"
+    echo "提示: 这是「治理暂停」，不是工作模式；current-mode 未改变。"
+    echo "     工作模式请用: bash scripts/workflow/wf-mode.sh status"
+}
+
+cmd_resume() {
+    bash "$ROOT/scripts/governance/gov-mode.sh" on
+}
+
 cmd_help() {
     cat <<'EOF'
 wf-mode.sh — AI 工作模式管理
@@ -226,6 +240,8 @@ wf-mode.sh — AI 工作模式管理
   bash scripts/workflow/wf-mode.sh status
   bash scripts/workflow/wf-mode.sh switch <mode> [--duration <Nh|Nm|Ns>]
   bash scripts/workflow/wf-mode.sh expire
+  bash scripts/workflow/wf-mode.sh suspend [2h]   # 暂停门禁（不是切模式）
+  bash scripts/workflow/wf-mode.sh resume         # 恢复门禁
 
 模式:
   explore  跳过编译 + 允许 bypass (快速迭代)    [2h 自动过期]
@@ -238,6 +254,10 @@ wf-mode.sh — AI 工作模式管理
 别名:
   deliver  → code
   audit    → gov
+
+两件事别混（DEC-083）:
+  工作模式  switch explore|docs|test|code|gov   改 current-mode，有 HMAC 和过期
+  治理暂停  suspend / resume                    跳过快层门禁，不改工作模式
 
 示例:
   bash scripts/workflow/wf-mode.sh switch explore --duration 1h
@@ -254,6 +274,8 @@ case "$CMD" in
     status) cmd_status ;;
     switch) cmd_switch "$@" ;;
     expire) cmd_expire ;;
+    suspend) cmd_suspend "$@" ;;
+    resume) cmd_resume "$@" ;;
     post-hook) cmd_post_hook "$@" ;;
     help|-h|--help) cmd_help ;;
     *)

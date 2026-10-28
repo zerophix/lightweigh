@@ -98,6 +98,12 @@ fi
 # DEC-077: --no-verify 审计（默认 warn；GOV_BYPASS_POLICY=block 才阻断）
 # explore/docs 模式允许合法 --no-verify（记录审计不阻断）
 # 如果 GOV_MODE 环境变量未设置, 从 .ai/current-mode.json 读取 (DEC-077 模式感知)
+# DEC-083: 清洗 GOV_MODE 环境变量 —— 宽松模式（explore/docs/test）只能来自 HMAC 签名文件
+if [ -f "$ROOT/scripts/governance/gov-mode-lib.sh" ]; then
+  # shellcheck source=/dev/null
+  . "$ROOT/scripts/governance/gov-mode-lib.sh"
+  gov_mode_sanitize_env
+fi
 if [ -z "${GOV_MODE:-}" ] && [ -f "$ROOT/scripts/governance/gov-mode-lib.sh" ]; then
   # shellcheck source=/dev/null
   . "$ROOT/scripts/governance/gov-mode-lib.sh"
@@ -106,8 +112,13 @@ if [ -z "${GOV_MODE:-}" ] && [ -f "$ROOT/scripts/governance/gov-mode-lib.sh" ]; 
   VALID="$(printf '%s' "$MODE_VALIDATION" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('valid',False))" 2>/dev/null)"
   EXPIRED="$(printf '%s' "$MODE_VALIDATION" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('expired',False))" 2>/dev/null)"
 
+  REASON="$(printf '%s' "$MODE_VALIDATION" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('reason',''))" 2>/dev/null)"
+
   if [ "$VALID" != "True" ]; then
-    echo "  [WARNING] 模式 HMAC 校验失败, 回退到 dev" >&2
+    # 没有模式文件 = 正常态（默认 dev），不是篡改，不该告警（DEC-083）
+    if [ "$REASON" != "no mode file" ]; then
+      echo "  [WARNING] 模式校验失败（${REASON:-unknown}）, 回退到 dev" >&2
+    fi
     GOV_MODE="dev"
   elif [ "$EXPIRED" = "True" ]; then
     echo "  [WARNING] 模式 $GOV_MODE 已过期, 回退到 dev" >&2

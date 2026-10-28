@@ -150,6 +150,12 @@ fi
 # explore/docs 模式（GOV_MODE）强制车道 A，跳过 gradle/可达性/原型强校验
 PROFILE="$(bash scripts/governance/gov-profile.sh resolve 2>/dev/null || echo mixed)"
 # 如果 GOV_MODE 环境变量未设置, 从 .ai/current-mode.json 读取 (DEC-077 模式感知)
+# DEC-083: 清洗 GOV_MODE 环境变量 —— 宽松模式（explore/docs/test）只能来自 HMAC 签名文件
+if [ -f "$ROOT/scripts/governance/gov-mode-lib.sh" ]; then
+  # shellcheck source=/dev/null
+  . "$ROOT/scripts/governance/gov-mode-lib.sh"
+  gov_mode_sanitize_env
+fi
 if [ -z "${GOV_MODE:-}" ] && [ -f "$ROOT/scripts/governance/gov-mode-lib.sh" ]; then
   # shellcheck source=/dev/null
   . "$ROOT/scripts/governance/gov-mode-lib.sh"
