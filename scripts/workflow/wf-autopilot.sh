@@ -757,6 +757,10 @@ cmd_finish() {
 ## 门禁
 - [x] 未用 --no-verify
 - [x] 未改黄金向量 / Room schema" 2>/tmp/wf-pr.log | tail -1)" || true
+  if [ -z "$pr" ]; then
+    # 分支已有 PR 时 gh pr create 会失败；复用既有 PR 保证幂等
+    pr="$(gh pr view "$br" --json url -q .url 2>/dev/null || true)"
+  fi
   [ -n "$pr" ] && pr_ok=1
 
   if [ "$json" -eq 1 ]; then
