@@ -44,3 +44,4 @@ scripts/tools/gitleaks-*
 .ai/current-mode.json
 .ai/audit/
 .ai/shared-lock.json
+.kotlin/
