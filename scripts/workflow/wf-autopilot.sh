@@ -67,6 +67,12 @@ branch_merged() {
   git merge-base --is-ancestor "$1" master 2>/dev/null
 }
 
+# 检查是否为主工作树（主工作树有 .git 目录，链接工作树有 .git 文件）
+is_main_worktree() {
+  local wt="${1:-$(pwd)}"
+  [ -d "$wt/.git" ] && [ ! -f "$wt/.git" ]
+}
+
 # 慢命令统一入口：有 wf-run 走后台上报，否则前台
 run_slow() {
   local name="$1"; shift
@@ -335,8 +341,12 @@ cmd_advance() {
       failed=1; break
     fi
 
-    # 5) 清理 worktree + 分支
-    git worktree remove --force "$wt" 2>/dev/null; rm -rf "$wt"
+    # 5) 清理 worktree + 分支（保护主工作树）
+    if is_main_worktree "$wt"; then
+      echo "  [跳过] $wt 是主工作树，不删除"
+    else
+      git worktree remove --force "$wt" 2>/dev/null; rm -rf "$wt"
+    fi
     git branch -D "$br" >/dev/null 2>&1
     git push -q origin --delete "$br" >/dev/null 2>&1
     git worktree prune
@@ -470,7 +480,11 @@ cmd_advance_parallel() {
     [ "$st" != "MERGED" ] && echo "$merge_out" | grep -q "already merged" && st="MERGED"
     if [ "$st" = "MERGED" ]; then
       echo "    [merged] #$n"
-      git worktree remove --force "$wt" 2>/dev/null; rm -rf "$wt"
+      if is_main_worktree "$wt"; then
+        echo "    [跳过] $wt 是主工作树，不删除"
+      else
+        git worktree remove --force "$wt" 2>/dev/null; rm -rf "$wt"
+      fi
       git branch -D "$br" >/dev/null 2>&1 || true
       git push -q origin --delete "$br" >/dev/null 2>&1 || true
     else
@@ -494,8 +508,13 @@ cmd_clean() {
         br="${line#branch refs/heads/}"
         [ "$br" = "master" ] && continue
         if branch_merged "$br"; then
-          git worktree remove --force "$wt" 2>/dev/null; rm -rf "$wt"
-          git branch -D "$br" >/dev/null 2>&1; n=$((n+1))
+          if is_main_worktree "$wt"; then
+            echo "  [跳过] $wt 是主工作树，不删除"
+          else
+            git worktree remove --force "$wt" 2>/dev/null; rm -rf "$wt"
+            n=$((n+1))
+          fi
+          git branch -D "$br" >/dev/null 2>&1
         fi ;;
     esac
   done < <(git worktree list --porcelain)
@@ -503,6 +522,11 @@ cmd_clean() {
   local repo_name; repo_name="$(basename "$ROOT")"
   for d in "$ROOT"/../"$repo_name"-*; do
     [ -d "$d" ] || continue
+    # 保护主仓库：主仓库路径不匹配 lightweigh-* 模式
+    if is_main_worktree "$d"; then
+      echo "  [跳过] $d 是主工作树，不删除"
+      continue
+    fi
     git worktree list --porcelain | grep -qx "worktree $(cd "$d" && pwd)" || { rm -rf "$d"; n=$((n+1)); }
   done
   echo "已清理 $n 项"
