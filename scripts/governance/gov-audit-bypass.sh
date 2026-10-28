@@ -11,7 +11,7 @@
 #   - 只对"本机产生且轨迹存在"的提交有效；换机器/换 clone 会产生假阳性；
 #   - 合并提交与队列自动提交豁免（它们本来就不走 pre-commit）；
 #   - 轨迹可被删除，所以这是"可发现"而不是"不可绕过"。
-#     真正的不可绕过需要服务端 pre-receive 或 CI required checks。
+#     真正的不可绕过需要服务端 pre-receive hook（DEC-081）或 CI required checks。
 #
 # 用法:
 #   gov-audit-bypass.sh --commits <sha...> [--warn|--block]
