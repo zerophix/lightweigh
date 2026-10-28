@@ -226,9 +226,9 @@ else
   fi
   if [ -f "$WT_GIT_DIR/MERGE_HEAD" ]; then
     claim_staged
-    if ! git -C "$WT" commit --no-edit --quiet; then
+    if ! GOV_MERGE_QUEUE=1 git -C "$WT" commit --no-edit --quiet; then
       die "合并提交失败（可能被 pre-commit 拦截：会话归属 / 编译 / custom-checks）。
-   排查: cd \"$WT\" && git commit --no-edit
+   排查: cd \"$WT\" && GOV_MERGE_QUEUE=1 git commit --no-edit
    解决后重跑本命令。"
     fi
   fi
@@ -247,9 +247,10 @@ log "步骤 5/9: 提交派生物变更"
 STAGED_FILES="$(git -C "$WT" diff --cached --name-only || true)"
 if [ -n "$STAGED_FILES" ]; then
   claim_staged
-  if ! git -C "$WT" commit -m "$SYNC_COMMIT_MSG" --quiet; then
+  # 允许合并队列提交派生数据 (DEC-067)
+  if ! GOV_MERGE_QUEUE=1 git -C "$WT" commit -m "$SYNC_COMMIT_MSG" --quiet; then
     die "派生物同步提交失败（可能被 pre-commit 拦截）。
-   排查: cd \"$WT\" && git commit -m \"$SYNC_COMMIT_MSG\""
+   排查: cd \"$WT\" && GOV_MERGE_QUEUE=1 git commit -m \"$SYNC_COMMIT_MSG\""
   fi
   log "  已提交: $(echo "$STAGED_FILES" | tr '\n' ' ')"
 else
