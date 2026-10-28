@@ -55,8 +55,10 @@ def test_list(tmp_path):
     root = _sandbox(tmp_path)
     run = _sh("list", root=root)
     assert run.returncode == 0
-    # Should mention known batches
-    assert "B10-ops" in run.stdout or "B2-frontend-w0" in run.stdout
+    # Should mention at least one batch from the task board
+    board = json.loads((root / ".ai" / "tasks.json").read_text(encoding="utf-8"))
+    batch_ids = [b["id"] for b in board.get("batches", [])]
+    assert any(bid in run.stdout for bid in batch_ids)
 
 
 def test_status_unknown_batch_fails(tmp_path):
@@ -70,9 +72,12 @@ def test_status_unknown_batch_fails(tmp_path):
 def test_status_known_batch(tmp_path):
     """status should show task count for known batch."""
     root = _sandbox(tmp_path)
-    run = _sh("status", "B10-ops", root=root)
+    # Use a batch that always exists (from the shared task board)
+    board = json.loads(BOARD.read_text(encoding="utf-8"))
+    known_batch = next((b["id"] for b in board.get("batches", []) if b["id"] != "B-test-new"), "B-infra")
+    run = _sh("status", known_batch, root=root)
     assert run.returncode == 0
-    assert "B10-ops" in run.stdout
+    assert known_batch in run.stdout
 
 
 def test_start_dry_run(tmp_path):
