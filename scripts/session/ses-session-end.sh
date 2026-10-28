@@ -255,6 +255,12 @@ PY
   rm -f "$SESSION_FILE"
 fi
 
+# DEC-077: 清理过期模式文件 (防止 stale explore/docs 模式残留)
+if [ -f "$ROOT/.ai/current-mode.json" ]; then
+  echo " 清理过期模式文件: .ai/current-mode.json"
+  rm -f "$ROOT/.ai/current-mode.json"
+fi
+
 }
 
 case "${1:-}" in
