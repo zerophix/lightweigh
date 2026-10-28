@@ -1,0 +1,26 @@
+{
+  "task": "T-1013",
+  "ok": true,
+  "git_sha": "594c86117c180844fd769fbb7334b89b875b7bb3",
+  "verified_at": "2026-10-27T12:47:18Z",
+  "checks": [
+    {
+      "type": "file",
+      "name": "docs/notes/NOTE-20261027-002.md",
+      "status": "PASS",
+      "detail": "存在"
+    },
+    {
+      "type": "doc_dod",
+      "name": "bash scripts/governance/gov-validate.sh --tags lane-a",
+      "status": "PASS",
+      "detail": "退出码 0"
+    },
+    {
+      "type": "command",
+      "name": "test -f docs/notes/NOTE-20261027-002.md",
+      "status": "PASS",
+      "detail": "退出码 0"
+    }
+  ]
+}

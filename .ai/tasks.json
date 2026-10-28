@@ -3087,7 +3087,8 @@
       },
       "group_id": "sync",
       "overlaps_with": [
-        "T-067"
+        "T-067",
+        "T-1011"
       ],
       "role": "dev",
       "batch": "B-w1-screens",
@@ -3501,7 +3502,10 @@
           "v-skeleton",
           "v-longpress"
         ]
-      }
+      },
+      "overlaps_with": [
+        "T-302"
+      ]
     },
     {
       "id": "T-100",
@@ -5430,13 +5434,446 @@
         ],
         "source": "wf-task-board"
       }
+    },
+    {
+      "id": "T-302",
+      "group_id": "frontend",
+      "role": "dev",
+      "source": "prototype",
+      "batch": "B2-frontend-w0",
+      "parent_epic": "E-PLATFORM",
+      "parent_feature": "F-COMPONENTS",
+      "title": "基础组件库：QkLongPressMenu 长按菜单",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/ui/components/QkLongPressMenu.kt"
+      ],
+      "prototype_file": "09-components-demo.html",
+      "prototype_views": [
+        "v-longpress"
+      ],
+      "wave": 2,
+      "module": "components",
+      "ac_refs": [
+        "T-302-AC1"
+      ],
+      "prd_ref": "E-PLATFORM",
+      "prototype_ref": {
+        "file": "design/prototypes/interactive/09-components-demo.html",
+        "views": [
+          "v-longpress"
+        ],
+        "notion_url": ""
+      },
+      "acceptance": {
+        "verify_commands": [
+          "python3 scripts/governance/gov-prototype-verify.py T-302 --strict",
+          "./gradlew :app:testDebugUnitTest"
+        ],
+        "definition_of_done": [
+          "target_files 存在且可编译",
+          "视图文案与原型一致 (gov-prototype-verify --strict 通过)",
+          "单测通过",
+          "local-ci PASS",
+          "硬编码颜色/间距零容忍 (必须用 QkToken)"
+        ],
+        "forbidden": [
+          "硬编码颜色/间距 (必须用 QkToken)",
+          "静默改黄金向量/Room schema",
+          "删除或放宽既有测试"
+        ]
+      },
+      "status": "ready",
+      "priority": "P0",
+      "blocked_reason": "OpenCode 认证失败 (exit 255)，需配置 OpenRouter API Key",
+      "overlaps_with": [
+        "T-099"
+      ]
+    },
+    {
+      "id": "T-1007",
+      "group_id": "ops",
+      "role": "gov",
+      "source": "dec",
+      "batch": "B10-ops",
+      "parent_epic": "E-OPS",
+      "parent_feature": "F-SCALE",
+      "title": "告警：SLO 定义与阈值",
+      "target_files": [
+        "docs/reference/REF-slo-definitions.md"
+      ],
+      "acceptance": {
+        "verify_commands": [
+          "test -f docs/reference/REF-slo-definitions.md"
+        ],
+        "definition_of_done": [
+          "SLO 定义文档存在且规范",
+          "告警阈值可执行",
+          "与 CLS 告警规则对齐"
+        ]
+      },
+      "status": "completed",
+      "priority": "P1",
+      "source_ref": "docs/ai/decisions/"
+    },
+    {
+      "id": "T-1010",
+      "group_id": "ops",
+      "role": "gov",
+      "source": "dec",
+      "batch": "B10-ops",
+      "parent_epic": "E-OPS",
+      "parent_feature": "F-SCALE",
+      "title": "告警：值班轮转与响应流程",
+      "target_files": [
+        "docs/guides/GC-oncall-process.md"
+      ],
+      "acceptance": {
+        "verify_commands": [
+          "test -f docs/guides/GC-oncall-process.md"
+        ],
+        "definition_of_done": [
+          "值班轮转文档存在",
+          "告警分级规则生效",
+          "应急联系人可查"
+        ]
+      },
+      "status": "completed",
+      "priority": "P1",
+      "source_ref": "docs/ai/decisions/"
+    },
+    {
+      "id": "T-1011",
+      "group_id": "ops",
+      "role": "dev",
+      "source": "prototype",
+      "batch": "B10-ops",
+      "parent_epic": "E-OPS",
+      "parent_feature": "F-SCALE",
+      "title": "反馈：应用内反馈入口",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/sync/FeedbackFlow.kt"
+      ],
+      "acceptance": {
+        "verify_commands": [
+          "test -f app/src/main/kotlin/com/xcwk/scalehub/feature/sync/FeedbackFlow.kt"
+        ],
+        "definition_of_done": [
+          "反馈入口可访问",
+          "文案与原型一致"
+        ]
+      },
+      "status": "completed",
+      "priority": "P0",
+      "overlaps_with": [
+        "T-093"
+      ]
+    },
+    {
+      "id": "T-1012",
+      "group_id": "ops",
+      "role": "dev",
+      "source": "prototype",
+      "batch": "B10-ops",
+      "parent_epic": "E-OPS",
+      "parent_feature": "F-SCALE",
+      "title": "反馈：用户反馈分类/路由",
+      "target_files": [
+        "cloudbase/functions/feedback/router.ts"
+      ],
+      "acceptance": {
+        "verify_commands": [
+          "test -f cloudbase/functions/feedback/router.ts"
+        ],
+        "definition_of_done": [
+          "反馈分类路由可工作",
+          "CloudBase 函数部署通过"
+        ]
+      },
+      "status": "completed",
+      "priority": "P0"
+    },
+    {
+      "id": "T-1013",
+      "group_id": "ops",
+      "role": "gov",
+      "source": "dec",
+      "batch": "B10-ops",
+      "parent_epic": "E-OPS",
+      "parent_feature": "F-SCALE",
+      "title": "反馈：反馈处理 SLA 与回复模板",
+      "target_files": [
+        "docs/notes/NOTE-20261027-002.md"
+      ],
+      "acceptance": {
+        "verify_commands": [
+          "test -f docs/notes/NOTE-20261027-002.md"
+        ],
+        "definition_of_done": [
+          "SLA 定义文档存在",
+          "回复模板可用",
+          "运维文档通过评审"
+        ]
+      },
+      "status": "completed",
+      "priority": "P1",
+      "source_ref": "docs/ai/decisions/",
+      "completed_at": "2026-10-27T14:58:05.000000Z"
+    },
+    {
+      "id": "T-1014",
+      "group_id": "ops",
+      "role": "gov",
+      "source": "dec",
+      "batch": "B10-ops",
+      "parent_epic": "E-OPS",
+      "parent_feature": "F-SCALE",
+      "title": "反馈：客服工单系统对接",
+      "target_files": [
+        "cloudbase/functions/feedback/ticket.ts"
+      ],
+      "acceptance": {
+        "verify_commands": [
+          "test -f cloudbase/functions/feedback/ticket.ts"
+        ],
+        "definition_of_done": [
+          "客服工单接口存在且可用",
+          "告警规则在 CloudBase 生效",
+          "运维文档通过评审"
+        ]
+      },
+      "status": "completed",
+      "priority": "P1",
+      "source_ref": "docs/ai/decisions/"
+    },
+    {
+      "id": "T-1015",
+      "group_id": "ops",
+      "role": "dev",
+      "source": "dec",
+      "batch": "B10-ops",
+      "parent_epic": "E-OPS",
+      "parent_feature": "F-SCALE",
+      "title": "日志：统一日志格式/采样",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/infrastructure/logging/StructuredLogger.kt"
+      ],
+      "acceptance": {
+        "verify_commands": [
+          "test -f app/src/main/kotlin/com/xcwk/scalehub/infrastructure/logging/StructuredLogger.kt"
+        ],
+        "definition_of_done": [
+          "日志格式统一",
+          "采样率可配置",
+          "CloudBase CLS 接入"
+        ]
+      },
+      "status": "completed",
+      "priority": "P1",
+      "overlaps_with": [
+        "T-1016"
+      ],
+      "source_ref": "docs/ai/decisions/",
+      "completed_at": "2026-10-27T14:26:15.000000Z"
+    },
+    {
+      "id": "T-1016",
+      "group_id": "ops",
+      "role": "gov",
+      "source": "dec",
+      "batch": "B10-ops",
+      "parent_epic": "E-OPS",
+      "parent_feature": "F-SCALE",
+      "title": "日志：CloudBase CLS 接入",
+      "target_files": [
+        "cloudbase/logging/cls-config.json"
+      ],
+      "acceptance": {
+        "verify_commands": [
+          "test -f cloudbase/logging/cls-config.json"
+        ],
+        "definition_of_done": [
+          "CLS 日志集配置存在",
+          "日志主题创建",
+          "告警规则配置",
+          "与 StructuredLogger 对齐"
+        ]
+      },
+      "status": "completed",
+      "priority": "P1",
+      "overlaps_with": [
+        "T-1015"
+      ],
+      "source_ref": "docs/ai/decisions/",
+      "completed_at": "2026-10-27T14:58:05.000000Z"
+    },
+    {
+      "id": "T-1017",
+      "group_id": "ops",
+      "role": "dev",
+      "source": "dec",
+      "batch": "B10-ops",
+      "parent_epic": "E-OPS",
+      "parent_feature": "F-SCALE",
+      "title": "诊断：客户端诊断页",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/sync/DiagScreen.kt"
+      ],
+      "acceptance": {
+        "verify_commands": [
+          "test -f app/src/main/kotlin/com/xcwk/scalehub/feature/sync/DiagScreen.kt"
+        ],
+        "definition_of_done": [
+          "诊断页存在且可编译",
+          "显示设备/网络/云服务状态",
+          "复制诊断按钮可用",
+          "已接入导航入口"
+        ]
+      },
+      "status": "completed",
+      "priority": "P0",
+      "source_ref": "docs/ai/decisions/",
+      "completed_at": "2026-10-27T14:26:15.000000Z"
+    },
+    {
+      "id": "T-1018",
+      "group_id": "ops",
+      "role": "dev",
+      "source": "dec",
+      "batch": "B10-ops",
+      "parent_epic": "E-OPS",
+      "parent_feature": "F-SCALE",
+      "title": "诊断：远程配置/开关",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/infrastructure/config/RemoteConfig.kt"
+      ],
+      "acceptance": {
+        "verify_commands": [
+          "test -f app/src/main/kotlin/com/xcwk/scalehub/infrastructure/config/RemoteConfig.kt"
+        ],
+        "definition_of_done": [
+          "远程配置服务存在且可编译",
+          "TTL 缓存实现",
+          "StateFlow 配置流",
+          "维护模式/强制下线方法"
+        ]
+      },
+      "status": "completed",
+      "priority": "P1",
+      "source_ref": "docs/ai/decisions/",
+      "completed_at": "2026-10-27T14:26:15.000000Z"
+    },
+    {
+      "id": "T-1019",
+      "group_id": "ops",
+      "role": "gov",
+      "source": "dec",
+      "batch": "B10-ops",
+      "parent_epic": "E-OPS",
+      "parent_feature": "F-SCALE",
+      "title": "放量：压测脚本与基线",
+      "target_files": [
+        "scripts/ops/load-test.sh"
+      ],
+      "acceptance": {
+        "verify_commands": [
+          "test -f scripts/ops/load-test.sh"
+        ],
+        "definition_of_done": [
+          "代码/配置存在且可用",
+          "监控指标在 Dashboard 可视化",
+          "告警规则在 CloudBase 生效",
+          "运维文档通过评审"
+        ]
+      },
+      "status": "completed",
+      "priority": "P1",
+      "source_ref": "docs/ai/decisions/",
+      "completed_at": "2026-10-27T14:58:05.000000Z"
+    },
+    {
+      "id": "T-1020",
+      "group_id": "ops",
+      "role": "gov",
+      "source": "dec",
+      "batch": "B10-ops",
+      "parent_epic": "E-OPS",
+      "parent_feature": "F-SCALE",
+      "title": "放量：容量规划文档",
+      "target_files": [
+        "docs/ops/capacity-plan.md"
+      ],
+      "acceptance": {
+        "verify_commands": [
+          "test -f docs/ops/capacity-plan.md"
+        ],
+        "definition_of_done": [
+          "容量规划文档存在",
+          "基线指标定义",
+          "扩容触发条件",
+          "运维文档通过评审"
+        ]
+      },
+      "status": "completed",
+      "priority": "P1",
+      "source_ref": "docs/ai/decisions/",
+      "completed_at": "2026-10-27T14:58:05.000000Z"
+    },
+    {
+      "id": "T-1021",
+      "group_id": "ops",
+      "role": "gov",
+      "source": "dec",
+      "batch": "B10-ops",
+      "parent_epic": "E-OPS",
+      "parent_feature": "F-SCALE",
+      "title": "放量：熔断/降级预案",
+      "target_files": [
+        "docs/ops/circuit-breaker.md"
+      ],
+      "acceptance": {
+        "verify_commands": [
+          "test -f docs/ops/circuit-breaker.md"
+        ],
+        "definition_of_done": [
+          "熔断/降级预案存在",
+          "应急预案可执行",
+          "回退清单明确",
+          "运维文档通过评审"
+        ]
+      },
+      "status": "completed",
+      "priority": "P1",
+      "source_ref": "docs/ai/decisions/",
+      "completed_at": "2026-10-27T14:58:05.000000Z"
+    },
+    {
+      "id": "T-029",
+      "title": "AI 结构化卡片",
+      "description": "AI 结构化卡片（饮食卡解析入库/运动卡/指标解读卡/拍照入口/欢迎示例）",
+      "status": "completed",
+      "group_id": "ai",
+      "batch": "B-w1-screens",
+      "role": "dev",
+      "source": "prototype",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/ai/CardScreen.kt"
+      ],
+      "acceptance": {
+        "status": "ready",
+        "verify_commands": [],
+        "definition_of_done": [
+          "卡片可显示",
+          "原型一致"
+        ]
+      },
+      "priority": "P0"
     }
   ],
   "acceptance_schema": "GC-task-acceptance@1",
-  "updated_at": "2026-10-27T07:28:25.603157Z",
-  "next_action": "Wave 0 基础组件完成；17 个原型视图任务 ready，4 个接入任务 blocked",
-  "next_action_why": "T-118~T-131 为 B-prototype-views 任务（Wave 0 基础组件已落地），T-132~T-135 为 B-integration 任务（DEC-081 下一步）",
-  "next_action_confirmed": false,
+  "updated_at": "2026-10-28T00:08:31.000000Z",
+  "next_action": "B10-ops 批次完成（T-1013~T-1021 全部 completed）；PR #75 代码变更 + PR #76 看板同步待合入；合入后运行 local-ci 最终校验",
+  "next_action_why": "T-1015 StructuredLogger, T-1017 DiagScreen, T-1018 RemoteConfig 已完结；T-1013/T-1014/T-1016/T-1019/T-1020/T-1021 证据已提交；T-302 状态修复为 ready",
+  "next_action_confirmed": true,
   "groups": [
     {
       "id": "ai",
@@ -5630,6 +6067,16 @@
         "T-134",
         "T-135"
       ]
+    },
+    {
+      "id": "ops",
+      "title": "运维",
+      "tasks": []
+    },
+    {
+      "id": "frontend",
+      "title": "前端",
+      "tasks": []
     }
   ],
   "batches": [
@@ -5805,6 +6252,14 @@
       "tasks": [
         "T-135"
       ]
+    },
+    {
+      "id": "B10-ops",
+      "title": "B10 运维"
+    },
+    {
+      "id": "B2-frontend-w0",
+      "title": "B2 前端 W0"
     }
   ]
 }
