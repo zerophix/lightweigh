@@ -38,7 +38,8 @@
         ".cursorrules",
         ".clinerules",
         ".ai/evidence/**",
-        ".cache/context.jsonl"
+        ".cache/context.jsonl",
+        ".agentdrive/**"
       ],
       "deny": [
         "app/src/main/**",

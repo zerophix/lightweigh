@@ -10,8 +10,9 @@
 #   wf-autopilot.sh status [--json]     # 一屏真相 + 下一步（只读）
 #   wf-autopilot.sh advance [--dry]     # 推进所有在途 PR：同步 master→验证→合入→清理
 #   wf-autopilot.sh clean               # 清理已合入的 worktree/分支（安全项）
-#   wf-autopilot.sh start <T-XXX>       # 认领+建 worktree+打印任务要求
-#   wf-autopilot.sh finish <T-XXX>      # DoD 校验 → 提交 → 推送 → 开 PR
+#   wf-autopilot.sh start <T-XXX> [--json]  # 认领+建 worktree+打印/返回任务契约
+#   wf-autopilot.sh finish <T-XXX> [--json] [--strict]  # 门禁→提交→推送→开PR
+#   wf-autopilot.sh gates <T-XXX> [--json] [--quick]     # 只跑门禁并返回 JSON
 #
 # 设计原则:
 #   - 慢操作（local-ci）复用 wf-run.sh（存在则后台+等待，不存在则前台）
@@ -508,91 +509,239 @@ cmd_clean() {
   echo "已清理 $n 项"
 }
 
-cmd_start() {
-  local tid="${1:-}"; [ -z "$tid" ] && die "用法: wf-autopilot.sh start <T-XXX>"
+# ============ machine-contract commands (for OAPS / automation) ============
+# Design: the ONLY legal path to advance a task. Human and AI clients call these.
+# Human-facing logs go to stderr when --json is requested; machine result to stdout.
 
-  if have "$CLAIM"; then
-    bash "$CLAIM" claim "$tid" || die "认领失败（可能被其他会话持有）: wf-claim.sh status $tid"
-    echo "已认领 $tid"
-  fi
-
-  local slug
-  slug="$(python3 - "$ROOT" "$tid" <<'PY'
+_task_json() {
+  python3 - "$ROOT" "$1" <<'PY'
 import json, sys
 root, tid = sys.argv[1], sys.argv[2]
 d = json.load(open(f"{root}/.ai/tasks.json"))
-t = next((x for x in d["tasks"] if x["id"] == tid), None)
-print((t or {}).get("module", "misc"))
+t = next((x for x in d.get("tasks", []) if x["id"] == tid), None)
+if not t:
+    print(json.dumps({"ok": False, "error": f"task not found: {tid}"})); sys.exit(0)
+acc = t.get("acceptance") or {}
+print(json.dumps({
+    "task": t.get("id"),
+    "module": t.get("module") or "misc",
+    "target_files": t.get("target_files") or [],
+    "acceptance": acc,
+    "verify_commands": acc.get("verify_commands") or [],
+    "prototype_ref": t.get("prototype_ref"),
+}, ensure_ascii=False))
 PY
-)"
-  local br="feat/${tid,,}-${slug}"
-  bash scripts/session/ses-worktree.sh add "$br" 2>&1 | grep -E "路径|已复制" | head -2
+}
 
-  # DEC-077: Mode auto-selection based on task type
-  local auto_mode
+cmd_start() {
+  local tid="" json=0
+  for a in "$@"; do
+    case "$a" in
+      --json) json=1 ;;
+      -*) ;;
+      *) [ -z "$tid" ] && tid="$a" ;;
+    esac
+  done
+  [ -z "$tid" ] && die "用法: wf-autopilot.sh start <T-XXX> [--json]"
+
+  # human logs -> stderr when machine mode
+  _log() { if [ "$json" -eq 1 ]; then echo "$*" >&2; else echo "$*"; fi; }
+
+  if have "$CLAIM"; then
+    if ! bash "$CLAIM" claim "$tid" >/tmp/wf-start-claim.log 2>&1; then
+      # already held by us is acceptable
+      if grep -q "你已持有该锁" /tmp/wf-start-claim.log; then
+        _log "  已持有锁 $tid"
+      else
+        die "认领失败: $(tail -2 /tmp/wf-start-claim.log | tr '\n' ' ')"
+      fi
+    else
+      _log "已认领 $tid"
+    fi
+  fi
+
+  local contract slug
+  contract="$(_task_json "$tid")"
+  slug="$(printf '%s' "$contract" | python3 -c 'import json,sys;print(json.load(sys.stdin).get("module") or "misc")')"
+  local br="feat/$(printf '%s' "$tid" | tr '[:upper:]' '[:lower:]')-${slug}"
+
+  local wt_out
+  wt_out="$(bash scripts/session/ses-worktree.sh add "$br" 2>&1 || true)"
+  printf '%s\n' "$wt_out" | grep -E "路径|已复制|已存在" | sed 's/^/  /' >&2 || true
+
+  # resolve worktree path, normalized
+  local wt=""
+  wt="$(printf '%s\n' "$wt_out" | sed -n 's/.*路径: *//p' | head -1 | tr -d '\r')"
+  if [ -z "$wt" ]; then
+    local repo; repo="$(basename "$ROOT")"
+    wt="$ROOT/../${repo}-$(printf '%s' "$tid" | tr '[:upper:]' '[:lower:]')-${slug}"
+  fi
+  wt="$(cd "$wt" 2>/dev/null && pwd -P || printf '%s' "$wt")"
+  [ -d "$wt" ] || wt="$ROOT/../$(basename "$ROOT")-$(printf '%s' "$tid" | tr '[:upper:]' '[:lower:]')-${slug}"
+  wt="$(cd "$wt" 2>/dev/null && pwd -P || printf '%s' "$wt")"
+
+  # mode auto-selection
+  local auto_mode cur_mode
   auto_mode=$(python3 - "$ROOT" "$tid" <<'PY'
 import json, sys, re
 root, tid = sys.argv[1], sys.argv[2]
 d = json.load(open(f"{root}/.ai/tasks.json"))
 t = next((x for x in d.get("tasks", []) if x["id"] == tid), None)
-if not t:
-    print("code"); sys.exit(0)
-text = " ".join(filter(None, [t.get("description", ""), t.get("module", ""), t.get("type", "")])).lower()
-text += " " + json.dumps(t.get("description", "")).lower()
+if not t: print("code"); sys.exit(0)
+text = " ".join(filter(None, [t.get("description",""), t.get("module",""), t.get("type","")])).lower()
+text += " " + json.dumps(t.get("description","")).lower()
 if re.search(r'prototype|原型|探索|探索性', text): print("explore")
 elif re.search(r'\bdoc\b|文档|write.*doc', text): print("docs")
 elif re.search(r'\btest\b|测试|pytest|unit test', text): print("test")
-elif re.search(r'governance|治理|hook|hook|lint', text): print("gov")
+elif re.search(r'governance|治理|hook|lint', text): print("gov")
 else: print("code")
 PY
 )
-  # Switch mode if needed (skip if already in desired mode)
-  local cur_mode; cur_mode=$(bash "$ROOT/scripts/workflow/wf-mode.sh" status 2>/dev/null | grep "当前模式" | cut -d" " -f2) || true
+  cur_mode=$(bash "$ROOT/scripts/workflow/wf-mode.sh" status 2>/dev/null | grep "当前模式" | cut -d" " -f2) || true
   [ -z "$cur_mode" ] && cur_mode="dev"
   if [ "$cur_mode" != "$auto_mode" ]; then
     if [ "$auto_mode" = "explore" ] || [ "$auto_mode" = "docs" ] || [ "$auto_mode" = "test" ]; then
-      echo "  -> auto-switch mode: $cur_mode -> $auto_mode"
-      bash "$ROOT/scripts/workflow/wf-mode.sh" switch "$auto_mode" 2>&1 | grep -v "^GOV_MODE=" || true
-      bash "$ROOT/scripts/workflow/wf-mode.sh" post-hook "$auto_mode" 2>&1 | sed 's/^/   /'
+      _log "  auto-switch mode: $cur_mode -> $auto_mode"
+      bash "$ROOT/scripts/workflow/wf-mode.sh" switch "$auto_mode" >&2 2>&1 || true
     fi
   else
-    echo "  [mode] current: $cur_mode"
+    _log "  [mode] current: $cur_mode"
   fi
 
-  python3 - "$ROOT" "$tid" <<'PY'
+  local profile="code"
+  [ -f "$ROOT/.ai/locks/$tid/profile" ] && profile="$(cat "$ROOT/.ai/locks/$tid/profile" 2>/dev/null || echo code)"
+
+  if [ "$json" -eq 1 ]; then
+    python3 - "$contract" "$br" "$wt" "$auto_mode" "$profile" <<'PY'
 import json, sys
-root, tid = sys.argv[1], sys.argv[2]
-t = next(x for x in json.load(open(f"{root}/.ai/tasks.json"))["tasks"] if x["id"] == tid)
-print("\n任务:", tid, t.get("description", ""))
-print("目标文件:")
-for f in t.get("target_files", []) or ["(未定义)"]:
-    print("  -", f)
-acc = t.get("acceptance") or {}
-print("验收 then:")
-for x in acc.get("then", []) or ["(无)"]:
-    print("  -", x)
-print("完成校验: bash scripts/governance/gov-task-done.sh", tid)
+contract, br, wt, mode, profile = sys.argv[1:6]
+c = json.loads(contract)
+print(json.dumps({"ok": True, "branch": br, "worktree": wt, "mode": mode, "profile": profile, **c}, ensure_ascii=False))
 PY
-  echo
-  echo "下一步: cd 到上面的 worktree → bash scripts/session/ses-session-begin.sh → 写代码"
+  else
+    echo "$contract" | python3 -c '
+import json,sys
+c=json.load(sys.stdin)
+print("\n任务:", c["task"], "| 模块:", c["module"])
+print("目标文件:")
+for f in c["target_files"] or ["(未定义)"]: print("  -", f)
+print("验收 then:")
+for x in (c["acceptance"] or {}).get("then", []) or ["(无)"]: print("  -", x)
+print("完成校验: bash scripts/governance/gov-task-done.sh", c["task"])
+'
+    echo
+    echo "worktree: $wt"
+    echo "下一步: cd \"$wt\" → 实现 → bash scripts/workflow/wf-autopilot.sh finish $tid"
+  fi
+}
+
+cmd_gates() {
+  local tid="" json=0 quick=0
+  for a in "$@"; do
+    case "$a" in
+      --json) json=1 ;;
+      --quick) quick=1 ;;
+      -*) ;;
+      *) [ -z "$tid" ] && tid="$a" ;;
+    esac
+  done
+  [ -z "$tid" ] && die "用法: wf-autopilot.sh gates <T-XXX> [--json] [--quick] [--workdir DIR]"
+  local wd=""
+  local -a _args=("$@"); local i=0
+  while [ $i -lt ${#_args[@]} ]; do
+    if [ "${_args[$i]}" = "--workdir" ]; then i=$((i+1)); wd="${_args[$i]:-}"; fi
+    i=$((i+1))
+  done
+  [ -n "$wd" ] && [ -d "$wd" ] && cd "$wd"
+
+  local v_exit=0 d_exit=0 l_exit=0 l_skip=1
+  bash scripts/governance/gov-validate.sh >/tmp/wf-gate-validate.log 2>&1 || v_exit=$?
+  bash scripts/governance/gov-task-done.sh "$tid" --json >/tmp/wf-gate-dod.json 2>/tmp/wf-gate-dod.log || d_exit=$?
+
+  if [ "$quick" -eq 0 ] && [ -x scripts/governance/gov-local-ci.sh ]; then
+    l_skip=0
+    bash scripts/governance/gov-local-ci.sh >/tmp/wf-gate-localci.log 2>&1 || l_exit=$?
+  fi
+
+  python3 - "$tid" "$v_exit" "$d_exit" "$l_exit" "$l_skip" "$json" <<'PY'
+import json, sys, os
+tid, v, d, l, skip, as_json = sys.argv[1:7]
+v, d, l, skip = int(v), int(d), int(l), int(skip)
+def tail(p, n=6):
+    try:
+        return "\n".join(open(p, encoding="utf-8", errors="replace").read().strip().splitlines()[-n:])
+    except Exception:
+        return ""
+ok = (v == 0 and d == 0 and (skip == 1 or l == 0))
+res = {
+  "ok": ok, "task": tid,
+  "gates": {
+    "validate": {"ok": v == 0, "exit": v, "tail": tail("/tmp/wf-gate-validate.log")},
+    "dod": {"ok": d == 0, "exit": d, "tail": tail("/tmp/wf-gate-dod.log")},
+    "local_ci": {"skipped": skip == 1, "ok": l == 0, "exit": l, "tail": tail("/tmp/wf-gate-localci.log")},
+  },
+}
+print(json.dumps(res, ensure_ascii=False, indent=2 if as_json == "1" else None))
+sys.exit(0 if ok else 1)
+PY
 }
 
 cmd_finish() {
-  local tid="${1:-}"; [ -z "$tid" ] && die "用法: wf-autopilot.sh finish <T-XXX>"
-  echo "[1/4] DoD 校验"
-  if have "$TASK_DONE"; then bash "$TASK_DONE" "$tid" || die "DoD 未通过，未提交"; else echo "  (gov-task-done 未安装，跳过)"; fi
-  echo "[2/4] 提交"
-  git add -A
+  local tid="" json=0 strict=0
+  for a in "$@"; do
+    case "$a" in
+      --json) json=1 ;;
+      --strict) strict=1 ;;
+      -*) ;;
+      *) [ -z "$tid" ] && tid="$a" ;;
+    esac
+  done
+  [ -z "$tid" ] && die "用法: wf-autopilot.sh finish <T-XXX> [--json] [--strict] [--workdir DIR]"
+
+  local wd=""
+  local -a _args=("$@"); local i=0
+  while [ $i -lt ${#_args[@]} ]; do
+    if [ "${_args[$i]}" = "--workdir" ]; then i=$((i+1)); wd="${_args[$i]:-}"; fi
+    i=$((i+1))
+  done
+  # 先固化自身绝对路径：后面会 cd 到 worktree，相对 "$0" 会解析到旧副本
+  local self_abs
+  self_abs="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
+  [ -n "$wd" ] && [ -d "$wd" ] && cd "$wd"
+
+  _log() { if [ "$json" -eq 1 ]; then echo "$*" >&2; else echo "$*"; fi; }
+
+  # 1) gates (quick by default; --strict includes local-ci)
+  local gate_args=("$tid" --json)
+  [ "$strict" -eq 0 ] && gate_args+=(--quick)
+  [ -n "$wd" ] && gate_args+=(--workdir "$wd")
+  local gates_out gates_ok=1
+  gates_out="$(bash "$self_abs" gates "${gate_args[@]}")" || gates_ok=0
+  if [ "$gates_ok" -eq 0 ]; then
+    if [ "$json" -eq 1 ]; then echo "$gates_out"; else echo "$gates_out"; echo "门禁未通过，未提交"; fi
+    return 1
+  fi
+
+  # 2) commit
+  git add -A >/dev/null 2>&1 || true
   bash scripts/session/ses-claim-staged.sh >/dev/null 2>&1 || true
-  git commit -m "feat($(python3 -c "import json,sys;d=json.load(open('.ai/tasks.json'));print(next(t for t in d['tasks'] if t['id']=='$tid').get('module','misc'))")): deliver $tid" >/tmp/wf-commit.log 2>&1 \
-    || echo "  (无变更或提交被拒，见 /tmp/wf-commit.log)"
-  echo "[3/4] 推送"
-  local br; br="$(git rev-parse --abbrev-ref HEAD)"
-  git push -u origin "$br" || die "推送失败"
-  echo "[4/4] 开 PR"
-  gh pr create --head "$br" --base master \
-    --title "feat: deliver $tid" \
-    --body "## 关联
+  local committed=0
+  if ! git diff --cached --quiet 2>/dev/null; then
+    local mod; mod="$(python3 -c "import json;d=json.load(open('.ai/tasks.json'));print(next(t for t in d['tasks'] if t['id']=='$tid').get('module','misc'))" 2>/dev/null || echo misc)"
+    if git commit -m "feat($mod): deliver $tid" >/tmp/wf-commit.log 2>&1; then committed=1; _log "  committed"; else _log "  commit failed: $(tail -3 /tmp/wf-commit.log | tr '\n' ' ')"; fi
+  else
+    _log "  nothing to commit"
+  fi
+
+  # 3) push
+  local br pushed=0; br="$(git rev-parse --abbrev-ref HEAD)"
+  if git push -u origin "$br" >/tmp/wf-push.log 2>&1; then pushed=1; _log "  pushed $br"; else _log "  push failed: $(tail -2 /tmp/wf-push.log | tr '\n' ' ')"; fi
+
+  # 4) PR
+  local pr="" pr_ok=0
+  pr="$(gh pr create --head "$br" --base master \
+      --title "feat: deliver $tid" \
+      --body "## 关联
 | 项 | 填写 |
 |----|------|
 | 关联任务 | $tid |
@@ -600,11 +749,26 @@ cmd_finish() {
 
 ## 验收
 - [x] gov-task-done $tid 通过
+- [x] gov-validate 通过
 - [x] local-ci 由 autopilot advance 复核
 
 ## 门禁
 - [x] 未用 --no-verify
-- [x] 未改黄金向量 / Room schema" 2>&1 | tail -1
+- [x] 未改黄金向量 / Room schema" 2>/tmp/wf-pr.log | tail -1)" || true
+  [ -n "$pr" ] && pr_ok=1
+
+  if [ "$json" -eq 1 ]; then
+    python3 - "$tid" "$committed" "$pushed" "$pr_ok" "$pr" "$gates_out" <<'PY'
+import json, sys
+tid, c, p, prok, pr, gates = sys.argv[1:7]
+try: g = json.loads(gates)
+except Exception: g = {"ok": True}
+print(json.dumps({"ok": bool(int(prok)), "task": tid, "committed": bool(int(c)),
+                  "pushed": bool(int(p)), "pr": pr, "gates": g.get("gates", {})}, ensure_ascii=False))
+PY
+  else
+    echo "PR: ${pr:-（未创建）}"
+  fi
 }
 
 usage() {
@@ -620,8 +784,9 @@ case "${1:-status}" in
       *) cmd_advance "${1:-}" ;;
     esac ;;
   clean) cmd_clean ;;
-  start) shift || true; cmd_start "${1:-}" ;;
-  finish) shift || true; cmd_finish "${1:-}" ;;
+  start) shift || true; cmd_start "$@" ;;
+  finish) shift || true; cmd_finish "$@" ;;
+  gates) shift || true; cmd_gates "$@" ;;
   -h|--help|help) usage ;;
-  *) die "未知子命令: $1（status|advance|clean|start|finish）" ;;
+  *) die "未知子命令: $1（status|advance|clean|start|finish|gates）" ;;
 esac
