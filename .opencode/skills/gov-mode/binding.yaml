@@ -1,0 +1,73 @@
+---
+schema_version: "2.0"
+
+执行:
+  类型: manual
+  描述: >
+    wf-mode.sh 是模式管理入口。支持 switch/status/expire 子命令。
+    模式文件: .ai/current-mode.json (已加入 .gitignore)
+    GOV_MODE 环境变量优先, 文件作为 fallback, 默认 dev。
+
+脚本工具:
+  wf-mode.sh:
+    参数:
+      switch <mode> [ttl]: 切换模式 (explore/docs/test/code/gov/dev)
+        mode 别名: deliver→code, audit→gov
+        ttl: 秒（默认 explore=2h, docs=2h, test=4h）
+      status [--json]: 显示当前模式 + 剩余 TTL
+      expire: 删除模式文件 (等效回到 dev)
+    返回: 0 成功；1 模式不存在或 HMAC 校验失败
+
+  gov-mode-lib.sh:
+    说明: 模式库 (source 加载)。函数:
+      gov_mode_get / gov_mode_write / gov_mode_expire
+      gov_mode_is_explore / gov_mode_is_off
+    约束: set -uo pipefail (NOT -e), source-safe
+
+  post_switch_hook:
+    说明: >
+      模式切换后自动执行:
+      1. git add .ai/current-mode.json (记录模式变更到暂存区)
+      2. 显示 hook 行为提示:
+         - explore: pre-commit 跳过 gradle compile, pre-push audit-only, local-ci Lane A
+         - docs: 同 explore, pre-commit 检查 docs/ 结构
+         - test: local-ci skip gradle, 仅 pytest
+         - code/gov/dev: 标准 hook 无调整
+      3. 显示当前锁持有情况 (wf-lock.sh file-check)
+    执行: bash scripts/workflow/wf-mode.sh post-hook <mode>
+
+  wf-lock.sh:
+    参数:
+      file-acquire <file> [--mode docs|gov] [--ttl 240]: 持锁共享文件
+      file-release <file>: 释放锁
+      file-check <file>: 查询锁状态
+      file-list: 列出当前会话持有的所有锁
+    返回: file-check 返回 0 (持锁) / 1 (未持锁)
+
+数据流:
+  1. wf-mode.sh switch explore
+  2. → gov-mode-lib.sh 写入 .ai/current-mode.json (HMAC + expires_at)
+  3. → post_switch_hook: git add + 显示 hook 提示
+  4. → pre-commit/pre-push/local-ci 读取模式文件 (source gov-mode-lib.sh)
+  5. → 模式决定 hook 行为:
+     - explore/docs: 跳过编译, audit-only
+     - test: 跳过 gradle
+     - code/gov/dev: 标准检查
+  6. → gov-merge.sh: 合并时强制 GOV_MODE=dev (覆盖模式文件)
+  7. → wf-lock.sh file-check: 共享文件锁验证 (defense-in-depth)
+
+验证规则:
+  - .ai/current-mode.json HMAC 校验: 密钥 = sha256(git rev-parse --show-toplevel)
+  - 模式过期检查: explore/docs 2h, test 4h, code/gov/dev 永不过期
+  - 合并时强制: gov-merge.sh 删除 .ai/current-mode.json 并设置 GOV_MODE=dev
+
+异常处理:
+  - 模式文件不存在: 回退到 dev (标准治理)
+  - HMAC 校验失败: 回退到 dev + 警告 (防止篡改)
+  - 模式过期: 回退到 dev + 提示 re-switch
+  - wf-lock.sh file-check 返回 UNLOCKED: 允许编辑 (锁过期或已释放)
+
+来自:
+  DEC-077: mode-aware governance system
+  docs/ops/GC-mode-system.md (canonical 模式词表)
+  tests/unit/test_gov_mode.py (16 tests)

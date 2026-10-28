@@ -4,6 +4,7 @@
 #   bash scripts/workflow/wf-mode.sh status
 #   bash scripts/workflow/wf-mode.sh switch <explore|docs|test|code|gov|dev> [--duration 2h]
 #   bash scripts/workflow/wf-mode.sh expire
+#   bash scripts/workflow/wf-mode.sh post-hook <mode>
 #
 # 写入 .ai/current-mode.json (HMAC + 过期检查)
 # 钩子通过 gov-mode-lib.sh 读取当前模式, 决定跳过哪些检查
@@ -169,6 +170,47 @@ cmd_switch() {
     echo "GOV_MODE=$new_mode"
 }
 
+cmd_post_hook() {
+    local mode="${1:-}"
+    [ -n "$mode" ] || mode=$(gov_mode_get 2>/dev/null || echo "dev")
+
+    echo "✅ 模式: $mode"
+    echo "   影响: $(get_mode_desc "$mode")"
+
+    # Auto-stage the mode file (DEC-077: audit trail)
+    if [ -f "$ROOT/.ai/current-mode.json" ]; then
+        git add "$ROOT/.ai/current-mode.json" 2>/dev/null && echo "   📌 已暂存 .ai/current-mode.json"
+    fi
+
+    # Show hook behavior prompt
+    echo ""
+    echo "📋 Hook 行为提示:"
+    case "$mode" in
+        explore|docs)
+            echo "  - pre-commit: 跳过 gradle compile, 记录 audit"
+            echo "  - pre-push:   audit-only (GOV_BYPASS_POLICY=block 可阻断)"
+            echo "  - local-ci:   Lane A (静态校验, skip gradle)"
+            ;;
+        test)
+            echo "  - local-ci:   skip gradle, 仅 pytest"
+            ;;
+        code|gov|dev)
+            echo "  - 标准 hook 无调整 (full CI)"
+            ;;
+    esac
+
+    # Show lock status for shared files
+    if [ -f "$ROOT/scripts/workflow/wf-lock.sh" ]; then
+        local lock_info
+        lock_info=$(bash "$ROOT/scripts/workflow/wf-lock.sh" file-list 2>/dev/null || true)
+        if [ -n "$lock_info" ]; then
+            echo ""
+            echo "🔒 当前会话持有锁:"
+            echo "$lock_info" | sed 's/^/   /'
+        fi
+    fi
+}
+
 cmd_expire() {
     local mode; mode=$(gov_mode_get 2>/dev/null || echo "dev")
     gov_mode_expire
@@ -200,6 +242,7 @@ wf-mode.sh — AI 工作模式管理
 示例:
   bash scripts/workflow/wf-mode.sh switch explore --duration 1h
   bash scripts/workflow/wf-mode.sh expire
+  bash scripts/workflow/wf-mode.sh post-hook <mode>  # git add mode file + show hook 提示
 EOF
 }
 
@@ -211,6 +254,7 @@ case "$CMD" in
     status) cmd_status ;;
     switch) cmd_switch "$@" ;;
     expire) cmd_expire ;;
+    post-hook) cmd_post_hook "$@" ;;
     help|-h|--help) cmd_help ;;
     *)
         echo "❌ 未知命令: $CMD"
