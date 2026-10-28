@@ -1,8 +1,8 @@
 {
   "task": "T-137",
   "ok": true,
-  "git_sha": "be8ceb5d5f11a92e6e837316075cc8d244673161",
-  "verified_at": "2026-10-28T13:15:00Z",
+  "git_sha": "1a5a5804d70300a840628c1eef16d24a333a8f29",
+  "verified_at": "2026-10-28T13:15:52Z",
   "checks": [
     {
       "type": "file",
@@ -14,7 +14,7 @@
       "type": "command",
       "name": "python3 -m pytest tests/unit/test_functional_acceptance.py -v",
       "status": "PASS",
-      "detail": "12 passed in 6.55s"
+      "detail": "退出码 0"
     }
   ]
 }
