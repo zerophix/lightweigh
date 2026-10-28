@@ -38,6 +38,13 @@ GOV_MODE_MAX_SECS=$(( 8 * 3600 ))  # 8 小时上限
 
 # 内部: 仓库根目录
 _gov_mode_root() {
+    # GOV_STATE_ROOT: 把模式状态重定向到别处。
+    # 唯一用途是测试隔离 —— 并行分片共享同一个 .ai/current-mode.json 时，
+    # 一个分片切 explore 会让另一个分片的 ci-scope 误判成车道 A（2026-10-28 实测）。
+    if [ -n "${GOV_STATE_ROOT:-}" ]; then
+        printf '%s\n' "$GOV_STATE_ROOT"
+        return 0
+    fi
     git rev-parse --show-toplevel 2>/dev/null || pwd
 }
 

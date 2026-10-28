@@ -43,16 +43,23 @@ def _run(script, *args, env=None):
 
 
 @pytest.fixture(autouse=True)
-def _clean_mode_file():
-    """每个测试前后清理模式文件。"""
-    if MODE_FILE.exists():
-        MODE_FILE.unlink()
-    yield
-    if MODE_FILE.exists():
-        MODE_FILE.unlink()
-    # Clean audit log too
-    if AUDIT_FILE.exists():
-        AUDIT_FILE.unlink()
+def _clean_mode_file(tmp_path, monkeypatch):
+    """每个测试用独立的状态根，绝不写仓库里真实的 .ai/。
+
+    DEC-063: 分片并行跑 pytest 时，共享 .ai/current-mode.json 会让
+    test_ci_lane / test_ci_change_scope 读到别人刚切的 explore，误判成车道 A。
+    """
+    global MODE_FILE, AUDIT_FILE
+    state = tmp_path / "state"
+    (state / ".ai").mkdir(parents=True, exist_ok=True)
+    monkeypatch.setenv("GOV_STATE_ROOT", str(state))
+    old_mode, old_audit = MODE_FILE, AUDIT_FILE
+    MODE_FILE = state / ".ai" / "current-mode.json"
+    AUDIT_FILE = state / ".ai" / "audit" / "bypass.log"
+    try:
+        yield
+    finally:
+        MODE_FILE, AUDIT_FILE = old_mode, old_audit
 
 
 class TestModeFile:
@@ -268,15 +275,10 @@ class TestModeEnvSanitize:
 class TestGovernanceSuspend:
     """DEC-083: 治理暂停用 GOV_SUSPEND，与工作模式解耦。"""
 
-    SUSPEND_FILE = ROOT / ".ai" / "gov-mode.json"
-
-    def setup_method(self):
-        if self.SUSPEND_FILE.exists():
-            self.SUSPEND_FILE.unlink()
-
-    def teardown_method(self):
-        if self.SUSPEND_FILE.exists():
-            self.SUSPEND_FILE.unlink()
+    @property
+    def SUSPEND_FILE(self):
+        """跟随 autouse fixture 分配的隔离状态根。"""
+        return Path(os.environ["GOV_STATE_ROOT"]) / ".ai" / "gov-mode.json"
 
     def test_gov_suspend_env_means_off(self):
         rc, _, _ = _run_bash(

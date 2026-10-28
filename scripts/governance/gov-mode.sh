@@ -32,6 +32,11 @@ set -uo pipefail
 GOV_SUSPEND_MAX_SECS=$(( 8 * 3600 ))
 
 gov_mode_root() {
+  # 与 gov-mode-lib.sh 的 _gov_mode_root 一致：测试可用 GOV_STATE_ROOT 隔离状态
+  if [ -n "${GOV_STATE_ROOT:-}" ]; then
+    printf '%s\n' "$GOV_STATE_ROOT"
+    return 0
+  fi
   git rev-parse --show-toplevel 2>/dev/null || pwd
 }
 

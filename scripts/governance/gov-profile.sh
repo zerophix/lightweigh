@@ -68,7 +68,10 @@ changed_files() {
 }
 
 profile_from_paths() {
-  local mode="$1" best="docs" p prof r br
+  # 没有任何变更路径 → 不能默认成最松的 docs（DEC-064 的保守原则：判不出来就最严）。
+  # 旧默认值让干净树上的 resolve 恒为 docs，test_force_is_the_only_downgrade_path
+  # 因此在干净 checkout 上必失败（2026-10-28 实测，合并队列全红）。
+  local mode="$1" best="" p prof r br
   br=0
   while IFS= read -r p; do
     [ -n "$p" ] || continue
