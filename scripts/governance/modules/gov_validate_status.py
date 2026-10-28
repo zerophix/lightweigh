@@ -255,7 +255,11 @@ def check_hidden_dirs() -> None:
     ISSUES = 0
     HIDDEN_ALLOWED = {
         ".cache": {"context.jsonl", "session-ledger.json", "session-marker.json", "session.lock", ".gitkeep", "local-ci-last.json", "worktrees.jsonl", "queue-runs.jsonl", "queue.lock", "jobs", "hook-trail.log", "dev-mode", "batch-worktrees.jsonl"},
-        ".ai": {"tasks.json", "current-session.json", "staged-claims.json", "lessons.json", "locks", "roles.json", "tasks-archive.json"},
+<<<<<<< HEAD
+        ".ai": {"tasks.json", "current-session.json", "staged-claims.json", "lessons.json", "locks", "roles.json", "tasks-archive.json", "current-mode.json", "shared-lock.json"},
+=======
+        ".ai": {"tasks.json", "current-session.json", "staged-claims.json", "lessons.json", "locks", "roles.json", "tasks-archive.json", "current-mode.json", "shared-lock.json"},
+>>>>>>> origin/master
     }
     for dir_name, allowed_files in HIDDEN_ALLOWED.items():
         d = ROOT / dir_name

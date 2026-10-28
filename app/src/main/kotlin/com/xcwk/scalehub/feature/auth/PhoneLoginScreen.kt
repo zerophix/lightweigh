@@ -21,12 +21,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.xcwk.scalehub.ui.components.QkButton
-import com.xcwk.scalehub.ui.components.QkButtonStyle
 import com.xcwk.scalehub.ui.components.QkScreenHeader
 import com.xcwk.scalehub.ui.components.QkHeaderStyle
+import com.xcwk.scalehub.ui.components.QkFieldError
 import com.xcwk.scalehub.ui.components.QkTextField
 import com.xcwk.scalehub.ui.theme.QkColor
 import com.xcwk.scalehub.ui.theme.QkSpacing
@@ -220,9 +218,9 @@ fun PhoneLoginScreen(
                     )
                 }
                 if (state.showErrors && state.phoneEmpty) {
-                    FieldError("请输入手机号")
+                    QkFieldError("请输入手机号")
                 } else if (state.showErrors && !state.phoneValid && state.phone.isNotEmpty()) {
-                    FieldError("手机号格式不正确")
+                    QkFieldError("手机号格式不正确")
                 }
             }
 
@@ -265,9 +263,9 @@ fun PhoneLoginScreen(
                     )
                 }
                 if (state.showErrors && state.codeEmpty) {
-                    FieldError("请输入验证码")
+                    QkFieldError("请输入验证码")
                 } else if (state.showErrors && !state.codeValid && state.code.isNotEmpty()) {
-                    FieldError("验证码为 6 位数字")
+                    QkFieldError("验证码为 6 位数字")
                 }
             }
         }
@@ -312,17 +310,6 @@ fun PhoneLoginScreen(
             )
         }
     }
-}
-
-/** 字段级错误提示（红色小字）。 */
-@Composable
-private fun FieldError(text: String) {
-    Text(
-        text,
-        modifier = Modifier.padding(top = QkSpacing.Xs),
-        style = MaterialTheme.typography.labelSmall,
-        color = QkColor.Danger,
-    )
 }
 
 @Preview(showBackground = true, name = "PhoneLoginScreen")
