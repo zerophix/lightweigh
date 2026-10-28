@@ -179,16 +179,15 @@ fi
 
 STAGED=$(git diff --cached --name-only --diff-filter=ACMR || true)
 
-# =============================================================
 # 3b. 共享状态保护（DEC-067）：派生数据只允许合并队列/收尾自动化写。
 #     功能分支手改 = 每次合并必冲突（2026-10-24 实测 5 轮）。
 #     共享文件修改需持 lock（DEC-077）, 防并发 AI 震荡。
+#     例外：合并队列（gov-merge.sh）设置 GOV_MERGE_QUEUE=1 时允许提交派生数据。
 # =============================================================
-
 SHARED_DERIVED=$(echo "$STAGED" | grep -E '^(\.ai/tasks\.json|STATUS\.md|tests/android-test-registry\.yaml|docs/ai/lifecycle/03_TaskGraph\.md|docs/ai/lifecycle/06_Metrics\.md|docs/index\.md|AGENTS\.md)$' || true)
 BOARD_BRANCH=0
 case "$BRANCH" in chore/board-*|chore/integration-*) BOARD_BRANCH=1 ;; esac
-if [ -n "$SHARED_DERIVED" ] && [ "$BOARD_BRANCH" -eq 0 ]; then
+if [ -n "$SHARED_DERIVED" ] && [ "$BOARD_BRANCH" -eq 0 ] && [ "${GOV_MERGE_QUEUE:-0}" != "1" ]; then
   echo "❌ 禁止在功能分支提交派生数据（单一写者，DEC-064/067）："
   echo "$SHARED_DERIVED" | sed 's/^/    /'
   echo "   取消暂存: git restore --staged <file>"
