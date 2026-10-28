@@ -289,7 +289,46 @@ cmd_advance() {
       }
     fi
 
-    # 3) 合入门禁（慢 → 走 wf-run）
+    # 3) 审计检查 (DEC-077 P1): 检查 explore/docs 的 bypass 记录
+    AUDIT_FILE="$wt/.ai/audit/bypass.jsonl"
+    if [ -f "$AUDIT_FILE" ]; then
+      AUDIT_CHECK=$(python3 - "$AUDIT_FILE" "$br" <<'PYEOF'
+import json, sys
+audit_file, branch = sys.argv[1], sys.argv[2]
+try:
+    with open(audit_file) as f:
+        entries = [json.loads(l) for l in f if l.strip()]
+except:
+    print("OK")
+    sys.exit(0)
+
+has_explore_bypass = False
+for e in entries:
+    mode = e.get("mode", "")
+    check = e.get("check", "")
+    if mode in ("explore", "docs") and check in ("compile_skipped", "bypass_audit"):
+        has_explore_bypass = True
+        break
+
+if has_explore_bypass:
+    print("FORCE_LANE_C")
+else:
+    print("OK")
+PYEOF
+)
+      if [ "$AUDIT_CHECK" = "FORCE_LANE_C" ]; then
+        echo "  [审计] 发现 explore/docs 模式跳过编译的记录，强制全量 CI (Lane C)..."
+        if ! run_slow "ci-audit-$n" bash -c "cd '$wt' && GOV_MODE=dev GOV_LANE=C GOV_CI_FULL=1 bash scripts/governance/gov-local-ci.sh" >/tmp/wf-audit-ci-$n.log 2>&1; then
+          echo "  [失败] 审计 CI 未通过:"; tail -6 /tmp/wf-audit-ci-$n.log
+          failed=1; break
+        fi
+        echo "  [OK] 审计 CI 通过"
+      else
+        echo "  [审计] 无 explore/docs bypass 记录"
+      fi
+    fi
+
+    # 4) 合入门禁（慢 → 走 wf-run）
     echo "  [门禁] local-ci…"
     if ! run_slow "ci-pr$n" bash scripts/governance/gov-local-ci.sh >/tmp/wf-ci-$n.log 2>&1; then
       echo "  [失败] local-ci 未通过:"; tail -6 /tmp/wf-ci-$n.log

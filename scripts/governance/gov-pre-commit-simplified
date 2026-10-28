@@ -283,25 +283,49 @@ if [ -n "$SH_CHANGED" ]; then
   echo "  ✓ shell 语法通过（$(echo "$SH_CHANGED" | wc -l | tr -d ' ') 个文件）"
 fi
 
-# ---- 模式感知: 读取工作模式 (DEC-077) ----
+# ---- 模式感知: 强制验证模式文件 (HMAC + 过期) (DEC-077) ----
 # 如果 GOV_MODE 环境变量未设置, 从 .ai/current-mode.json 读取 (带 HMAC + 过期)
 if [ -z "${GOV_MODE:-}" ] && [ -f "$ROOT/scripts/governance/gov-mode-lib.sh" ]; then
   # shellcheck source=/dev/null
   . "$ROOT/scripts/governance/gov-mode-lib.sh"
-  GOV_MODE=$(gov_mode_get 2>/dev/null || true)
+  MODE_VALIDATION="$(gov_mode_validate 2>/dev/null || true)"
+  GOV_MODE="$(printf '%s' "$MODE_VALIDATION" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('mode','dev'))" 2>/dev/null)"
+  VALID="$(printf '%s' "$MODE_VALIDATION" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('valid',False))" 2>/dev/null)"
+  EXPIRED="$(printf '%s' "$MODE_VALIDATION" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('expired',False))" 2>/dev/null)"
+
+  if [ "$VALID" != "True" ]; then
+    echo "  [WARNING] 模式 HMAC 校验失败, 回退到 dev" >&2
+    GOV_MODE="dev"
+  elif [ "$EXPIRED" = "True" ]; then
+    echo "  [WARNING] 模式 $GOV_MODE 已过期, 回退到 dev" >&2
+    GOV_MODE="dev"
+  else
+    echo "  ✓ 模式验证通过: $GOV_MODE (session: ${SESSION_ID:-unknown})"
+  fi
 fi
 GOV_MODE="${GOV_MODE:-dev}"
 
 if [ -n "$SRC_CHANGED" ]; then
   if [ "$GOV_MODE" = "explore" ] || [ "$GOV_MODE" = "docs" ]; then
-    echo "  [模式: $GOV_MODE] 跳过 4 模块编译 (审计记录到 .ai/audit/bypass.log)"
+    echo "  [模式: $GOV_MODE] 跳过 4 模块编译 (审计记录到 .ai/audit/bypass.jsonl)"
     mkdir -p "$ROOT/.ai/audit"
-    printf '[%s] session=%s branch=%s mode=%s check=compile_skipped reason="explore/docs模式允许跳过编译" files="%s"\n' \
-      "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" \
-      "${SESSION_ID:-unknown}" \
-      "$BRANCH" \
-      "$GOV_MODE" \
-      "$(echo "$SRC_CHANGED" | tr '\n' ' ')" >> "$ROOT/.ai/audit/bypass.log"
+    python3 - "$ROOT/.ai/audit" "$BRANCH" "$GOV_MODE" "${SESSION_ID:-unknown}" "$SRC_CHANGED" <<'PYEOF'
+import json, datetime, os, sys
+audit_dir, branch, mode, session_id, src_changed = sys.argv[1:6]
+entry = {
+    'ts': datetime.datetime.now(datetime.timezone.utc).isoformat().replace('+00:00', 'Z'),
+    'session': session_id,
+    'branch': branch,
+    'mode': mode,
+    'type': 'commit',
+    'check': 'compile_skipped',
+    'reason': 'explore/docs模式允许跳过编译',
+    'files': src_changed.replace('\n', ' ').strip()
+}
+os.makedirs(audit_dir, exist_ok=True)
+with open(os.path.join(audit_dir, 'bypass.jsonl'), 'a') as f:
+    f.write(json.dumps(entry, ensure_ascii=False) + '\n')
+PYEOF
   else
     echo "  检测到源码变更，运行编译检查..."
     if ! ./gradlew :domain:compileKotlin :application:compileKotlin :infrastructure:compileDebugKotlin :app:compileDebugKotlin -q; then
