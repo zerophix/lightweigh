@@ -1,0 +1,32 @@
+name: design-audit
+description: 调用 Anthropic Impeccable 审查当前页面布局，输出可落地的优化建议
+version: "1.0"
+status: 生效
+意图:
+  - 从当前对话上下文提取 UI 代码或截图
+  - 转发给 Impeccable skill 处理（Anthropic GitHub repo）
+  - 把优化建议写回对话，附上具体修改点
+触发方式:
+  - /design-audit
+  - /审查设计
+  - "帮我审查一下这个页面的布局"
+场景细分:
+  quick:
+    描述: 快速审查当前屏幕
+    执行: 调用 Impeccable review，提取 3 条最重要的布局问题
+  deep:
+    描述: 深度审查当前页面
+    执行: 调用 Impeccable review，完整输出 + 优先级排序
+  component:
+    描述: 审查指定组件
+    执行: 将组件代码片段发送给 Impeccable，获取针对性建议
+前置条件:
+  - 当前对话上下文包含 UI 代码或截图
+  - 网络可达 GitHub (anthropics/skills)
+后置效果:
+  - 输出可执行的布局优化建议
+  - 不修改任何代码（只读建议）
+能力边界:
+  - 不自造逻辑: 本 skill 不含业务代码，仅作为调用入口
+  - 不保存状态: 无本地副本，每次调用均从远程获取
+  - 外部依赖: GitHub anthropics/skills Impeccable，由 Anthropic 维护

@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "note": "已合并/归档任务。只做追溯，不参与 ready 队列与门禁。",
   "tasks": [
     {
@@ -387,6 +387,1227 @@
       },
       "merged_into": "T-057",
       "group_id": "sync"
+    },
+    {
+      "id": "T-001",
+      "type": "prototype-driven",
+      "parent_epic": "E-PLATFORM",
+      "parent_feature": "F-COMPONENTS",
+      "status": "done",
+      "priority": "P1",
+      "batch": "B-w0-foundation",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/ui/components/QkComponentsScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/ui/components/QkSkeleton.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/ui/components/QkLongPressMenu.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/ui/components/QkPullRefresh.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/ui/components/QkSwipeDelete.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/ui/components/QkInfiniteScroll.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/ui/components/QkSearchBar.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354821Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-002",
+      "type": "prototype-driven",
+      "parent_epic": "E-PLATFORM",
+      "parent_feature": "F-STATES",
+      "status": "done",
+      "priority": "P1",
+      "batch": "B-w0-foundation",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/ui/states/RecordEditState.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/ui/states/ExportState.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/ui/states/ScoreState.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/ui/states/AnomalyState.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/ui/states/MultiMetricState.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/ui/states/PairTimeoutState.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/ui/states/ReportStaleState.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/ui/states/SyncFailState.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/ui/states/FeedbackFailState.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/ui/states/ConnectGuideState.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/ui/states/TroubleshootState.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/ui/states/PrivacyQaState.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/ui/states/NotifLandingState.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/ui/states/FullscreenLoadState.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/ui/components/QkLongPressMenu.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354830Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-003",
+      "type": "prototype-driven",
+      "parent_epic": "E-AUTH",
+      "parent_feature": "F-AUTH-LOGIN",
+      "status": "done",
+      "priority": "P0",
+      "batch": "B-w1-auth-guide",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/auth/PhoneLoginScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/auth/VerifyCodeScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/auth/PasswordLoginScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/auth/EmailLoginScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/auth/WeChatLoginScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/auth/GuestModeScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/auth/GuestDoneScreen.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354834Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-004",
+      "type": "prototype-driven",
+      "parent_epic": "E-AUTH",
+      "parent_feature": "F-AUTH-RECOVERY",
+      "status": "done",
+      "priority": "P0",
+      "batch": "B-w1-auth-guide",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/auth/AccountRecoveryChooseScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/auth/PhoneVerifyScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/auth/EmailVerifyScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/auth/SetPasswordScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/MeasureSuccessScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/auth/DoneScreen.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354836Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-005",
+      "type": "prototype-driven",
+      "parent_epic": "E-AUTH",
+      "parent_feature": "F-AUTH-LIFECYCLE",
+      "status": "done",
+      "priority": "P0",
+      "batch": "B-w1-auth-guide",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/auth/ForceupdateScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/auth/MinverScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/auth/PrivacyLockScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/auth/CodeerrScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/auth/ExpiredScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/auth/MultideviceScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/auth/HealthinfoScreen.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354839Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-006",
+      "type": "prototype-driven",
+      "parent_epic": "E-AUTH",
+      "parent_feature": "F-GUIDE-ONBOARD",
+      "status": "done",
+      "priority": "P0",
+      "batch": "B-w1-auth-guide",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/guide/SplashScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/guide/TermsScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/guide/PermissionFlowScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/privacy/PrivacyGrantedScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/guide/DeniedScreen.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354841Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-007",
+      "type": "prototype-driven",
+      "parent_epic": "E-AUTH",
+      "parent_feature": "F-GUIDE-PROFILE",
+      "status": "done",
+      "priority": "P0",
+      "batch": "B-w1-auth-guide",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/guide/IntroScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/guide/GoalScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/guide/PrepareScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/guide/ConnectedScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/auth/DoneScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/guide/SkipScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/guide/ProfileSetupScreen.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354843Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-008",
+      "type": "prototype-driven",
+      "parent_epic": "E-PRIVACY",
+      "parent_feature": "F-PRIVACY-STARTUP",
+      "status": "ready",
+      "priority": "P0",
+      "batch": "B-w1-auth-guide",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/guide/SplashScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/guide/PermissionFlow.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354844Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-009",
+      "type": "prototype-driven",
+      "parent_epic": "E-MEMBER",
+      "parent_feature": "F-AI-WEEKLY",
+      "status": "done",
+      "priority": "P1",
+      "batch": "B-w2-core",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/ai/AiWeeklyScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/ai/MemberDetailScreen.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354846Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-010",
+      "type": "prototype-driven",
+      "parent_epic": "E-AI",
+      "parent_feature": "F-AI-CORE",
+      "status": "done",
+      "priority": "P1",
+      "batch": "B-w2-core",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/ai/AiChatScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/ai/AiReportScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/ai/GeneratingScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/ai/FailedScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/privacy/PrivacyUnauthScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/ai/PlanScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/privacy/PrivacyAuthScreen.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354848Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-011",
+      "type": "prototype-driven",
+      "parent_epic": "E-AI",
+      "parent_feature": "F-AI-BOUNDARY",
+      "status": "done",
+      "priority": "P1",
+      "batch": "B-w2-core",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/ai/UnavailableScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/ai/ReportExpiredScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/ai/ReanalyzingScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/ai/ReportDoneScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/ai/UnauthConsultScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/ai/MemberUnauthScreen.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354850Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-012",
+      "type": "prototype-driven",
+      "parent_epic": "E-DEVICE",
+      "parent_feature": "F-DEVICE-PAIR",
+      "status": "done",
+      "priority": "P0",
+      "batch": "B-w2-core",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/device/DeviceSearchScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/device/BtPermissionScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/device/ConfirmDeviceScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/device/ConnectingScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/guide/ConnectedScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/device/PairingScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/device/PairSuccessScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/device/PairFailScreen.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354852Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-013",
+      "type": "prototype-driven",
+      "parent_epic": "E-DEVICE",
+      "parent_feature": "F-DEVICE-DETAIL",
+      "status": "done",
+      "priority": "P0",
+      "batch": "B-w2-core",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/device/DeviceDetailScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/device/DeviceRenameScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/device/MemberDeviceLinkScreen.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354854Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-014",
+      "type": "prototype-driven",
+      "parent_epic": "E-DEVICE",
+      "parent_feature": "F-DEVICE-FIRMWARE",
+      "status": "done",
+      "priority": "P0",
+      "batch": "B-w2-core",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/device/FirmwareManagerScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/device/FirmwareUpdateScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/device/FirmwareLatestScreen.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354856Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-015",
+      "type": "prototype-driven",
+      "parent_epic": "E-HISTORY",
+      "parent_feature": "F-HISTORY-LIST",
+      "status": "done",
+      "priority": "P0",
+      "batch": "B-w2-core",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/history/HistoryScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/history/HistoryDetailScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/history/RecordEditScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/history/HistoryCompareScreen.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354858Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-016",
+      "type": "prototype-driven",
+      "parent_epic": "E-MEASURE",
+      "parent_feature": "F-MEASURE-CORE",
+      "status": "done",
+      "priority": "P0",
+      "batch": "B-w2-core",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/MeasureCheckScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/MeasurePrepScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/MeasureStableScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/MeasureCalcScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/MeasureLeftScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/MeasureInvalidScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/member/SaveFailScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/MeasureSuccessScreen.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354860Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-017",
+      "type": "prototype-driven",
+      "parent_epic": "E-MEASURE",
+      "parent_feature": "F-MEASURE-RESULT",
+      "status": "done",
+      "priority": "P0",
+      "batch": "B-w2-core",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/ResultScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/AiReportScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/ResultShareScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/ui/states/ExportState.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/ExportDoneScreen.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354862Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-018",
+      "type": "prototype-driven",
+      "parent_epic": "E-MEASURE",
+      "parent_feature": "F-MEASURE-BASIC",
+      "status": "ready",
+      "priority": "P0",
+      "batch": "B-w2-core",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/MeasuringScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/ResultScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/AiReportScreen.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354863Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-019",
+      "type": "prototype-driven",
+      "parent_epic": "E-MEMBER",
+      "parent_feature": "F-MEMBER-PROFILE",
+      "status": "done",
+      "priority": "P1",
+      "batch": "B-w2-core",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/member/MembersScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/member/MemberEditScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/member/SaveFailScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/member/NoRecordScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/member/NoDeviceScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/member/MemberProfileScreen.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354865Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-020",
+      "type": "prototype-driven",
+      "parent_epic": "E-MEMBER",
+      "parent_feature": "F-MEMBER-PLAN",
+      "status": "done",
+      "priority": "P1",
+      "batch": "B-w2-core",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/member/ActionPlansScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/member/EditPlanScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/member/EditTaskScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/member/EmptyPlanScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/member/RemindScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/member/NotifDeniedScreen.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354867Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-021",
+      "type": "prototype-driven",
+      "parent_epic": "E-MEMBER",
+      "parent_feature": "F-MEMBER-INVITE",
+      "status": "done",
+      "priority": "P1",
+      "batch": "B-w2-core",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/member/FamilyInviteScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/member/InviteDoneScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/member/AcceptInviteScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/member/AcceptConfirmScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/member/AcceptDoneScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/member/RevokeScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/member/MultiDeviceScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/member/MultiDoneScreen.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354869Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-022",
+      "type": "prototype-driven",
+      "parent_epic": "E-MINE",
+      "parent_feature": "F-MINE-CLOSURE",
+      "status": "done",
+      "priority": "P1",
+      "batch": "B-w2-core",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/mine/ClosureApplyScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/mine/ClosureVerifyScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/mine/ClosureProcessingScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/mine/ClosureResultScreen.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354871Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-023",
+      "type": "prototype-driven",
+      "parent_epic": "E-MINE",
+      "parent_feature": "F-MINE-ABOUT",
+      "status": "done",
+      "priority": "P1",
+      "batch": "B-w2-core",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/mine/AboutScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/mine/PrivacyDetailScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/mine/AccountSecurityScreen.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354873Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-024",
+      "type": "prototype-driven",
+      "parent_epic": "E-PRIVACY",
+      "parent_feature": "F-PRIVACY-AUTH",
+      "status": "done",
+      "priority": "P0",
+      "batch": "B-w2-core",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/privacy/PrivacyAuthScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/privacy/PrivacyGrantedScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/privacy/PrivacyUnauthScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/privacy/PrivacyConsultScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/privacy/PrivacyRulesScreen.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354875Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-025",
+      "type": "prototype-driven",
+      "parent_epic": "E-MINE",
+      "parent_feature": "F-SETTINGS-ADVANCED",
+      "status": "done",
+      "priority": "P1",
+      "batch": "B-w2-core",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/settings/SdkListScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/settings/DataRecoveryScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/settings/MaintenanceScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/settings/LanguageScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/settings/AppearanceScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/settings/RecoveryDoneScreen.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354877Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-026",
+      "type": "prototype-driven",
+      "parent_epic": "E-MINE",
+      "parent_feature": "F-SETTINGS-UNIT",
+      "status": "done",
+      "priority": "P1",
+      "batch": "B-w2-core",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/device/DeviceDetailScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/mine/PrivacyDetailScreen.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354878Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-027",
+      "type": "prototype-driven",
+      "parent_epic": "E-SYNC",
+      "parent_feature": "F-SYNC-CENTER",
+      "status": "done",
+      "priority": "P1",
+      "batch": "B-w2-core",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/sync/SyncCenterScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/sync/NetworkStatusScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/sync/ServiceStatusScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/sync/OfflineScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/sync/OfflineDoneScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/sync/OfflineSwitchScreen.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354880Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-028",
+      "type": "prototype-driven",
+      "parent_epic": "E-SYNC",
+      "parent_feature": "F-SYNC-CONFLICT",
+      "status": "done",
+      "priority": "P1",
+      "batch": "B-w2-core",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/sync/ConflictScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/sync/ConflictDoneScreen.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354882Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-029",
+      "type": "prototype-driven",
+      "parent_epic": "E-SYNC",
+      "parent_feature": "F-SYNC-HELP",
+      "status": "done",
+      "priority": "P1",
+      "batch": "B-w2-core",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/sync/HelpCenterScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/sync/FaqScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/sync/FeedbackScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/sync/FeedbackSubmitScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/sync/FeedbackSuccessScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/sync/FeedbackFailScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/sync/DiagScreen.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354884Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-030",
+      "type": "prototype-driven",
+      "parent_epic": "E-HISTORY",
+      "parent_feature": "F-TREND",
+      "status": "done",
+      "priority": "P0",
+      "batch": "B-w2-core",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/trend/TrendScreen.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354886Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-031",
+      "type": "prototype-driven",
+      "parent_epic": "E-HISTORY",
+      "parent_feature": "F-METRIC-DETAIL",
+      "status": "done",
+      "priority": "P0",
+      "batch": "B-w2-core",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/trend/MetricDetailScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/trend/MetricListScreen.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354888Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-032",
+      "type": "integration",
+      "parent_epic": "E-AI",
+      "parent_feature": "F-AI-BOUNDARY",
+      "status": "blocked",
+      "priority": "P0",
+      "batch": "B-w3-integration",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/ai/AiBoundaries.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354889Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-033",
+      "type": "integration",
+      "parent_epic": "E-AI",
+      "parent_feature": "F-AI-CARDS",
+      "status": "blocked",
+      "priority": "P0",
+      "batch": "B-w3-integration",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/ai/AiCards.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354891Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-034",
+      "type": "integration",
+      "parent_epic": "E-AUTH",
+      "parent_feature": "F-AUTH-LIFECYCLE",
+      "status": "blocked",
+      "priority": "P0",
+      "batch": "B-w3-integration",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/auth/AccountLifecycle.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354893Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-035",
+      "type": "integration",
+      "parent_epic": "E-DEVICE",
+      "parent_feature": "F-DEVICE-DETAIL",
+      "status": "blocked",
+      "priority": "P0",
+      "batch": "B-w3-integration",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/device/DeviceRename.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354895Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-036",
+      "type": "integration",
+      "parent_epic": "E-DEVICE",
+      "parent_feature": "F-DEVICE-FIRMWARE",
+      "status": "blocked",
+      "priority": "P0",
+      "batch": "B-w3-integration",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/device/FirmwareManager.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354897Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-037",
+      "type": "integration",
+      "parent_epic": "E-DEVICE",
+      "parent_feature": "F-DEVICE-DETAIL",
+      "status": "blocked",
+      "priority": "P0",
+      "batch": "B-w3-integration",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/device/MemberDeviceLink.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354900Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-038",
+      "type": "integration",
+      "parent_epic": "E-AUTH",
+      "parent_feature": "F-GUIDE-ONBOARD",
+      "status": "blocked",
+      "priority": "P0",
+      "batch": "B-w3-integration",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/guide/PermissionFlow.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354902Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-039",
+      "type": "integration",
+      "parent_epic": "E-AUTH",
+      "parent_feature": "F-GUIDE-PROFILE",
+      "status": "blocked",
+      "priority": "P0",
+      "batch": "B-w3-integration",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/guide/ProfileSetup.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354904Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-040",
+      "type": "integration",
+      "parent_epic": "E-MEASURE",
+      "parent_feature": "F-MEASURE-CORE",
+      "status": "blocked",
+      "priority": "P0",
+      "batch": "B-w3-integration",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/scale/MeasureHelp.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354906Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-041",
+      "type": "integration",
+      "parent_epic": "E-MEASURE",
+      "parent_feature": "F-MEASURE-RESULT",
+      "status": "blocked",
+      "priority": "P0",
+      "batch": "B-w3-integration",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/ResultShare.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354908Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-042",
+      "type": "integration",
+      "parent_epic": "E-MEMBER",
+      "parent_feature": "F-MEMBER-PLAN",
+      "status": "blocked",
+      "priority": "P0",
+      "batch": "B-w3-integration",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/member/ActionPlans.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354910Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-043",
+      "type": "integration",
+      "parent_epic": "E-PRIVACY",
+      "parent_feature": "F-PRIVACY-AUTH",
+      "status": "blocked",
+      "priority": "P0",
+      "batch": "B-w3-integration",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/privacy/PrivacyAuthFlow.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354912Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-044",
+      "type": "integration",
+      "parent_epic": "E-MINE",
+      "parent_feature": "F-SETTINGS-ADVANCED",
+      "status": "blocked",
+      "priority": "P0",
+      "batch": "B-w3-integration",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/settings/DataRecovery.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354913Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-045",
+      "type": "integration",
+      "parent_epic": "E-MINE",
+      "parent_feature": "F-SETTINGS-ADVANCED",
+      "status": "blocked",
+      "priority": "P0",
+      "batch": "B-w3-integration",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/settings/MaintenanceScreen.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/settings/SdkListScreen.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354915Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-046",
+      "type": "integration",
+      "parent_epic": "E-SYNC",
+      "parent_feature": "F-SYNC-CONFLICT",
+      "status": "blocked",
+      "priority": "P0",
+      "batch": "B-w3-integration",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/sync/DataConflict.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354917Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-047",
+      "type": "integration",
+      "parent_epic": "E-SYNC",
+      "parent_feature": "F-SYNC-HELP",
+      "status": "blocked",
+      "priority": "P0",
+      "batch": "B-w3-integration",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/sync/FeedbackFlow.kt",
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/sync/HelpCenterFlow.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354919Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-048",
+      "type": "integration",
+      "parent_epic": "E-SYNC",
+      "parent_feature": "F-SYNC-CENTER",
+      "status": "blocked",
+      "priority": "P0",
+      "batch": "B-w3-integration",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/feature/sync/HealthConnectPlatform.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354922Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-049",
+      "type": "domain-logic",
+      "parent_epic": "E-AI",
+      "parent_feature": "F-AI-CORE",
+      "status": "done",
+      "priority": "P0",
+      "batch": "B-w4-domain",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/domain/service/HealthAdviceService.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354924Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-050",
+      "type": "domain-logic",
+      "parent_epic": "E-HISTORY",
+      "parent_feature": "F-HISTORY-LIST",
+      "status": "done",
+      "priority": "P0",
+      "batch": "B-w4-domain",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/domain/model/HealthLog.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354926Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-051",
+      "type": "domain-logic",
+      "parent_epic": "E-MEASURE",
+      "parent_feature": "F-MEASURE-RESULT",
+      "status": "done",
+      "priority": "P0",
+      "batch": "B-w4-domain",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/application/BodyAnalysisService.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354928Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-052",
+      "type": "domain-logic",
+      "parent_epic": "E-MEASURE",
+      "parent_feature": "F-MEASURE-CORE",
+      "status": "done",
+      "priority": "P0",
+      "batch": "B-w4-domain",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/domain/service/BodyCompositionService.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354929Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-053",
+      "type": "domain-logic",
+      "parent_epic": "E-MEASURE",
+      "parent_feature": "F-MEASURE-CORE",
+      "status": "done",
+      "priority": "P0",
+      "batch": "B-w4-domain",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/domain/service/BodyShapeClassificationService.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354931Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-054",
+      "type": "domain-logic",
+      "parent_epic": "E-MEASURE",
+      "parent_feature": "F-MEASURE-CORE",
+      "status": "done",
+      "priority": "P0",
+      "batch": "B-w4-domain",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/domain/service/HealthRiskAssessmentService.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354933Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-055",
+      "type": "domain-logic",
+      "parent_epic": "E-MEASURE",
+      "parent_feature": "F-MEASURE-CORE",
+      "status": "done",
+      "priority": "P0",
+      "batch": "B-w4-domain",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/domain/model/MeasureRecord.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354935Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-056",
+      "type": "domain-logic",
+      "parent_epic": "E-MEASURE",
+      "parent_feature": "F-MEASURE-CORE",
+      "status": "done",
+      "priority": "P0",
+      "batch": "B-w4-domain",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/application/MeasureSessionService.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354937Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-057",
+      "type": "domain-logic",
+      "parent_epic": "E-MEMBER",
+      "parent_feature": "F-MEMBER-PLAN",
+      "status": "done",
+      "priority": "P0",
+      "batch": "B-w4-domain",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/domain/model/Habit.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354939Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-058",
+      "type": "domain-logic",
+      "parent_epic": "E-MEMBER",
+      "parent_feature": "F-MEMBER-PROFILE",
+      "status": "done",
+      "priority": "P0",
+      "batch": "B-w4-domain",
+      "target_files": [
+        "app/src/main/kotlin/com/xcwk/scalehub/domain/model/Member.kt"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354941Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-059",
+      "type": "governance",
+      "parent_epic": "E-PLATFORM",
+      "parent_feature": "F-COMPONENTS",
+      "status": "done",
+      "priority": "P0",
+      "batch": "B-gov",
+      "target_files": [
+        "tests/unit/test_dddfix_evidence.py"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354943Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-060",
+      "type": "governance",
+      "parent_epic": "E-PLATFORM",
+      "parent_feature": "F-COMPONENTS",
+      "status": "done",
+      "priority": "P0",
+      "batch": "B-gov",
+      "target_files": [
+        "docs/ai/decisions/DEC-072.md",
+        "docs/ai/decisions/DEC-073.md",
+        "docs/ai/decisions/DEC-074.md",
+        "docs/ai/decisions/DEC-075.md",
+        "docs/ai/decisions/DEC-076.md",
+        "docs/ai/decisions/DEC-077.md",
+        "docs/ai/decisions/DEC-078.md",
+        "docs/ai/decisions/DEC-079.md",
+        "docs/ai/decisions/DEC-080.md"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354945Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-061",
+      "type": "governance",
+      "parent_epic": "E-PLATFORM",
+      "parent_feature": "F-COMPONENTS",
+      "status": "done",
+      "priority": "P0",
+      "batch": "B-gov",
+      "target_files": [
+        "tests/unit/test_functional_acceptance.py"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354946Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-062",
+      "type": "governance",
+      "parent_epic": "E-PLATFORM",
+      "parent_feature": "F-COMPONENTS",
+      "status": "done",
+      "priority": "P0",
+      "batch": "B-gov",
+      "target_files": [
+        "tests/unit/test_role_system.py",
+        "tests/unit/test_profile.py",
+        "tests/unit/test_batch.py",
+        "tests/unit/test_autopilot.py"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354948Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-063",
+      "type": "governance",
+      "parent_epic": "E-PLATFORM",
+      "parent_feature": "F-COMPONENTS",
+      "status": "done",
+      "priority": "P0",
+      "batch": "B-gov",
+      "target_files": [
+        ".github/hooks/pre-receive",
+        "scripts/governance/gov-audit-bypass.sh",
+        "docs/ai/decisions/DEC-081.md"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354950Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-064",
+      "type": "governance",
+      "parent_epic": "E-PLATFORM",
+      "parent_feature": "F-COMPONENTS",
+      "status": "done",
+      "priority": "P0",
+      "batch": "B-gov",
+      "target_files": [
+        "tests/unit/test_prototype_coverage.py"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354952Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-065",
+      "type": "governance",
+      "parent_epic": "E-PLATFORM",
+      "parent_feature": "F-COMPONENTS",
+      "status": "done",
+      "priority": "P0",
+      "batch": "B-gov",
+      "target_files": [
+        "scripts/governance/gov-prototype-verify.py"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354954Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-066",
+      "type": "governance",
+      "parent_epic": "E-PLATFORM",
+      "parent_feature": "F-COMPONENTS",
+      "status": "done",
+      "priority": "P0",
+      "batch": "B-gov",
+      "target_files": [
+        "tests/unit/test_board_invariants.py",
+        "tests/unit/test_board_intake.py"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354956Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
+    },
+    {
+      "id": "T-067",
+      "type": "governance",
+      "parent_epic": "E-PLATFORM",
+      "parent_feature": "F-COMPONENTS",
+      "status": "done",
+      "priority": "P0",
+      "batch": "B-gov",
+      "target_files": [
+        "scripts/dev/ship.sh"
+      ],
+      "prototype_file": null,
+      "archived": true,
+      "archived_at": "2026-10-27T18:06:16.354957Z",
+      "note": "Schema v2→v3 重构归档，原 role/lane/wave 等字段见 tasks.json.bak"
     }
-  ]
+  ],
+  "updated_at": "2026-10-27T18:06:16.363956Z"
 }

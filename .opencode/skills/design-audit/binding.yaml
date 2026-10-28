@@ -1,0 +1,26 @@
+---
+schema_version: "2.0"
+
+执行:
+  类型: manual
+  描述: 本 skill 为本地薄包装。调用 Impeccable 外部 skill 时:
+    1. 从对话上下文提取 UI 代码/组件
+    2. 输出提示串: "审查下面的 Jetpack Compose 代码布局"
+    3. Impeccable 返回优化建议
+    4. 本 skill 格式化后写回对话
+
+脚本工具:
+  # 外部调用通过 Claude Code / OpenCode 的工具调用完成
+  # 这里只声明依赖关系，方便审计追踪
+  外部依赖:
+    仓库: https://github.com/anthropics/skills/tree/main
+    Skill: Impeccable
+    用途: 审查元素/文本布局，发现过度嵌套、间距不一致、对齐问题
+  内部工具:
+    tools.filesystem: 读取当前对话提及的文件
+    tools.opencode.list_mcp_resources: 检查可用 MCP 资源
+
+返回值:
+  0: 审查完成，有建议输出
+  1: 上下文无 UI 代码或截图
+  2: 外部 skill 调用失败（网络/权限）

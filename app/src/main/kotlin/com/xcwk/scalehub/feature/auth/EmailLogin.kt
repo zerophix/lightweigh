@@ -1,6 +1,7 @@
 package com.xcwk.scalehub.feature.auth
 
 import com.xcwk.scalehub.ui.components.QkHeaderStyle
+import com.xcwk.scalehub.ui.components.QkFieldError
 import com.xcwk.scalehub.ui.components.QkScreenHeader
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -238,12 +239,15 @@ private fun AuthHero(headline: String, subline: String, centered: Boolean = fals
     }
 }
 
+<<<<<<< HEAD
 /** 字段级错误提示（红色小字）。 */
 @Composable
 private fun FieldError(text: String) {
     QkFieldError(text)
 }
 
+=======
+>>>>>>> origin/master
 /**
  * 密码输入框：与 QkTextField 同一套视觉（标签在框外、11 圆角、1px 细边），
  * 额外加 [PasswordVisualTransformation]。QkTextField 不支持密文，故在此就地实现。
@@ -340,7 +344,7 @@ fun EmailLoginScreen(
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 )
                 if (state.showErrors) {
-                    state.validation.emailError?.let { FieldError(it.message) }
+                    state.validation.emailError?.let { QkFieldError(it.message) }
                 }
             }
             Column {
@@ -352,7 +356,7 @@ fun EmailLoginScreen(
                     modifier = Modifier.fillMaxWidth(),
                 )
                 if (state.showErrors) {
-                    state.validation.passwordError?.let { FieldError(it.message) }
+                    state.validation.passwordError?.let { QkFieldError(it.message) }
                 }
             }
         }

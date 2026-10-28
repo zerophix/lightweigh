@@ -255,8 +255,7 @@ def check_hidden_dirs() -> None:
     ISSUES = 0
     HIDDEN_ALLOWED = {
         ".cache": {"context.jsonl", "session-ledger.json", "session-marker.json", "session.lock", ".gitkeep", "local-ci-last.json", "worktrees.jsonl", "queue-runs.jsonl", "queue.lock", "jobs", "hook-trail.log", "dev-mode", "batch-worktrees.jsonl"},
-        ".ai": {"tasks.json", "current-session.json", "staged-claims.json", "lessons.json", "locks", "roles.json", "tasks-archive.json", "tasks.layer1.json", "restructure_report.json"},
-    }
+        ".ai": {"tasks.json", "current-session.json", "staged-claims.json", "lessons.json", "locks", "roles.json", "tasks-archive.json", "current-mode.json", "shared-lock.json"},    }
     for dir_name, allowed_files in HIDDEN_ALLOWED.items():
         d = ROOT / dir_name
         if not d.is_dir(): continue
@@ -279,6 +278,7 @@ def check_hidden_dirs() -> None:
         # workflows 必有；PR 模板 / Dependabot / CODEOWNERS 为常见 GitHub 元数据（DEC-048）
         ALLOWED_GITHUB = {
             "workflows",
+            "hooks",
             "PULL_REQUEST_TEMPLATE.md",
             "pull_request_template.md",
             "PULL_REQUEST_TEMPLATE",

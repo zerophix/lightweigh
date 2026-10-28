@@ -106,9 +106,48 @@ else
 fi
 
 # DEC-077: --no-verify 审计（默认 warn；GOV_BYPASS_POLICY=block 才阻断）
-echo ""
-echo "  [4/4] 绕过审计:"
-BYPASS_MODE="${GOV_BYPASS_POLICY:-warn}"
+# explore/docs 模式允许合法 --no-verify（记录审计不阻断）
+# 如果 GOV_MODE 环境变量未设置, 从 .ai/current-mode.json 读取 (DEC-077 模式感知)
+# DEC-083: 清洗 GOV_MODE 环境变量 —— 宽松模式（explore/docs/test）只能来自 HMAC 签名文件
+if [ -f "$ROOT/scripts/governance/gov-mode-lib.sh" ]; then
+  # shellcheck source=/dev/null
+  . "$ROOT/scripts/governance/gov-mode-lib.sh"
+  gov_mode_sanitize_env
+fi
+if [ -z "${GOV_MODE:-}" ] && [ -f "$ROOT/scripts/governance/gov-mode-lib.sh" ]; then
+  # shellcheck source=/dev/null
+  . "$ROOT/scripts/governance/gov-mode-lib.sh"
+  MODE_VALIDATION="$(gov_mode_validate 2>/dev/null || true)"
+  GOV_MODE="$(printf '%s' "$MODE_VALIDATION" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('mode','dev'))" 2>/dev/null)"
+  VALID="$(printf '%s' "$MODE_VALIDATION" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('valid',False))" 2>/dev/null)"
+  EXPIRED="$(printf '%s' "$MODE_VALIDATION" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('expired',False))" 2>/dev/null)"
+
+  REASON="$(printf '%s' "$MODE_VALIDATION" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('reason',''))" 2>/dev/null)"
+
+  if [ "$VALID" != "True" ]; then
+    # 没有模式文件 = 正常态（默认 dev），不是篡改，不该告警（DEC-083）
+    if [ "$REASON" != "no mode file" ]; then
+      echo "  [WARNING] 模式校验失败（${REASON:-unknown}）, 回退到 dev" >&2
+    fi
+    GOV_MODE="dev"
+  elif [ "$EXPIRED" = "True" ]; then
+    echo "  [WARNING] 模式 $GOV_MODE 已过期, 回退到 dev" >&2
+    GOV_MODE="dev"
+  else
+    echo "  ✓ 模式验证通过: $GOV_MODE (session: ${SESSION_ID:-unknown})"
+  fi
+fi
+GOV_MODE="${GOV_MODE:-dev}"
+if [ "$GOV_MODE" = "explore" ] || [ "$GOV_MODE" = "docs" ]; then
+  echo ""
+  echo "  [4/4] 绕过审计 (explore/docs 模式允许合法 --no-verify):"
+  BYPASS_MODE="--audit-only"  # 仅记录审计，不阻断
+else
+  echo ""
+  echo "  [4/4] 绕过审计:"
+  BYPASS_MODE="${GOV_BYPASS_POLICY:-warn}"
+fi
+
 COMMITS=""
 if [ -n "$PUSH_INPUT" ]; then
   while read -r _lref lsha _rref rsha; do
@@ -122,13 +161,45 @@ if [ -n "$PUSH_INPUT" ]; then
     fi
   done <<< "$PUSH_INPUT"
 fi
+
+# DEC-077: 共享文件锁防御 (pre-commit 已检查, 此处为 defense-in-depth)
+if [ -n "${COMMITS:-}" ] && [ -f "$ROOT/scripts/workflow/wf-lock.sh" ]; then
+  SHARED_REGEX='^(\.ai/tasks\.json|STATUS\.md|tests/android-test-registry\.yaml|docs/ai/lifecycle/03_TaskGraph\.md|docs/ai/lifecycle/06_Metrics\.md|docs/index\.md|AGENTS\.md)$'
+  SHARED_IN_PUSH=$(echo "${COMMITS:-}" | tr ' ' '\n' | while read -r sha; do
+    git diff-tree --no-commit-id --name-only -r "$sha" 2>/dev/null || true
+  done | grep -E "$SHARED_REGEX" || true)
+  if [ -n "$SHARED_IN_PUSH" ]; then
+    SESSION_ID_CURR="$(cat "$ROOT/.ai/current-session.json" 2>/dev/null | python3 -c 'import json,sys; print(json.load(sys.stdin).get("session_id",""))' 2>/dev/null || true)"
+    for f in $SHARED_IN_PUSH; do
+      LOCK_STATUS=$(bash "$ROOT/scripts/workflow/wf-lock.sh" file-check "$f" 2>/dev/null || echo "UNLOCKED")
+      if ! echo "$LOCK_STATUS" | grep -q "$SESSION_ID_CURR"; then
+        echo ""
+        echo "  [WARNING] 共享文件 $f 在提交中被修改, 但当前会话未持锁"
+        echo "       可能原因: 锁已过期 (默认 240min) 或由其他会话修改"
+        echo "       如确有修改权限: bash scripts/workflow/wf-lock.sh file-acquire \"$f\" --mode docs"
+      fi
+    done
+  fi
+fi
+
 # shellcheck disable=SC2086
 if [ -n "$COMMITS" ]; then
-  bash "$ROOT/scripts/governance/gov-audit-bypass.sh" --commits $COMMITS "--${BYPASS_MODE}" || {
+  # BYPASS_MODE 可能已带前缀 (--audit-only) 或不带
+  if [ "${BYPASS_MODE#--}" != "$BYPASS_MODE" ]; then
+    BYPASS_FLAG="$BYPASS_MODE"
+  else
+    BYPASS_FLAG="--$BYPASS_MODE"
+  fi
+  bash "$ROOT/scripts/governance/gov-audit-bypass.sh" --commits $COMMITS "$BYPASS_FLAG" || {
     [ "$BYPASS_MODE" = "block" ] && FAILED=1
   }
 else
-  bash "$ROOT/scripts/governance/gov-audit-bypass.sh" "--${BYPASS_MODE}" || {
+  if [ "${BYPASS_MODE#--}" != "$BYPASS_MODE" ]; then
+    BYPASS_FLAG="$BYPASS_MODE"
+  else
+    BYPASS_FLAG="--$BYPASS_MODE"
+  fi
+  bash "$ROOT/scripts/governance/gov-audit-bypass.sh" "$BYPASS_FLAG" || {
     [ "$BYPASS_MODE" = "block" ] && FAILED=1
   }
 fi

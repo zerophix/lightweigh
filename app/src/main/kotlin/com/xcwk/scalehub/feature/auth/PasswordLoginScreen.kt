@@ -6,7 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-
+>>>>>>> origin/master
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -35,9 +35,9 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.xcwk.scalehub.ui.components.QkButton
-import com.xcwk.scalehub.ui.components.QkFieldError
 import com.xcwk.scalehub.ui.components.QkScreenHeader
 import com.xcwk.scalehub.ui.components.QkHeaderStyle
+import com.xcwk.scalehub.ui.components.QkFieldError
 import com.xcwk.scalehub.ui.components.QkTextField
 import com.xcwk.scalehub.ui.theme.QkColor
 import com.xcwk.scalehub.ui.theme.QkRadius
@@ -261,7 +261,7 @@ fun PasswordLoginScreen(
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                 )
                 if (state.showErrors && state.accountEmpty) {
-                    FieldError("请输入账号")
+                    QkFieldError("请输入账号")
                 }
             }
 
@@ -277,9 +277,9 @@ fun PasswordLoginScreen(
                     modifier = Modifier.fillMaxWidth(),
                 )
                 if (state.showErrors && state.passwordEmpty) {
-                    FieldError("请输入密码")
+                    QkFieldError("请输入密码")
                 } else if (state.showErrors && !state.passwordLongEnough && state.password.isNotEmpty()) {
-                    FieldError("密码至少 6 位")
+                    QkFieldError("密码至少 6 位")
                 }
             }
 
@@ -325,12 +325,14 @@ fun PasswordLoginScreen(
     }
 }
 
+<<<<<<< HEAD
 /** 字段级错误提示（红色小字）。 */
 @Composable
 private fun FieldError(text: String) {
     QkFieldError(text)
 }
 
+=======
 @Preview(showBackground = true, name = "PasswordLoginScreen")
 @Composable
 private fun PasswordLoginScreenPreview() {

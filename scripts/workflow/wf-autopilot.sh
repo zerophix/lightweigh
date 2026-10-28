@@ -293,7 +293,23 @@ cmd_advance() {
       }
     fi
 
-    # 3) 合入门禁（慢 → 走 wf-run）
+    # 3) 审计检查 (DEC-077 P1): 检查 explore/docs 的 bypass 记录
+    AUDIT_FILE="$wt/.ai/audit/bypass.jsonl"
+    # Source shared audit check function
+    [ -f "$ROOT/scripts/governance/gov-mode-lib.sh" ] && . "$ROOT/scripts/governance/gov-mode-lib.sh"
+    AUDIT_CHECK="$(gov_mode_check_audit "$AUDIT_FILE" "$br" 2>/dev/null || echo "OK")"
+    if [ "$AUDIT_CHECK" = "FORCE_LANE_C" ]; then
+      echo "  [审计] 发现 explore/docs 模式跳过编译的记录，强制全量 CI (Lane C)..."
+      if ! run_slow "ci-audit-$n" bash -c "cd '$wt' && GOV_MODE=dev GOV_LANE=C GOV_CI_FULL=1 bash scripts/governance/gov-local-ci.sh" >/tmp/wf-audit-ci-$n.log 2>&1; then
+        echo "  [失败] 审计 CI 未通过:"; tail -6 /tmp/wf-audit-ci-$n.log
+        failed=1; break
+      fi
+      echo "  [OK] 审计 CI 通过"
+    else
+      echo "  [审计] 无 explore/docs bypass 记录"
+    fi
+
+    # 4) 合入门禁（慢 → 走 wf-run）
     echo "  [门禁] local-ci…"
     if ! run_slow "ci-pr$n" bash scripts/governance/gov-local-ci.sh >/tmp/wf-ci-$n.log 2>&1; then
       echo "  [失败] local-ci 未通过:"; tail -6 /tmp/wf-ci-$n.log
@@ -420,7 +436,14 @@ cmd_advance_parallel() {
     IFS='|' read -r n br wt <<< "$e"
     if have "$RUNNER"; then
       local id
-      id="$(bash "$RUNNER" start "ci-pr$n" -- bash -c "cd '$wt' && bash scripts/governance/gov-local-ci.sh" 2>/dev/null | tail -1)"
+      local ci_cmd="cd '$wt' && bash scripts/governance/gov-local-ci.sh"
+      local audit_file="$wt/.ai/audit/bypass.jsonl"
+      local audit_check; audit_check="$(gov_mode_check_audit "$audit_file" "$br" 2>/dev/null || echo "OK")"
+      if [ "$audit_check" = "FORCE_LANE_C" ]; then
+        echo "  [审计] #$n 发现 explore/docs bypass, 强制 Lane C full CI"
+        ci_cmd="cd '$wt' && GOV_MODE=dev GOV_LANE=C GOV_CI_FULL=1 bash scripts/governance/gov-local-ci.sh"
+      fi
+      id="$(bash "$RUNNER" start "ci-pr$n" -- bash -c "$ci_cmd" 2>/dev/null | tail -1)"
       ids+=("$n|$br|$wt|$id")
       echo "  [ci] #$n 已启动 ($id)"
     else
@@ -525,87 +548,51 @@ for x in then_list:
 PY
 )" || die "任务 $tid 不存在或读取失败"
 
-  # 解析任务信息
-  local batch module domain wave lane target_files description
-  batch="$(echo "$task_info" | grep '^batch=' | cut -d= -f2-)"
-  module="$(echo "$task_info" | grep '^module=' | cut -d= -f2-)"
-  domain="$(echo "$task_info" | grep '^domain=' | cut -d= -f2-)"
-  wave="$(echo "$task_info" | grep '^wave=' | cut -d= -f2-)"
-  lane="$(echo "$task_info" | grep '^lane=' | cut -d= -f2-)"
-  target_files="$(echo "$task_info" | grep '^target_files=' | cut -d= -f2-)"
-  description="$(echo "$task_info" | grep '^description=' | cut -d= -f2-)"
-  wave="$(echo "$task_info" | grep '^wave=' | cut -d= -f2-)"
-  lane="$(echo "$task_info" | grep '^lane=' | cut -d= -f2-)"
-
-  # 新结构：用 wave/lane 代替 batch/role
-  # 如果没有 batch，尝试用 wave 生成批次名（匹配现有约定 B-wX-xxx）
-  if [ -z "$batch" ]; then
-    if [ -n "$wave" ]; then
-      # wave 1 -> B-w1-screens, wave 2 -> B-w2-screens, wave 3 -> B-integration-1, wave 4 -> B-ddd-refactor
-      case "$wave" in
-        1) batch="B-w1-screens" ;;
-        2) batch="B-w2-screens" ;;
-        3) batch="B-integration-1" ;;
-        4) batch="B-ddd-refactor" ;;
-        0) batch="B-w0-components" ;;
-        *) batch="B-wave$wave" ;;
-      esac
-    else
-      batch="B-misc"
+  # DEC-077: Mode auto-selection based on task type
+  local auto_mode
+  auto_mode=$(python3 - "$ROOT" "$tid" <<'PY'
+import json, sys, re
+root, tid = sys.argv[1], sys.argv[2]
+d = json.load(open(f"{root}/.ai/tasks.json"))
+t = next((x for x in d.get("tasks", []) if x["id"] == tid), None)
+if not t:
+    print("code"); sys.exit(0)
+text = " ".join(filter(None, [t.get("description", ""), t.get("module", ""), t.get("type", "")])).lower()
+text += " " + json.dumps(t.get("description", "")).lower()
+if re.search(r'prototype|原型|探索|探索性', text): print("explore")
+elif re.search(r'\bdoc\b|文档|write.*doc', text): print("docs")
+elif re.search(r'\btest\b|测试|pytest|unit test', text): print("test")
+elif re.search(r'governance|治理|hook|hook|lint', text): print("gov")
+else: print("code")
+PY
+)
+  # Switch mode if needed (skip if already in desired mode)
+  local cur_mode; cur_mode=$(bash "$ROOT/scripts/workflow/wf-mode.sh" status 2>/dev/null | grep "当前模式" | cut -d" " -f2) || true
+  [ -z "$cur_mode" ] && cur_mode="dev"
+  if [ "$cur_mode" != "$auto_mode" ]; then
+    if [ "$auto_mode" = "explore" ] || [ "$auto_mode" = "docs" ] || [ "$auto_mode" = "test" ]; then
+      echo "  -> auto-switch mode: $cur_mode -> $auto_mode"
+      bash "$ROOT/scripts/workflow/wf-mode.sh" switch "$auto_mode" 2>&1 | grep -v "^GOV_MODE=" || true
+      bash "$ROOT/scripts/workflow/wf-mode.sh" post-hook "$auto_mode" 2>&1 | sed 's/^/   /'
     fi
+  else
+    echo "  [mode] current: $cur_mode"
   fi
 
-  # 兼容旧逻辑：单任务 worktree（无 batch 时）
-  if [ -z "$batch" ]; then
-    echo "警告: 任务 $tid 未归属批次，回落单任务 worktree 模式" >&2
-    local slug="$domain"
-    local br="feat/$(echo "$tid" | tr '[:upper:]' '[:lower:]')-$slug"
-    if have "$CLAIM"; then
-      bash "$CLAIM" claim "$tid" || die "认领失败: wf-claim.sh status $tid"
-      echo "已认领 $tid"
-    fi
-    bash "$SCRIPT_LIB/session/ses-worktree.sh" add "$br" 2>&1 | grep -E "路径|已复制" | head -2
-    echo
-    echo "任务: $tid $description"
-    echo "目标文件:"
-    for f in $target_files; do echo "  - $f"; done
-    echo "完成校验: bash scripts/governance/gov-task-done.sh $tid"
-    echo
-    echo "下一步: cd 到上面的 worktree → bash scripts/session/ses-session-begin.sh → 写代码"
-    return 0
-  fi
-
-  # 2) 批次 worktree：创建或复用
-  if have "$CLAIM"; then
-    bash "$CLAIM" claim "$tid" --batch "$batch" || die "认领失败: wf-claim.sh status $tid"
-    echo "已认领 $tid (批次: $batch)"
-  fi
-
-  # 创建/复用批次 worktree
-  local batch_branch="batch/$batch"
-  local wt_path
-  # 先查找是否已存在
-  wt_path="$(git worktree list --porcelain | awk -v b="refs/heads/batch/$batch" '
-    /^worktree / { p=$2 }
-    /^branch / && $2==b { print p; exit }
-  ')"
-  if [ -z "$wt_path" ]; then
-    # 不存在则创建
-    wt_path="$(bash "$SCRIPT_LIB/session/ses-worktree.sh" batch-add "$batch" --in-repo 2>/dev/null | awk '/路径:/{print $2}')"
-  fi
-  if [ -z "$wt_path" ]; then
-    # 创建后再查一次（防止解析失败）
-    wt_path="$(git worktree list --porcelain | awk -v b="refs/heads/batch/$batch" '
-      /^worktree / { p=$2 }
-      /^branch / && $2==b { print p; exit }
-    ')"
-  fi
-
-  if [ -z "$wt_path" ]; then
-    die "批次 worktree 创建/查找失败: $batch"
-  fi
-
-  # 3) 打印任务信息
+  python3 - "$ROOT" "$tid" <<'PY'
+import json, sys
+root, tid = sys.argv[1], sys.argv[2]
+t = next(x for x in json.load(open(f"{root}/.ai/tasks.json"))["tasks"] if x["id"] == tid)
+print("\n任务:", tid, t.get("description", ""))
+print("目标文件:")
+for f in t.get("target_files", []) or ["(未定义)"]:
+    print("  -", f)
+acc = t.get("acceptance") or {}
+print("验收 then:")
+for x in acc.get("then", []) or ["(无)"]:
+    print("  -", x)
+print("完成校验: bash scripts/governance/gov-task-done.sh", tid)
+PY
   echo
   echo "任务: $tid $description"
   echo "批次: $batch (分支: $batch_branch)"

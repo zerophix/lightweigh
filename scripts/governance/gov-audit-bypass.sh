@@ -11,7 +11,7 @@
 #   - 只对"本机产生且轨迹存在"的提交有效；换机器/换 clone 会产生假阳性；
 #   - 合并提交与队列自动提交豁免（它们本来就不走 pre-commit）；
 #   - 轨迹可被删除，所以这是"可发现"而不是"不可绕过"。
-#     真正的不可绕过需要服务端 pre-receive 或 CI required checks。
+#     真正的不可绕过需要服务端 pre-receive hook（DEC-081）或 CI required checks。
 #
 # 用法:
 #   gov-audit-bypass.sh --commits <sha...> [--warn|--block]
@@ -29,6 +29,7 @@ cd "$ROOT" || exit 2
 TRAIL="$ROOT/.cache/hook-trail.log"
 MODE="warn"
 COMMITS=()
+AUDIT_ONLY=0
 RANGE=""
 
 while [ $# -gt 0 ]; do
@@ -44,6 +45,7 @@ while [ $# -gt 0 ]; do
     --range) RANGE="${2:-}"; shift 2 ;;
     --warn) MODE="warn"; shift ;;
     --block) MODE="block"; shift ;;
+    --audit-only) MODE="audit_only"; shift ;;
     -h|--help) sed -n '2,25p' "$0"; exit 0 ;;
     *) echo "未知参数: $1" >&2; exit 2 ;;
   esac
@@ -70,7 +72,8 @@ fi
 
 MISSING=()
 CHECKED=0
-for sha in "${COMMITS[@]}"; do
+# COMMITS 数组可能为空，使用 ${COMMITS[@]+"${COMMITS[@]}"} 兼容 set -u
+for sha in ${COMMITS[@]+"${COMMITS[@]}"}; do
   [ -n "$sha" ] || continue
   git cat-file -e "${sha}^{commit}" 2>/dev/null || continue
 
@@ -112,5 +115,25 @@ echo "        可用 GOV_BYPASS_POLICY=warn 放行，并在 PR 描述里说明�
 
 if [ "$MODE" = "block" ]; then
   exit 1
+fi
+if [ "${AUDIT_ONLY:-0}" = "1" ]; then
+  echo "  [audit] explore/docs 模式：仅记录审计，不阻断推送"
+  mkdir -p "$ROOT/.ai/audit"
+  python3 - "$ROOT/.ai/audit" "$BRANCH" "$GOV_MODE" "${SESSION_ID:-unknown}" "push" <<'PYEOF'
+import json, datetime, os, sys
+audit_dir, branch, mode, session_id, check_type = sys.argv[1:6]
+entry = {
+    'ts': datetime.datetime.now(datetime.timezone.utc).isoformat().replace('+00:00', 'Z'),
+    'session': session_id,
+    'branch': branch,
+    'mode': mode,
+    'type': 'push',
+    'check': 'bypass_audit',
+    'reason': 'explore/docs 模式允许 --no-verify，记录审计供合并前检查',
+}
+os.makedirs(audit_dir, exist_ok=True)
+with open(os.path.join(audit_dir, 'bypass.jsonl'), 'a') as f:
+    f.write(json.dumps(entry, ensure_ascii=False) + '\n')
+PYEOF
 fi
 exit 0

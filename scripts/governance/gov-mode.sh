@@ -11,9 +11,12 @@
 #   bash scripts/governance/gov-mode.sh enable          # 恢复（装回 core.hooksPath）
 #
 # 作用域（多 AI 并发时按这个顺序判定）:
-#   1. 环境变量 GOV_MODE=off        → 只对当前命令生效，不影响任何人
+#   1. 环境变量 GOV_SUSPEND=1     → 只对当前命令生效，不影响任何人
 #   2. GOV_SESSION=xxx 时的 Session 文件 → .ai/gov-mode/<session>.json（同 worktree 内多会话隔离）
 #   3. 缺省                          → 当前 worktree 的 .ai/gov-mode.json（每个 worktree 各自一份）
+#
+# 注意（DEC-083）：暂停用 GOV_SUSPEND，不要用 GOV_MODE。
+#   GOV_MODE 只表示工作模式（explore/docs/test/code/gov），两者曾是同一个变量。
 #
 # 设计:
 #   - 钩子与门禁脚本都 source 本文件，调 gov_mode_is_off 决定是否放行；
@@ -26,9 +29,14 @@
 # ============================================================
 set -uo pipefail
 
-GOV_MODE_MAX_SECS=$(( 8 * 3600 ))
+GOV_SUSPEND_MAX_SECS=$(( 8 * 3600 ))
 
 gov_mode_root() {
+  # 与 gov-mode-lib.sh 的 _gov_mode_root 一致：测试可用 GOV_STATE_ROOT 隔离状态
+  if [ -n "${GOV_STATE_ROOT:-}" ]; then
+    printf '%s\n' "$GOV_STATE_ROOT"
+    return 0
+  fi
   git rev-parse --show-toplevel 2>/dev/null || pwd
 }
 
@@ -67,8 +75,8 @@ gov_mode_secs() {
     *) secs=$(( raw * 60 )) ;;
   esac
   [ "$secs" -le 0 ] && return 1
-  if [ "$secs" -gt "$GOV_MODE_MAX_SECS" ]; then
-    secs="$GOV_MODE_MAX_SECS"
+  if [ "$secs" -gt "$GOV_SUSPEND_MAX_SECS" ]; then
+    secs="$GOV_SUSPEND_MAX_SECS"
   fi
   echo "$secs"
 }
@@ -93,9 +101,24 @@ gov_mode_sentinel() {
   echo "$common/gov-disabled"
 }
 
+# 环境变量一次性暂停（DEC-083）：
+#   GOV_SUSPEND=1   → 仅本次命令跳过快层门禁
+#   GOV_MODE=off    → 历史写法，保留兼容但告警
+# GOV_MODE 现在只表示工作模式（explore/docs/test/code/gov），不再表示"关"。
+gov_mode_env_suspended() {
+    case "${GOV_SUSPEND:-}" in
+        1|true|yes|on|off) return 0 ;;
+    esac
+    if [ "${GOV_MODE:-}" = "off" ]; then
+        echo "[gov] GOV_MODE=off 已废弃，请改用 GOV_SUSPEND=1（GOV_MODE 现在只表示工作模式）" >&2
+        return 0
+    fi
+    return 1
+}
+
 # off 时返回 0（放行），on 时返回 1（继续门禁）
 gov_mode_is_off() {
-  if [ "${GOV_MODE:-}" = "off" ]; then
+  if gov_mode_env_suspended; then
     return 0
   fi
   # 永久停用优先于一切（无到期时间，只能显式 enable 解除）
@@ -116,8 +139,12 @@ gov_mode_is_off() {
 
 # 一行描述（给 commit 时的提示与 status 用）
 gov_mode_describe() {
+  if [ "${GOV_SUSPEND:-}" = "1" ] || [ "${GOV_SUSPEND:-}" = "true" ]; then
+    echo "env GOV_SUSPEND=${GOV_SUSPEND}（仅本次命令）"
+    return
+  fi
   if [ "${GOV_MODE:-}" = "off" ]; then
-    echo "env GOV_MODE=off（仅本次命令）"
+    echo "env GOV_MODE=off（已废弃，仅本次命令；请改用 GOV_SUSPEND=1）"
     return
   fi
   if [ -f "$(gov_mode_sentinel)" ]; then
