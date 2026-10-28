@@ -455,7 +455,31 @@ cmd_advance_parallel() {
     IFS='|' read -r n br wt <<< "$e"
     if have "$RUNNER"; then
       local id
-      id="$(bash "$RUNNER" start "ci-pr$n" -- bash -c "cd '$wt' && bash scripts/governance/gov-local-ci.sh" 2>/dev/null | tail -1)"
+      local ci_cmd="cd '$wt' && bash scripts/governance/gov-local-ci.sh"
+      # P1: explore/docs bypass 审计 — 如果发现, 强制 Lane C
+      local audit_file="$wt/.ai/audit/bypass.jsonl"
+      if [ -f "$audit_file" ]; then
+        local audit_check
+        audit_check=$(python3 - "$audit_file" "$br" <<'PYEOF'
+import json, sys
+audit_file, branch = sys.argv[1], sys.argv[2]
+try:
+    with open(audit_file) as f:
+        entries = [json.loads(l) for l in f if l.strip()]
+except:
+    print("OK"); sys.exit(0)
+for e in entries:
+    if e.get("mode","") in ("explore","docs") and e.get("check","") in ("compile_skipped","bypass_audit"):
+        print("FORCE_LANE_C"); sys.exit(0)
+print("OK")
+PYEOF
+)
+        if [ "$audit_check" = "FORCE_LANE_C" ]; then
+          echo "  [审计] #$n 发现 explore/docs bypass, 强制 Lane C full CI"
+          ci_cmd="cd '$wt' && GOV_MODE=dev GOV_LANE=C GOV_CI_FULL=1 bash scripts/governance/gov-local-ci.sh"
+        fi
+      fi
+      id="$(bash "$RUNNER" start "ci-pr$n" -- bash -c "$ci_cmd" 2>/dev/null | tail -1)"
       ids+=("$n|$br|$wt|$id")
       echo "  [ci] #$n 已启动 ($id)"
     else
