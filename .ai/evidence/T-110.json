@@ -1,0 +1,38 @@
+{
+  "task": "T-110",
+  "ok": true,
+  "git_sha": "40140589dd65184e097f16e7622772fbe9473e11",
+  "verified_at": "2026-10-27T02:57:22Z",
+  "checks": [
+    {
+      "type": "file",
+      "name": "tests/unit/test_role_system.py",
+      "status": "PASS",
+      "detail": "存在"
+    },
+    {
+      "type": "file",
+      "name": "tests/unit/test_profile.py",
+      "status": "PASS",
+      "detail": "存在"
+    },
+    {
+      "type": "file",
+      "name": "tests/unit/test_batch.py",
+      "status": "PASS",
+      "detail": "存在"
+    },
+    {
+      "type": "file",
+      "name": "tests/unit/test_autopilot.py",
+      "status": "PASS",
+      "detail": "存在"
+    },
+    {
+      "type": "command",
+      "name": "python3 -m pytest tests/unit/test_role_system.py tests/unit/test_profile.py tests/unit/test_batch.py tests/unit/test_autopilot.py -q --cov",
+      "status": "PASS",
+      "detail": "退出码 0"
+    }
+  ]
+}
