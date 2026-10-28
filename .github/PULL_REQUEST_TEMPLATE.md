@@ -15,7 +15,7 @@
 
 | 项 | 填写 |
 |----|------|
-| 关联任务 | `T-XXX` 或 无 |
+| 关联任务 | `T-XXX` 或 无（批次 PR 写 `B-XXX` 并列出所有任务） |
 | 关联决策 | `DEC-NNN` 或 无 |
 | 上层文档 | Notion URL / 仓库路径 / 无 |
 | 原型参考 | `design/prototypes/interactive/<file>.html` + view 列表 / 无 |
@@ -50,6 +50,11 @@
 
 - [ ] `AC-...`：
 - [ ] 测试：（命令或用例 ID）
+
+## 批次 PR 额外验收（仅批次 PR 填写）
+
+- [ ] 批次内所有任务 `gov-task-done.sh T-xxx` 通过
+- [ ] 批次 PR body 列出所有任务 ID 与描述
 
 ## 门禁（全部勾选方可合入）
 

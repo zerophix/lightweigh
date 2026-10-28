@@ -22,6 +22,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.xcwk.scalehub.ui.components.QkButton
+>>>>>>> origin/master
 import com.xcwk.scalehub.ui.components.QkScreenHeader
 import com.xcwk.scalehub.ui.components.QkHeaderStyle
 import com.xcwk.scalehub.ui.components.QkFieldError
@@ -312,6 +313,14 @@ fun PhoneLoginScreen(
     }
 }
 
+<<<<<<< HEAD
+/** 字段级错误提示（红色小字）。 */
+@Composable
+private fun FieldError(text: String) {
+    QkFieldError(text)
+}
+
+=======
 @Preview(showBackground = true, name = "PhoneLoginScreen")
 @Composable
 private fun PhoneLoginScreenPreview() {

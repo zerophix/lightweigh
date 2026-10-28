@@ -202,7 +202,7 @@ require_task_id() {
 cmd_claim() {
   local tid="${1:-}"
   shift || true
-  local note="" profile=""
+  local note="" profile="" batch=""
   while [ $# -gt 0 ]; do
     case "$1" in
       --note)
@@ -219,6 +219,14 @@ cmd_claim() {
         ;;
       --profile=*)
         profile="${1#*=}"
+        shift
+        ;;
+      --batch)
+        batch="${2:-}"
+        shift 2 || shift
+        ;;
+      --batch=*)
+        batch="${1#*=}"
         shift
         ;;
       *)
@@ -259,9 +267,14 @@ cmd_claim() {
     esac
     [ -z "$profile" ] && profile="mixed"
     printf '%s\n' "$profile" > "$lock_dir/.profile.tmp" && mv "$lock_dir/.profile.tmp" "$lock_dir/profile"
+    # DEC-082: 批次归属（同批次任务共享分支 worktree）
+    if [ -n "$batch" ]; then
+      printf '%s\n' "$batch" > "$lock_dir/.batch.tmp" && mv "$lock_dir/.batch.tmp" "$lock_dir/batch"
+    fi
     echo "认领成功: $tid"
     echo "  持有者: $session"
     echo "  分支:   $branch"
+    [ -n "$batch" ] && echo "  批次:   $batch"
     echo "  时间:   $created"
     echo "  锁目录: $lock_dir"
     return 0
@@ -278,6 +291,7 @@ cmd_claim() {
 
   if [ "$owner" = "$session" ]; then
     echo "你已持有该锁: ${tid}（${their_created}，分支 ${their_branch}）"
+    return 0
   else
     echo "认领失败: 任务 $tid 已被持有" >&2
     echo "  持有者: $owner" >&2
@@ -367,6 +381,7 @@ def lock_info(name):
         'id': name,
         'owner': read(os.path.join(d, 'owner')) or '(写入中)',
         'branch': read(os.path.join(d, 'branch')) or '(未知)',
+        'batch': read(os.path.join(d, 'batch')) or '',
         'created_at': raw or '(未知)',
         'note': read(os.path.join(d, 'note')),
         'age': age_txt,
@@ -378,6 +393,8 @@ def fmt(info):
     state = 'EXPIRED' if info['expired'] else 'ok'
     line = '  {}  @{}  branch={}  {}  age={}  [{}]'.format(
         info['id'], info['owner'], info['branch'], info['created_at'], info['age'], state)
+    if info['batch']:
+        line += '  batch={}'.format(info['batch'])
     if info['note']:
         line += '  note={}'.format(info['note'])
     return line
@@ -439,6 +456,7 @@ for n in names:
     d = os.path.join(lock_root, n)
     owner = read(os.path.join(d, 'owner')) or '(写入中)'
     branch = read(os.path.join(d, 'branch')) or '(未知)'
+    batch = read(os.path.join(d, 'batch')) or ''
     created = read(os.path.join(d, 'created_at')) or '(未知)'
     mark = ''
     try:
@@ -447,7 +465,11 @@ for n in names:
             mark = '  [expired]'
     except Exception:
         pass
-    print('  {}  {}  {}  {}{}'.format(n, owner, branch, created, mark))
+    line = '  {}  {}  {}  {}'.format(n, owner, branch, created)
+    if batch:
+        line += '  batch={}'.format(batch)
+    line += mark
+    print(line)
 PY
 }
 
@@ -599,7 +621,7 @@ usage() {
   echo "用法: bash scripts/workflow/wf-claim.sh <命令> [参数] [--root <dir>]"
   echo ""
   echo "命令:"
-  echo "  claim <TASK-ID> [--note 说明]  原子抢锁（成功 0，已被持有 1）"
+  echo "  claim <TASK-ID> [--note 说明] [--profile <docs|test|gov|code|mixed>] [--batch B-xxx]  原子抢锁"
   echo "  release <TASK-ID>              释放锁（仅持有者）"
   echo "  status [TASK-ID]               查看锁与过期状态"
   echo "  list                           简短列出所有锁"

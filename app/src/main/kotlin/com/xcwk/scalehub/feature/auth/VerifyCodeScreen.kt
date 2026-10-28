@@ -22,6 +22,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.xcwk.scalehub.ui.components.QkButton
+import com.xcwk.scalehub.ui.components.QkFieldError
 import com.xcwk.scalehub.ui.components.QkScreenHeader
 import com.xcwk.scalehub.ui.components.QkHeaderStyle
 import com.xcwk.scalehub.ui.components.QkFieldError
@@ -235,6 +236,15 @@ fun VerifyCodeScreen(
     }
 }
 
+<<<<<<< HEAD
+/** 字段级错误提示（红色小字）。 */
+@Composable
+private fun FieldError(text: String) {
+    QkFieldError(text)
+}
+
+=======
+>>>>>>> origin/master
 @Preview(showBackground = true, name = "VerifyCodeScreen")
 @Composable
 private fun VerifyCodeScreenPreview() {

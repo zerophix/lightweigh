@@ -16,6 +16,7 @@ import androidx.compose.material.icons.outlined.Calculate
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.ChevronRight
+import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material.icons.outlined.CleaningServices
 import androidx.compose.material.icons.outlined.CloudDownload
 import androidx.compose.material.icons.outlined.DeleteForever
@@ -126,4 +127,5 @@ object QkIcons {
     val Restore: ImageVector = Icons.Outlined.CloudDownload
     val Cache: ImageVector = Icons.Outlined.CleaningServices
     val About: ImageVector = Icons.Outlined.Info
+    val Copy: ImageVector = Icons.Outlined.ContentCopy
 }

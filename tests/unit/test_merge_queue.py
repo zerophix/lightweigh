@@ -211,7 +211,7 @@ def test_worktree_clean_dry_run_lists_only_merged(tmp_path):
     out = r.stdout
     assert f"[dry-run] 将移除 worktree: {merged_wt}" in out, out
     assert f"将移除 worktree: {active_wt}" not in out, "未合入的 worktree 被列入清理"
-    assert "保留（未合入" in out and str(active_wt) in out, out
+    assert "保留(未合入" in out and str(active_wt) in out, out
     # dry-run 不得真删
     assert merged_wt.is_dir() and active_wt.is_dir()
 

@@ -158,8 +158,15 @@ def test_start_creates_branch_for_valid_task(tmp_path):
     board["tasks"].append({
         "id": "T-999", "description": "Test task", "module": "test",
         "target_files": ["app/src/main/foo.kt"], "status": "pending",
-        "group_id": "test", "batch": "B-test", "role": "dev"
+        "group_id": "test", "batch": "B-test", "role": "dev",
+        "source": "dec", "source_ref": "docs/ai/decisions/"
     })
+    if "batches" not in board:
+        board["batches"] = []
+    board["batches"].append({"id": "B-test", "name": "B-test"})
+    if "groups" not in board:
+        board["groups"] = []
+    board["groups"].append({"id": "test", "name": "test", "role": "dev"})
     (ai_dir / "tasks.json").write_text(j.dumps(board, indent=2, ensure_ascii=False), encoding="utf-8")
 
     env = {**__import__("os").environ, "WF_AUTOPILOT_ROOT": str(root)}

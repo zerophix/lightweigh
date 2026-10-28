@@ -39,7 +39,7 @@ class SettingsEntriesTest {
     }
 
     @Test
-    fun `四块目标屏都有入口`() {
+    fun `五块目标屏都有入口`() {
         val mounted = SettingsEntries.All.map { it.target }.toSet()
 
         assertThat(mounted).containsExactly(
@@ -47,6 +47,7 @@ class SettingsEntriesTest {
             SettingsEntryTarget.DataRecovery,
             SettingsEntryTarget.Maintenance,
             SettingsEntryTarget.HelpCenter,
+            SettingsEntryTarget.DiagScreen,
         )
     }
 
@@ -91,6 +92,7 @@ class SettingsEntriesTest {
             SettingsEntries.HelpCenter.id,
             SettingsEntries.Feedback.id,
             SettingsEntries.Diagnostics.id,
+            SettingsEntries.DiagScreen.id,
         )
     }
 

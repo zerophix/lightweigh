@@ -1,0 +1,208 @@
+{
+  "version": "1.0",
+  "description": "CloudBase 告警规则配置文件（T-1008）",
+  "targets": {
+    "crash_reports": {
+      "source": "CloudBase RDB table crash_reports",
+      "metrics": {
+        "crash_rate": {
+          "query": "SELECT count(*) FROM crash_reports WHERE timestamp >= now() - 15m",
+          "interval": "15m",
+          "type": "rate"
+        },
+        "anr_count": {
+          "query": "SELECT count(*) FROM anr_reports WHERE timestamp >= now() - 15m",
+          "interval": "15m",
+          "type": "count"
+        }
+      }
+    },
+    "measure_metrics": {
+      "source": "CloudBase RDB table measure_metrics",
+      "metrics": {
+        "measure_success_rate": {
+          "query": "SELECT (SUM(CASE WHEN result = 'SUCCESS' THEN 1 ELSE 0 END) * 100.0 / count(*)) AS pct FROM measure_metrics WHERE timestamp >= now() - 15m",
+          "interval": "15m",
+          "type": "percentage"
+        },
+        "measure_avg_duration": {
+          "query": "SELECT avg(duration_ms) FROM measure_metrics WHERE result = 'SUCCESS' AND timestamp >= now() - 15m",
+          "interval": "15m",
+          "type": "average"
+        },
+        "measure_fail_rate": {
+          "query": "SELECT (SUM(CASE WHEN result != 'SUCCESS' THEN 1 ELSE 0 END) * 100.0 / count(*)) AS pct FROM measure_metrics WHERE timestamp >= now() - 15m",
+          "interval": "15m",
+          "type": "percentage"
+        }
+      }
+    },
+    "sync_metrics": {
+      "source": "CloudBase RDB table sync_metrics",
+      "metrics": {
+        "sync_success_rate": {
+          "query": "SELECT (SUM(CASE WHEN result = 'SUCCESS' THEN 1 ELSE 0 END) * 100.0 / count(*)) AS pct FROM sync_metrics WHERE timestamp >= now() - 15m",
+          "interval": "15m",
+          "type": "percentage"
+        },
+        "sync_avg_duration": {
+          "query": "SELECT avg(duration_ms) FROM sync_metrics WHERE result = 'SUCCESS' AND timestamp >= now() - 15m",
+          "interval": "15m",
+          "type": "average"
+        },
+        "conflict_rate": {
+          "query": "SELECT (SUM(CASE WHEN conflict_count > 0 THEN 1 ELSE 0 END) * 100.0 / count(*)) AS pct FROM sync_metrics WHERE timestamp >= now() - 15m",
+          "interval": "15m",
+          "type": "percentage"
+        }
+      }
+    },
+    "ble_metrics": {
+      "source": "CloudBase RDB table ble_metrics",
+      "metrics": {
+        "ble_connect_success_rate": {
+          "query": "SELECT (SUM(CASE WHEN event = 'CONNECT_END' AND success = true THEN 1 ELSE 0 END) * 100.0 / NULLIF(SUM(CASE WHEN event = 'CONNECT_START' THEN 1 ELSE 0 END), 0)) AS pct FROM ble_metrics WHERE timestamp >= now() - 15m",
+          "interval": "15m",
+          "type": "percentage"
+        },
+        "ble_disconnect_rate": {
+          "query": "SELECT (SUM(CASE WHEN event = 'DISCONNECT' THEN 1 ELSE 0 END) * 100.0 / NULLIF(SUM(CASE WHEN event = 'CONNECT_END' AND success = true THEN 1 ELSE 0 END), 0)) AS pct FROM ble_metrics WHERE timestamp >= now() - 15m",
+          "interval": "15m",
+          "type": "percentage"
+        }
+      }
+    }
+  },
+  "rules": [
+    {
+      "id": "ALERT-CRASH-001",
+      "name": "崩溃率过高",
+      "description": "15 分钟内崩溃率超过 0.3%",
+      "target": "crash_reports",
+      "metric": "crash_rate",
+      "condition": "value > 0.003",
+      "severity": "P0",
+      "window": "15m",
+      "eval_interval": "5m",
+      "for": "2m",
+      "actions": ["dingtalk", "sms", "phone"],
+      "runbook": "docs/ops/slo-definitions.md#51-崩溃率暴涨-p0"
+    },
+    {
+      "id": "ALERT-ANR-001",
+      "name": "ANR 率过高",
+      "description": "15 分钟内 ANR 率超过 0.15%",
+      "target": "crash_reports",
+      "metric": "anr_count",
+      "condition": "value > 0.0015",
+      "severity": "P1",
+      "window": "15m",
+      "eval_interval": "5m",
+      "for": "3m",
+      "actions": ["dingtalk"],
+      "runbook": "docs/ops/slo-definitions.md#51-崩溃率暴涨-p0"
+    },
+    {
+      "id": "ALERT-STARTUP-001",
+      "name": "启动耗时过长",
+      "description": "15 分钟内冷启动 p95 超过 3500ms",
+      "target": "startup_perf",
+      "metric": "cold_start_p95",
+      "condition": "value > 3500",
+      "severity": "P1",
+      "window": "30m",
+      "eval_interval": "5m",
+      "for": "5m",
+      "actions": ["dingtalk"],
+      "runbook": "docs/ops/slo-definitions.md"
+    },
+    {
+      "id": "ALERT-MEASURE-001",
+      "name": "测量成功率低",
+      "description": "15 分钟内测量成功率低于 95%",
+      "target": "measure_metrics",
+      "metric": "measure_success_rate",
+      "condition": "value < 95",
+      "severity": "P1",
+      "window": "15m",
+      "eval_interval": "5m",
+      "for": "3m",
+      "actions": ["dingtalk"],
+      "runbook": "docs/ops/slo-definitions.md"
+    },
+    {
+      "id": "ALERT-SYNC-001",
+      "name": "同步成功率低",
+      "description": "15 分钟内同步成功率低于 97%",
+      "target": "sync_metrics",
+      "metric": "sync_success_rate",
+      "condition": "value < 97",
+      "severity": "P1",
+      "window": "15m",
+      "eval_interval": "5m",
+      "for": "3m",
+      "actions": ["dingtalk"],
+      "runbook": "docs/ops/slo-definitions.md#52-同步失败率升高-p1"
+    },
+    {
+      "id": "ALERT-CONFLICT-001",
+      "name": "冲突率过高",
+      "description": "15 分钟内数据冲突率超过 3%",
+      "target": "sync_metrics",
+      "metric": "conflict_rate",
+      "condition": "value > 3",
+      "severity": "P2",
+      "window": "15m",
+      "eval_interval": "10m",
+      "for": "5m",
+      "actions": ["dingtalk"],
+      "runbook": "docs/ops/slo-definitions.md"
+    },
+    {
+      "id": "ALERT-BLE-001",
+      "name": "BLE 连接失败率过高",
+      "description": "15 分钟内 BLE 连接成功率低于 90%",
+      "target": "ble_metrics",
+      "metric": "ble_connect_success_rate",
+      "condition": "value < 90",
+      "severity": "P1",
+      "window": "15m",
+      "eval_interval": "5m",
+      "for": "3m",
+      "actions": ["dingtalk"],
+      "runbook": "docs/ops/slo-definitions.md#53-ble-掉线率升高-p1"
+    },
+    {
+      "id": "ALERT-BLE-DISCONNECT-001",
+      "name": "BLE 掉线率过高",
+      "description": "15 分钟内 BLE 掉线率超过 5%",
+      "target": "ble_metrics",
+      "metric": "ble_disconnect_rate",
+      "condition": "value > 5",
+      "severity": "P1",
+      "window": "15m",
+      "eval_interval": "5m",
+      "for": "3m",
+      "actions": ["dingtalk"],
+      "runbook": "docs/ops/slo-definitions.md#53-ble-掉线率升高-p1"
+    }
+  ],
+  "notification_channels": [
+    {
+      "type": "dingtalk",
+      "name": "运维告警群",
+      "webhook_key": "ops-alerts",
+      "at_all": false
+    },
+    {
+      "type": "sms",
+      "name": "短信告警",
+      "at_all": true
+    },
+    {
+      "type": "phone",
+      "name": "电话告警",
+      "at_all": true
+    }
+  ]
+}

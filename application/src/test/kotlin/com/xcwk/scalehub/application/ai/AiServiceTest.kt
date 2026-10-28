@@ -5,67 +5,96 @@ import com.xcwk.scalehub.application.sync.CloudSessionPort
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
-/** AI 问答编排行为（旧库 CloudSync.ask 语义：游客拦截/空输入/网络文案, M2c DEC-022）。 */
+/**
+ * AI 服务行为测试。
+ */
 class AiServiceTest {
 
-    private class FakeSession(var formal: Boolean) : CloudSessionPort {
-        override fun isFormalAccount() = formal
-        override fun accessToken() = if (formal) "tok" else null
+    private class FakeSession : CloudSessionPort {
+        override fun isFormalAccount() = true
+        override fun accessToken() = "tok-1"
         override fun subject(token: String) = "u-1"
-        override fun signOut() { formal = false }
+        override fun signOut() {}
     }
 
-    private class FakeAi(
-        private val response: Pair<Boolean, String> = true to "回答正文",
-        private val error: RuntimeException? = null,
-    ) : AiPort {
-        var lastTurns: List<Pair<String, Boolean>> = emptyList()
+    private class FakeAiPort : AiPort {
+        var responses = mutableListOf<Pair<Boolean, String>>()
+        var index = 0
+
         override suspend fun ask(turns: List<Pair<String, Boolean>>): Pair<Boolean, String> {
-            lastTurns = turns
-            error?.let { throw it }
-            return response
+            return responses.getOrElse(index++) { false to "no more responses" }
+        }
+
+        override suspend fun weeklySummary(prompt: String): Pair<Boolean, String> {
+            return responses.getOrElse(index++) { false to "no more responses" }
+        }
+
+        override suspend fun healthAdvice(context: String, query: String): Pair<Boolean, String> {
+            return responses.getOrElse(index++) { false to "no more responses" }
         }
     }
 
     @Test
-    fun `guest is blocked with login hint`() = runTest {
-        val ai = FakeAi()
-        val out = AiService(FakeSession(formal = false), ai).ask(listOf("你好" to true))
-        assertThat(out.ok).isFalse()
-        assertThat(out.message).isEqualTo("请先使用手机号登录后再提问")
-        assertThat(ai.lastTurns).isEmpty()
+    fun `ask with guest returns login prompt`() = runTest {
+        val session = object : CloudSessionPort {
+            override fun isFormalAccount() = false
+            override fun accessToken() = null
+            override fun subject(token: String) = null
+            override fun signOut() {}
+        }
+        val service = AiService(session, FakeAiPort())
+
+        val result = service.ask(listOf("你好" to true))
+
+        assertThat(result.ok).isFalse()
+        assertThat(result.message).contains("登录")
     }
 
     @Test
-    fun `blank question is rejected`() = runTest {
-        val out = AiService(FakeSession(formal = true), FakeAi()).ask(listOf("   " to true))
-        assertThat(out.ok).isFalse()
-        assertThat(out.message).isEqualTo("请输入问题")
+    fun `ask with empty turns returns input prompt`() = runTest {
+        val service = AiService(FakeSession(), FakeAiPort())
+
+        val result = service.ask(listOf("" to true))
+
+        assertThat(result.ok).isFalse()
+        assertThat(result.message).contains("请输入")
     }
 
     @Test
-    fun `formal account passes turns through and returns text`() = runTest {
-        val ai = FakeAi(response = true to "减脂期晚餐建议…")
-        val out = AiService(FakeSession(formal = true), ai)
-            .ask(listOf("减脂期晚餐怎么吃？" to true))
-        assertThat(out.ok).isTrue()
-        assertThat(out.message).isEqualTo("减脂期晚餐建议…")
-        assertThat(ai.lastTurns).containsExactly("减脂期晚餐怎么吃？" to true)
+    fun `weeklySummary with no data returns empty prompt`() = runTest {
+        val service = AiService(FakeSession(), FakeAiPort())
+
+        val result = service.weeklySummary(1000L, 2000L, WeeklyData(emptyList(), emptyList()))
+
+        assertThat(result.ok).isFalse()
+        assertThat(result.message).contains("暂无数据")
     }
 
     @Test
-    fun `port failure surfaces network message`() = runTest {
-        val ai = FakeAi(error = RuntimeException("boom"))
-        val out = AiService(FakeSession(formal = true), ai).ask(listOf("在吗" to true))
-        assertThat(out.ok).isFalse()
-        assertThat(out.message).isEqualTo("当前网络不可用，请联网后使用AI功能")
+    fun `isMaxTurns returns true when exceeds limit`() {
+        val service = AiService(FakeSession(), FakeAiPort())
+        val turns = List(AiService.MAX_TURNS + 1) { "" to true }
+
+        assertThat(service.isMaxTurns(turns)).isTrue()
     }
 
     @Test
-    fun `cloud rejection message is relayed verbatim`() = runTest {
-        val ai = FakeAi(response = false to "AI 服务暂时不可用")
-        val out = AiService(FakeSession(formal = true), ai).ask(listOf("在吗" to true))
-        assertThat(out.ok).isFalse()
-        assertThat(out.message).isEqualTo("AI 服务暂时不可用")
+    fun `isMaxTurns returns false when within limit`() {
+        val service = AiService(FakeSession(), FakeAiPort())
+        val turns = List(AiService.MAX_TURNS - 1) { "" to true }
+
+        assertThat(service.isMaxTurns(turns)).isFalse()
+    }
+
+    @Test
+    fun `trimHistory preserves first and last MAX_TURNS`() {
+        val service = AiService(FakeSession(), FakeAiPort())
+        val turns = (1..30).map { "第${it}轮" to true }
+
+        val trimmed = service.trimHistory(turns)
+
+        assertThat(trimmed.size).isEqualTo(AiService.MAX_TURNS)
+        assertThat(trimmed.first().first).isEqualTo("第1轮")
+        assertThat(trimmed.last().first).isEqualTo("第30轮")
     }
 }

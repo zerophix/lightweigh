@@ -81,22 +81,34 @@ def parse_args(argv):
 
 
 def load_tasks(root):
-    """读取任务列表；任务板缺失或损坏直接报错退出。"""
+    """读取任务列表；支持 v1 (扁平) 和 v2 (Layer 2) 结构。"""
     tasks_file = root / ".ai" / "tasks.json"
     if not tasks_file.exists():
         raise SystemExit("任务板不存在: " + str(tasks_file))
     with tasks_file.open(encoding="utf-8") as f:
         data = json.load(f)
-    tasks = data.get("tasks", []) if isinstance(data, dict) else data
-    return tasks
+    
+    # v2 结构: {version: 2, schema: "task-flow@v2", tasks: [...]}
+    # v1 结构: {version: 1, tasks: [...]} 或直接是数组
+    if isinstance(data, dict):
+        if data.get("version") == 2 and data.get("schema") == "task-flow@v2":
+            return data.get("tasks", [])
+        return data.get("tasks", []) if "tasks" in data else data
+    return data if isinstance(data, list) else []
 
 
 def is_candidate(task):
-    """候选条件：待开始 + 验收已 ready + 声明了产物文件。"""
-    if task.get("status") != "pending":
+    """候选条件：工程任务 status=ready + 有 acceptance 定义 + 声明了产物文件。"""
+    # 新结构: status in ["ready", "pending"]; acceptance 是对象而非有 status 字段
+    status = task.get("status", "")
+    if status not in ("ready", "pending"):
         return False
-    acceptance = task.get("acceptance") or {}
-    if acceptance.get("status") != "ready":
+    # acceptance 必须是非空对象（有 verify_commands 或 definition_of_done）
+    acceptance = task.get("acceptance")
+    if not isinstance(acceptance, dict) or not acceptance:
+        return False
+    # 状态为 draft 的任务不进入候选池
+    if acceptance.get("status") == "draft":
         return False
     return bool(task.get("target_files"))
 
@@ -179,6 +191,14 @@ def branch_name(task):
     return "feat/%s-%s" % (str(task["id"]).lower(), task_module(task))
 
 
+def batch_branch_name(task):
+    """批次分支名：batch/B-xxx（任务归属批次）"""
+    b = task.get("batch", "")
+    if b:
+        return "batch/%s" % b
+    return ""
+
+
 def build_batches(candidates, limit):
     """贪心分批：按顺序塞进第一个仍有空位且文件不冲突的批。"""
     batches = []
@@ -201,6 +221,9 @@ def annotate(batch, index):
     """为批次内任务补充分支/子代理建议与同模块提示。"""
     tasks = batch["tasks"]
     modules = [task_module(t) for t in tasks]
+    # 批次内任务可能来自不同的 batch 字段，取第一个非空作为批次分支
+    batch_branches = [batch_branch_name(t) for t in tasks if batch_branch_name(t)]
+    batch_branch = batch_branches[0] if batch_branches else ""
     result = []
     for slot, task in enumerate(tasks, start=1):
         module_name = modules[slot - 1]
@@ -211,13 +234,15 @@ def annotate(batch, index):
                 "title": task.get("description", ""),
                 "wave": task.get("wave"),
                 "branch": branch_name(task),
+                "batch_branch": batch_branch,
+                "task_batch": task.get("batch", ""),
                 "subagent": "sub-%s" % str(task["id"]).lower(),
                 "slot": slot,
                 "target_files": list(task.get("target_files") or []),
                 "same_module_as_batch": module_name in modules[: slot - 1],
             }
         )
-    return {"batch": index, "size": len(result), "tasks": result}
+    return {"batch": index, "size": len(result), "tasks": result, "batch_branch": batch_branch}
 
 
 def render_human(payload):
@@ -230,11 +255,21 @@ def render_human(payload):
     if not batches:
         print("无可并行任务（检查 pending + acceptance.status=ready + target_files）")
     for batch in batches:
-        print("批次%d: %s" % (batch["batch"], ", ".join(
-            "%s(%s)" % (t["id"], t["branch"]) for t in batch["tasks"])))
+        batch_branch = batch.get("batch_branch", "")
+        header = "批次%d" % batch["batch"]
+        if batch_branch:
+            header += " -> %s" % batch_branch
+        print("%s: %s" % (header, ", ".join(
+            "%s(%s)" % (t["id"], batch_branch if t.get("task_batch") else t["branch"]) for t in batch["tasks"])))
         for task in batch["tasks"]:
-            print("  - %s | 模块=%s | 分支=%s | 子代理=%s | 文件%d个" % (
-                task["id"], task["module"], task["branch"], task["subagent"], len(task["target_files"])))
+            task_batch = task.get("task_batch", "")
+            # 显示分支：若属于批次则显示批次分支，否则显示单任务分支
+            display_branch = batch_branch if task_batch else task["branch"]
+            line = "  - %s | 模块=%s | 分支=%s | 子代理=%s | 文件%d个" % (
+                task["id"], task["module"], display_branch, task["subagent"], len(task["target_files"]))
+            if task_batch:
+                line += " | 批次=%s" % task_batch
+            print(line)
             if task["same_module_as_batch"]:
                 print("    提示: 与同批任务同模块，仅文件不相交，注意回归范围")
         print("")

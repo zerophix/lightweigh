@@ -1,0 +1,153 @@
+{
+  "version": "1.0",
+  "description": "CloudBase CLS (Cloud Log Service) 配置 (T-1016)",
+  "logset": {
+    "name": "scalehub-logset",
+    "region": "ap-guangzhou",
+    "tags": {
+      "project": "scalehub",
+      "env": "production"
+    }
+  },
+  "logTopic": {
+    "name": "scalehub-logs",
+    "logsetId": "scalehub-logset"
+  },
+  "logCollect": [
+    {
+      "topicId": "structured_logs",
+      "topicName": "structured_logs",
+      "path": "/structured_logs/*",
+      "logType": "json",
+      "fields": {
+        "level": {
+          "type": "string",
+          "index": true,
+          "analyze": true
+        },
+        "tag": {
+          "type": "string",
+          "index": true,
+          "analyze": true
+        },
+        "timestamp": {
+          "type": "long",
+          "index": true,
+          "analyze": true
+        },
+        "device_model": {
+          "type": "string",
+          "index": true
+        },
+        "sdk_int": {
+          "type": "int",
+          "index": true
+        }
+      },
+      "excludes": [
+        {
+          "key": "token",
+          "regex": ".*"
+        },
+        {
+          "key": "access_token",
+          "regex": ".*"
+        },
+        {
+          "key": "refresh_token",
+          "regex": ".*"
+        },
+        {
+          "key": "content",
+          "regex": "[0-9]{11}"
+        }
+      ],
+      "sampling": {
+        "rate": 1.0,
+        "fields": [
+          {"key": "level", "value": ["DEBUG"], "rate": 0.1},
+          {"key": "level", "value": ["INFO"], "rate": 1.0},
+          {"key": "level", "value": ["WARN"], "rate": 1.0},
+          {"key": "level", "value": ["ERROR"], "rate": 1.0}
+        ]
+      }
+    },
+    {
+      "topicId": "crash_reports",
+      "topicName": "crash_reports",
+      "path": "/crash_reports/*",
+      "logType": "json",
+      "fields": {
+        "stack_trace": {"type": "text", "index": true},
+        "device_model": {"type": "string", "index": true},
+        "sdk_int": {"type": "int", "index": true},
+        "timestamp": {"type": "long", "index": true},
+        "ticket_no": {"type": "string", "index": true}
+      }
+    },
+    {
+      "topicId": "anr_reports",
+      "topicName": "anr_reports",
+      "path": "/anr_reports/*",
+      "logType": "json",
+      "fields": {
+        "thread_dump": {"type": "text", "index": true},
+        "blocked_duration": {"type": "long", "index": true},
+        "timestamp": {"type": "long", "index": true}
+      }
+    },
+    {
+      "topicId": "measure_metrics",
+      "topicName": "measure_metrics",
+      "path": "/measure_metrics/*",
+      "logType": "json",
+      "fields": {
+        "result": {"type": "string", "index": true, "analyze": true},
+        "duration_ms": {"type": "long", "index": true},
+        "timestamp": {"type": "long", "index": true}
+      }
+    },
+    {
+      "topicId": "sync_metrics",
+      "topicName": "sync_metrics",
+      "path": "/sync_metrics/*",
+      "logType": "json",
+      "fields": {
+        "result": {"type": "string", "index": true, "analyze": true},
+        "duration_ms": {"type": "long", "index": true},
+        "conflict_count": {"type": "int", "index": true},
+        "timestamp": {"type": "long", "index": true}
+      }
+    }
+  ],
+  "exportRules": [
+    {
+      "topicName": "structured_logs",
+      "cosPath": "cos://scalehub-logs-prod/structured/",
+      "interval": 3600,
+      "maxSize": 256
+    }
+  ],
+  "alarmRules": [
+    {
+      "name": "High Error Rate",
+      "topic": "structured_logs",
+      "condition": "level in ['ERROR'] and count > 10 in 5m",
+      "threshold": 10,
+      "period": 300,
+      "alarmLevel": "P1",
+      "notifyTypes": ["dingtalk", "sms"],
+      "notifyPersons": ["ops-team"]
+    },
+    {
+      "name": "Crash Spike",
+      "topic": "crash_reports",
+      "condition": "count > 5 in 15m",
+      "threshold": 5,
+      "period": 900,
+      "alarmLevel": "P0",
+      "notifyTypes": ["dingtalk", "phone"],
+      "notifyPersons": ["oncall"]
+    }
+  ]
+}

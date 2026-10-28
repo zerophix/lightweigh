@@ -473,5 +473,29 @@ commands:
   path: app/src/test/kotlin/com/xcwk/scalehub/feature/auth/VerifyCodeScreenTest.kt
   status: stable
   type: gradle-test
+- description: 自动登记（gov-registry-sync）
+  path: application/src/test/kotlin/com/xcwk/scalehub/application/MemberProfileServiceTest.kt
+  status: stable
+  type: gradle-test
+- description: 自动登记（gov-registry-sync）
+  path: application/src/test/kotlin/com/xcwk/scalehub/application/auth/PrivacyAuthServiceTest.kt
+  status: stable
+  type: gradle-test
+- description: 自动登记（gov-registry-sync）
+  path: application/src/test/kotlin/com/xcwk/scalehub/application/device/DeviceRenameServiceTest.kt
+  status: stable
+  type: gradle-test
+- description: 自动登记（gov-registry-sync）
+  path: application/src/test/kotlin/com/xcwk/scalehub/application/habit/HabitServiceTest.kt
+  status: stable
+  type: gradle-test
+- description: 自动登记（gov-registry-sync）
+  path: application/src/test/kotlin/com/xcwk/scalehub/application/support/FeedbackTicketServiceTest.kt
+  status: stable
+  type: gradle-test
+- description: 自动登记（gov-registry-sync）
+  path: application/src/test/kotlin/com/xcwk/scalehub/application/sync/ConflictResolutionServiceTest.kt
+  status: stable
+  type: gradle-test
 configs: []
 orphans: []

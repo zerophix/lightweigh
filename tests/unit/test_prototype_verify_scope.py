@@ -236,6 +236,13 @@ def test_no_declared_views_produces_no_copy_warning(tmp_path):
 # ---------------------------------------------------------------------------
 
 
+def task_exists(task_id: str) -> bool:
+    """检查任务是否仍在 tasks.json 中活跃。"""
+    import json
+    tasks_json = json.loads((ROOT / ".ai" / "tasks.json").read_text(encoding="utf-8"))
+    return task_id in {t["id"] for t in tasks_json.get("tasks", [])}
+
+
 def run_verify(task_id: str):
     """真实任务跑 strict 校验，返回 (exit_code, stdout)。"""
     proc = subprocess.run(
@@ -261,6 +268,8 @@ def warn_lines(output: str):
 )
 def test_regression_false_warnings_gone(task_id, warn_before):
     """两个被稀释出假 WARN 的任务：文案类 WARN 必须归零，且任务仍通过 strict。"""
+    if not task_exists(task_id):
+        pytest.skip(f"{task_id} 在 tasks.json 中不存在（已完成并归档）")
     code, output = run_verify(task_id)
     copy_warns = [w for w in warn_lines(output) if "文案" in w]
     assert code == 0, output
@@ -269,6 +278,8 @@ def test_regression_false_warnings_gone(task_id, warn_before):
 
 def test_t076_unchanged_single_file_full_match():
     """T-076 修复前 100% 通过，修复后必须仍是 100% 且零文案 WARN。"""
+    if not task_exists("T-076"):
+        pytest.skip("T-076 在 tasks.json 中不存在（已完成并归档）")
     code, output = run_verify("T-076")
     assert code == 0, output
     assert [w for w in warn_lines(output) if "文案" in w] == [], output
@@ -278,6 +289,8 @@ def test_t076_unchanged_single_file_full_match():
 @pytest.mark.parametrize("task_id", ["T-083", "T-095"])
 def test_previously_passing_tasks_still_pass(task_id):
     """T-083 / T-095 修复前虽有 WARN 但判定通过；作用域修复不得让它们转红。"""
+    if not task_exists(task_id):
+        pytest.skip(f"{task_id} 在 tasks.json 中不存在（已完成并归档）")
     code, output = run_verify(task_id)
     assert code == 0, output
     assert "闭环验证通过" in output, output

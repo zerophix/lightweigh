@@ -87,6 +87,11 @@
 ## 8. Notion 索引
 
 - [REF-notion-index.md](REF-notion-index.md) — 轻衡健康 Notion 空间 74 页页面与仓库路径对照
+- [REF-glossary.md](REF-glossary.md) — 术语表（文档短码、追溯 ID、工程名词、品牌口径、状态用词）
+
+## 9. 运维参考
+
+- [REF-slo-definitions.md](REF-slo-definitions.md) — SLO 定义与告警阈值（T-1007）
 
 ---
 

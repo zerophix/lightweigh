@@ -32,6 +32,7 @@ import com.xcwk.scalehub.application.service.RecordMeasurementService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import com.xcwk.scalehub.domain.repository.DeviceRepository
 import com.xcwk.scalehub.domain.repository.HealthLogRepository
 import com.xcwk.scalehub.domain.repository.MeasurementRepository
@@ -294,4 +295,162 @@ class AppContainer(context: Context) {
     private val bleLinkImpl: AndroidBleLink by lazy { AndroidBleLink(context) }
 
     val blePort: BlePort get() = bleLinkImpl
+
+    // === DEC-081 Batch 2/3 新服务 ===
+
+    /** 隐私授权状态端口 + 服务（M2a） */
+    private val privacyAuthStateImpl: com.xcwk.scalehub.infrastructure.auth.PrivacyAuthStateStore by lazy {
+        com.xcwk.scalehub.infrastructure.auth.PrivacyAuthStateStore(context)
+    }
+    val privacyAuthPort: com.xcwk.scalehub.application.auth.PrivacyAuthStatePort get() = privacyAuthStateImpl
+    val privacyAuthService: com.xcwk.scalehub.application.auth.PrivacyAuthService by lazy {
+        com.xcwk.scalehub.application.auth.PrivacyAuthService(privacyAuthStateImpl)
+    }
+
+    /** 成员档案服务（M2） */
+    val memberProfileService: com.xcwk.scalehub.application.MemberProfileService by lazy {
+        com.xcwk.scalehub.application.MemberProfileService(profileStoreImpl, profileStoreImpl)
+    }
+
+    /** 设备重命名服务（M3） */
+    val deviceRenameService: com.xcwk.scalehub.application.device.DeviceRenameService by lazy {
+        com.xcwk.scalehub.application.device.DeviceRenameService(deviceRepositoryImpl)
+    }
+    /** 固件管理服务（M3） */
+    private val firmwareCheckImpl: com.xcwk.scalehub.infrastructure.device.FirmwareCheckImpl by lazy {
+        com.xcwk.scalehub.infrastructure.device.FirmwareCheckImpl()
+    }
+    val firmwareManagerService: com.xcwk.scalehub.application.device.FirmwareManagerService by lazy {
+        com.xcwk.scalehub.application.device.FirmwareManagerService(firmwareCheckImpl)
+    }
+
+    /** 问题反馈服务（M3） */
+    private val feedbackStoreImpl: com.xcwk.scalehub.infrastructure.support.FeedbackStore by lazy {
+        com.xcwk.scalehub.infrastructure.support.FeedbackStore(context, cloudGateway)
+    }
+    val feedbackService: com.xcwk.scalehub.application.support.FeedbackService by lazy {
+        com.xcwk.scalehub.application.support.FeedbackService(feedbackStoreImpl)
+    }
+    /** 帮助中心服务（M3） */
+    val helpCenterService: com.xcwk.scalehub.application.support.HelpCenterService by lazy {
+        com.xcwk.scalehub.application.support.HelpCenterService(
+            com.xcwk.scalehub.infrastructure.support.HelpCenterStore()
+        )
+    }
+
+    /** 家庭邀请服务（M3） */
+    val familyInviteService: com.xcwk.scalehub.application.auth.FamilyInviteService by lazy {
+        com.xcwk.scalehub.application.auth.FamilyInviteService(sessionStoreImpl, cloudGateway)
+    }
+
+    // === DEC-081 Batch 3 新服务 ===
+
+    /** 习惯服务（增强 HabitQuery） */
+     val habitService: com.xcwk.scalehub.application.habit.HabitService by lazy {
+        com.xcwk.scalehub.application.habit.HabitService(
+            habitRepository,
+            habitRepository as com.xcwk.scalehub.application.query.HabitQueryPort,
+            activeMemberId,
+            com.xcwk.scalehub.domain.types.SystemClock,
+            habitReminderScheduler,
+            dataRefreshBus,
+        )
+    }
+
+    /** 报告服务（增强 ReportQuery） */
+    val reportService: com.xcwk.scalehub.application.query.ReportService by lazy {
+        com.xcwk.scalehub.application.query.ReportService(reportQuery)
+    }
+
+    /** AI 服务（增强） */
+    val aiServiceEnhanced: com.xcwk.scalehub.application.ai.AiService by lazy {
+        com.xcwk.scalehub.application.ai.AiService(sessionStoreImpl, CloudFunctionAi(sessionStoreImpl))
+    }
+
+    /** 服务状态服务 */
+    private val serviceStatusStoreImpl: com.xcwk.scalehub.infrastructure.config.ServiceStatusStore by lazy {
+        com.xcwk.scalehub.infrastructure.config.ServiceStatusStore(context)
+    }
+    val serviceStatusService: com.xcwk.scalehub.application.config.ServiceStatusService by lazy {
+        com.xcwk.scalehub.application.config.ServiceStatusService(serviceStatusStoreImpl)
+    }
+
+    // === 同步/冲突/健康平台增强 ===
+
+    /** 冲突解决服务 */
+    private val conflictResolutionImpl: com.xcwk.scalehub.infrastructure.sync.ConflictResolutionStore by lazy {
+        com.xcwk.scalehub.infrastructure.sync.ConflictResolutionStore()
+    }
+    val conflictResolutionService: com.xcwk.scalehub.application.sync.ConflictResolutionService by lazy {
+        com.xcwk.scalehub.application.sync.ConflictResolutionService(conflictResolutionImpl)
+    }
+
+    /** Health Connect 服务 */
+    private val healthConnectPlatformImpl: com.xcwk.scalehub.infrastructure.health.HealthConnectPlatform by lazy {
+        com.xcwk.scalehub.infrastructure.health.HealthConnectPlatform(context)
+    }
+    val healthConnectService: com.xcwk.scalehub.application.health.HealthConnectService by lazy {
+        com.xcwk.scalehub.application.health.HealthConnectService(healthConnectPlatformImpl)
+    }
+
+    /** Apple Health 服务 */
+    val appleHealthService: com.xcwk.scalehub.application.health.AppleHealthService by lazy {
+        com.xcwk.scalehub.application.health.AppleHealthService(
+            com.xcwk.scalehub.infrastructure.health.AppleHealthPlatform()
+        )
+    }
+
+    /** 离线队列服务 */
+    val offlineQueueService: com.xcwk.scalehub.application.sync.OfflineQueueService by lazy {
+        com.xcwk.scalehub.application.sync.OfflineQueueService(cloudGateway)
+    }
+
+    /** 数据恢复服务 */
+    val dataRecoveryService: com.xcwk.scalehub.application.sync.DataRecoveryService by lazy {
+        com.xcwk.scalehub.application.sync.DataRecoveryService(cloudGateway, syncService)
+    }
+
+    /** 监控服务（T-1001~T-1006）——内部使用，避免暴露 infra 类型给表现层 */
+    private val crashReporter: com.xcwk.scalehub.infrastructure.monitoring.CrashReporter by lazy {
+        com.xcwk.scalehub.infrastructure.monitoring.CrashReporter(cloudGateway)
+    }
+    private val anrMonitor: com.xcwk.scalehub.infrastructure.monitoring.AnrMonitor by lazy {
+        com.xcwk.scalehub.infrastructure.monitoring.AnrMonitor(cloudGateway)
+    }
+    private val startupPerfReporter: com.xcwk.scalehub.infrastructure.monitoring.StartupPerfReporter by lazy {
+        com.xcwk.scalehub.infrastructure.monitoring.StartupPerfReporter(cloudGateway)
+    }
+    private val measureMetricsReporter: com.xcwk.scalehub.infrastructure.monitoring.MeasureMetricsReporter by lazy {
+        com.xcwk.scalehub.infrastructure.monitoring.MeasureMetricsReporter(cloudGateway)
+    }
+    private val syncMetricsReporter: com.xcwk.scalehub.infrastructure.monitoring.SyncMetricsReporter by lazy {
+        com.xcwk.scalehub.infrastructure.monitoring.SyncMetricsReporter(cloudGateway)
+    }
+    private val bleMetricsReporter: com.xcwk.scalehub.infrastructure.monitoring.BleMetricsReporter by lazy {
+        com.xcwk.scalehub.infrastructure.monitoring.BleMetricsReporter(cloudGateway)
+    }
+    private val alertReporter: com.xcwk.scalehub.infrastructure.monitoring.AlertReporter by lazy {
+        com.xcwk.scalehub.infrastructure.monitoring.AlertReporter(cloudGateway)
+    }
+
+    /** 远程配置 —— 内部使用，避免暴露 infra 类型给表现层 */
+    private val remoteConfig: com.xcwk.scalehub.infrastructure.config.RemoteConfig by lazy {
+        com.xcwk.scalehub.infrastructure.config.RemoteConfig(cloudGateway)
+    }
+
+    /** 结构化日志 —— 内部使用，避免暴露 infra 类型给表现层 */
+    private val structuredLogger: com.xcwk.scalehub.infrastructure.logging.StructuredLogger by lazy {
+        com.xcwk.scalehub.infrastructure.logging.StructuredLogger(cloudGateway)
+    }
+
+    init {
+        // 监控服务初始化（调试版本延迟安装，生产版本全量）
+        if (BuildConfig.DEBUG) {
+            applicationScope.launch {
+                crashReporter.install()
+                anrMonitor.start()
+                startupPerfReporter.markAppStart()
+            }
+        }
+    }
 }

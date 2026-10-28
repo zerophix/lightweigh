@@ -52,16 +52,17 @@ bash scripts/workflow/wf-mode.sh switch code            # 回到标准模式
 
 ---
 
-## 1. 三环执行模型（快慢分离）
+## 1. 四环执行模型（快慢分离）
 
 | 环 | 预算 | 命令 | 跑什么 | 不跑什么 |
 |---|---|---|---|---|
 | 内环 | ≤ 5s（实测 0.4s） | `bash scripts/governance/gov-validate.sh` | 15 个静态模块：hooks/README/语言/结构/命名/编码/技能/原型/备份残留 | git 变更判定、编译、密钥、可达性 |
 | 交付 | ≤ 5s | `scripts/dev/ship.sh -m "..." <path>` | 暂存 + 提交 + 推送 + PR | 全量测试、证据生成 |
-| 提交环 | ≤ 3s | `git commit` | 分支/范围/角色/`bash -n`/增量编译 | pytest、可达性、原型、全量 |
+| 提交环 | 含增量编译，实测 1–3 分钟 | `git commit` | 分支/并发会话/归属/任务锁/画像/角色/`bash -n`/四模块编译 | pytest、可达性、原型、全量 |
 | 批次环 | ≤ 10min | `bash scripts/governance/gov-local-ci.sh` | 按车道决定：lane-A 仅静态 / lane-B :app:testDebugUnitTest / lane-C 全量 gradle + pytest | — |
 
-> 内环、交付、提交环**只增量**，批次环**按车道**全量。>10s 命令必须后台（`wf-run.sh`）。
+> 内环与交付**只增量**，批次环**按车道**全量。>10s 命令必须后台（`wf-run.sh`）。
+> `gov-validate.sh` 不接受标签参数，恒跑全部 18 个模块（实测 7.3s，见 §8）。
 
 ---
 
@@ -118,7 +119,7 @@ bash scripts/workflow/wf-mode.sh switch code            # 回到标准模式
 
 ---
 
-## 4. 关键命令入口（新架构）
+## 4. 关键命令入口
 
 ```bash
 # 静态校验（全量静态模块，实测 0.4s）
@@ -131,12 +132,18 @@ scripts/hooks/commit-msg    # <type>(<scope>): <subject>
 scripts/hooks/prepare-commit-msg  # 注入 Session-Id + Task: T-xxx trailer
 
 # 批次环（合并前唯一全量点）
-bash scripts/governance/gov-local-ci.sh [--strict] [GOV_LANE=A|B|C]
+GOV_LANE=A|B|C|full bash scripts/governance/gov-local-ci.sh [--strict]
 
 # 任务/合并
 bash scripts/workflow/wf-claim.sh claim T-xxx
 bash scripts/governance/gov-merge.sh <PR号>
 bash scripts/governance/gov-task-done.sh T-xxx
+
+# 批次 Worktree (DEC-082)
+bash scripts/session/ses-worktree.sh batch-add B-xxx [--in-repo]   # 创建/复用批次 worktree
+bash scripts/workflow/wf-claim.sh claim T-xxx --batch B-xxx       # 认领批次内任务
+bash scripts/workflow/wf-autopilot.sh start T-xxx                  # 自动识别批次，复用 worktree
+bash scripts/workflow/wf-autopilot.sh batch-finish B-xxx           # 批次完成：批量 DoD → 批次 PR
 
 # 工作区卫生
 bash scripts/governance/gov-workspace-doctor.sh --fix
@@ -205,8 +212,8 @@ bash scripts/session/ses-session-end.sh
 
 | 层 | 行为 |
 |---|---|
-| pre-commit | `fast` 标签 6 条规则（~17ms），无编译 |
-| pre-push | `push` 标签 22 条规则（~862ms）+ 分支名校验 |
+| pre-commit | 12 段检查；源码变更时四模块增量编译（1–3 分钟），无 pytest |
+| pre-push | 分支名 + 全量 validate（实测 7.3s）+ 密钥扫描 + 绕过审计，后两者并行 |
 | local-ci | **合入权威**：按 `gov-ci-scope.sh` 判定车道 → 对应标签规则 + gradle + pytest |
 | 队列 | 唯一写共享状态与 master 的自动化；合入前强制 `GOV_CI_FULL=1` |
 | Actions | `ci.yml` 覆盖特性分支与 PR；**账单问题期间不可用**，以 local-ci 为准 |
@@ -218,12 +225,12 @@ bash scripts/session/ses-session-end.sh
 
 | 缺口 | 证据 | 下一步 |
 |---|---|---|
-| 任务板与真实工作脱节 | 21 条 pending 缺 AC，4 条 blocked (T-132~T-135 需 DEC-081) | `wf-board-audit.sh` |
+| 任务板无法关闭 | 21 条 pending 全在 UI/APP 层，DoD 传参错误使其机械不可通过（见下行） | 先修 DoD，再跑 `wf-board-audit.sh` |
 | 证据需手动提交 | `.ai/evidence/` 未纳入自动提交 | 由 `dev-loop`/`finish` 自动 `git add` 证据 |
 | 无远程权威 | Actions 不可用、无分支保护 | 自建 bare remote + pre-receive，或恢复 required checks |
 | `--no-verify` 只能发现不能阻止 | 审计默认 warn | `GOV_BYPASS_POLICY=block`，或服务端强制 |
 | 多 AI 评审停更 | `docs/ai/reviews/` 最新 10-22 | 用 `review` 角色在关键节点重跑一次 |
-| Notion MCP 凭据虚设 | `.opencape/mcp.json` 有占位符 | 补入真实 API Key + workspace_id |
+| Notion MCP 凭据虚设 | `.opencode/mcp.json` 为 `YOUR_NOTION_API_KEY_HERE` | 补真实 token；页面公开可读，但写入需 API 鉴权 |
 | 7 个 prd_ref 未入索引 | REF-notion-index.md 末待确认 | 确认 Notion 页面标题后补充 |
 
 > **规则生命周期**：新增门禁必须同时给出执行者、负向测试、退役条件（两次误伤或 30 天零命中即进入退役评审）。没有执行者的条目只能写进"约定"，不得写进本表。

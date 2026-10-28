@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+>>>>>>> origin/master
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -324,6 +325,14 @@ fun PasswordLoginScreen(
     }
 }
 
+<<<<<<< HEAD
+/** 字段级错误提示（红色小字）。 */
+@Composable
+private fun FieldError(text: String) {
+    QkFieldError(text)
+}
+
+=======
 @Preview(showBackground = true, name = "PasswordLoginScreen")
 @Composable
 private fun PasswordLoginScreenPreview() {

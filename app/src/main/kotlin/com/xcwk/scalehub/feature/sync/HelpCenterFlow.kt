@@ -37,6 +37,13 @@ fun HelpCenterFlow(
     onSubmitFeedback: (FeedbackDraft) -> Unit = {},
     onRetry: () -> Unit = {},
     onCopyDiagnostics: (String) -> Unit = {},
+    onToggleBluetooth: () -> Unit = {},
+    onRefreshCloud: () -> Unit = {},
+    deviceInfo: DiagDeviceInfo = DiagDeviceInfo(),
+    bluetoothState: DiagBluetoothState = DiagBluetoothState(),
+    networkState: DiagNetworkState = DiagNetworkState(),
+    cloudState: DiagCloudState = DiagCloudState(),
+    recentLogs: List<String> = emptyList(),
     onSimulateSuccess: () -> Unit = {
         onIntent(HelpCenterIntent.SubmitSucceeded(PROTOTYPE_TICKET_NO))
     },
@@ -112,6 +119,19 @@ fun HelpCenterFlow(
             modifier = modifier,
             diagnosticsSummary = diagnosticsSummary,
             onCopyDiagnostics = onCopyDiagnostics,
+        )
+
+        HelpCenterStep.DiagDetails -> DiagScreen(
+            deviceInfo = deviceInfo,
+            bluetoothState = bluetoothState,
+            networkState = networkState,
+            cloudState = cloudState,
+            recentLogs = recentLogs,
+            onCopyDiagnostics = { onCopyDiagnostics(diagnosticsSummary) },
+            onToggleBluetooth = onToggleBluetooth,
+            onRefreshCloud = onRefreshCloud,
+            onBack = { onIntent(HelpCenterIntent.BackToHelp) },
+            modifier = modifier,
         )
     }
 }

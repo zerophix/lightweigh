@@ -64,6 +64,7 @@ ALLOWED_REGEX = re.compile(
     r"|^ops/GC-[a-z0-9-]+\.md$"
     r"|^archive/ARCH-[a-z0-9-]+\.md$"
     r"|^ai/inbox/\d{8}-\d{6}\.md$"
+    r"|^ops/[a-z0-9-]+\.md$"
 )
 
 NAMING_RULES: list[tuple[str, str, str]] = [

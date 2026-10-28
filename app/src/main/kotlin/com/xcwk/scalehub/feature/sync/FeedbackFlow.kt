@@ -186,8 +186,8 @@ fun DiagnosticConsent.toggled(kind: DiagnosticItemKind): DiagnosticConsent = whe
 
 // ---- 全流程状态与推进表 ----
 
-/** 帮助中心流程七态（与原型七个 view 一一对应）。 */
-enum class HelpCenterStep { Help, Faq, Feedback, Submitting, Success, Failed, Diagnostics }
+/** 帮助中心流程八态（与原型七个 view + 诊断详情一一对应）。 */
+enum class HelpCenterStep { Help, Faq, Feedback, Submitting, Success, Failed, Diagnostics, DiagDetails }
 
 /** 呈现式 UI 状态：全部字段由调用方注入/推进，组件不自建业务状态。 */
 data class HelpCenterUiState(
@@ -217,6 +217,7 @@ sealed interface HelpCenterIntent {
     data class JudgeFaq(val faqId: String, val verdict: FaqVerdict) : HelpCenterIntent
     data object OpenFeedback : HelpCenterIntent
     data object OpenDiagnostics : HelpCenterIntent
+    data object OpenDiagDetails : HelpCenterIntent
     data object BackToHelp : HelpCenterIntent
 
     // v-feedback
@@ -261,6 +262,7 @@ fun feedbackReduce(state: HelpCenterUiState, intent: HelpCenterIntent): HelpCent
 
     HelpCenterIntent.OpenFeedback -> state.copy(step = HelpCenterStep.Feedback)
     HelpCenterIntent.OpenDiagnostics -> state.copy(step = HelpCenterStep.Diagnostics)
+    HelpCenterIntent.OpenDiagDetails -> state.copy(step = HelpCenterStep.DiagDetails)
     HelpCenterIntent.BackToHelp -> state.copy(step = HelpCenterStep.Help, openFaqId = null)
 
     is HelpCenterIntent.SelectFeedbackType -> state.copy(draft = state.draft.copy(type = intent.type))
