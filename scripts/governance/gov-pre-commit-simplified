@@ -182,9 +182,10 @@ STAGED=$(git diff --cached --name-only --diff-filter=ACMR || true)
 # =============================================================
 # 3b. 共享状态保护（DEC-067）：派生数据只允许合并队列/收尾自动化写。
 #     功能分支手改 = 每次合并必冲突（2026-10-24 实测 5 轮）。
+#     共享文件修改需持 lock（DEC-077）, 防并发 AI 震荡。
 # =============================================================
 
-SHARED_DERIVED=$(echo "$STAGED" | grep -E '^(\.ai/tasks\.json|STATUS\.md|tests/android-test-registry\.yaml|docs/ai/lifecycle/03_TaskGraph\.md|docs/ai/lifecycle/06_Metrics\.md|docs/index\.md)$' || true)
+SHARED_DERIVED=$(echo "$STAGED" | grep -E '^(\.ai/tasks\.json|STATUS\.md|tests/android-test-registry\.yaml|docs/ai/lifecycle/03_TaskGraph\.md|docs/ai/lifecycle/06_Metrics\.md|docs/index\.md|AGENTS\.md)$' || true)
 BOARD_BRANCH=0
 case "$BRANCH" in chore/board-*|chore/integration-*) BOARD_BRANCH=1 ;; esac
 if [ -n "$SHARED_DERIVED" ] && [ "$BOARD_BRANCH" -eq 0 ]; then
@@ -193,6 +194,20 @@ if [ -n "$SHARED_DERIVED" ] && [ "$BOARD_BRANCH" -eq 0 ]; then
   echo "   取消暂存: git restore --staged <file>"
   echo "   需要同步时执行: bash scripts/governance/gov-board-sync.sh（由合并队列在主干完成）"
   exit 1
+fi
+
+# chore/board-* 分支: 共享文件需持锁修改 (DEC-077)
+if [ -n "$SHARED_DERIVED" ] && [ "$BOARD_BRANCH" -eq 1 ]; then
+  SESSION_ID_CURR="$(cat "$ROOT/.ai/current-session.json" 2>/dev/null | python3 -c 'import json,sys; print(json.load(sys.stdin).get("session_id",""))' 2>/dev/null || true)"
+  for f in $SHARED_DERIVED; do
+    if ! bash "$ROOT/scripts/workflow/wf-lock.sh" file-check "$f" 2>/dev/null | grep -q "$SESSION_ID_CURR"; then
+      echo "❌ 共享文件 $f 未锁定 (或锁持有者不是当前会话)"
+      echo "   请先获取锁: bash scripts/workflow/wf-lock.sh file-acquire \"$f\" --mode docs"
+      echo "   释放锁: bash scripts/workflow/wf-lock.sh file-release \"$f\""
+      exit 1
+    fi
+    echo "  ✓ 共享文件锁定: $f"
+  done
 fi
 
 SRC_CHANGED=$(echo "$STAGED" | grep -E '^(domain|application|infrastructure|app)/.*\.(kt|java)$' || true)
@@ -268,13 +283,57 @@ if [ -n "$SH_CHANGED" ]; then
   echo "  ✓ shell 语法通过（$(echo "$SH_CHANGED" | wc -l | tr -d ' ') 个文件）"
 fi
 
-if [ -n "$SRC_CHANGED" ]; then
-  echo "  检测到源码变更，运行编译检查..."
-  if ! ./gradlew :domain:compileKotlin :application:compileKotlin :infrastructure:compileDebugKotlin :app:compileDebugKotlin -q; then
-    echo "❌ 编译失败，请修复后再提交"
-    exit 1
+# ---- 模式感知: 强制验证模式文件 (HMAC + 过期) (DEC-077) ----
+# 如果 GOV_MODE 环境变量未设置, 从 .ai/current-mode.json 读取 (带 HMAC + 过期)
+if [ -z "${GOV_MODE:-}" ] && [ -f "$ROOT/scripts/governance/gov-mode-lib.sh" ]; then
+  # shellcheck source=/dev/null
+  . "$ROOT/scripts/governance/gov-mode-lib.sh"
+  MODE_VALIDATION="$(gov_mode_validate 2>/dev/null || true)"
+  GOV_MODE="$(printf '%s' "$MODE_VALIDATION" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('mode','dev'))" 2>/dev/null)"
+  VALID="$(printf '%s' "$MODE_VALIDATION" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('valid',False))" 2>/dev/null)"
+  EXPIRED="$(printf '%s' "$MODE_VALIDATION" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('expired',False))" 2>/dev/null)"
+
+  if [ "$VALID" != "True" ]; then
+    echo "  [WARNING] 模式 HMAC 校验失败, 回退到 dev" >&2
+    GOV_MODE="dev"
+  elif [ "$EXPIRED" = "True" ]; then
+    echo "  [WARNING] 模式 $GOV_MODE 已过期, 回退到 dev" >&2
+    GOV_MODE="dev"
+  else
+    echo "  ✓ 模式验证通过: $GOV_MODE (session: ${SESSION_ID:-unknown})"
   fi
-  echo "  ✓ 编译通过"
+fi
+GOV_MODE="${GOV_MODE:-dev}"
+
+if [ -n "$SRC_CHANGED" ]; then
+  if [ "$GOV_MODE" = "explore" ] || [ "$GOV_MODE" = "docs" ]; then
+    echo "  [模式: $GOV_MODE] 跳过 4 模块编译 (审计记录到 .ai/audit/bypass.jsonl)"
+    mkdir -p "$ROOT/.ai/audit"
+    python3 - "$ROOT/.ai/audit" "$BRANCH" "$GOV_MODE" "${SESSION_ID:-unknown}" "$SRC_CHANGED" <<'PYEOF'
+import json, datetime, os, sys
+audit_dir, branch, mode, session_id, src_changed = sys.argv[1:6]
+entry = {
+    'ts': datetime.datetime.now(datetime.timezone.utc).isoformat().replace('+00:00', 'Z'),
+    'session': session_id,
+    'branch': branch,
+    'mode': mode,
+    'type': 'commit',
+    'check': 'compile_skipped',
+    'reason': 'explore/docs模式允许跳过编译',
+    'files': src_changed.replace('\n', ' ').strip()
+}
+os.makedirs(audit_dir, exist_ok=True)
+with open(os.path.join(audit_dir, 'bypass.jsonl'), 'a') as f:
+    f.write(json.dumps(entry, ensure_ascii=False) + '\n')
+PYEOF
+  else
+    echo "  检测到源码变更，运行编译检查..."
+    if ! ./gradlew :domain:compileKotlin :application:compileKotlin :infrastructure:compileDebugKotlin :app:compileDebugKotlin -q; then
+      echo "❌ 编译失败，请修复后再提交"
+      exit 1
+    fi
+    echo "  ✓ 编译通过"
+  fi
 fi
 
 if [ -n "$SRC_CHANGED" ] || [ -n "$GOV_CHANGED" ]; then
