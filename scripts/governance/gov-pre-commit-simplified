@@ -268,13 +268,33 @@ if [ -n "$SH_CHANGED" ]; then
   echo "  ✓ shell 语法通过（$(echo "$SH_CHANGED" | wc -l | tr -d ' ') 个文件）"
 fi
 
+# ---- 模式感知: 读取工作模式 (DEC-077) ----
+# 如果 GOV_MODE 环境变量未设置, 从 .ai/current-mode.json 读取 (带 HMAC + 过期)
+if [ -z "${GOV_MODE:-}" ] && [ -f "$ROOT/scripts/governance/gov-mode-lib.sh" ]; then
+  # shellcheck source=/dev/null
+  . "$ROOT/scripts/governance/gov-mode-lib.sh"
+  GOV_MODE=$(gov_mode_get 2>/dev/null || true)
+fi
+GOV_MODE="${GOV_MODE:-dev}"
+
 if [ -n "$SRC_CHANGED" ]; then
-  echo "  检测到源码变更，运行编译检查..."
-  if ! ./gradlew :domain:compileKotlin :application:compileKotlin :infrastructure:compileDebugKotlin :app:compileDebugKotlin -q; then
-    echo "❌ 编译失败，请修复后再提交"
-    exit 1
+  if [ "$GOV_MODE" = "explore" ] || [ "$GOV_MODE" = "docs" ]; then
+    echo "  [模式: $GOV_MODE] 跳过 4 模块编译 (审计记录到 .ai/audit/bypass.log)"
+    mkdir -p "$ROOT/.ai/audit"
+    printf '[%s] session=%s branch=%s mode=%s check=compile_skipped reason="explore/docs模式允许跳过编译" files="%s"\n' \
+      "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" \
+      "${SESSION_ID:-unknown}" \
+      "$BRANCH" \
+      "$GOV_MODE" \
+      "$(echo "$SRC_CHANGED" | tr '\n' ' ')" >> "$ROOT/.ai/audit/bypass.log"
+  else
+    echo "  检测到源码变更，运行编译检查..."
+    if ! ./gradlew :domain:compileKotlin :application:compileKotlin :infrastructure:compileDebugKotlin :app:compileDebugKotlin -q; then
+      echo "❌ 编译失败，请修复后再提交"
+      exit 1
+    fi
+    echo "  ✓ 编译通过"
   fi
-  echo "  ✓ 编译通过"
 fi
 
 if [ -n "$SRC_CHANGED" ] || [ -n "$GOV_CHANGED" ]; then

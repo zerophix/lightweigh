@@ -40,3 +40,6 @@ scripts/tools/gitleaks-*
 .ai/gov-mode.json
 .ai/gov-skips/
 .ai/gov-mode/
+# DEC-077: 工作模式文件 (运行时生成, 不提交)
+.ai/current-mode.json
+.ai/audit/
