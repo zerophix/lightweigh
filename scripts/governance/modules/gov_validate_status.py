@@ -278,6 +278,7 @@ def check_hidden_dirs() -> None:
         # workflows 必有；PR 模板 / Dependabot / CODEOWNERS 为常见 GitHub 元数据（DEC-048）
         ALLOWED_GITHUB = {
             "workflows",
+            "hooks",
             "PULL_REQUEST_TEMPLATE.md",
             "pull_request_template.md",
             "PULL_REQUEST_TEMPLATE",
