@@ -1,0 +1,46 @@
+name: gov-mode
+description: 工作模式管理 — explore / dev / deliver / audit 四档模式切换，AI 根据任务阶段选模式
+version: "1.0"
+status: 生效
+意图:
+  - 解析当前 AI 工作模式 (explore / dev / deliver / audit)
+  - 切换模式时调整 pre-commit / pre-push / local-ci 的检查强度
+  - 探索模式: 跳过四模块编译 + 文档深度校验, 允许快速迭代
+  - 交付模式: 强制 gov-task-done + local-ci 全量校验
+  - 审计模式: 强制 full pytest, 禁止绕过任何门禁
+  - 自动模式过期 (默认 2h), 过期后恢复到 dev 模式
+触发方式:
+  - /gov-explore
+  - /gov-dev
+  - /gov-deliver
+  - /gov-audit
+  - /gov-mode status
+  - "现在切换到原型探索模式"
+  - "进入紧急只读审计模式"
+场景细分:
+  status:
+    描述: 显示当前模式 + 过期时间 + 影响范围
+    执行: bash scripts/workflow/wf-mode.sh status
+  explore:
+    描述: 原型/探索/调试模式 — 最宽松校验
+    执行: bash scripts/workflow/wf-mode.sh switch explore
+  dev:
+    描述: 标准开发模式 — 当前治理 (默认)
+    执行: bash scripts/workflow/wf-mode.sh switch dev
+  deliver:
+    描述: 交付评审模式 — 强制 DoD + local-ci
+    执行: bash scripts/workflow/wf-mode.sh switch deliver
+  audit:
+    描述: 治理审计模式 — 强制 full pytest, 任何绕过都阻断
+    执行: bash scripts/workflow/wf-mode.sh switch audit
+前置条件:
+  - 已声明角色 (gov/dev/docs/test)
+  - 当前分支非 master/main
+后置效果:
+  - .cache/modes/current.json 记录模式 + 过期时间
+  - pre-commit / pre-push 钩子根据模式调整检查
+  - local-ci 根据模式跳过/强制对应检查
+能力边界:
+  - 不修改业务代码: 仅影响治理行为
+  - 不绕过审计: audit 模式下 GOV_BYPASS_POLICY=block
+  - 自动过期: explore 模式最长 2h, 到期自动回退 dev

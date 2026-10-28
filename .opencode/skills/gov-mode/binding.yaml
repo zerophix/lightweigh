@@ -1,0 +1,36 @@
+---
+schema_version: "2.0"
+
+执行:
+  类型: manual
+  描述: 本 skill 管理 AI 工作的治理强度。通过 `wf-mode.sh` 读写 `.cache/modes/current.json`,
+    并通过环境变量 `GOV_MODE` 影响 pre-commit / pre-push / local-ci 的行为。
+
+脚本工具:
+  wf-mode.sh:
+    参数:
+      status: 显示当前模式
+      switch <mode> [--duration 2h]: 切换模式 (explore|dev|deliver|audit)
+      expire: 强制过期当前模式
+    默认:
+      duration: 2h (explore) / 8h (dev) / 1h (deliver) / ∞ (audit)
+    返回: 0 成功；1 无效模式；2 权限不足
+
+  # 模式 → 治理行为映射
+  模式映射:
+    explore:
+      pre-commit: 跳过 4 模块增量编译, 跳过备份残留检查
+      pre-push: 跳过文档深度校验, GOV_BYPASS_POLICY=warn 允许 --no-verify
+      local-ci: 仅运行 gov-validate.sh (跳过 gradle + pytest)
+    dev:
+      pre-commit: 全部 12 检查 (含 4 模块编译)
+      pre-push: 全部 4 检查
+      local-ci: 按车道判定 (A/B/C)
+    deliver:
+      pre-commit: 全部 12 检查 + 强制 staged-claims
+      pre-push: 全部 4 检查 + 强制 audit trail
+      local-ci: 强制 GOV_LANE=C, 全量校验
+    audit:
+      pre-commit: 全部 12 检查 + 额外安全扫描
+      pre-push: GOV_BYPASS_POLICY=block (任何 --no-verify 均阻断)
+      local-ci: 强制 full 校验 + pytest --cov=100%
