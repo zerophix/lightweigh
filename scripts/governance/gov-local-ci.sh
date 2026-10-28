@@ -147,8 +147,16 @@ fi
 
 # ---- 任务画像（DEC-074）：决定这次该跑多深，而不是一律全量 ----
 # docs → 车道 A（不构建不测试）；gov/test → 全量测试；code/mixed 沿用路径车道
+# explore/docs 模式（GOV_MODE）强制车道 A，跳过 gradle/可达性/原型强校验
 PROFILE="$(bash scripts/governance/gov-profile.sh resolve 2>/dev/null || echo mixed)"
-echo "  任务画像: $PROFILE"
+# 如果 GOV_MODE 环境变量未设置, 从 .ai/current-mode.json 读取 (DEC-077 模式感知)
+if [ -z "${GOV_MODE:-}" ] && [ -f "$ROOT/scripts/governance/gov-mode-lib.sh" ]; then
+  # shellcheck source=/dev/null
+  . "$ROOT/scripts/governance/gov-mode-lib.sh"
+  GOV_MODE=$(gov_mode_get 2>/dev/null || true)
+fi
+GOV_MODE="${GOV_MODE:-dev}"
+echo "  任务画像: $PROFILE (GOV_MODE=$GOV_MODE)"
 if [ "$LANE_FORCED" != "true" ]; then
   case "$PROFILE" in
     docs)
@@ -162,6 +170,13 @@ if [ "$LANE_FORCED" != "true" ]; then
       LANE_REASONS+=("画像 ${PROFILE} → 全量测试")
       ;;
   esac
+fi
+# GOV_MODE=explore|docs 强制车道 A，跳过 gradle/可达性/原型强校验
+if [ "$GOV_MODE" = "explore" ] || [ "$GOV_MODE" = "docs" ]; then
+  if [ "$LANE" != "A" ]; then
+    LANE="A"
+    LANE_REASONS+=("GOV_MODE=$GOV_MODE → 强制车道 A（跳过 gradle/可达性/原型强校验）")
+  fi
 fi
 
 # 车道 → gradle 步骤（空 = 跳过 gradle）

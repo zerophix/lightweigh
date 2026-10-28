@@ -29,6 +29,7 @@ cd "$ROOT" || exit 2
 TRAIL="$ROOT/.cache/hook-trail.log"
 MODE="warn"
 COMMITS=()
+AUDIT_ONLY=0
 RANGE=""
 
 while [ $# -gt 0 ]; do
@@ -44,6 +45,7 @@ while [ $# -gt 0 ]; do
     --range) RANGE="${2:-}"; shift 2 ;;
     --warn) MODE="warn"; shift ;;
     --block) MODE="block"; shift ;;
+    --audit-only) MODE="audit_only"; shift ;;
     -h|--help) sed -n '2,25p' "$0"; exit 0 ;;
     *) echo "未知参数: $1" >&2; exit 2 ;;
   esac
@@ -70,7 +72,8 @@ fi
 
 MISSING=()
 CHECKED=0
-for sha in "${COMMITS[@]}"; do
+# COMMITS 数组可能为空，使用 ${COMMITS[@]+"${COMMITS[@]}"} 兼容 set -u
+for sha in ${COMMITS[@]+"${COMMITS[@]}"}; do
   [ -n "$sha" ] || continue
   git cat-file -e "${sha}^{commit}" 2>/dev/null || continue
 
@@ -112,5 +115,8 @@ echo "        可用 GOV_BYPASS_POLICY=warn 放行，并在 PR 描述里说明�
 
 if [ "$MODE" = "block" ]; then
   exit 1
+fi
+if [ "${AUDIT_ONLY:-0}" = "1" ]; then
+  echo "  [audit] explore/docs 模式：仅记录审计，不阻断推送"
 fi
 exit 0
