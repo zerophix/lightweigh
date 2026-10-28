@@ -265,8 +265,13 @@ if ! git -C "$WT" push -u origin "$BRANCH"; then
 fi
 
 # ---------------------------------------------------------------- 步骤 7: local-ci
+# DEC-077: 合并时强制 dev 模式 — 探险模式提交必须通过完整 CI 才能合入
 log "步骤 7/9: gov-local-ci（合入权威，必须全绿）"
-if ! ( cd "$WT" && bash scripts/governance/gov-local-ci.sh ); then
+log "  强制 GOV_MODE=dev + GOV_LANE=C (忽略 explore/docs 模式豁免)"
+
+# 清除工作区的模式文件 + 环境变量, 防止 explore bypass 滲透到合入
+rm -f "$WT/.ai/current-mode.json" 2>/dev/null || true
+if ! ( cd "$WT" && GOV_MODE=dev GOV_LANE=C GOV_CI_FULL=1 bash scripts/governance/gov-local-ci.sh ); then
   die "gov-local-ci 未全绿，已停止（未执行 gh pr merge）。
    修复后重跑: bash scripts/governance/gov-merge.sh $PR"
 fi
