@@ -118,5 +118,22 @@ if [ "$MODE" = "block" ]; then
 fi
 if [ "${AUDIT_ONLY:-0}" = "1" ]; then
   echo "  [audit] explore/docs 模式：仅记录审计，不阻断推送"
+  mkdir -p "$ROOT/.ai/audit"
+  python3 - "$ROOT/.ai/audit" "$BRANCH" "$GOV_MODE" "${SESSION_ID:-unknown}" "push" <<'PYEOF'
+import json, datetime, os, sys
+audit_dir, branch, mode, session_id, check_type = sys.argv[1:6]
+entry = {
+    'ts': datetime.datetime.now(datetime.timezone.utc).isoformat().replace('+00:00', 'Z'),
+    'session': session_id,
+    'branch': branch,
+    'mode': mode,
+    'type': 'push',
+    'check': 'bypass_audit',
+    'reason': 'explore/docs 模式允许 --no-verify，记录审计供合并前检查',
+}
+os.makedirs(audit_dir, exist_ok=True)
+with open(os.path.join(audit_dir, 'bypass.jsonl'), 'a') as f:
+    f.write(json.dumps(entry, ensure_ascii=False) + '\n')
+PYEOF
 fi
 exit 0

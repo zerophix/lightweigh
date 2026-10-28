@@ -30,7 +30,7 @@ __gov_mode_save_opts="$(set +o 2>/dev/null; echo 'set -uo pipefail')"  # 库自�
 eval "$__gov_mode_save_opts"
 
 # HMAC 密钥: 从 git toplevel 路径派生 (确定性, 无需外部密钥)
-GOV_MODE_HMAC_KEY="${GOV_MODE_HMAC_KEY:-$(git rev-parse --show-toplevel 2>/dev/null | sha256sum | cut -d' ' -f1)}"
+export GOV_MODE_HMAC_KEY="${GOV_MODE_HMAC_KEY:-$(git rev-parse --show-toplevel 2>/dev/null | sha256sum | cut -d' ' -f1)}"
 GOV_MODE_MAX_SECS=$(( 8 * 3600 ))  # 8 小时上限
 
 # 内部: 仓库根目录
@@ -259,9 +259,111 @@ if [ "${BASH_SOURCE[0]:-}" = "${0:-}" ]; then
             gov_mode_write "$@"
             ;;
         expire) gov_mode_expire ;;
+        validate) gov_mode_validate ;;
+        warn) gov_mode_warn ;;
         *)
-            echo "Usage: $0 {read|get|expires|session|valid|write <mode> <ttl> [reason]|expire}"
+            echo "Usage: $0 {read|get|warn|expires|session|valid|write <mode> <ttl> [reason]|expire|validate}"
             exit 1
             ;;
     esac
 fi
+
+# ============================================================
+# 核心验证函数：返回结构化 JSON，供所有 hook 强制调用
+# 输出: {"mode":"explore","valid":true,"expired":false,"session":"ses-xxx","reason":"..."}
+# 退出码: 0=valid且未过期, 1=无效/过期/无文件
+# ============================================================
+gov_mode_validate() {
+    local f; f="$(gov_mode_file)"
+    if [ ! -f "$f" ]; then
+        printf '{"mode":"dev","valid":false,"expired":false,"session":"","reason":"no mode file"}\n'
+        return 1
+    fi
+
+    python3 -c "
+import json, sys, datetime, hmac, hashlib, os
+
+f = '$f'
+hmac_key = os.environ.get('GOV_MODE_HMAC_KEY', '')
+
+try:
+    with open(f) as fp:
+        d = json.load(fp)
+except Exception as e:
+    print(json.dumps({'mode': 'dev', 'valid': False, 'expired': False, 'session': '', 'reason': 'read error: ' + str(e)}))
+    sys.exit(1)
+
+mode = d.get('mode', 'dev')
+session = d.get('session_id', '')
+reason = d.get('reason', '')
+hmac_stored = d.get('hmac', '')
+
+# 重新计算 HMAC（排除 hmac 字段）
+payload_dict = {k: v for k, v in d.items() if k != 'hmac'}
+payload = json.dumps(payload_dict, separators=(',', ':'))
+hmac_calc = hmac.new(hmac_key.encode(), payload.encode(), hashlib.sha256).hexdigest()
+
+if hmac_calc != hmac_stored:
+    print(json.dumps({'mode': mode, 'valid': False, 'expired': False, 'session': session, 'reason': 'HMAC mismatch'}))
+    sys.exit(1)
+
+# 检查过期
+expires_at = d.get('expires_at', '')
+expired = False
+if expires_at:
+    try:
+        dt = datetime.datetime.fromisoformat(expires_at.replace('Z', '+00:00'))
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=datetime.timezone.utc)
+        now = datetime.datetime.now(datetime.timezone.utc)
+        if now >= dt:
+            expired = True
+    except:
+        expired = True  # 解析失败视为过期
+
+print(json.dumps({
+    'mode': mode,
+    'valid': True,
+    'expired': expired,
+    'session': session,
+    'reason': reason
+}))
+sys.exit(0 if not expired else 1)
+"
+}
+
+# 公共 API: 获取当前模式 (仅当 valid=true 且未过期，否则返回 dev 并退出码 1)
+gov_mode_get() {
+    local result
+    result="$(gov_mode_validate 2>/dev/null)"
+    local mode
+    mode="$(printf '%s' "$result" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('mode','dev'))" 2>/dev/null)"
+    local valid
+    valid="$(printf '%s' "$result" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('valid',False))" 2>/dev/null)"
+    local expired
+    expired="$(printf '%s' "$result" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('expired',False))" 2>/dev/null)"
+
+    if [ "$valid" = "True" ] && [ "$expired" = "False" ]; then
+        printf '%s\n' "$mode"
+        return 0
+    else
+        printf 'dev\n'
+        return 0
+    fi
+}
+
+# 警告模式状态 (供 hook 显示, 不影响控制流)
+# 用法: gov_mode_warn
+gov_mode_warn() {
+    local json
+    json="$(gov_mode_validate 2>/dev/null)" || true
+    [ -z "$json" ] && return 0
+    printf '%s' "$json" | python3 -c "
+import json, sys
+d = json.load(sys.stdin)
+if not d.get('valid', False):
+    print('  [WARNING] 模式 HMAC 校验失败 (' + d.get('reason','') + '), 回退到 dev')
+elif d.get('expired', False):
+    print('  [WARNING] 模式 ' + d.get('mode','') + ' 已过期, 回退到 dev')
+" >&2 2>/dev/null || true
+}

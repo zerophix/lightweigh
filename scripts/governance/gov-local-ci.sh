@@ -154,6 +154,7 @@ if [ -z "${GOV_MODE:-}" ] && [ -f "$ROOT/scripts/governance/gov-mode-lib.sh" ]; 
   # shellcheck source=/dev/null
   . "$ROOT/scripts/governance/gov-mode-lib.sh"
   GOV_MODE=$(gov_mode_get 2>/dev/null || true)
+  gov_mode_warn 2>/dev/null || true
 fi
 GOV_MODE="${GOV_MODE:-dev}"
 echo "  任务画像: $PROFILE (GOV_MODE=$GOV_MODE)"
