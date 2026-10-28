@@ -251,6 +251,30 @@ class LightweighPolicy(ProjectPolicy):
                 moved.append(path)
         return moved
 
+    def _base_ref(self, ws: Workspace) -> str:
+        import subprocess
+        for ref in ("origin/master", "origin/main", "master", "main"):
+            r = subprocess.run(["git", "rev-parse", "--verify", "-q", ref], cwd=ws.location,
+                               capture_output=True, text=True)
+            if r.returncode == 0:
+                return ref
+        return ""
+
+    def _changed_vs_base(self, ws: Workspace) -> list:
+        """相对基线分支改动过的文件（含已暂存/未跟踪，先 git add -A）。"""
+        import subprocess
+        base = self._base_ref(ws)
+        if not base:
+            return []
+        subprocess.run(["git", "add", "-A"], cwd=ws.location, capture_output=True, text=True, timeout=60)
+        r = subprocess.run(["git", "diff", "--name-only", base], cwd=ws.location,
+                           capture_output=True, text=True, timeout=120)
+        files = [l for l in (r.stdout or "").splitlines() if l.strip()]
+        r2 = subprocess.run(["git", "ls-files", "--others", "--exclude-standard"], cwd=ws.location,
+                            capture_output=True, text=True, timeout=60)
+        files += [l for l in (r2.stdout or "").splitlines() if l.strip()]
+        return sorted(set(files))
+
     def _candidate_tree(self, ws: Workspace) -> str:
         """Write a tree object for the current worktree state (no commit)."""
         import subprocess
@@ -295,6 +319,12 @@ class LightweighPolicy(ProjectPolicy):
             return DoneResult(done=False, reason="protected path modified: " + ", ".join(v["protected"][:5]))
         if v["scope"]:
             return DoneResult(done=False, reason="out of scope: " + ", ".join(v["scope"][:5]))
+
+        targets = set(task.target_files or [])
+        if targets:
+            changed = set(self._changed_vs_base(ws))
+            if not (targets & changed):
+                return DoneResult(done=False, reason="no change to target files yet")
 
         res = _run_json(["bash", self.wf, "gates", task.id, "--json", "--quick",
                          "--workdir", ws.location], Path(self.root), timeout=900)
