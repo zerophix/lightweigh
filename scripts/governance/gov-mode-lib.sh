@@ -38,6 +38,13 @@ GOV_MODE_MAX_SECS=$(( 8 * 3600 ))  # 8 小时上限
 
 # 内部: 仓库根目录
 _gov_mode_root() {
+    # GOV_STATE_ROOT: 把模式状态重定向到别处。
+    # 唯一用途是测试隔离 —— 并行分片共享同一个 .ai/current-mode.json 时，
+    # 一个分片切 explore 会让另一个分片的 ci-scope 误判成车道 A（2026-10-28 实测）。
+    if [ -n "${GOV_STATE_ROOT:-}" ]; then
+        printf '%s\n' "$GOV_STATE_ROOT"
+        return 0
+    fi
     git rev-parse --show-toplevel 2>/dev/null || pwd
 }
 
@@ -117,6 +124,30 @@ sys.exit(0 if not expired else 1)
 "
 }
 
+# 公共 API: 清洗模式环境变量 (DEC-083)
+# 宽松模式（explore/docs/test）只能来自 HMAC 签名的 .ai/current-mode.json。
+# 否则 `GOV_MODE=explore git commit` 就能跳过编译且不留审计 —— 一个变量两种语义的漏洞。
+# 严格模式（dev/code/gov）与历史 gov-mode.sh 开关（off）不受影响。
+gov_mode_sanitize_env() {
+    case "${GOV_MODE:-}" in
+        ""|dev|code|gov)
+            return 0
+            ;;
+        off)
+            # 历史写法：gov-mode.sh 曾用 GOV_MODE=off 表示"暂停门禁"。
+            # 现在暂停用 GOV_SUSPEND=1，GOV_MODE 只表示工作模式。
+            echo "[gov] GOV_MODE=off 已废弃，请改用 GOV_SUSPEND=1 或 gov-mode.sh off" >&2
+            unset GOV_MODE
+            return 0
+            ;;
+        *)
+            echo "[gov] 忽略未签名的 GOV_MODE=${GOV_MODE}（宽松模式必须走 wf-mode.sh switch，带 HMAC 与过期）" >&2
+            unset GOV_MODE
+            return 0
+            ;;
+    esac
+}
+
 # 公共 API: 获取当前模式 (valid=true 且 !expired)
 # 输出: explore|docs|test|code|gov|dev
 # return 0: 模式有效; return 0: 回退到 dev (永远不 kill set -e)
@@ -149,7 +180,9 @@ gov_mode_warn() {
 import json, sys
 d = json.load(sys.stdin)
 if not d.get('valid', False):
-    print('  [WARNING] 模式 HMAC 校验失败 (' + d.get('reason','') + '), 回退到 dev')
+    # 没有模式文件是正常态（默认 dev），不是篡改，不告警（DEC-083）
+    if d.get('reason', '') != 'no mode file':
+        print('  [WARNING] 模式校验失败 (' + d.get('reason','') + '), 回退到 dev')
 elif d.get('expired', False):
     print('  [WARNING] 模式 ' + d.get('mode','') + ' 已过期, 回退到 dev')
 " >&2 2>/dev/null || true
