@@ -291,41 +291,18 @@ cmd_advance() {
 
     # 3) 审计检查 (DEC-077 P1): 检查 explore/docs 的 bypass 记录
     AUDIT_FILE="$wt/.ai/audit/bypass.jsonl"
-    if [ -f "$AUDIT_FILE" ]; then
-      AUDIT_CHECK=$(python3 - "$AUDIT_FILE" "$br" <<'PYEOF'
-import json, sys
-audit_file, branch = sys.argv[1], sys.argv[2]
-try:
-    with open(audit_file) as f:
-        entries = [json.loads(l) for l in f if l.strip()]
-except:
-    print("OK")
-    sys.exit(0)
-
-has_explore_bypass = False
-for e in entries:
-    mode = e.get("mode", "")
-    check = e.get("check", "")
-    if mode in ("explore", "docs") and check in ("compile_skipped", "bypass_audit"):
-        has_explore_bypass = True
-        break
-
-if has_explore_bypass:
-    print("FORCE_LANE_C")
-else:
-    print("OK")
-PYEOF
-)
-      if [ "$AUDIT_CHECK" = "FORCE_LANE_C" ]; then
-        echo "  [审计] 发现 explore/docs 模式跳过编译的记录，强制全量 CI (Lane C)..."
-        if ! run_slow "ci-audit-$n" bash -c "cd '$wt' && GOV_MODE=dev GOV_LANE=C GOV_CI_FULL=1 bash scripts/governance/gov-local-ci.sh" >/tmp/wf-audit-ci-$n.log 2>&1; then
-          echo "  [失败] 审计 CI 未通过:"; tail -6 /tmp/wf-audit-ci-$n.log
-          failed=1; break
-        fi
-        echo "  [OK] 审计 CI 通过"
-      else
-        echo "  [审计] 无 explore/docs bypass 记录"
+    # Source shared audit check function
+    [ -f "$ROOT/scripts/governance/gov-mode-lib.sh" ] && . "$ROOT/scripts/governance/gov-mode-lib.sh"
+    AUDIT_CHECK="$(gov_mode_check_audit "$AUDIT_FILE" "$br" 2>/dev/null || echo "OK")"
+    if [ "$AUDIT_CHECK" = "FORCE_LANE_C" ]; then
+      echo "  [审计] 发现 explore/docs 模式跳过编译的记录，强制全量 CI (Lane C)..."
+      if ! run_slow "ci-audit-$n" bash -c "cd '$wt' && GOV_MODE=dev GOV_LANE=C GOV_CI_FULL=1 bash scripts/governance/gov-local-ci.sh" >/tmp/wf-audit-ci-$n.log 2>&1; then
+        echo "  [失败] 审计 CI 未通过:"; tail -6 /tmp/wf-audit-ci-$n.log
+        failed=1; break
       fi
+      echo "  [OK] 审计 CI 通过"
+    else
+      echo "  [审计] 无 explore/docs bypass 记录"
     fi
 
     # 4) 合入门禁（慢 → 走 wf-run）
@@ -456,28 +433,11 @@ cmd_advance_parallel() {
     if have "$RUNNER"; then
       local id
       local ci_cmd="cd '$wt' && bash scripts/governance/gov-local-ci.sh"
-      # P1: explore/docs bypass 审计 — 如果发现, 强制 Lane C
       local audit_file="$wt/.ai/audit/bypass.jsonl"
-      if [ -f "$audit_file" ]; then
-        local audit_check
-        audit_check=$(python3 - "$audit_file" "$br" <<'PYEOF'
-import json, sys
-audit_file, branch = sys.argv[1], sys.argv[2]
-try:
-    with open(audit_file) as f:
-        entries = [json.loads(l) for l in f if l.strip()]
-except:
-    print("OK"); sys.exit(0)
-for e in entries:
-    if e.get("mode","") in ("explore","docs") and e.get("check","") in ("compile_skipped","bypass_audit"):
-        print("FORCE_LANE_C"); sys.exit(0)
-print("OK")
-PYEOF
-)
-        if [ "$audit_check" = "FORCE_LANE_C" ]; then
-          echo "  [审计] #$n 发现 explore/docs bypass, 强制 Lane C full CI"
-          ci_cmd="cd '$wt' && GOV_MODE=dev GOV_LANE=C GOV_CI_FULL=1 bash scripts/governance/gov-local-ci.sh"
-        fi
+      local audit_check; audit_check="$(gov_mode_check_audit "$audit_file" "$br" 2>/dev/null || echo "OK")"
+      if [ "$audit_check" = "FORCE_LANE_C" ]; then
+        echo "  [审计] #$n 发现 explore/docs bypass, 强制 Lane C full CI"
+        ci_cmd="cd '$wt' && GOV_MODE=dev GOV_LANE=C GOV_CI_FULL=1 bash scripts/governance/gov-local-ci.sh"
       fi
       id="$(bash "$RUNNER" start "ci-pr$n" -- bash -c "$ci_cmd" 2>/dev/null | tail -1)"
       ids+=("$n|$br|$wt|$id")
