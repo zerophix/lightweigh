@@ -1,5 +1,9 @@
 package com.xcwk.scalehub.application.query
 
+import com.xcwk.scalehub.domain.model.Member
+import java.time.Instant
+import java.time.ZoneOffset
+
 import com.xcwk.scalehub.domain.algorithm.OkokBia
 import com.xcwk.scalehub.domain.model.MeasureRecord
 import com.xcwk.scalehub.domain.service.BodyCompositionService
@@ -368,4 +372,174 @@ class BodyAnalysisQuery(
 
     private fun minOf(a: Double, b: Double) = if (a < b) a else b
     private fun maxOf(a: Int, b: Int) = if (a > b) a else b
+}
+
+// ===== 趋势查询 (T-136) =====
+
+/**
+ * 统一趋势图可绘制状态（AC-HT5）。
+ *
+ * - [Empty]：没有任何测量
+ * - [InsufficientData]：仅 1 条测量 → 不画假趋势
+ * - [Plottable]：≥2 条 → 可画
+ */
+enum class TrendState { Empty, InsufficientData, Plottable }
+
+/**
+ * 依据数据点数量判定趋势状态（AC-HT5）。
+ * 纯函数，JVM 单测覆盖。
+ */
+fun trendStateOf(pointCount: Int): TrendState = when {
+    pointCount <= 0 -> TrendState.Empty
+    pointCount == 1 -> TrendState.InsufficientData
+    else -> TrendState.Plottable
+}
+
+fun trendStateOf(records: List<MeasureRecord>): TrendState = trendStateOf(records.size)
+
+/**
+ * 可绘制的趋势点（UI 只负责渲染）。
+ */
+data class TrendPointUi(val x: Long, val value: Double)
+
+/**
+ * 依据「是否有记录」切分连续分段（AC-HT4）。
+ */
+fun segmentSeries(values: List<Double?>): List<List<Double>> {
+    val segments = mutableListOf<MutableList<Double>>()
+    var current = mutableListOf<Double>()
+    for (v in values) {
+        if (v == null) {
+            if (current.isNotEmpty()) {
+                segments += current
+                current = mutableListOf<Double>()
+            }
+        } else {
+            current += v
+        }
+    }
+    if (current.isNotEmpty()) segments += current
+    return segments
+}
+
+/** 周趋势结果。 */
+data class WeeklyTrendResult(
+    val trendState: TrendState,
+    val segments: List<List<Double>>,
+    val points: List<TrendPointUi>,
+    val startDate: String,
+    val endDate: String,
+    val weightChangeText: String,
+    val fatChangeText: String,
+)
+
+/** 月趋势结果。 */
+data class MonthlyTrendResult(
+    val trendState: TrendState,
+    val segments: List<List<Double>>,
+    val points: List<TrendPointUi>,
+    val startDate: String,
+    val endDate: String,
+)
+
+/** 全量趋势结果。 */
+data class FullTrendResult(
+    val trendState: TrendState,
+    val segments: List<List<Double>>,
+    val points: List<TrendPointUi>,
+    val startDate: String,
+    val endDate: String,
+)
+
+/**
+ * 周趋势查询（原型 v-trend 页一周概览）。
+ */
+fun BodyAnalysisQuery.weeklyTrend(
+    member: Member,
+    records: List<MeasureRecord>,
+): WeeklyTrendResult {
+    val recent = records.takeLast(7)
+    val trendState = trendStateOf(recent.size)
+    val segments = segmentSeries(recent.map { it.weight.toDouble() })
+    val points = recent.mapIndexed { i, r -> TrendPointUi(x = i.toLong(), value = r.weight.toDouble()) }
+
+    val weightChange = if (recent.size >= 2) {
+        val first = recent.first().weight.toDouble()
+        val last = recent.last().weight.toDouble()
+        val diff = last - first
+        if (diff > 0) "+${String.format("%.1f", diff)}kg"
+        else if (diff < 0) "${String.format("%.1f", diff)}kg"
+        else "持平"
+    } else "--"
+
+    val fatChange = if (recent.size >= 2) {
+        val first = recent.first().fat
+        val last = recent.last().fat
+        val firstValid = first != MeasureRecord.FAT_NOT_CALCULATED && first >= 0
+        val lastValid = last != MeasureRecord.FAT_NOT_CALCULATED && last >= 0
+        if (firstValid && lastValid) {
+            val diff = last - first
+            if (diff > 0) "+${String.format("%.1f", diff)}%"
+            else if (diff < 0) "${String.format("%.1f", diff)}%"
+            else "持平"
+        } else "--"
+    } else "--"
+
+    val startDate = records.firstOrNull()?.time?.let { java.time.Instant.ofEpochMilli(it).atZone(java.time.ZoneOffset.UTC).toLocalDate().toString() } ?: ""
+    val endDate = records.lastOrNull()?.time?.let { java.time.Instant.ofEpochMilli(it).atZone(java.time.ZoneOffset.UTC).toLocalDate().toString() } ?: ""
+
+    return WeeklyTrendResult(
+        trendState = trendState,
+        segments = segments,
+        points = points,
+        startDate = startDate,
+        endDate = endDate,
+        weightChangeText = weightChange,
+        fatChangeText = fatChange,
+    )
+}
+
+/**
+ * 月趋势查询（原型 v-trend 页四周概览）。
+ */
+fun BodyAnalysisQuery.monthlyTrend(
+    member: Member,
+    records: List<MeasureRecord>,
+): MonthlyTrendResult {
+    val recent = records.takeLast(28)
+    val trendState = trendStateOf(recent.size)
+    val segments = segmentSeries(recent.map { it.weight.toDouble() })
+    val points = recent.mapIndexed { i, r -> TrendPointUi(x = i.toLong(), value = r.weight.toDouble()) }
+    val startDate = records.firstOrNull()?.time?.let { java.time.Instant.ofEpochMilli(it).atZone(java.time.ZoneOffset.UTC).toLocalDate().toString() } ?: ""
+    val endDate = records.lastOrNull()?.time?.let { java.time.Instant.ofEpochMilli(it).atZone(java.time.ZoneOffset.UTC).toLocalDate().toString() } ?: ""
+
+    return MonthlyTrendResult(
+        trendState = trendState,
+        segments = segments,
+        points = points,
+        startDate = startDate,
+        endDate = endDate,
+    )
+}
+
+/**
+ * 全量趋势查询（原型 v-trend 页全量概览）。
+ */
+fun BodyAnalysisQuery.fullTrend(
+    member: Member,
+    records: List<MeasureRecord>,
+): FullTrendResult {
+    val trendState = trendStateOf(records.size)
+    val segments = segmentSeries(records.map { it.weight.toDouble() })
+    val points = records.mapIndexed { i, r -> TrendPointUi(x = i.toLong(), value = r.weight.toDouble()) }
+    val startDate = records.firstOrNull()?.time?.let { java.time.Instant.ofEpochMilli(it).atZone(java.time.ZoneOffset.UTC).toLocalDate().toString() } ?: ""
+    val endDate = records.lastOrNull()?.time?.let { java.time.Instant.ofEpochMilli(it).atZone(java.time.ZoneOffset.UTC).toLocalDate().toString() } ?: ""
+
+    return FullTrendResult(
+        trendState = trendState,
+        segments = segments,
+        points = points,
+        startDate = startDate,
+        endDate = endDate,
+    )
 }
