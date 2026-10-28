@@ -182,9 +182,10 @@ STAGED=$(git diff --cached --name-only --diff-filter=ACMR || true)
 # =============================================================
 # 3b. 共享状态保护（DEC-067）：派生数据只允许合并队列/收尾自动化写。
 #     功能分支手改 = 每次合并必冲突（2026-10-24 实测 5 轮）。
+#     共享文件修改需持 lock（DEC-077）, 防并发 AI 震荡。
 # =============================================================
 
-SHARED_DERIVED=$(echo "$STAGED" | grep -E '^(\.ai/tasks\.json|STATUS\.md|tests/android-test-registry\.yaml|docs/ai/lifecycle/03_TaskGraph\.md|docs/ai/lifecycle/06_Metrics\.md|docs/index\.md)$' || true)
+SHARED_DERIVED=$(echo "$STAGED" | grep -E '^(\.ai/tasks\.json|STATUS\.md|tests/android-test-registry\.yaml|docs/ai/lifecycle/03_TaskGraph\.md|docs/ai/lifecycle/06_Metrics\.md|docs/index\.md|AGENTS\.md)$' || true)
 BOARD_BRANCH=0
 case "$BRANCH" in chore/board-*|chore/integration-*) BOARD_BRANCH=1 ;; esac
 if [ -n "$SHARED_DERIVED" ] && [ "$BOARD_BRANCH" -eq 0 ]; then
@@ -193,6 +194,20 @@ if [ -n "$SHARED_DERIVED" ] && [ "$BOARD_BRANCH" -eq 0 ]; then
   echo "   取消暂存: git restore --staged <file>"
   echo "   需要同步时执行: bash scripts/governance/gov-board-sync.sh（由合并队列在主干完成）"
   exit 1
+fi
+
+# chore/board-* 分支: 共享文件需持锁修改 (DEC-077)
+if [ -n "$SHARED_DERIVED" ] && [ "$BOARD_BRANCH" -eq 1 ]; then
+  SESSION_ID_CURR="$(cat "$ROOT/.ai/current-session.json" 2>/dev/null | python3 -c 'import json,sys; print(json.load(sys.stdin).get("session_id",""))' 2>/dev/null || true)"
+  for f in $SHARED_DERIVED; do
+    if ! bash "$ROOT/scripts/workflow/wf-lock.sh" file-check "$f" 2>/dev/null | grep -q "$SESSION_ID_CURR"; then
+      echo "❌ 共享文件 $f 未锁定 (或锁持有者不是当前会话)"
+      echo "   请先获取锁: bash scripts/workflow/wf-lock.sh file-acquire \"$f\" --mode docs"
+      echo "   释放锁: bash scripts/workflow/wf-lock.sh file-release \"$f\""
+      exit 1
+    fi
+    echo "  ✓ 共享文件锁定: $f"
+  done
 fi
 
 SRC_CHANGED=$(echo "$STAGED" | grep -E '^(domain|application|infrastructure|app)/.*\.(kt|java)$' || true)
