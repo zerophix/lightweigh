@@ -255,6 +255,37 @@ PY
   rm -f "$SESSION_FILE"
 fi
 
+# DEC-077: 清理过期模式文件 (防止 stale explore/docs 模式残留)
+if [ -f "$ROOT/.ai/current-mode.json" ]; then
+  echo " 清理过期模式文件: .ai/current-mode.json"
+  rm -f "$ROOT/.ai/current-mode.json"
+fi
+
+# DEC-077 P2: 轮转审计日志 (>7 天的记录清理, 防止无限增长)
+if [ -f "$ROOT/.ai/audit/bypass.jsonl" ]; then
+  python3 - "$ROOT/.ai/audit/bypass.jsonl" <<'PYEOF'
+import json, sys, datetime
+audit_file = sys.argv[1]
+cutoff = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=7)
+try:
+    with open(audit_file) as f:
+        entries = [json.loads(l) for l in f if l.strip()]
+    kept = []
+    for e in entries:
+        try:
+            ts = datetime.datetime.fromisoformat(e.get("ts","").replace("Z","+00:00"))
+            if ts > cutoff:
+                kept.append(e)
+        except:
+            kept.append(e)  # 无法解析的保留
+    with open(audit_file, "w") as f:
+        for e in kept:
+            f.write(json.dumps(e, ensure_ascii=False) + "\n")
+except Exception:
+    pass
+PYEOF
+fi
+
 }
 
 case "${1:-}" in

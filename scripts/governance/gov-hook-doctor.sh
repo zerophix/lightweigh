@@ -27,7 +27,33 @@ for a in "$@"; do
   esac
 done
 
-EXPECTED="$(cd "$ROOT/scripts/hooks" && pwd)"
+# hooksPath 必须指向**主树**的 scripts/hooks：worktree 共享同一份 .git/config，
+# 写入哪个 worktree 的绝对路径，全仓就用哪个。2026-10-27 实测事故：
+# 在 worktree 内执行 --fix，EXPECTED 被推导成该 worktree 路径；该 worktree 随后被
+# gov-merge / ses-session-end 自动删除，core.hooksPath 变成悬空指针，git 静默跳过
+# 全部钩子（pre-commit / pre-push / commit-msg 同时失效，无任何报错）。
+# 因此这里不用脚本位置推导，改用 git-common-dir 反推主树根。
+MAIN_ROOT="$ROOT"
+common_dir="$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null || true)"
+if [ -n "$common_dir" ] && [ -d "$common_dir" ]; then
+  MAIN_ROOT="$(dirname "$common_dir")"
+fi
+EXPECTED="$MAIN_ROOT/scripts/hooks"
+
+# 治理整体停用哨兵（gov-mode.sh disable 创建）：此时「钩子没装」是预期状态，
+# 不是配置异常，更不能去 --fix 装回来。
+GOV_SENTINEL="$MAIN_ROOT/.git/gov-disabled"
+if [ -n "$common_dir" ] && [ -d "$common_dir" ]; then
+  GOV_SENTINEL="$common_dir/gov-disabled"
+fi
+if [ -f "$GOV_SENTINEL" ]; then
+  if [ "$JSON" -eq 1 ]; then
+    printf '{"ok":true,"disabled":true,"sentinel":"%s"}\n' "$GOV_SENTINEL"
+  else
+    echo "治理已永久停用（哨兵 ${GOV_SENTINEL}）—— 钩子未安装属预期，跳过体检"
+  fi
+  exit 0
+fi
 
 # name:source
 pairs=(
@@ -38,9 +64,13 @@ pairs=(
 )
 
 if [ "$FIX" -eq 1 ]; then
+  if [ ! -d "$EXPECTED" ]; then
+    echo "无法修复: 主树缺少 ${EXPECTED}（git-common-dir 推导异常）" >&2
+    exit 1
+  fi
   git config core.hooksPath "$EXPECTED"
-  chmod +x scripts/hooks/* 2>/dev/null || true
-  echo "已设置 core.hooksPath=$EXPECTED 并补齐执行位"
+  chmod +x "$EXPECTED"/* 2>/dev/null || true
+  echo "已设置 core.hooksPath=${EXPECTED}（主树: ${MAIN_ROOT}）并补齐执行位"
 fi
 
 configured="$(git config --get core.hooksPath 2>/dev/null || true)"
@@ -61,14 +91,14 @@ for pair in "${pairs[@]}"; do
 done
 
 if [ "$JSON" -eq 1 ]; then
-  python3 - "$configured" "$(printf '%s\n' "${issues[@]:-}")" <<'PY'
+  python3 - "$configured" "$(printf '%s\n' "${issues[@]:-}")" "$EXPECTED" <<'PY'
 import json, sys
-configured, raw = sys.argv[1], sys.argv[2]
+configured, raw, expected = sys.argv[1], sys.argv[2], sys.argv[3]
 issues = [x for x in raw.splitlines() if x.strip()]
 print(json.dumps({
     "ok": not issues,
     "hooks_path": configured,
-    "expected": "scripts/hooks",
+    "expected": expected,
     "issues": issues,
 }, ensure_ascii=False, indent=2))
 PY

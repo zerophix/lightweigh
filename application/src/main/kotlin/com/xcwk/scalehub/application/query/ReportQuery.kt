@@ -2,9 +2,13 @@ package com.xcwk.scalehub.application.query
 
 import com.xcwk.scalehub.domain.model.MeasureRecord
 import com.xcwk.scalehub.application.query.MeasurementQueryPort
+import com.xcwk.scalehub.domain.service.BodyCompositionService
+import com.xcwk.scalehub.domain.service.BodyShapeClassificationService
+import com.xcwk.scalehub.domain.service.HealthAdviceService
+import com.xcwk.scalehub.domain.service.HealthRiskAssessmentService
 
 /**
- * query — 体测报告读模型。规则本体在 BodyAnalysis（旧库 BodyMetrics 全套移植），
+ * query — 体测报告读模型。规则本体在 BodyAnalysisQuery（委托 Domain 服务），
  * 本类只负责取数与组装：
  *  - 目标记录 + 升序前一条（差值参照）
  *  - 全部输入取自记录快照（male/age/height 可空 → 走旧库各自未录入分支，不借当前档案）
@@ -31,37 +35,31 @@ data class MeasurementReport(
         get() = if (analysis.score != null && prevScore != null) analysis.score - prevScore else null
 }
 
-class ReportQuery(private val query: MeasurementQueryPort) {
+class ReportQuery(
+    private val query: MeasurementQueryPort,
+    private val bodyCompService: BodyCompositionService,
+    private val riskService: HealthRiskAssessmentService,
+    private val shapeService: BodyShapeClassificationService,
+    private val adviceService: HealthAdviceService,
+) {
+
+    private val bodyAnalysisQuery = BodyAnalysisQuery(
+        bodyCompService, riskService, shapeService, adviceService
+    )
 
     /** 按测量时间戳取报告；无此记录返回 null。 */
     suspend fun report(time: Long): MeasurementReport? {
         val record = query.between(time, time + 1).firstOrNull() ?: return null
         val prev = query.between(0L, time).lastOrNull()
-        val analysis = buildBodyAnalysis(
-            male = record.male ?: false,
-            ageYearsIn = record.ageYears,
-            heightCmIn = record.heightCm,
-            weight = record.weight,
-            fatRateIn = record.fat,
-            prevWeightIn = prev?.weight,
-            prevFatIn = prev?.fat,
-            impedanceOhm = record.impedance,
-            algorithm = record.algorithm,
-        )
-        // 上期评分：对 prev 复跑同一规则（评分只依赖记录自身 bmi/体脂/内脏脂肪，
-        // 不吃 prevWeight/prevFat，故差值入参传 null 不影响得分）；规则不旁落到 UI。
+        val analysis = bodyAnalysisQuery.build(record, prev?.weight, prev?.fat)
+        
+        // 上期评分：对 prev 复跑同一规则
         val prevScore = prev?.let { p ->
-            buildBodyAnalysis(
-                male = p.male ?: false,
-                ageYearsIn = p.ageYears,
-                heightCmIn = p.heightCm,
-                weight = p.weight,
-                fatRateIn = p.fat,
-                prevWeightIn = null,
-                prevFatIn = null,
-                impedanceOhm = p.impedance,
-                algorithm = p.algorithm,
-            ).score
+            val prevRecord = MeasureRecord(
+                p.time, p.weight, p.impedance, p.fat,
+                p.mac, p.algorithm, p.male, p.ageYears, p.heightCm
+            )
+            bodyAnalysisQuery.build(prevRecord, null, null).score
         }
         return MeasurementReport(record, analysis, prevScore)
     }

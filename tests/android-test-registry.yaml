@@ -95,10 +95,6 @@ commands:
   path: app/src/test/kotlin/com/xcwk/scalehub/feature/record/RecordViewModelTest.kt
   status: stable
   type: gradle-test
-- description: BodyMetrics 全套规则移植 spot 检查（评分/体型/风险/系数, DEC-022）
-  path: application/src/test/kotlin/com/xcwk/scalehub/application/query/BodyAnalysisTest.kt
-  status: stable
-  type: gradle-test
 - description: 云同步编排行为（游客门/列映射/合并/注销, M2a DEC-022）
   path: application/src/test/kotlin/com/xcwk/scalehub/application/sync/SyncServiceTest.kt
   status: stable
@@ -227,10 +223,6 @@ commands:
   type: gradle-test
 - description: Wave1 纯逻辑（编辑字段限制与同源 / 趋势缺日切段与数据不足 / 指标文案, T-081+T-082）
   path: app/src/test/kotlin/com/xcwk/scalehub/feature/Wave1HistoryTrendTest.kt
-- description: settings 语言与外观选项/保存状态纯逻辑（原型24 文案逐字守卫, T-091）
-  path: app/src/test/kotlin/com/xcwk/scalehub/feature/settings/LanguageAppearanceSettingsTest.kt
-  status: stable
-  type: gradle-test
 - description: Wave1 纯逻辑（隐私授权五态转移 / 授权撤回两步语义 / 五 view 文案逐字, T-096）
   path: app/src/test/kotlin/com/xcwk/scalehub/feature/privacy/PrivacyAuthFlowTest.kt
   status: stable
@@ -326,15 +318,7 @@ commands:
   status: stable
   type: gradle-test
 - description: 自动登记（gov-registry-sync）
-  path: app/src/test/kotlin/com/xcwk/scalehub/feature/home/HomeStatesTest.kt
-  status: stable
-  type: gradle-test
-- description: 自动登记（gov-registry-sync）
   path: app/src/test/kotlin/com/xcwk/scalehub/feature/sync/HelpCenterFeedbackTest.kt
-  status: stable
-  type: gradle-test
-- description: 自动登记（gov-registry-sync）
-  path: app/src/test/kotlin/com/xcwk/scalehub/feature/measure/MeasureFlowTest.kt
   status: stable
   type: gradle-test
 - description: 自动登记（gov-registry-sync）
@@ -359,10 +343,6 @@ commands:
   type: gradle-test
 - description: 自动登记（gov-registry-sync）
   path: app/src/test/kotlin/com/xcwk/scalehub/feature/device/DeviceDetailEntryTest.kt
-  status: stable
-  type: gradle-test
-- description: 自动登记（gov-registry-sync）
-  path: app/src/test/kotlin/com/xcwk/scalehub/feature/home/HomeStateEntryTest.kt
   status: stable
   type: gradle-test
 - description: 自动登记（gov-registry-sync）
@@ -430,7 +410,67 @@ commands:
   status: stable
   type: gradle-test
 - description: 自动登记（gov-registry-sync）
-  path: app/src/test/kotlin/com/xcwk/scalehub/feature/settings/SettingsDisplayEntryTest.kt
+  path: app/src/test/kotlin/com/xcwk/scalehub/feature/AchievementsTest.kt
+  status: stable
+  type: gradle-test
+- description: 自动登记（gov-registry-sync）
+  path: app/src/test/kotlin/com/xcwk/scalehub/feature/BodyRecompositionTest.kt
+  status: stable
+  type: gradle-test
+- description: 自动登记（gov-registry-sync）
+  path: app/src/test/kotlin/com/xcwk/scalehub/feature/CalibrationFlowTest.kt
+  status: stable
+  type: gradle-test
+- description: 自动登记（gov-registry-sync）
+  path: app/src/test/kotlin/com/xcwk/scalehub/feature/ChildModeTest.kt
+  status: stable
+  type: gradle-test
+- description: 自动登记（gov-registry-sync）
+  path: app/src/test/kotlin/com/xcwk/scalehub/feature/DoctorReportTest.kt
+  status: stable
+  type: gradle-test
+- description: 自动登记（gov-registry-sync）
+  path: app/src/test/kotlin/com/xcwk/scalehub/feature/GoalCurveTest.kt
+  status: stable
+  type: gradle-test
+- description: 自动登记（gov-registry-sync）
+  path: application/src/test/kotlin/com/xcwk/scalehub/application/query/BodyAnalysisQueryTest.kt
+  status: stable
+  type: gradle-test
+- description: 自动登记（gov-registry-sync）
+  path: domain/src/test/kotlin/com/xcwk/scalehub/acceptance/BodyCompositionAccuracyTest.kt
+  status: stable
+  type: gradle-test
+- description: 自动登记（gov-registry-sync）
+  path: domain/src/test/kotlin/com/xcwk/scalehub/domain/service/BodyCompositionServiceTest.kt
+  status: stable
+  type: gradle-test
+- description: 自动登记（gov-registry-sync）
+  path: domain/src/test/kotlin/com/xcwk/scalehub/domain/service/BodyShapeClassificationServiceTest.kt
+  status: stable
+  type: gradle-test
+- description: 自动登记（gov-registry-sync）
+  path: domain/src/test/kotlin/com/xcwk/scalehub/domain/service/HealthAdviceServiceTest.kt
+  status: stable
+  type: gradle-test
+- description: 自动登记（gov-registry-sync）
+  path: domain/src/test/kotlin/com/xcwk/scalehub/domain/service/HealthRiskAssessmentServiceTest.kt
+  status: stable
+  type: gradle-test
+- description: 自动登记（gov-registry-sync）
+  path: app/src/test/kotlin/com/xcwk/scalehub/feature/HealthAndQrPortsTest.kt
+  status: stable
+  type: gradle-test
+- description: 自动登记（gov-registry-sync）
+  path: app/src/test/kotlin/com/xcwk/scalehub/feature/auth/PasswordLoginScreenTest.kt
+  status: stable
+  type: gradle-test
+- description: 自动登记（gov-registry-sync）
+  path: app/src/test/kotlin/com/xcwk/scalehub/feature/auth/PhoneLoginScreenTest.kt
+  status: stable
+  type: gradle-test
+- description: 自动登记（gov-registry-sync）
+  path: app/src/test/kotlin/com/xcwk/scalehub/feature/auth/VerifyCodeScreenTest.kt
   status: stable
   type: gradle-test
 configs: []

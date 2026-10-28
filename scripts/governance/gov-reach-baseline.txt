@@ -1,3 +1,2 @@
 # 存量不可达屏（棘轮基线，只减不增）
 # 由 gov-reachability-check.py --update-baseline 生成
-app/src/main/kotlin/com/xcwk/scalehub/feature/ai/MemberPermissionDetail.kt :: MemberPermissionDetailScreen

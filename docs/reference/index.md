@@ -63,7 +63,7 @@
 | 测试文件 / 测试代码行数 | 各模块 `src/test` 下 `*.kt` + `*.java` 的文件数 / 物理行数 | 06_Metrics.md |
 | 单元测试方法 | 源码中 `@Test` 注解的方法数，与构建变体无关 | `grep -rho '@Test'` |
 | 测试执行数 | Gradle 变体展开后实际执行的测试数 | `*/build/test-results`（app 与 infrastructure 各含 debug + release） |
-| 治理测试用例 | `tests/` 下 pytest 收集的 test 函数数 | tests/registry.yaml |
+| 治理测试用例 | `tests/` 下 pytest 收集的 test 函数数 | tests/python-test-registry.yaml |
 | 协议实现 | `:domain` 中 `implements ScaleProtocol` 的类数 | 领域协议 |
 | 体成分算法 | `:domain` 中 `implements BodyComposition` 的类数 | 体成分算法 |
 | 黄金向量 | 体成分跨端一致性向量的条数 | body-composition-vectors.tsv |
@@ -79,5 +79,15 @@
 
 - DEC-011 中的裸「N 项测试」= 测试执行数（当时未标注口径），等价于单元测试方法的变体展开。
 - DEC-002 / DEC-006 / DEC-008 / DEC-010 中的「N 个用例 / N 个测试」= 治理测试用例。
+
+## 7. API 规格
+
+- [REF-api-spec.md](REF-api-spec.md) — HTTP / WebSocket / gRPC 接口定义、请求响应结构、错误码、版本策略
+
+## 8. Notion 索引
+
+- [REF-notion-index.md](REF-notion-index.md) — 轻衡健康 Notion 空间 74 页页面与仓库路径对照
+
+---
 
 ## 来源: ai/decisions/DEC-055

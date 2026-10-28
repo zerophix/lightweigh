@@ -928,3 +928,20 @@ fun QkGateCard(
         )
     }
 }
+
+/**
+ * 字段级错误提示（原型 .field-error）：小字 + 危险色 + 与输入框 4dp 间距。
+ *
+ * 提取自 EmailLogin / PasswordLoginScreen / PhoneLoginScreen / VerifyCodeScreen
+ * 四份逐字相同的私有实现（gov-code-check「重复实现」违规）。
+ * 视觉参数不得单独改动，否则四屏提示样式会分叉。
+ */
+@Composable
+fun QkFieldError(text: String, modifier: Modifier = Modifier) {
+    Text(
+        text,
+        modifier = modifier.padding(top = QkSpacing.Xs),
+        style = MaterialTheme.typography.labelSmall,
+        color = QkColor.Danger,
+    )
+}

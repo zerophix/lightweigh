@@ -264,9 +264,34 @@ if ! git -C "$WT" push -u origin "$BRANCH"; then
    （远端有新提交时先 git pull --rebase）"
 fi
 
+# ---------------------------------------------------------------- 步骤 6.5: 审计检查 (DEC-077 P1)
+# 检查 bypass.jsonl：如果 explore/docs 模式下跳过了编译, 合并前必须额外跑一次全量 CI
+log "步骤 6.5/9: 审计 explore/docs 的 bypass 记录"
+AUDIT_FILE="$WT/.ai/audit/bypass.jsonl"
+# source 审计检查函数 (DRY: 与 wf-autopilot.sh 共享)
+if [ -f "$WT/scripts/governance/gov-mode-lib.sh" ]; then
+  . "$WT/scripts/governance/gov-mode-lib.sh"
+fi
+AUDIT_CHECK="$(gov_mode_check_audit "$AUDIT_FILE" "$BRANCH" 2>/dev/null || echo "OK")"
+if [ "$AUDIT_CHECK" = "FORCE_LANE_C" ]; then
+  log "  [审计] 发现 explore/docs 模式跳过编译的记录，合并前强制全量 CI (Lane C)..."
+  if ! ( cd "$WT" && GOV_MODE=dev GOV_LANE=C GOV_CI_FULL=1 bash scripts/governance/gov-local-ci.sh >/tmp/gov-merge-audit-ci.log 2>&1 ); then
+    die "审计 CI 未通过（explore/docs bypass 提交必须通过全量 CI）。
+   修复后重跑: bash scripts/governance/gov-merge.sh $PR"
+  fi
+  log "  [审计] 审计 CI 通过"
+else
+  log "  [审计] 无 explore/docs bypass 记录，跳过额外审计 CI"
+fi
+
 # ---------------------------------------------------------------- 步骤 7: local-ci
+# DEC-077: 合并时强制 dev 模式 — 探险模式提交必须通过完整 CI 才能合入
 log "步骤 7/9: gov-local-ci（合入权威，必须全绿）"
-if ! ( cd "$WT" && bash scripts/governance/gov-local-ci.sh ); then
+log "  强制 GOV_MODE=dev + GOV_LANE=C (忽略 explore/docs 模式豁免)"
+
+# 清除工作区的模式文件 + 环境变量, 防止 explore bypass 滲透到合入
+rm -f "$WT/.ai/current-mode.json" 2>/dev/null || true
+if ! ( cd "$WT" && GOV_MODE=dev GOV_LANE=C GOV_CI_FULL=1 bash scripts/governance/gov-local-ci.sh ); then
   die "gov-local-ci 未全绿，已停止（未执行 gh pr merge）。
    修复后重跑: bash scripts/governance/gov-merge.sh $PR"
 fi

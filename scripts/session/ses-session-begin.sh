@@ -152,6 +152,7 @@ print(d.get('next_action', ''))
     fi
     bash "$CACHE_SCRIPT" save session-start \
         dec="startup" \
+        session_id="$SESSION_ID" \
         next_task="${NEXT_TASK:-读取 STATUS.md}" \
         2>/dev/null || true
 fi
@@ -171,6 +172,24 @@ done
 if [ -n "$MISSING" ]; then
     echo "    关键脚本缺失:$MISSING"
     echo "  请重新安装: bash scripts/bootstrap/bs-install-hooks.sh"
+fi
+
+# ---------- 6b. 钩子自愈（2026-10-27 事故）----------
+# core.hooksPath 是单点、静默、影响全局的配置：一旦悬空（例如曾指向某个已被删除的
+# worktree），git 会跳过全部钩子且不报任何错，pre-commit / pre-push / commit-msg 同时
+# 失效，整套门禁归零。它不能只靠 local-ci 慢层发现——钩子坏了，人就更不会去跑 local-ci。
+# 会话入口是唯一必然被执行的时机，因此在这里自动修复（幂等，只改 core.hooksPath）。
+if [ -f "$ROOT/scripts/governance/gov-hook-doctor.sh" ]; then
+    # 治理已永久停用时不修——否则每次开会话都会把钩子装回去（gov-mode.sh disable）
+    _gov_common="$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null || true)"
+    _gov_sentinel="${_gov_common:-$ROOT/.git}/gov-disabled"
+    if [ -f "$_gov_sentinel" ]; then
+        echo "  · 治理已永久停用（哨兵 ${_gov_sentinel}），跳过钩子自愈"
+    elif ! bash "$ROOT/scripts/governance/gov-hook-doctor.sh" >/dev/null 2>&1; then
+        echo ""
+        echo "  ⚠ 钩子配置异常，正在自动修复（门禁曾因此静默失效）..."
+        bash "$ROOT/scripts/governance/gov-hook-doctor.sh" --fix 2>&1 | sed 's/^/    /'
+    fi
 fi
 
 # ---------- 7. 合规卡（DEC-075/076）----------

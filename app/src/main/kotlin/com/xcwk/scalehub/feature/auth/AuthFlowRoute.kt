@@ -45,6 +45,8 @@ import com.xcwk.scalehub.ui.theme.QkSpacing
  *
  * ```
  * 登录方式入口 ─┬─ 邮箱登录 ──────────┐
+ *               ├─ 手机号登录 → 验证码 ─┤
+ *               ├─ 密码登录 ───────────┤
  *               ├─ 访客体验 ──────────┼─ 权限说明 → 资料完善(1/2 → 2/2 → 完成)
  *               ├─ 忘记密码（验证码）─┤
  *               └─ 找回账号（五态）───┘
@@ -59,11 +61,16 @@ import com.xcwk.scalehub.ui.theme.QkSpacing
 
 // ---- 流程状态机（纯函数，JVM 单测钉死推进表） ----
 
-/** 接入流程的七个呈现步（与屏幕一一对应）。 */
+/** 接入流程的呈现步（与屏幕一一对应）。 */
 enum class AuthFlowStep {
     /** 登录方式入口（宿主从登录页「其他方式登录」进入）。 */
     Entry,
     EmailLogin,
+    PhoneLogin,
+
+    /** 手机号登录的验证码步（原型 v-verify）。 */
+    PhoneLoginVerify,
+    PasswordLogin,
     Guest,
     PasswordReset,
     Recovery,
@@ -74,9 +81,14 @@ enum class AuthFlowStep {
 /** 流程事件：只表达「去哪」，不携带数据（数据留在各屏自己的 state 里）。 */
 sealed interface AuthFlowEvent {
     data object OpenEmailLogin : AuthFlowEvent
+    data object OpenPhoneLogin : AuthFlowEvent
+    data object OpenPasswordLogin : AuthFlowEvent
     data object OpenGuest : AuthFlowEvent
     data object OpenPasswordReset : AuthFlowEvent
     data object OpenRecovery : AuthFlowEvent
+
+    /** 手机号登录页「获取验证码」成功：进入验证码步。 */
+    data object CodeSent : AuthFlowEvent
 
     /** 登录 / 进访客 / 改密成功：统一进入权限说明。 */
     data object Authenticated : AuthFlowEvent
@@ -92,17 +104,22 @@ sealed interface AuthFlowEvent {
  * 纯推进函数。
  *
  * 口径：
- * - 四个入口事件在任何步骤都切到对应屏（等价于顶层菜单跳转）
- * - [AuthFlowEvent.Authenticated] 只在凭据类步骤（邮箱/访客/重置/找回）有效，
+ * - 各入口事件在任何步骤都切到对应屏（等价于顶层菜单跳转）
+ * - [AuthFlowEvent.Authenticated] 只在凭据类步骤（邮箱/手机号/验证码/密码/访客/重置/找回）有效，
  *   在入口或已过门后重复上报不推进——避免双重回调把用户弹回中间态
+ * - [AuthFlowEvent.CodeSent] 只在手机号登录页有效，推进到验证码步
  * - [AuthFlowEvent.PermissionPassed] 只在权限说明页有效
  * - [AuthFlowEvent.BackToEntry] 恒回入口（完成页的「回到登录主页」也走它）
  */
 fun authFlowStepReduce(step: AuthFlowStep, event: AuthFlowEvent): AuthFlowStep = when (event) {
     AuthFlowEvent.OpenEmailLogin -> AuthFlowStep.EmailLogin
+    AuthFlowEvent.OpenPhoneLogin -> AuthFlowStep.PhoneLogin
+    AuthFlowEvent.OpenPasswordLogin -> AuthFlowStep.PasswordLogin
     AuthFlowEvent.OpenGuest -> AuthFlowStep.Guest
     AuthFlowEvent.OpenPasswordReset -> AuthFlowStep.PasswordReset
     AuthFlowEvent.OpenRecovery -> AuthFlowStep.Recovery
+    AuthFlowEvent.CodeSent ->
+        if (step == AuthFlowStep.PhoneLogin) AuthFlowStep.PhoneLoginVerify else step
     AuthFlowEvent.Authenticated ->
         if (step.isCredentialStep()) AuthFlowStep.Permission else step
     AuthFlowEvent.PermissionPassed ->
@@ -111,7 +128,14 @@ fun authFlowStepReduce(step: AuthFlowStep, event: AuthFlowEvent): AuthFlowStep =
 }
 
 private fun AuthFlowStep.isCredentialStep(): Boolean = when (this) {
-    AuthFlowStep.EmailLogin, AuthFlowStep.Guest, AuthFlowStep.PasswordReset, AuthFlowStep.Recovery -> true
+    AuthFlowStep.EmailLogin,
+    AuthFlowStep.PhoneLogin,
+    AuthFlowStep.PhoneLoginVerify,
+    AuthFlowStep.PasswordLogin,
+    AuthFlowStep.Guest,
+    AuthFlowStep.PasswordReset,
+    AuthFlowStep.Recovery,
+    -> true
     AuthFlowStep.Entry, AuthFlowStep.Permission, AuthFlowStep.Profile -> false
 }
 
@@ -120,6 +144,10 @@ private fun AuthFlowStep.isCredentialStep(): Boolean = when (this) {
 const val AUTH_FLOW_ENTRY_TITLE = "其他方式登录"
 private const val AUTH_FLOW_EMAIL_TITLE = "邮箱登录"
 private const val AUTH_FLOW_EMAIL_HINT = "用邮箱和密码登录"
+private const val AUTH_FLOW_PHONE_TITLE = "手机号登录"
+private const val AUTH_FLOW_PHONE_HINT = "用手机号和短信验证码登录"
+private const val AUTH_FLOW_PASSWORD_TITLE = "密码登录"
+private const val AUTH_FLOW_PASSWORD_HINT = "用手机号或邮箱和密码登录"
 private const val AUTH_FLOW_GUEST_TITLE = "访客体验"
 private const val AUTH_FLOW_GUEST_HINT = "数据只存本机，换设备会丢失"
 private const val AUTH_FLOW_RESET_TITLE = "忘记密码"
@@ -153,12 +181,52 @@ fun AuthFlowRoute(
     when (step) {
         AuthFlowStep.Entry -> AuthFlowEntryView(
             onEmailLogin = { go(AuthFlowEvent.OpenEmailLogin) },
+            onPhoneLogin = { go(AuthFlowEvent.OpenPhoneLogin) },
+            onPasswordLogin = { go(AuthFlowEvent.OpenPasswordLogin) },
             onGuest = { go(AuthFlowEvent.OpenGuest) },
             onPasswordReset = { go(AuthFlowEvent.OpenPasswordReset) },
             onRecovery = { go(AuthFlowEvent.OpenRecovery) },
             onBack = onExit,
             modifier = modifier,
         )
+
+        AuthFlowStep.PhoneLogin -> {
+            var phone by remember { mutableStateOf(PhoneLoginUiState()) }
+            PhoneLoginScreen(
+                state = phone,
+                onIntent = { phone = phoneLoginReduce(phone, it) },
+                // 发码仍是空回调：倒计时由屏幕自己跑，成功后推进到验证码步
+                onGetCode = { go(AuthFlowEvent.CodeSent) },
+                onPhoneLogin = { _, _ -> go(AuthFlowEvent.Authenticated) },
+                onOtherMethods = { go(AuthFlowEvent.BackToEntry) },
+                modifier = modifier,
+            )
+        }
+
+        AuthFlowStep.PhoneLoginVerify -> {
+            var verify by remember { mutableStateOf(VerifyCodeUiState()) }
+            VerifyCodeScreen(
+                state = verify,
+                onIntent = { verify = verifyCodeReduce(verify, it) },
+                onVerifyLogin = { _ -> go(AuthFlowEvent.Authenticated) },
+                onResend = { go(AuthFlowEvent.CodeSent) },
+                onCantReceive = { go(AuthFlowEvent.OpenRecovery) },
+                modifier = modifier,
+                onBack = { go(AuthFlowEvent.OpenPhoneLogin) },
+            )
+        }
+
+        AuthFlowStep.PasswordLogin -> {
+            var pwd by remember { mutableStateOf(PasswordLoginUiState()) }
+            PasswordLoginScreen(
+                state = pwd,
+                onIntent = { pwd = passwordLoginReduce(pwd, it) },
+                onPasswordLogin = { _, _ -> go(AuthFlowEvent.Authenticated) },
+                onForgotPassword = { go(AuthFlowEvent.OpenPasswordReset) },
+                onOtherMethods = { go(AuthFlowEvent.BackToEntry) },
+                modifier = modifier,
+            )
+        }
 
         AuthFlowStep.EmailLogin -> {
             var form by remember { mutableStateOf(EmailLoginUiState()) }
@@ -248,6 +316,8 @@ fun AuthFlowRoute(
 @Composable
 private fun AuthFlowEntryView(
     onEmailLogin: () -> Unit,
+    onPhoneLogin: () -> Unit,
+    onPasswordLogin: () -> Unit,
     onGuest: () -> Unit,
     onPasswordReset: () -> Unit,
     onRecovery: () -> Unit,
@@ -271,6 +341,8 @@ private fun AuthFlowEntryView(
             )
         }
         QkCard {
+            QkListRow(title = AUTH_FLOW_PHONE_TITLE, subtitle = AUTH_FLOW_PHONE_HINT, onClick = onPhoneLogin)
+            QkListRow(title = AUTH_FLOW_PASSWORD_TITLE, subtitle = AUTH_FLOW_PASSWORD_HINT, onClick = onPasswordLogin)
             QkListRow(title = AUTH_FLOW_EMAIL_TITLE, subtitle = AUTH_FLOW_EMAIL_HINT, onClick = onEmailLogin)
             QkListRow(title = AUTH_FLOW_GUEST_TITLE, subtitle = AUTH_FLOW_GUEST_HINT, onClick = onGuest)
             QkListRow(title = AUTH_FLOW_RESET_TITLE, subtitle = AUTH_FLOW_RESET_HINT, onClick = onPasswordReset)

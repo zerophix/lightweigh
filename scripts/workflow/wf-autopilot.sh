@@ -289,7 +289,23 @@ cmd_advance() {
       }
     fi
 
-    # 3) 合入门禁（慢 → 走 wf-run）
+    # 3) 审计检查 (DEC-077 P1): 检查 explore/docs 的 bypass 记录
+    AUDIT_FILE="$wt/.ai/audit/bypass.jsonl"
+    # Source shared audit check function
+    [ -f "$ROOT/scripts/governance/gov-mode-lib.sh" ] && . "$ROOT/scripts/governance/gov-mode-lib.sh"
+    AUDIT_CHECK="$(gov_mode_check_audit "$AUDIT_FILE" "$br" 2>/dev/null || echo "OK")"
+    if [ "$AUDIT_CHECK" = "FORCE_LANE_C" ]; then
+      echo "  [审计] 发现 explore/docs 模式跳过编译的记录，强制全量 CI (Lane C)..."
+      if ! run_slow "ci-audit-$n" bash -c "cd '$wt' && GOV_MODE=dev GOV_LANE=C GOV_CI_FULL=1 bash scripts/governance/gov-local-ci.sh" >/tmp/wf-audit-ci-$n.log 2>&1; then
+        echo "  [失败] 审计 CI 未通过:"; tail -6 /tmp/wf-audit-ci-$n.log
+        failed=1; break
+      fi
+      echo "  [OK] 审计 CI 通过"
+    else
+      echo "  [审计] 无 explore/docs bypass 记录"
+    fi
+
+    # 4) 合入门禁（慢 → 走 wf-run）
     echo "  [门禁] local-ci…"
     if ! run_slow "ci-pr$n" bash scripts/governance/gov-local-ci.sh >/tmp/wf-ci-$n.log 2>&1; then
       echo "  [失败] local-ci 未通过:"; tail -6 /tmp/wf-ci-$n.log
@@ -416,7 +432,14 @@ cmd_advance_parallel() {
     IFS='|' read -r n br wt <<< "$e"
     if have "$RUNNER"; then
       local id
-      id="$(bash "$RUNNER" start "ci-pr$n" -- bash -c "cd '$wt' && bash scripts/governance/gov-local-ci.sh" 2>/dev/null | tail -1)"
+      local ci_cmd="cd '$wt' && bash scripts/governance/gov-local-ci.sh"
+      local audit_file="$wt/.ai/audit/bypass.jsonl"
+      local audit_check; audit_check="$(gov_mode_check_audit "$audit_file" "$br" 2>/dev/null || echo "OK")"
+      if [ "$audit_check" = "FORCE_LANE_C" ]; then
+        echo "  [审计] #$n 发现 explore/docs bypass, 强制 Lane C full CI"
+        ci_cmd="cd '$wt' && GOV_MODE=dev GOV_LANE=C GOV_CI_FULL=1 bash scripts/governance/gov-local-ci.sh"
+      fi
+      id="$(bash "$RUNNER" start "ci-pr$n" -- bash -c "$ci_cmd" 2>/dev/null | tail -1)"
       ids+=("$n|$br|$wt|$id")
       echo "  [ci] #$n 已启动 ($id)"
     else
@@ -504,6 +527,37 @@ PY
 )"
   local br="feat/${tid,,}-${slug}"
   bash scripts/session/ses-worktree.sh add "$br" 2>&1 | grep -E "路径|已复制" | head -2
+
+  # DEC-077: Mode auto-selection based on task type
+  local auto_mode
+  auto_mode=$(python3 - "$ROOT" "$tid" <<'PY'
+import json, sys, re
+root, tid = sys.argv[1], sys.argv[2]
+d = json.load(open(f"{root}/.ai/tasks.json"))
+t = next((x for x in d.get("tasks", []) if x["id"] == tid), None)
+if not t:
+    print("code"); sys.exit(0)
+text = " ".join(filter(None, [t.get("description", ""), t.get("module", ""), t.get("type", "")])).lower()
+text += " " + json.dumps(t.get("description", "")).lower()
+if re.search(r'prototype|原型|探索|探索性', text): print("explore")
+elif re.search(r'\bdoc\b|文档|write.*doc', text): print("docs")
+elif re.search(r'\btest\b|测试|pytest|unit test', text): print("test")
+elif re.search(r'governance|治理|hook|hook|lint', text): print("gov")
+else: print("code")
+PY
+)
+  # Switch mode if needed (skip if already in desired mode)
+  local cur_mode; cur_mode=$(bash "$ROOT/scripts/workflow/wf-mode.sh" status 2>/dev/null | grep "当前模式" | cut -d" " -f2) || true
+  [ -z "$cur_mode" ] && cur_mode="dev"
+  if [ "$cur_mode" != "$auto_mode" ]; then
+    if [ "$auto_mode" = "explore" ] || [ "$auto_mode" = "docs" ] || [ "$auto_mode" = "test" ]; then
+      echo "  -> auto-switch mode: $cur_mode -> $auto_mode"
+      bash "$ROOT/scripts/workflow/wf-mode.sh" switch "$auto_mode" 2>&1 | grep -v "^GOV_MODE=" || true
+      bash "$ROOT/scripts/workflow/wf-mode.sh" post-hook "$auto_mode" 2>&1 | sed 's/^/   /'
+    fi
+  else
+    echo "  [mode] current: $cur_mode"
+  fi
 
   python3 - "$ROOT" "$tid" <<'PY'
 import json, sys
