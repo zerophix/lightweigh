@@ -1,0 +1,32 @@
+{
+  "task": "T-136",
+  "ok": true,
+  "git_sha": "be8ceb5d5f11a92e6e837316075cc8d244673161",
+  "verified_at": "2026-10-28T10:44:49Z",
+  "checks": [
+    {
+      "type": "file",
+      "name": "application/src/main/kotlin/com/xcwk/scalehub/application/query/BodyAnalysisQuery.kt",
+      "status": "PASS",
+      "detail": "存在"
+    },
+    {
+      "type": "prototype",
+      "name": "python3 scripts/governance/gov-prototype-verify.py T-136 --strict",
+      "status": "PASS",
+      "detail": "退出码 0"
+    },
+    {
+      "type": "command",
+      "name": "./gradlew :app:testDebugUnitTest",
+      "status": "PASS",
+      "detail": "退出码 0"
+    },
+    {
+      "type": "command",
+      "name": "python3 -m pytest tests/unit -q",
+      "status": "PASS",
+      "detail": "退出码 0"
+    }
+  ]
+}

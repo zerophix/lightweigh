@@ -1,0 +1,50 @@
+{
+  "task": "T-132",
+  "ok": true,
+  "git_sha": "be8ceb5d5f11a92e6e837316075cc8d244673161",
+  "verified_at": "2026-10-28T08:50:39Z",
+  "checks": [
+    {
+      "type": "file",
+      "name": "app/src/main/kotlin/com/xcwk/scalehub/feature/settings/DataRecovery.kt",
+      "status": "PASS",
+      "detail": "存在"
+    },
+    {
+      "type": "file",
+      "name": "app/src/main/kotlin/com/xcwk/scalehub/feature/guide/ProfileSetup.kt",
+      "status": "PASS",
+      "detail": "存在"
+    },
+    {
+      "type": "file",
+      "name": "app/src/main/kotlin/com/xcwk/scalehub/feature/guide/PermissionFlow.kt",
+      "status": "PASS",
+      "detail": "存在"
+    },
+    {
+      "type": "file",
+      "name": "app/src/main/kotlin/com/xcwk/scalehub/feature/guide/GuideScreen.kt",
+      "status": "PASS",
+      "detail": "存在"
+    },
+    {
+      "type": "file",
+      "name": "app/src/main/kotlin/com/xcwk/scalehub/feature/ai/AiBoundaries.kt",
+      "status": "PASS",
+      "detail": "存在"
+    },
+    {
+      "type": "prototype",
+      "name": "python3 scripts/governance/gov-prototype-verify.py T-132 --strict",
+      "status": "PASS",
+      "detail": "退出码 0"
+    },
+    {
+      "type": "command",
+      "name": "./gradlew :app:testDebugUnitTest",
+      "status": "PASS",
+      "detail": "退出码 0"
+    }
+  ]
+}
