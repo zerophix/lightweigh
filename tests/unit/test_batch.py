@@ -83,9 +83,11 @@ def test_status_known_batch(tmp_path):
 def test_start_dry_run(tmp_path):
     """start with dry-run should print mode and test plan without switching."""
     root = _sandbox(tmp_path)
+    board = json.loads((root / ".ai" / "tasks.json").read_text(encoding="utf-8"))
+    known_batch = next((b["id"] for b in board.get("batches", []) if b["id"] != "B-test-new"), "B-infra")
     env = {"WF_BATCH_DRY": "1"}
     run = subprocess.run(
-        ["bash", str(SCRIPT), "start", "B10-ops"],
+        ["bash", str(SCRIPT), "start", known_batch],
         cwd=root, capture_output=True, text=True,
         env={**os.environ, "WF_BATCH_ROOT": str(root), **env},
     )
@@ -108,7 +110,9 @@ def test_create_new_batch(tmp_path):
 def test_create_duplicate_batch_fails(tmp_path):
     """create should fail for existing batch."""
     root = _sandbox(tmp_path)
-    run = _sh("create", "B10-ops", "Duplicate", root=root)
+    board = json.loads((root / ".ai" / "tasks.json").read_text(encoding="utf-8"))
+    existing_batch = next((b["id"] for b in board.get("batches", []) if b["id"] != "B-test-new"), "B-infra")
+    run = _sh("create", existing_batch, "Duplicate", root=root)
     assert run.returncode != 0
     assert "已存在" in run.stderr
 
