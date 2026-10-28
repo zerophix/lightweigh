@@ -155,7 +155,8 @@ except:
 " 2>/dev/null)
     if [ -n "$lock_info" ]; then
       local lock_holder lock_mode
-      read -r lock_holder lock_mode <<< "$(echo "$lock_info" | tr '\n' ' ')"
+      lock_holder=$(echo "$lock_info" | sed -n '1p')
+      lock_mode=$(echo "$lock_info" | sed -n '2p')
       local remaining=$(( expires - now ))
       echo "❌ 文件已锁定: $file"
       echo "   持有者: $lock_holder (模式: $lock_mode)"
