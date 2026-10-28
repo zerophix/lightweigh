@@ -124,6 +124,7 @@ bash scripts/session/ses-session-end.sh
 7. 提交格式 `<type>(<scope>): <subject>`（英文 ≤72）。
 8. 禁止未声明角色改代码/治理脚本。
 9. 禁止保留备份残留（`.bak`/`.orig`/`.rej`/`~`/`副本`）。
+10. **新功能别从零写**：不熟悉的功能别从零写, 先从 GitHub 搜开源项目对比思路再动手。
 
 ---
 
@@ -155,6 +156,7 @@ bash scripts/session/ses-session-end.sh
 | 派生数据不手写 | 合并队列（单一写者） | `gov-board-sync.sh --dry` |
 | 用户路径可走通 | `e2e_all.sh`（手动/预发） | `bash scripts/testing/e2e_all.sh` |
 | 内环预算 | `dev-loop.sh --budget` | 输出自带耗时 |
+| 新功能别从零写 | AI 自查 | 新功能前先 `search GitHub for similar implementations` |
 
 ---
 
