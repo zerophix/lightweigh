@@ -25,7 +25,9 @@
 #   gov_mode_write <mode> <ttl_seconds> [reason]
 #   gov_mode_expire          # → 删除模式文件
 
-set -euo pipefail
+# Source 安全: 如果被 source (而非直接执行), 恢复调用者的 shell 选项
+__gov_mode_save_opts="$(set +o 2>/dev/null; echo 'set -uo pipefail')"  # 库自身只需 -u + pipefail, NOT -e
+eval "$__gov_mode_save_opts"
 
 # HMAC 密钥: 从 git toplevel 路径派生 (确定性, 无需外部密钥)
 GOV_MODE_HMAC_KEY="${GOV_MODE_HMAC_KEY:-$(git rev-parse --show-toplevel 2>/dev/null | sha256sum | cut -d' ' -f1)}"
