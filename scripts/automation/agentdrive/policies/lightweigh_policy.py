@@ -168,12 +168,13 @@ class LightweighPolicy(ProjectPolicy):
     DERIVED_PATTERNS = [
         ".ai/tasks.json", ".ai/tasks-archive.json", ".ai/staged-claims.json",
         ".ai/current-mode.json", ".ai/current-session.json", ".ai/roles/**", ".ai/locks/**",
+        ".cache/**",
         "STATUS.md", "android-test-registry.yaml", "docs/index.md",
         "docs/ai/lifecycle/**", "docs/ai/inbox/**",
     ]
 
     PROTECTED_DEFAULT = [
-        "tests/**", "pytest.ini", "pyproject.toml", "tox.ini",
+        "tests/**", "**/src/test/**", "**/src/androidTest/**", "pytest.ini", "pyproject.toml", "tox.ini",
         "build.gradle", "build.gradle.kts", "settings.gradle", "settings.gradle.kts",
         "gradlew", "scripts/governance/**", ".github/workflows/**",
     ]
@@ -196,6 +197,45 @@ class LightweighPolicy(ProjectPolicy):
                 return True
         return False
 
+    def _companion_tests(self, task) -> list:
+        try:
+            import yaml
+            data = yaml.safe_load((Path(self.root) / ".agentdrive" / "task-overrides.yaml").read_text(encoding="utf-8")) or {}
+            entry = data.get(getattr(task, "id", "")) or {}
+            return list(entry.get("companion_tests") or [])
+        except Exception:
+            return []
+
+    @staticmethod
+    def _assert_profile(text: str) -> dict:
+        import re
+        lines = [l for l in text.splitlines() if re.search(r"assert|verify|Expect", l)]
+        lits = re.findall(r'-?\d+(?:\.\d+)?|true|false|"[^"]*"', "\n".join(lines))
+        return {"lits": sorted(lits), "asserts": len(lines),
+                "tests": len(re.findall(r"@Test", text))}
+
+    def _test_integrity(self, task, ws: Workspace, path: str) -> list:
+        """伴生测试改动只许改调用，不许动期望值/减少断言/删除用例。"""
+        import subprocess
+        base = self._base_ref(ws)
+        if not base:
+            return []
+        try:
+            old = subprocess.run(["git", "show", f"{base}:{path}"], cwd=ws.location,
+                                 capture_output=True, text=True, timeout=60).stdout
+            new = (Path(ws.location) / path).read_text(encoding="utf-8", errors="replace")
+        except Exception:
+            return []
+        a, b = self._assert_profile(old), self._assert_profile(new)
+        problems = []
+        if a["lits"] != b["lits"]:
+            problems.append(f"{path}: assertion expectations changed")
+        if b["asserts"] < a["asserts"]:
+            problems.append(f"{path}: assertions reduced ({a['asserts']} -> {b['asserts']})")
+        if b["tests"] < a["tests"]:
+            problems.append(f"{path}: test cases removed ({a['tests']} -> {b['tests']})")
+        return problems
+
     def violations(self, task, ws: Workspace) -> dict:
         """Return {'scope': [...], 'protected': [...]} — empty lists mean OK."""
         if task is None:
@@ -204,9 +244,15 @@ class LightweighPolicy(ProjectPolicy):
         evidence = f".ai/evidence/{task.id}.json"
         scope, protected = [], []
         prot_pats = self._protected()
-        for f in self._changed_files(ws):
+        companion = set(self._companion_tests(task))
+        for f in self._changed_vs_base(ws):
             if self._match(f, self.DERIVED_PATTERNS):
                 continue  # 派生数据由 _sweep_derived 让路，不计入越界
+            if f in companion:
+                problems = self._test_integrity(task, ws, f)
+                if problems:
+                    protected.extend(problems)
+                continue
             allowed = f in targets or f == evidence or (f.startswith(".ai/evidence/") and f.endswith(".json"))
             if not allowed:
                 scope.append(f)
@@ -275,6 +321,46 @@ class LightweighPolicy(ProjectPolicy):
         files += [l for l in (r2.stdout or "").splitlines() if l.strip()]
         return sorted(set(files))
 
+    def _run_verify(self, task, ws: Workspace, fp: str) -> tuple:
+        """执行任务声明的验证命令；同一指纹只跑一次。返回 (ok, detail)。"""
+        import subprocess
+        cache = getattr(self, "_verify_cache", None)
+        if cache is None:
+            cache = self._verify_cache = {}
+        key = (getattr(task, "id", ""), fp)
+        if key in cache:
+            return cache[key]
+        cmds = (task.acceptance or {}).get("verify_commands") or []
+        results = []
+        ok = True
+        for cmd in cmds:
+            try:
+                r = subprocess.run(["bash", "-lc", cmd], cwd=ws.location,
+                                   capture_output=True, text=True, timeout=1800)
+                passed = r.returncode == 0
+                tail = ((r.stdout or "") + (r.stderr or "")).strip().splitlines()[-3:]
+            except Exception as e:
+                passed, tail = False, [str(e)]
+            results.append({"cmd": cmd, "ok": passed, "tail": tail})
+            if not passed:
+                ok = False
+                break
+        cache[key] = (ok, results)
+        return cache[key]
+
+    def _fingerprint(self, task, ws: Workspace) -> str:
+        """候选交付的指纹：只覆盖目标文件，避免 .cache 之类的高频写入干扰。"""
+        import hashlib
+        h = hashlib.sha256()
+        for rel in sorted(task.target_files or []):
+            fp = Path(ws.location) / rel
+            h.update(rel.encode())
+            if fp.exists():
+                h.update(fp.read_bytes())
+            else:
+                h.update(b"<missing>")
+        return h.hexdigest()
+
     def _candidate_tree(self, ws: Workspace) -> str:
         """Write a tree object for the current worktree state (no commit)."""
         import subprocess
@@ -329,12 +415,21 @@ class LightweighPolicy(ProjectPolicy):
         res = _run_json(["bash", self.wf, "gates", task.id, "--json", "--quick",
                          "--workdir", ws.location], Path(self.root), timeout=900)
         ok = bool(res and res.get("ok"))
+        fp = self._fingerprint(task, ws)
+        verify = []
+        if ok:
+            ok, verify = self._run_verify(task, ws, fp)
         tree = self._candidate_tree(ws) if ok else ""
         if ok:
             self._evidence = getattr(self, "_evidence", {})
-            self._evidence[task.id] = {"tree": tree, "gates": res.get("gates"), "ts": __import__("time").time()}
+            self._evidence[task.id] = {"tree": tree, "fp": fp,
+                                       "gates": res.get("gates"), "ts": __import__("time").time()}
+        if not ok and verify:
+            bad = next((v for v in verify if not v["ok"]), {})
+            return DoneResult(done=False, reason=f"verify failed: {bad.get('cmd','')}"[:120],
+                              evidence={"verify": verify})
         return DoneResult(done=ok, reason="" if ok else "gates failed",
-                          evidence={"tree": tree, "gates": (res or {}).get("gates")})
+                          evidence={"tree": tree, "fp": fp, "gates": (res or {}).get("gates")})
 
     def release(self, task: Optional[Task]) -> None:
         """交付成功后释放认领锁（wf-autopilot finish 自身不释放）。"""
@@ -364,8 +459,9 @@ class LightweighPolicy(ProjectPolicy):
 
         # 证据必须对应当前候选 tree（防止用旧证据证明新代码）
         tree = self._candidate_tree(ws)
+        fp = self._fingerprint(task, ws)
         ev = getattr(self, "_evidence", {}).get(task.id)
-        if not ev or ev.get("tree") != tree:
+        if not ev or (ev.get("fp") and ev.get("fp") != fp):
             return FinalizeResult(ok=False, detail={
                 "blocked": True,
                 "reason": "stale evidence: candidate tree changed since verification",
@@ -379,7 +475,9 @@ class LightweighPolicy(ProjectPolicy):
         ok = bool(res and res.get("ok"))
         if ok:
             drift = self._drift_since(tree, ws)
-            code_drift = [f for f in drift if not f.startswith(".ai/evidence/")]
+            code_drift = [f for f in drift
+                          if not f.startswith(".ai/evidence/")
+                          and not self._match(f, self.DERIVED_PATTERNS)]
             if code_drift:
                 return FinalizeResult(ok=False, detail={
                     "blocked": True,
@@ -418,7 +516,7 @@ class LightweighPolicy(ProjectPolicy):
         allowed = set(task.target_files or [])
         allowed.add(f".ai/evidence/{task.id}.json")
         removed = []
-        for f in self._changed_files(ws):
+        for f in self._changed_vs_base(ws):
             if f in allowed:
                 continue
             if f.startswith(".ai/evidence/") and f.endswith(".json"):

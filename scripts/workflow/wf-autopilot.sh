@@ -722,8 +722,10 @@ cmd_finish() {
     return 1
   fi
 
-  # 2) commit
+  # 2) commit（共享派生文件不进功能分支：AGENTS.md §5）
   git add -A >/dev/null 2>&1 || true
+  git reset -q -- .ai/tasks.json STATUS.md android-test-registry.yaml docs/index.md \
+      docs/ai/lifecycle docs/ai/inbox 2>/dev/null || true
   bash scripts/session/ses-claim-staged.sh >/dev/null 2>&1 || true
   local committed=0
   if ! git diff --cached --quiet 2>/dev/null; then

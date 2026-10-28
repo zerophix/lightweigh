@@ -210,6 +210,16 @@ class Driver:
                             pass
                     if not fin.ok:
                         d = fin.detail if isinstance(fin.detail, dict) else {}
+                        why = str(d.get("reason") or "")
+                        self.log(f"[drive] finalize refused: {why[:100]}")
+                        if why.startswith("code changed after verification"):
+                            # 验收期间 agent 仍在写：不判失败，下一轮重验
+                            self.log(f"[drive] verified tree moved ({why[:40]}); re-verifying")
+                            self._rounds += 1
+                            self.backend.prompt(sid, "验收期间文件又变了。请停止改动，确认当前状态可以交付后输出 {\"DONE\": true}。",
+                                                cwd=ws.location)
+                            no_progress = 0
+                            continue
                         if d.get("blocked"):
                             self._archive(task, ws, "finalize-blocked:" + str(d.get("reason"))[:60])
                             return "BLOCKED"
