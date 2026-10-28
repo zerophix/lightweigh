@@ -505,6 +505,37 @@ PY
   local br="feat/${tid,,}-${slug}"
   bash scripts/session/ses-worktree.sh add "$br" 2>&1 | grep -E "路径|已复制" | head -2
 
+  # DEC-077: Mode auto-selection based on task type
+  local auto_mode
+  auto_mode=$(python3 - "$ROOT" "$tid" <<'PY'
+import json, sys, re
+root, tid = sys.argv[1], sys.argv[2]
+d = json.load(open(f"{root}/.ai/tasks.json"))
+t = next((x for x in d.get("tasks", []) if x["id"] == tid), None)
+if not t:
+    print("code"); sys.exit(0)
+text = " ".join(filter(None, [t.get("description", ""), t.get("module", ""), t.get("type", "")])).lower()
+text += " " + json.dumps(t.get("description", "")).lower()
+if re.search(r'prototype|原型|探索|探索性', text): print("explore")
+elif re.search(r'\bdoc\b|文档|write.*doc', text): print("docs")
+elif re.search(r'\btest\b|测试|pytest|unit test', text): print("test")
+elif re.search(r'governance|治理|hook|hook|lint', text): print("gov")
+else: print("code")
+PY
+)
+  # Switch mode if needed (skip if already in desired mode)
+  local cur_mode; cur_mode=$(bash "$ROOT/scripts/workflow/wf-mode.sh" status 2>/dev/null | grep "当前模式" | cut -d" " -f2) || true
+  [ -z "$cur_mode" ] && cur_mode="dev"
+  if [ "$cur_mode" != "$auto_mode" ]; then
+    if [ "$auto_mode" = "explore" ] || [ "$auto_mode" = "docs" ] || [ "$auto_mode" = "test" ]; then
+      echo "  -> auto-switch mode: $cur_mode -> $auto_mode"
+      bash "$ROOT/scripts/workflow/wf-mode.sh" switch "$auto_mode" 2>&1 | grep -v "^GOV_MODE=" || true
+      bash "$ROOT/scripts/workflow/wf-mode.sh" post-hook "$auto_mode" 2>&1 | sed 's/^/   /'
+    fi
+  else
+    echo "  [mode] current: $cur_mode"
+  fi
+
   python3 - "$ROOT" "$tid" <<'PY'
 import json, sys
 root, tid = sys.argv[1], sys.argv[2]

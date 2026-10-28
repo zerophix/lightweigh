@@ -1,0 +1,13 @@
+name: gov-mode
+description: >
+  AI 工作模式管理 — explore/docs/test/code/gov/dev 五档模式切换 + 审计追踪。
+  替换 --no-verify 取巧: 切换到 explore 模式即可合法跳过编译,
+  系统自动记录审计日志, 合并时强制回到 dev 模式执行全量 CI。
+trigger:
+  - /mode
+  - /governance
+  - /切换模式
+  - /探索模式
+  - /doc-模式
+  - /dev-模式
+status: 生效
