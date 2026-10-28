@@ -43,3 +43,4 @@ scripts/tools/gitleaks-*
 # DEC-077: 工作模式文件 (运行时生成, 不提交)
 .ai/current-mode.json
 .ai/audit/
+.ai/shared-lock.json
