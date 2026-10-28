@@ -101,7 +101,20 @@ fi
 if [ -z "${GOV_MODE:-}" ] && [ -f "$ROOT/scripts/governance/gov-mode-lib.sh" ]; then
   # shellcheck source=/dev/null
   . "$ROOT/scripts/governance/gov-mode-lib.sh"
-  GOV_MODE=$(gov_mode_get 2>/dev/null || true)
+  MODE_VALIDATION="$(gov_mode_validate 2>/dev/null || true)"
+  GOV_MODE="$(printf '%s' "$MODE_VALIDATION" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('mode','dev'))" 2>/dev/null)"
+  VALID="$(printf '%s' "$MODE_VALIDATION" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('valid',False))" 2>/dev/null)"
+  EXPIRED="$(printf '%s' "$MODE_VALIDATION" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('expired',False))" 2>/dev/null)"
+
+  if [ "$VALID" != "True" ]; then
+    echo "  [WARNING] 模式 HMAC 校验失败, 回退到 dev" >&2
+    GOV_MODE="dev"
+  elif [ "$EXPIRED" = "True" ]; then
+    echo "  [WARNING] 模式 $GOV_MODE 已过期, 回退到 dev" >&2
+    GOV_MODE="dev"
+  else
+    echo "  ✓ 模式验证通过: $GOV_MODE (session: ${SESSION_ID:-unknown})"
+  fi
 fi
 GOV_MODE="${GOV_MODE:-dev}"
 if [ "$GOV_MODE" = "explore" ] || [ "$GOV_MODE" = "docs" ]; then
