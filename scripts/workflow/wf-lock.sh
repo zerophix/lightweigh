@@ -140,11 +140,11 @@ acquire_file() {
 
   # Check for existing lock
   if [ -f "$lock_path" ]; then
-    local holder_mode; holder_mode=$(python3 -c "
+    local lock_info; lock_info=$(python3 -c "
 import json, sys, time
 try:
     with open('$lock_path') as f: d=json.load(f)
-    if d.get('expires', 0) > time.time():
+    if d.get('expires_at', 0) > time.time():
         print(d.get('holder','unknown'))
         print(d.get('mode','unknown'))
         sys.exit(0)
@@ -153,12 +153,12 @@ try:
 except:
     print('')
 " 2>/dev/null)
-    if [ -n "$holder_mode" ]; then
-      local holder holder_mode
-      read -r holder holder_mode <<< "$holder_mode"
+    if [ -n "$lock_info" ]; then
+      local lock_holder lock_mode
+      read -r lock_holder lock_mode <<< "$(echo "$lock_info" | tr '\n' ' ')"
       local remaining=$(( expires - now ))
       echo "❌ 文件已锁定: $file"
-      echo "   持有者: $holder (模式: $holder_mode)"
+      echo "   持有者: $lock_holder (模式: $lock_mode)"
       echo "   请联系该会话结束后再编辑, 或过期后重试"
       echo "   紧急: bash scripts/workflow/wf-lock.sh file-release \"$file\""
       return 1
