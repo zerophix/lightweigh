@@ -28,11 +28,15 @@ class ProjectPolicy(ABC):
     def memory(self, task: Optional[Task], ws: Workspace) -> List[str]:
         return ["AGENTS.md", "README.md"]
 
-    # 6) Archive evidence on abort (optional; never delete silently)
+    # 6) Release task ownership after successful delivery (optional)
+    def release(self, task: Optional[Task]) -> None:
+        return None
+
+    # 7) Archive evidence on abort (optional; never delete silently)
     def archive(self, task: Optional[Task], ws: Workspace, reason: str = "") -> None:
         return None
 
-    # 7) Role / model
+    # 8) Role / model
     def role(self, task: Optional[Task]) -> Role:
         return Role()
 

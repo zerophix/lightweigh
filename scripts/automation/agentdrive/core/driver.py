@@ -163,6 +163,7 @@ class Driver:
             if not state:
                 continue
             tokens = state.get("tokens", {}).get("input", 0)
+            self._tokens = tokens
             outcome = state.get("outcome")
             idle_ms = state.get("time", {}).get("idle", 0)
 
@@ -201,6 +202,12 @@ class Driver:
                     self._emit("done", session=sid, task=getattr(task, "id", None))
                     fin = self.policy.finalize(task, ws)
                     self.log(f"[drive] finalize ok={fin.ok}")
+                    if fin.ok:
+                        try:
+                            self.policy.release(task)
+                            self.log("[drive] lock released")
+                        except Exception:
+                            pass
                     if not fin.ok:
                         d = fin.detail if isinstance(fin.detail, dict) else {}
                         if d.get("blocked"):
@@ -251,7 +258,8 @@ class Driver:
             return Outcome("FAILED", detail="session create failed")
         self.log(f"[drive] session={sid} location={ws.location} role={role.name}")
         status = self._supervise(sid, goal, task, ws)
-        return Outcome(status, sid, rounds=getattr(self, "_rounds", 0), detail={"role": role.name})
+        return Outcome(status, sid, rounds=getattr(self, "_rounds", 0),
+                       tokens=getattr(self, "_tokens", 0), detail={"role": role.name})
 
     def run_group(self, goal: str, role_id: str, tasks: List[Task]) -> Outcome:
         """One session handles a whole role's task group, task by task."""

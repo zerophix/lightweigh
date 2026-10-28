@@ -261,6 +261,18 @@ class LightweighPolicy(ProjectPolicy):
         except Exception:
             return ""
 
+    def _drift_since(self, tree: str, ws: Workspace) -> list:
+        """验证之后相对候选 tree 发生的文件变化（evidence 允许漂移）。"""
+        import subprocess
+        if not tree:
+            return []
+        try:
+            r = subprocess.run(["git", "diff", "--name-only", tree, "HEAD"], cwd=ws.location,
+                               capture_output=True, text=True, timeout=60)
+            return [l for l in (r.stdout or "").splitlines() if l.strip()]
+        except Exception:
+            return []
+
     def _head(self, ws: Workspace) -> str:
         import subprocess
         try:
@@ -294,6 +306,17 @@ class LightweighPolicy(ProjectPolicy):
         return DoneResult(done=ok, reason="" if ok else "gates failed",
                           evidence={"tree": tree, "gates": (res or {}).get("gates")})
 
+    def release(self, task: Optional[Task]) -> None:
+        """交付成功后释放认领锁（wf-autopilot finish 自身不释放）。"""
+        if not task:
+            return
+        import subprocess
+        try:
+            subprocess.run(["bash", str(Path(self.root) / "scripts/workflow/wf-claim.sh"), "release", task.id],
+                           cwd=self.root, capture_output=True, text=True, timeout=60)
+        except Exception:
+            pass
+
     def finalize(self, task: Optional[Task], ws: Workspace) -> FinalizeResult:
         if not task:
             return FinalizeResult(ok=False, detail="no task")
@@ -323,10 +346,22 @@ class LightweighPolicy(ProjectPolicy):
         res = _run_json(["bash", self.wf, "finish", task.id, "--json",
                          "--workdir", ws.location], Path(self.root), timeout=900)
         detail = res or {}
+        ok = bool(res and res.get("ok"))
+        if ok:
+            drift = self._drift_since(tree, ws)
+            code_drift = [f for f in drift if not f.startswith(".ai/evidence/")]
+            if code_drift:
+                return FinalizeResult(ok=False, detail={
+                    "blocked": True,
+                    "reason": "code changed after verification: " + ", ".join(code_drift[:5]),
+                    "drift": drift,
+                })
+            if isinstance(detail, dict):
+                detail["_drift"] = drift
         if isinstance(detail, dict):
             detail["_verified_tree"] = tree
             detail["_commit"] = self._head(ws)
-        return FinalizeResult(ok=bool(res and res.get("ok")), detail=detail)
+        return FinalizeResult(ok=ok, detail=detail)
 
     # ---------- scope guard + archive ----------
 
