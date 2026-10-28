@@ -114,26 +114,6 @@ else
   BYPASS_MODE="${GOV_BYPASS_POLICY:-warn}"
 fi
 
-# DEC-077: 共享文件锁防御 (pre-commit 已检查, 此处为 defense-in-depth)
-# 检查 push 的提交中是否包含未持锁的共享文件
-SHARED_REGEX='^(\.ai/tasks\.json|STATUS\.md|tests/android-test-registry\.yaml|docs/ai/lifecycle/03_TaskGraph\.md|docs/ai/lifecycle/06_Metrics\.md|docs/index\.md|AGENTS\.md)$'
-if [ -n "$COMMITS" ] && [ -f "$ROOT/scripts/workflow/wf-lock.sh" ]; then
-  SHARED_IN_PUSH=$(echo "$COMMITS" | tr ' ' '\n' | while read -r sha; do
-    git diff-tree --no-commit-id --name-only -r "$sha" 2>/dev/null || true
-  done | grep -E "$SHARED_REGEX" || true)
-  if [ -n "$SHARED_IN_PUSH" ]; then
-    SESSION_ID_CURR="$(cat "$ROOT/.ai/current-session.json" 2>/dev/null | python3 -c 'import json,sys; print(json.load(sys.stdin).get("session_id",""))' 2>/dev/null || true)"
-    for f in $SHARED_IN_PUSH; do
-      LOCK_STATUS=$(bash "$ROOT/scripts/workflow/wf-lock.sh" file-check "$f" 2>/dev/null || echo "UNLOCKED")
-      if ! echo "$LOCK_STATUS" | grep -q "$SESSION_ID_CURR"; then
-        echo ""
-        echo "  [⚠️] 共享文件 $f 在提交中被修改, 但当前会话未持锁"
-        echo "       可能原因: 锁已过期 (默认 240min) 或由其他会话修改"
-        echo "       如确有修改权限: bash scripts/workflow/wf-lock.sh file-acquire \"$f\" --mode docs"
-      fi
-    done
-  fi
-fi
 COMMITS=""
 if [ -n "$PUSH_INPUT" ]; then
   while read -r _lref lsha _rref rsha; do
@@ -147,6 +127,27 @@ if [ -n "$PUSH_INPUT" ]; then
     fi
   done <<< "$PUSH_INPUT"
 fi
+
+# DEC-077: 共享文件锁防御 (pre-commit 已检查, 此处为 defense-in-depth)
+if [ -n "${COMMITS:-}" ] && [ -f "$ROOT/scripts/workflow/wf-lock.sh" ]; then
+  SHARED_REGEX='^(\.ai/tasks\.json|STATUS\.md|tests/android-test-registry\.yaml|docs/ai/lifecycle/03_TaskGraph\.md|docs/ai/lifecycle/06_Metrics\.md|docs/index\.md|AGENTS\.md)$'
+  SHARED_IN_PUSH=$(echo "${COMMITS:-}" | tr ' ' '\n' | while read -r sha; do
+    git diff-tree --no-commit-id --name-only -r "$sha" 2>/dev/null || true
+  done | grep -E "$SHARED_REGEX" || true)
+  if [ -n "$SHARED_IN_PUSH" ]; then
+    SESSION_ID_CURR="$(cat "$ROOT/.ai/current-session.json" 2>/dev/null | python3 -c 'import json,sys; print(json.load(sys.stdin).get("session_id",""))' 2>/dev/null || true)"
+    for f in $SHARED_IN_PUSH; do
+      LOCK_STATUS=$(bash "$ROOT/scripts/workflow/wf-lock.sh" file-check "$f" 2>/dev/null || echo "UNLOCKED")
+      if ! echo "$LOCK_STATUS" | grep -q "$SESSION_ID_CURR"; then
+        echo ""
+        echo "  [WARNING] 共享文件 $f 在提交中被修改, 但当前会话未持锁"
+        echo "       可能原因: 锁已过期 (默认 240min) 或由其他会话修改"
+        echo "       如确有修改权限: bash scripts/workflow/wf-lock.sh file-acquire \"$f\" --mode docs"
+      fi
+    done
+  fi
+fi
+
 # shellcheck disable=SC2086
 if [ -n "$COMMITS" ]; then
   # BYPASS_MODE 可能已带前缀 (--audit-only) 或不带
