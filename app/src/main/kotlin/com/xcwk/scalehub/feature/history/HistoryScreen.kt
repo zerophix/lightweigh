@@ -2,7 +2,6 @@
 
 package com.xcwk.scalehub.feature.history
 
-import android.content.Intent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -33,23 +32,16 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.xcwk.scalehub.application.query.TrendSegment
-import com.xcwk.scalehub.ui.components.segmentLabel
 import com.xcwk.scalehub.ui.components.QkBackButton
-import com.xcwk.scalehub.ui.components.QkButton
-import com.xcwk.scalehub.ui.components.QkButtonStyle
 import com.xcwk.scalehub.ui.components.QkCard
-import com.xcwk.scalehub.ui.components.QkChip
 import com.xcwk.scalehub.ui.components.QkDateChip
 import com.xcwk.scalehub.ui.components.QkDivider
 import com.xcwk.scalehub.ui.components.QkEmptyHint
 import com.xcwk.scalehub.ui.components.QkListRow
 import com.xcwk.scalehub.ui.components.QkPageTitle
-import com.xcwk.scalehub.ui.components.QkSegmented
 import com.xcwk.scalehub.ui.theme.QkColor
 import com.xcwk.scalehub.ui.theme.QkSpacing
 import com.xcwk.scalehub.ui.theme.QkTheme
@@ -73,7 +65,6 @@ fun HistoryScreen(
     onOpenCompare: () -> Unit = {},
     onOpenDetail: (Long) -> Unit = onOpenReport,
 ) {
-    val context = LocalContext.current
     var showDayPicker by rememberSaveable { mutableStateOf(false) }
     var showMemberFilter by rememberSaveable { mutableStateOf(false) }
 
