@@ -1,0 +1,20 @@
+{
+  "task": "T-137",
+  "ok": true,
+  "git_sha": "9ca39ab509ca078e7e4d96b02427c6dfc4e63f69",
+  "verified_at": "2026-10-28T13:44:37Z",
+  "checks": [
+    {
+      "type": "file",
+      "name": "tests/unit/test_functional_acceptance.py",
+      "status": "PASS",
+      "detail": "存在"
+    },
+    {
+      "type": "command",
+      "name": "python3 -m pytest tests/unit/test_functional_acceptance.py -v",
+      "status": "PASS",
+      "detail": "退出码 0"
+    }
+  ]
+}
