@@ -95,7 +95,13 @@ fun DeviceScreen(
         // TODO: 恢复 ZXing 扫码功能
     }
     manageTarget?.let { target ->
-        DeviceManageRoute(target = target, onBack = { manageTarget = null })
+        val activeMac = vm.getActiveDeviceMac() ?: return@let
+        DeviceManageRoute(
+            target = target,
+            onBack = { manageTarget = null },
+            activeDeviceMac = activeMac,
+            deviceRepository = vm.deviceRepository,
+        )
         return
     }
 

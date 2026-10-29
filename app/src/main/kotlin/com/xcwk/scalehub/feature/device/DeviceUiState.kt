@@ -12,6 +12,13 @@ data class FoundScale(
     val alreadyBound: Boolean,
 )
 
+/** 固件检查结果（T-133 接入波 Batch2）。 */
+data class FirmwareCheckResult(
+    val currentVersion: String,
+    val latestVersion: String,
+    val hasUpdate: Boolean,
+)
+
 data class DeviceUiState(
     val bound: List<ScaleDevice> = emptyList(),
     val found: List<FoundScale> = emptyList(),
@@ -20,6 +27,12 @@ data class DeviceUiState(
     val message: String? = null,
     /** 配对流程态；null = 不在配对流程（停留设备列表页）。 */
     val pairing: PairingState? = null,
+    /** 固件检查结果（T-133）。 */
+    val firmwareCheckResult: FirmwareCheckResult? = null,
+    /** 是否正在 OTA 升级（T-133）。 */
+    val firmwareUpdating: Boolean = false,
+    /** OTA 进度 0-100（T-133）。 */
+    val otaProgress: Int = 0,
 )
 
 // ---- 配对状态机（T-104 · 原型 04-device.html 的 v-pairing/v-pair-success/v-pair-fail） ----
@@ -119,4 +132,24 @@ sealed interface DeviceIntent {
 
     /** 配对流程事件（状态机见 [pairingReduce]）。 */
     data class Pairing(val intent: PairingIntent) : DeviceIntent
+
+    // ---- T-133 接入波 Batch2 新增意图 ----
+
+    /** 重命名设备（当前激活设备）。 */
+    data class RenameDevice(val newName: String) : DeviceIntent
+
+    /** 更新成员设备关联（当前激活设备）。 */
+    data class UpdateMemberLinks(val memberIds: Set<String>) : DeviceIntent
+
+    /** 请求固件版本检查（当前激活设备）。 */
+    data object CheckFirmware : DeviceIntent
+
+    /** 启动 OTA 升级（当前激活设备）。 */
+    data object StartOta : DeviceIntent
+
+    /** OTA 进度回填（由 BlePort/ViewModel 回调）。 */
+    data class OtaProgress(val percent: Int) : DeviceIntent
+
+    /** OTA 完成确认。 */
+    data object OtaComplete : DeviceIntent
 }

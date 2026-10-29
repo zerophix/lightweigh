@@ -103,6 +103,11 @@ class SettingsViewModelTest {
         override fun activate(mac: String) = Unit
         override fun unbind(mac: String) = Unit
         override fun restoreAll(devices: List<com.xcwk.scalehub.domain.model.ScaleDevice>) = Unit
+        // T-133 接入波 Batch2 新增方法（测试存根）
+        override fun renameDevice(mac: String, newName: String) = null
+        override fun updateMemberLinks(mac: String, memberIds: Set<String>) = Unit
+        override fun checkFirmware(mac: String) = null
+        override fun startOta(mac: String) = Unit
     }
 
     private class FakeCloud : CloudDataPort {
