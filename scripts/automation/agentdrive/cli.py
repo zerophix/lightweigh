@@ -72,17 +72,16 @@ def main(argv=None):
         goal = args.goal
 
     backend = OpenCodeBackend(home=root)
-    guard = Guard(max_rounds=args.max_rounds, budget_tokens=args.budget_tokens,
-                  max_wallclock_s=args.wallclock, pause_token=args.pause_token)
-    events = EventLog(str(root / ".cache" / "agentdrive" / "events.jsonl"))
 
     pool = None
     if args.reuse_sessions:
         from .core.pool import SessionPool
         pool = SessionPool(root=root, backend=backend)
 
-    driver = Driver(policy=policy, backend=backend, guard=guard,
-                    events=events, poll_interval=args.poll, pool=pool)
+    driver = Driver(policy=policy, backend=backend, pool=pool,
+                    poll_interval=args.poll,
+                    max_wallclock_s=args.wallclock,
+                    token_warn=args.budget_tokens)
 
     if args.role:
         group = policy.task_group(args.role) if hasattr(policy, "task_group") else []
