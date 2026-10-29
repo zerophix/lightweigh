@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
  */
 class DeviceViewModel(
     private val ble: BlePort,
-    private val devices: DeviceRepository,
+    val deviceRepository: DeviceRepository,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(DeviceUiState())
@@ -46,14 +46,21 @@ class DeviceViewModel(
             is DeviceIntent.Bind -> bind(intent.found)
             is DeviceIntent.QrBind -> bindQr(intent.name, intent.mac)
             is DeviceIntent.Unbind -> {
-                devices.unbind(intent.mac)
+                deviceRepository.unbind(intent.mac)
                 refresh()
             }
             is DeviceIntent.Activate -> {
-                devices.activate(intent.mac)
+                deviceRepository.activate(intent.mac)
                 refresh()
             }
             DeviceIntent.Refresh -> refresh()
+            // ---- T-133 接入波 Batch2 新增意图处理 ----
+            is DeviceIntent.RenameDevice -> renameDevice(intent.newName)
+            is DeviceIntent.UpdateMemberLinks -> updateMemberLinks(intent.memberIds)
+            DeviceIntent.CheckFirmware -> checkFirmware()
+            DeviceIntent.StartOta -> startOta()
+            is DeviceIntent.OtaProgress -> otaProgress(intent.percent)
+            DeviceIntent.OtaComplete -> otaComplete()
             is DeviceIntent.Pairing -> {
                 // 进入配对流程即停扫（配对期间广播列表不再刷新）；其余事件不改扫描态
                 if (intent.intent is PairingIntent.Start) stopScan()
@@ -109,7 +116,7 @@ class DeviceViewModel(
                         it.copy(
                             found = current + FoundScale(
                                 name, mac, rssi, match.summary, match.protocolId,
-                                alreadyBound = devices.contains(mac),
+                                alreadyBound = deviceRepository.contains(mac),
                             ),
                             notice = "发现 ${current.size + 1} 台体脂秤",
                         )
@@ -132,22 +139,81 @@ class DeviceViewModel(
     /** 扫码路径固定 okok-1（旧库 finishBind(qr.name, qr.mac, PROTOCOL_OKOK_1)）。 */
     private fun bindQr(name: String, mac: String) {
         stopScan()
-        val existed = devices.contains(mac)
-        devices.bind(name.ifBlank { "智能体脂秤" }, mac, ScaleDevice.PROTOCOL_OKOK_1)
+        val existed = deviceRepository.contains(mac)
+        deviceRepository.bind(name.ifBlank { "智能体脂秤" }, mac, ScaleDevice.PROTOCOL_OKOK_1)
         refresh()
-        _state.update { it.copy(message = (if (existed) "已切换到 " else "已绑定 ") + (devices.device(mac)?.name ?: mac)) }
+        _state.update { it.copy(message = (if (existed) "已切换到 " else "已绑定 ") + (deviceRepository.device(mac)?.name ?: mac)) }
     }
 
     private fun bind(found: FoundScale) {
         stopScan()
-        val existed = devices.contains(found.mac)
-        devices.bind(found.name, found.mac, found.protocolId)
+        val existed = deviceRepository.contains(found.mac)
+        deviceRepository.bind(found.name, found.mac, found.protocolId)
         refresh()
-        _state.update { it.copy(message = (if (existed) "已切换到 " else "已绑定 ") + (devices.device(found.mac)?.name ?: found.name)) }
+        _state.update { it.copy(message = (if (existed) "已切换到 " else "已绑定 ") + (deviceRepository.device(found.mac)?.name ?: found.name)) }
     }
 
     private fun refresh() {
-        _state.update { it.copy(bound = devices.devices()) }
+        _state.update { it.copy(bound = deviceRepository.devices()) }
+    }
+
+    // ---- T-133 接入波 Batch2 新增能力实现 ----
+
+    /** 获取当前激活设备的 MAC。 */
+    fun getActiveDeviceMac(): String? = _state.value.bound.firstOrNull { it.active }?.mac
+
+    /** 重命名当前激活设备。 */
+    private fun renameDevice(newName: String) {
+        getActiveDeviceMac()?.let { mac ->
+            val updated = deviceRepository.renameDevice(mac, newName)
+            updated?.let { refresh() }
+        }
+    }
+
+    /** 更新当前激活设备的成员关联。 */
+    private fun updateMemberLinks(memberIds: Set<String>) {
+        getActiveDeviceMac()?.let { mac ->
+            deviceRepository.updateMemberLinks(mac, memberIds)
+            refresh()
+        }
+    }
+
+    /** 请求固件版本检查。 */
+    private fun checkFirmware() {
+        getActiveDeviceMac()?.let { mac ->
+            viewModelScope.launch {
+                val info = deviceRepository.checkFirmware(mac)
+                info?.let { firmwareInfo ->
+                    _state.update { it.copy(
+                        firmwareCheckResult = FirmwareCheckResult(
+                            currentVersion = firmwareInfo.currentVersion,
+                            latestVersion = firmwareInfo.latestVersion,
+                            hasUpdate = firmwareInfo.hasUpdate,
+                        )
+                    ) }
+                }
+            }
+        }
+    }
+
+    /** 启动 OTA 升级。 */
+    private fun startOta() {
+        getActiveDeviceMac()?.let { mac ->
+            deviceRepository.startOta(mac)
+            _state.update { it.copy(firmwareUpdating = true, otaProgress = 0) }
+        }
+    }
+
+    /** OTA 进度回填。 */
+    private fun otaProgress(percent: Int) {
+        _state.update { it.copy(otaProgress = percent.coerceIn(0, 100)) }
+    }
+
+    /** OTA 完成确认。 */
+    private fun otaComplete() {
+        _state.update { it.copy(firmwareUpdating = false, otaProgress = 100) }
+        // 升级完成后可刷新固件版本
+        checkFirmware()
     }
 
     companion object {

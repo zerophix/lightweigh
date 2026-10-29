@@ -91,6 +91,12 @@ class DeviceViewModelTest {
         override fun restoreAll(devices: List<ScaleDevice>) {
             list = devices.toMutableList()
         }
+
+        // T-133 接入波 Batch2 新增方法（测试存根）
+        override fun renameDevice(mac: String, newName: String): ScaleDevice? = null
+        override fun updateMemberLinks(mac: String, memberIds: Set<String>) = Unit
+        override fun checkFirmware(mac: String): DeviceRepository.FirmwareInfo? = null
+        override fun startOta(mac: String) = Unit
     }
 
     /** okok 广播字段：[0x10][0xFF][C0 .. weight BE@4..5 flags@10]。 */

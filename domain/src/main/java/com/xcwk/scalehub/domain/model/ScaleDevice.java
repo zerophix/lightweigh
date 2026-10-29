@@ -15,18 +15,24 @@ public final class ScaleDevice {
     public final boolean active;
     public final String protocolId;
     public final String algorithmId;
+    public final String firmwareVersion;
 
     public ScaleDevice(String name, String mac, String boundAt, boolean active) {
-        this(name, mac, boundAt, active, PROTOCOL_OKOK_1, ALGORITHM_BUILTIN_1);
+        this(name, mac, boundAt, active, PROTOCOL_OKOK_1, ALGORITHM_BUILTIN_1, "v1.1.0");
     }
 
     public ScaleDevice(String name, String mac, String boundAt, boolean active, String protocolId, String algorithmId) {
+        this(name, mac, boundAt, active, protocolId, algorithmId, "v1.1.0");
+    }
+
+    public ScaleDevice(String name, String mac, String boundAt, boolean active, String protocolId, String algorithmId, String firmwareVersion) {
         this.name = name;
         this.mac = mac;
         this.boundAt = boundAt;
         this.active = active;
         this.protocolId = protocolId == null || protocolId.isEmpty() ? PROTOCOL_OKOK_1 : protocolId;
         this.algorithmId = algorithmId == null || algorithmId.isEmpty() ? ALGORITHM_BUILTIN_1 : algorithmId;
+        this.firmwareVersion = firmwareVersion == null || firmwareVersion.isEmpty() ? "v1.1.0" : firmwareVersion;
     }
 
     /**
@@ -44,6 +50,14 @@ public final class ScaleDevice {
     }
 
     public ScaleDevice withActive(boolean on) {
-        return new ScaleDevice(name, mac, boundAt, on, protocolId, algorithmId);
+        return new ScaleDevice(name, mac, boundAt, on, protocolId, algorithmId, firmwareVersion);
+    }
+
+    public ScaleDevice withName(String newName) {
+        return new ScaleDevice(newName, mac, boundAt, active, protocolId, algorithmId, firmwareVersion);
+    }
+
+    public ScaleDevice withFirmwareVersion(String newVersion) {
+        return new ScaleDevice(name, mac, boundAt, active, protocolId, algorithmId, newVersion);
     }
 }

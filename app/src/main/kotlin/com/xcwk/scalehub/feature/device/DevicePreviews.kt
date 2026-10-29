@@ -2,6 +2,8 @@ package com.xcwk.scalehub.feature.device
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import com.xcwk.scalehub.domain.model.ScaleDevice
+import com.xcwk.scalehub.domain.repository.DeviceRepository
 import com.xcwk.scalehub.ui.shell.WiringTarget
 import com.xcwk.scalehub.ui.theme.QkTheme
 
@@ -78,6 +80,25 @@ private fun DeviceConnectFlowPreviewDefault() {
 @Composable
 private fun DeviceManageRoutePreviewRename() {
     QkTheme {
-        DeviceManageRoute(target = WiringTarget.DeviceRename, onBack = {})
+        DeviceManageRoute(
+            target = WiringTarget.DeviceRename,
+            onBack = {},
+            activeDeviceMac = "AA:BB:CC:DD:EE:FF",
+            deviceRepository = FakeDeviceRepository(),
+        )
     }
+}
+
+private class FakeDeviceRepository : DeviceRepository {
+    override fun devices(): List<ScaleDevice> = emptyList()
+    override fun contains(mac: String) = false
+    override fun device(mac: String) = null
+    override fun bind(name: String, mac: String, protocolId: String) = null
+    override fun activate(mac: String) = Unit
+    override fun unbind(mac: String) = Unit
+    override fun restoreAll(devices: List<ScaleDevice>) = Unit
+    override fun renameDevice(mac: String, newName: String) = null
+    override fun updateMemberLinks(mac: String, memberIds: Set<String>) = Unit
+    override fun checkFirmware(mac: String) = null
+    override fun startOta(mac: String) = Unit
 }
