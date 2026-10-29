@@ -8,6 +8,7 @@ data class HistoryRowUi(
     val timeText: String,      // "MM-dd HH:mm"
     val weightText: String,    // "%.1f"
     val fatText: String,       // "18.4%"，未计算 "--"
+    val bmiText: String?,      // "22.1"，未计算 null
     val deltaText: String?,    // 较升序前一条的体重差（带符号），首条 null
 )
 

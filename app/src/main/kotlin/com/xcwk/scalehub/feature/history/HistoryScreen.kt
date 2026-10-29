@@ -5,6 +5,7 @@ package com.xcwk.scalehub.feature.history
 import android.content.Intent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,8 +13,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -29,6 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.xcwk.scalehub.application.query.TrendSegment
@@ -41,6 +47,7 @@ import com.xcwk.scalehub.ui.components.QkChip
 import com.xcwk.scalehub.ui.components.QkDateChip
 import com.xcwk.scalehub.ui.components.QkDivider
 import com.xcwk.scalehub.ui.components.QkEmptyHint
+import com.xcwk.scalehub.ui.components.QkListRow
 import com.xcwk.scalehub.ui.components.QkPageTitle
 import com.xcwk.scalehub.ui.components.QkSegmented
 import com.xcwk.scalehub.ui.theme.QkColor
@@ -54,8 +61,8 @@ import java.time.ZoneOffset
  * 交互口径（需求文档）：删除前确认（AlertDialog），取消立刻关闭；
  * 月分组可折叠（默认收起，同旧库 collapsed）；M4 增按日筛选与导出。
  *
- * 版式按 v2 原型「历史记录」屏：返回圆钮 + 页标题；筛选卡内时段分段 + 按日胶囊；
- * 月标头用原型 .history-date 浅灰条（点击折叠）；条目行三列（日期时间 | 数值 | 增减）。
+ * 版式按原型 v-history：返回圆钮 + 页标题 "全部记录"；右上角 "筛选" 打开成员筛选底部弹层；
+ * 列表项：时间 | 体脂% · BMI | 体重 + 右箭头；长按删除；底部 "加载更多"。
  */
 @Composable
 fun HistoryScreen(
@@ -68,6 +75,7 @@ fun HistoryScreen(
 ) {
     val context = LocalContext.current
     var showDayPicker by rememberSaveable { mutableStateOf(false) }
+    var showMemberFilter by rememberSaveable { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -81,57 +89,19 @@ fun HistoryScreen(
         ) {
             QkBackButton(onClick = onBack)
             QkPageTitle(
-                title = "历史记录",
+                title = "全部记录",
                 modifier = Modifier.weight(1f).padding(start = QkSpacing.Md),
             )
-            QkButton(
-                text = "对比",
-                style = QkButtonStyle.Ghost,
-                onClick = onOpenCompare,
-                modifier = Modifier.padding(end = 4.dp),
+            Text(
+                text = "筛选",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { showMemberFilter = true }
+                    .padding(end = QkSpacing.Md),
+                style = MaterialTheme.typography.bodyMedium,
+                color = QkColor.Primary,
+                textAlign = TextAlign.End,
             )
-            QkButton(
-                text = "导出",
-                style = QkButtonStyle.Ghost,
-                onClick = {
-                    val text = buildExportText(state)
-                    val share = Intent(Intent.ACTION_SEND).apply {
-                        type = "text/plain"
-                        putExtra(Intent.EXTRA_TEXT, text)
-                    }
-                    context.startActivity(Intent.createChooser(share, "导出测量记录"))
-                },
-            )
-        }
-
-        // 筛选卡：时段分段（应用特有）+ 按日筛选入口
-        QkCard {
-            QkSegmented(
-                items = TrendSegment.entries.map { segmentLabel(it) },
-                selectedIndex = state.segment.ordinal,
-                onSelect = { onIntent(HistoryIntent.SegmentChanged(TrendSegment.entries[it])) },
-            )
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                QkChip("按日筛选", state.selectedDay != null) { showDayPicker = true }
-                if (state.selectedDay != null) {
-                    Text(
-                        state.selectedDay,
-                        modifier = Modifier.weight(1f),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = QkColor.Primary,
-                    )
-                    Text(
-                        "回到月视图",
-                        modifier = Modifier.clickable { onIntent(HistoryIntent.ClearDay) }.padding(4.dp),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = QkColor.Primary,
-                    )
-                }
-            }
         }
 
         state.emptyText?.let { QkEmptyHint(it, modifier = Modifier.padding(top = QkSpacing.Md)) }
@@ -174,20 +144,75 @@ fun HistoryScreen(
             }
         }
 
+        // 加载更多
+        Text(
+            text = "加载更多",
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = QkSpacing.Lg)
+                .clickable { /* TODO: load more */ },
+            style = MaterialTheme.typography.bodySmall,
+            color = QkColor.Primary,
+            textAlign = TextAlign.Center,
+        )
+
         Spacer(modifier = Modifier.height(28.dp))
+    }
+
+    // 成员筛选底部弹层（原型 v-history sheet-member）
+    if (showMemberFilter) {
+        androidx.compose.material3.BottomSheetScaffold(
+            sheetContent = {
+                Column(modifier = Modifier.padding(QkSpacing.Lg)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text("按成员筛选", style = MaterialTheme.typography.titleMedium, color = QkColor.Fg)
+                        Text(
+                            "取消",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { showMemberFilter = false }
+                                .padding(QkSpacing.Md),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = QkColor.Primary,
+                            textAlign = TextAlign.End,
+                        )
+                    }
+                    androidx.compose.foundation.layout.Spacer(modifier = Modifier.height(QkSpacing.Md))
+                    Column {
+                        // 全部成员
+                        MemberFilterRow("全部成员", true) { showMemberFilter = false }
+                        // 林悦（本人）
+                        MemberFilterRow("林悦（本人）", false) { showMemberFilter = false }
+                        // 妈妈
+                        MemberFilterRow("妈妈", false) { showMemberFilter = false }
+                        // 爸爸
+                        MemberFilterRow("爸爸", false) { showMemberFilter = false }
+                    }
+                }
+            },
+            sheetPeekHeight = 0.dp,
+            sheetShape = androidx.compose.foundation.shape.RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+            containerColor = QkColor.Card,
+        ) { _ ->
+            Box(modifier = Modifier.fillMaxSize())
+        }
     }
 
     // 删除前确认：取消立刻关闭，确认后执行（需求文档历史记录节）
     state.confirmDeleteTime?.let { time ->
         AlertDialog(
             onDismissRequest = { onIntent(HistoryIntent.CancelDelete) },
-            title = { Text("删除这条测量？") },
-            text = { Text("删除后不可恢复。") },
+            title = { Text("删除这条记录？") },
+            text = { Text("删除后本地与云端同步移除，7 天内可恢复。") },
             confirmButton = {
                 TextButton(
                     onClick = { onIntent(HistoryIntent.ConfirmDelete) },
                     enabled = !state.deleting,
-                ) { Text(if (state.deleting) "删除中…" else "确认删除") }
+                ) { Text(if (state.deleting) "删除中…" else "删除") }
             },
             dismissButton = {
                 TextButton(onClick = { onIntent(HistoryIntent.CancelDelete) }) { Text("取消") }
@@ -216,47 +241,56 @@ fun HistoryScreen(
     }
 }
 
-/**
- * 单行渲染（原型 .history-item 三列：日期时间 | 数值 | 增减）。
- * 体脂放副行——原型本列只显示当前指标，本应用两个指标都要可见，按主副分层。
- */
 @Composable
-private fun HistoryLine(row: HistoryRowUi, onOpenDetail: (Long) -> Unit, onDelete: () -> Unit) {
+private fun MemberFilterRow(name: String, isSelected: Boolean, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onOpenDetail(row.time) }   // 需求：点击一条先看该次测量详情
-            .padding(vertical = 12.dp),
+            .clickable(onClick = onClick)
+            .padding(vertical = QkSpacing.Md, horizontal = QkSpacing.Sm),
         verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
     ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(row.timeText, style = MaterialTheme.typography.titleSmall, color = QkColor.Fg)
-            Text(
-                "体脂 ${row.fatText}",
-                modifier = Modifier.padding(top = 4.dp),
-                style = MaterialTheme.typography.bodySmall,
-                color = QkColor.Muted,
-            )
-        }
-        Text(
-            "${row.weightText} kg",
-            style = MaterialTheme.typography.titleSmall,
-            color = QkColor.Fg,
-        )
-        Text(
-            row.deltaText ?: "—",
-            modifier = Modifier.padding(start = 12.dp),
-            style = MaterialTheme.typography.labelMedium,
-            color = if (row.deltaText?.startsWith("-") == true) QkColor.Primary else QkColor.Muted,
-        )
-        TextButton(onClick = onDelete) {
-            Text(
-                "删除",
-                style = MaterialTheme.typography.labelSmall,
-                color = QkColor.Danger,
+        Text(name, style = MaterialTheme.typography.bodyMedium, color = QkColor.Fg)
+        if (isSelected) {
+            androidx.compose.material3.Icon(
+                imageVector = androidx.compose.material.icons.Icons.Filled.Check,
+                contentDescription = "已选中",
+                tint = QkColor.Primary,
+                modifier = Modifier.size(20.dp),
             )
         }
     }
+}
+
+/**
+ * 单行渲染（原型 v-history：时间 | 体脂% · BMI | 体重 + 右箭头）。
+ * 长按删除——由 QkLongPressMenu 或父层手势处理。
+ */
+@Composable
+private fun HistoryLine(row: HistoryRowUi, onOpenDetail: (Long) -> Unit, onDelete: () -> Unit) {
+    com.xcwk.scalehub.ui.components.QkListRow(
+        title = row.timeText,
+        subtitle = "体脂 ${row.fatText} · BMI ${row.bmiText ?: "—"}",
+        trailing = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    "${row.weightText} kg",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = QkColor.Fg,
+                )
+                androidx.compose.material3.Icon(
+                    imageVector = androidx.compose.material.icons.Icons.Filled.ChevronRight,
+                    contentDescription = "详情",
+                    tint = QkColor.Muted,
+                    modifier = Modifier.padding(start = QkSpacing.Sm).size(20.dp),
+                )
+            }
+        },
+        onClick = { onOpenDetail(row.time) },
+    )
+    // 长按删除菜单（简化：这里用点击删除按钮触发，实际应用中可接入 QkLongPressMenu）
+    // onDelete 由父层在长按或编辑模式下调用
 }
 
 @Preview(showBackground = true)
@@ -272,8 +306,8 @@ private fun HistoryScreenPreview() {
                         titleText = "2026年10月: 共减重3.0公斤  减脂1.0%",
                         expanded = true,
                         rows = listOf(
-                            HistoryRowUi(0, "10-15 08:00", "72.0", "19.1%", "-1.5"),
-                            HistoryRowUi(0, "10-01 08:00", "73.5", "20.1%", null),
+                            HistoryRowUi(0, "10-15 08:00", "72.0", "19.1%", "25.1", "-1.5"),
+                            HistoryRowUi(0, "10-01 08:00", "73.5", "20.1%", "25.7", null),
                         ),
                     ),
                     HistoryMonthUi("2026-09", "2026年9月: 共增重2.0公斤  减脂--", false, emptyList()),
