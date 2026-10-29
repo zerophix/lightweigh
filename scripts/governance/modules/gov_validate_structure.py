@@ -29,6 +29,7 @@ INBOX_RE = re.compile(r"^ai/inbox/\d{8}-\d{6}\.md$")
 ALLOWED_ROOT = {
     "README.md", "AGENTS.md",
     ".clinerules", ".cursorrules", "CHANGELOG.md", "STATUS.md",
+    "LICENSE", "CODE_OF_CONDUCT.md", "CONTRIBUTING.md",
 }
 
 SKIP_DIRS = {
