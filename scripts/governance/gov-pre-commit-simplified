@@ -87,6 +87,18 @@ fi
 SESSION_FILE="$ROOT/.ai/current-session.json"
 CLAIM_FILE="$ROOT/.ai/staged-claims.json"
 
+# Docs/review fast path: documentation-only changes and read-only roles do not
+# need task-lock or staged-ownership ceremony. Profile/role scope checks below
+# still apply, and branch/secrets checks are unaffected.
+FAST_DOCS=0
+EARLY_ROLE="$(bash "$ROOT/scripts/workflow/wf-role.sh" current 2>/dev/null || true)"
+NON_DOC_STAGED="$(git diff --cached --name-only --diff-filter=ACMR 2>/dev/null | grep -vE '^(docs/|design/|.*\.md$|\.ai/|\.cache/|\.opencode/)' || true)"
+if [ -z "$NON_DOC_STAGED" ] || [ "$EARLY_ROLE" = "review" ] || [ "$EARLY_ROLE" = "docs" ]; then
+  FAST_DOCS=1
+  echo "  [归属] docs/review fast path: skip ownership and task-lock checks (role/profile still enforced)"
+fi
+
+if [ "$FAST_DOCS" = "0" ]; then
 if [ -f "$SESSION_FILE" ] && [ -f "$CLAIM_FILE" ]; then
   CURRENT_SESSION=$(python3 -c "
 import json
@@ -127,6 +139,7 @@ if [ -f "$CLAIM_SCRIPT" ] && [ -f "$ROOT/.ai/tasks.json" ]; then
   if ! bash "$CLAIM_SCRIPT" --root "$ROOT" --check-staged; then
     exit 1
   fi
+fi
 fi
 
 # =============================================================

@@ -320,6 +320,9 @@ write_result() {
   local overall="$1"  # pass | fail
   local finished_iso
   finished_iso="$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+  local rule_version check_set_hash
+  rule_version="$(cache_key scripts/governance scripts/hooks scripts/workflow 2>/dev/null || echo unknown)"
+  check_set_hash="$(printf '%s\n' "${DOC_STEPS[@]}" "$GRADLE_TASK" "pytest" | shasum -a 256 2>/dev/null | cut -d' ' -f1)"
   # Export env for python
   OVERALL="$overall" \
   STARTED_AT_ISO="$STARTED_AT_ISO" \
@@ -332,6 +335,8 @@ write_result() {
   LANE_VALUE="$LANE" \
   LANE_FORCED_VALUE="$LANE_FORCED" \
   LANE_REASONS_TEXT="$(printf '%s\n' "${LANE_REASONS[@]:-}")" \
+  RULE_VERSION="$rule_version" \
+  CHECK_SET_HASH="$check_set_hash" \
   STEPS_CSV="$(IFS=,; echo "${STEPS[*]-}")" \
   python3 - <<'PY'
 import json, os
@@ -359,6 +364,8 @@ payload = {
     "finished_at": os.environ["FINISHED_ISO"],
     "branch": os.environ["BRANCH"],
     "git_sha": os.environ["GIT_SHA"],
+    "rule_version": os.environ.get("RULE_VERSION", ""),
+    "check_set_hash": os.environ.get("CHECK_SET_HASH", ""),
     "pass_count": int(os.environ["PASS_N"]),
     "fail_count": int(os.environ["FAIL_N"]),
     "lane": os.environ.get("LANE_VALUE", "C"),

@@ -314,6 +314,24 @@ if ! gh pr merge "$PR" --merge --delete-branch=true 2>"$GH_MERGE_ERR"; then
 fi
 rm -f "$GH_MERGE_ERR" 2>/dev/null || true
 
+# ---------------------------------------------------------------- Step 8b: board reconcile check
+# wf-queue is the single writer for board completion. When gov-merge is used
+# directly, run a dry reconcile so a merged PR never silently leaves a task
+# stuck in pending/in_progress.
+if [ "${GOV_MERGE_RECONCILE_CHECK:-1}" = "1" ]; then
+  log "Step 8b/9: board reconcile check (dry)"
+  RECON_LOG="$(mktemp)"
+  if ( cd "$ROOT" && bash scripts/governance/gov-board-reconcile.sh --dry ) >"$RECON_LOG" 2>&1; then
+    sed 's/^/  /' "$RECON_LOG"
+    if grep -q "completed" "$RECON_LOG"; then
+      log "  [ACTION] board needs reconcile: bash scripts/governance/gov-board-reconcile.sh && git add .ai/tasks.json && git commit"
+    fi
+  else
+    log "  [WARN] reconcile check failed; run manually: bash scripts/governance/gov-board-reconcile.sh --dry"
+  fi
+  rm -f "$RECON_LOG"
+fi
+
 # ---------------------------------------------------------------- 步骤 9: 清理
 DELETED_BRANCH=""
 if [ "$KEEP_WT" = "1" ]; then
