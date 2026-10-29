@@ -1,0 +1,49 @@
+# 角色注册表（项目级）。任务按 verify_kind → module → path 派发给角色。
+roles:
+  prototype-mapper:
+    responsibilities: 原型 HTML → Compose 逐字映射，遵守 QkToken
+    verify_kind: prototype
+    profile: code
+    allow_paths:
+      - app/src/main/kotlin/com/xcwk/scalehub/feature/**
+      - app/src/main/kotlin/com/xcwk/scalehub/ui/components/**
+    model: {provider: nvidia, id: nvidia/nemotron-3-ultra-550b-a55b, variant: high}
+
+  backend-dev:
+    responsibilities: 跨模块接线、DDD 能力补齐、编译期修复
+    verify_kind: gradle
+    profile: code
+    allow_paths:
+      - app/**
+      - domain/**
+      - application/**
+      - infrastructure/**
+    model: {provider: nvidia, id: nvidia/nemotron-3-ultra-550b-a55b, variant: high}
+
+  test-engineer:
+    responsibilities: 功能/证据级测试编写与修复
+    verify_kind: pytest
+    profile: test
+    allow_paths:
+      - tests/**
+      - "**/src/test/**"
+    model: {provider: nvidia, id: nvidia/nemotron-3-ultra-550b-a55b, variant: medium}
+
+  governance:
+    responsibilities: 脚本/Hook/CI/文档治理
+    verify_kind: local-ci
+    profile: gov
+    allow_paths:
+      - scripts/**
+      - tests/**
+      - docs/**
+    model: {provider: nvidia, id: nvidia/nemotron-3-ultra-550b-a55b, variant: high}
+
+routing:
+  # 回退：当 verify_kind 无法判定时按模块
+  module_map:
+    integration: backend-dev
+    domain: backend-dev
+    application: backend-dev
+    infrastructure: backend-dev
+  default: backend-dev

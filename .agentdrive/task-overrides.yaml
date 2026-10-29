@@ -1,0 +1,6 @@
+# 任务级边界扩展（任务板 target_files 之外允许触及的伴生文件）。
+# 只允许测试文件；且必须通过 _test_integrity：断言期望值、断言数量、@Test 数量不得减少。
+# 目的：允许"重构改了函数名 → 测试调用点跟着改"，同时挡住"改测试让门禁通过"。
+T-136:
+  companion_tests:
+    - application/src/test/kotlin/com/xcwk/scalehub/application/query/ReportQueryTest.kt
