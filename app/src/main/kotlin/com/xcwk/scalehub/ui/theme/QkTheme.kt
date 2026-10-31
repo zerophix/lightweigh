@@ -141,6 +141,12 @@ object QkComponentSize {
     // 密码可见性切换图标按钮（原型 v-password 眼睛图标区域）
     val PasswordToggleButton = 48.dp
     val PasswordToggleIcon = 20.dp
+
+    // 测量结果页指标格分隔竖线（原型 .mgrid 两格之间）
+    val MetricCellDivider = 34.dp
+
+    // 测量中环形进度（原型 v-measuring 180 环按 393 基准收口 160）
+    val MeasureRing = 160.dp
 }
 
 /** 字号阶梯（原型 px 值直接映射为 sp）。 */

@@ -149,14 +149,22 @@ class HistoryViewModel(
         return "${y}年${m}月: $weightText  $fatPart"
     }
 
-    private fun rowUi(row: com.xcwk.scalehub.application.query.HistoryRow): HistoryRowUi =
+    private fun rowUi(row: com.xcwk.scalehub.application.query.HistoryRow): HistoryRowUi = {
+        val record = row.record
+        val bmiText = record.heightCm?.let { h ->
+            val heightM = h / 100.0
+            val bmi = record.weight / (heightM * heightM)
+            "%.1f".format(Locale.US, bmi)
+        }
         HistoryRowUi(
-            time = row.record.time,
-            timeText = fmt("MM-dd HH:mm").format(Instant.ofEpochMilli(row.record.time)),
-            weightText = one(row.record.weight),
-            fatText = if (row.record.fat >= 0) "${one(row.record.fat)}%" else "--",
-            deltaText = row.previous?.let { p -> signed(row.record.weight - p.weight) },
+            time = record.time,
+            timeText = fmt("MM-dd HH:mm").format(Instant.ofEpochMilli(record.time)),
+            weightText = one(record.weight),
+            fatText = if (record.fat >= 0) "${one(record.fat)}%" else "--",
+            bmiText = bmiText,
+            deltaText = row.previous?.let { p -> signed(record.weight - p.weight) },
         )
+    }()
 
     private fun dayOf(time: Long): String = fmt("yyyy-MM-dd").format(Instant.ofEpochMilli(time))
 

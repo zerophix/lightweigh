@@ -9,7 +9,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.xcwk.scalehub.domain.repository.DeviceRepository
 import com.xcwk.scalehub.ui.shell.WiringTarget
-import kotlinx.coroutines.delay
 
 /**
  * device — 设备管理三屏的接入装配点（T-079 / T-080 接入波）。
