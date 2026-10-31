@@ -29,7 +29,7 @@ import com.xcwk.scalehub.infrastructure.persistent.po.SyncStatePo
         SyncStatePo::class,
         HabitPo::class,
     ],
-    version = 7,
+    version = 8,
     exportSchema = true,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -137,6 +137,19 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * v7 → v8：devices 补 firmwareVersion 列（T-133 实体加列时未升版本，
+         * 违反本文件头部 schema 纪律；默认值对齐实体缺省）。
+         */
+        const val MIGRATION_7_8_SQL =
+            "ALTER TABLE devices ADD COLUMN firmwareVersion TEXT NOT NULL DEFAULT 'v1.1.0'"
+
+        val MIGRATION_7_8 = object : Migration(7, 8) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(MIGRATION_7_8_SQL)
+            }
+        }
+
         @Volatile
         private var instance: AppDatabase? = null
 
@@ -145,7 +158,7 @@ abstract class AppDatabase : RoomDatabase() {
                 instance ?: Room.databaseBuilder(
                     context.applicationContext, AppDatabase::class.java, "scalehub.db",
                 ).addMigrations(
-                    MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7,
+                    MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8,
                 )
                     // devices 沿旧库 SP 同步直读语义（表容量个位数）；其余仓储保持 suspend
                     .allowMainThreadQueries()

@@ -103,6 +103,26 @@ class MigrationSchemaAgreementTest {
     }
 
     @Test
+    fun `迁移7_8补firmwareVersion列与schema8声明一致`() {
+        val json = findSchema(8).readText(Charsets.UTF_8)
+        val match = Regex("\"tableName\": \"devices\"[\\s\\S]*?\"createSql\": \"(.*?)\"")
+            .find(json) ?: error("8.json 中未找到 devices 的 createSql")
+        val sql = match.groupValues[1].replace("\\\"", "\"")
+        val (cols, _) = shapeOfSql(sql, "devices")
+        // 迁移只加这一列，且 NOT NULL 带默认值（存量行升级后可读）
+        val alter = Regex("ALTER TABLE (\\w+) ADD COLUMN (\\w+) (\\w+) NOT NULL DEFAULT '([^']*)'")
+            .find(AppDatabase.MIGRATION_7_8_SQL) ?: error("MIGRATION_7_8_SQL 解析失败")
+        assertWithMessage("7→8 只应新增 firmwareVersion") {
+            assertThat(alter.groupValues[1]).isEqualTo("devices")
+            assertThat(alter.groupValues[2]).isEqualTo("firmwareVersion")
+            assertThat(cols["firmwareVersion"]).isEqualTo("TEXT")
+        }
+        assertWithMessage("默认值应与实体缺省一致") {
+            assertThat(alter.groupValues[4]).isEqualTo("v1.1.0")
+        }
+    }
+
+    @Test
     fun `迁移4_5补memberId列与schema5声明一致`() {
         val json = findSchema(5).readText(Charsets.UTF_8)
         // 两表 schema 均含 memberId 且默认值为 '1'（多成员维升级语义）
