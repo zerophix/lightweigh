@@ -1,0 +1,50 @@
+{
+  "task": "T-118",
+  "ok": true,
+  "git_sha": "65773664eefa47c3dcefd712b6258f1ed200c945",
+  "verified_at": "2026-10-31T13:27:22Z",
+  "checks": [
+    {
+      "type": "file",
+      "name": "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/scale/ScaleScreen.kt",
+      "status": "PASS",
+      "detail": "存在"
+    },
+    {
+      "type": "file",
+      "name": "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/scale/MeasureFlowScreen.kt",
+      "status": "PASS",
+      "detail": "存在"
+    },
+    {
+      "type": "file",
+      "name": "app/src/main/kotlin/com/xcwk/scalehub/feature/measure/scale/MeasureFlowViewModel.kt",
+      "status": "PASS",
+      "detail": "存在"
+    },
+    {
+      "type": "file",
+      "name": "app/src/test/kotlin/com/xcwk/scalehub/feature/measure/scale/MeasureFlowViewModelTest.kt",
+      "status": "PASS",
+      "detail": "存在"
+    },
+    {
+      "type": "prototype",
+      "name": "python3 scripts/governance/gov-prototype-verify.py T-118 --strict",
+      "status": "PASS",
+      "detail": "退出码 0"
+    },
+    {
+      "type": "command",
+      "name": "python3 scripts/governance/gov-prototype-verify.py T-118 --strict",
+      "status": "PASS",
+      "detail": "退出码 0"
+    },
+    {
+      "type": "command",
+      "name": "./gradlew :app:testDebugUnitTest",
+      "status": "PASS",
+      "detail": "退出码 0"
+    }
+  ]
+}
